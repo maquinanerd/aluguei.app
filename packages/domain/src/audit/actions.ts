@@ -31,6 +31,13 @@ export const AUDIT_ACTIONS = {
   LISTING_CREATED: 'listing.created',
   LISTING_UPDATED: 'listing.updated',
   LISTING_STATUS_CHANGED: 'listing.status_changed',
+  CHANNEL_PUBLISH_REQUESTED: 'channel.publish_requested',
+  CHANNEL_UPDATE_REQUESTED: 'channel.update_requested',
+  CHANNEL_REMOVE_REQUESTED: 'channel.remove_requested',
+  CHANNEL_RECONCILE_REQUESTED: 'channel.reconcile_requested',
+  CHANNEL_IMPORT_LEADS_REQUESTED: 'channel.import_leads_requested',
+  CHANNEL_JOB_SUCCEEDED: 'channel.job_succeeded',
+  CHANNEL_JOB_FAILED: 'channel.job_failed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

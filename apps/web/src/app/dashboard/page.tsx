@@ -22,6 +22,33 @@ interface MeDto {
   activeOrg: { name: string; slug: string } | null;
 }
 
+interface ChannelSummary {
+  channels: Array<{
+    channel: string;
+    total: number;
+    published: number;
+    pending: number;
+    failed: number;
+    removed: number;
+  }>;
+  listings: Array<{
+    listingId: string;
+    title: string;
+    channels: Array<{ channel: string; status: string; lastError: string | null }>;
+  }>;
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  PUBLISHED: 'publicado',
+  PENDING: 'pendente',
+  PUBLISHING: 'publicando',
+  UPDATE_PENDING: 'atualizando',
+  REMOVING: 'removendo',
+  REMOVED: 'removido',
+  FAILED: 'falhou',
+  RECONCILING: 'reconciliando',
+};
+
 export default async function DashboardPage() {
   let me: MeDto;
   try {
@@ -37,6 +64,14 @@ export default async function DashboardPage() {
   } catch {
     // mantém lista vazia
   }
+
+  let channels: ChannelSummary | null = null;
+  try {
+    channels = await apiFetch<ChannelSummary>('/channels/summary');
+  } catch {
+    // mantém nulo
+  }
+
   return (
     <main className="dashboard">
       <h1>Dashboard</h1>
@@ -59,6 +94,38 @@ export default async function DashboardPage() {
           ))}
           {leads.length === 0 ? <li>Nenhum lead ainda.</li> : null}
         </ul>
+      </section>
+      <section>
+        <h2>Canais</h2>
+        {!channels || channels.listings.length === 0 ? (
+          <p>Nenhuma publicação de canal ainda.</p>
+        ) : (
+          <table className="channels-table">
+            <thead>
+              <tr>
+                <th>Anúncio</th>
+                <th>Canal</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {channels.listings.map((listing) =>
+                listing.channels.map((channel) => (
+                  <tr key={`${listing.listingId}-${channel.channel}`}>
+                    <td>{listing.title}</td>
+                    <td>{channel.channel}</td>
+                    <td>
+                      {STATUS_LABEL[channel.status] ?? channel.status}
+                      {channel.status === 'FAILED' && channel.lastError
+                        ? ` (${channel.lastError})`
+                        : ''}
+                    </td>
+                  </tr>
+                )),
+              )}
+            </tbody>
+          </table>
+        )}
       </section>
     </main>
   );

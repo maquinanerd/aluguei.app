@@ -13,7 +13,10 @@
     "@aluguei/config": "workspace:*",
     "@aluguei/db": "workspace:*",
     "@aluguei/domain": "workspace:*",
-    "@aluguei/storage": "workspace:*"
+    "@aluguei/integrations": "workspace:*",
+    "@aluguei/storage": "workspace:*",
+    "@aluguei/worker": "workspace:*",
+    "drizzle-orm": "0.45.2"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.5",

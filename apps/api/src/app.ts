@@ -7,6 +7,7 @@ import type { AppDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
 import type { GeocodingService } from '@aluguei/integrations';
+import type { FakeChannel } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
 import type { AppConfig } from './plugins/config.js';
 import { dbPlugin } from './plugins/db.js';
@@ -30,6 +31,7 @@ import { timelineRoutes } from './routes/timeline.js';
 import { propertyRoutes } from './routes/properties.js';
 import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
+import { channelRoutes } from './routes/channels.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -37,6 +39,7 @@ export interface BuildAppOptions extends FastifyServerOptions {
   config?: Partial<AppConfig>;
   storage?: StorageService;
   geocoding?: GeocodingService;
+  channels?: { fake?: FakeChannel };
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -123,6 +126,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(geocodingPlugin, geocodingOptions);
 
+  app.decorate('channels', opts.channels ?? {});
+
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(meRoutes);
@@ -136,6 +141,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(propertyRoutes);
   await app.register(listingRoutes);
   await app.register(publicRoutes);
+  await app.register(channelRoutes);
 
   return app;
 }

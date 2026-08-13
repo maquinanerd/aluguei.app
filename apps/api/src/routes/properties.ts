@@ -30,6 +30,7 @@ import {
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { assertSizeAllowed, buildStorageKey, isPublicMediaKind } from '../media-rules.js';
+import { enqueueUpdatesForProperty } from './channel-jobs.js';
 import { first } from './helpers.js';
 
 interface LoadedProperty {
@@ -369,6 +370,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         entityType: 'PROPERTY',
         entityId: property.id,
       });
+      await enqueueUpdatesForProperty(db, auth.orgId, property.id);
 
       const loaded = await loadProperty(db, auth.orgId, property.id);
       if (!loaded) {
@@ -422,6 +424,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         entityType: 'PROPERTY',
         entityId: property.id,
       });
+      await enqueueUpdatesForProperty(db, auth.orgId, property.id);
 
       const loaded = await loadProperty(db, auth.orgId, property.id);
       if (!loaded) {
@@ -723,6 +726,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         entityId: property.id,
         payload: { mediaId: media.id, sizeBytes: head.size },
       });
+      await enqueueUpdatesForProperty(db, auth.orgId, property.id);
 
       return reply.status(201).send({
         media: propertyMediaSchema.parse({

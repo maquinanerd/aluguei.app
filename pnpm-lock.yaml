@@ -152,12 +152,27 @@ importers:
 
   apps/worker:
     dependencies:
+      '@aluguei/api':
+        specifier: workspace:*
+        version: link:../api
       '@aluguei/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@aluguei/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@aluguei/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@aluguei/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@aluguei/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@electric-sql/pglite@0.5.5)(@opentelemetry/api@1.9.1)(@types/pg@8.21.0)(pg@8.23.0)
     devDependencies:
       vitest:
         specifier: 4.1.10
@@ -206,6 +221,9 @@ importers:
 
   packages/integrations:
     dependencies:
+      '@aluguei/domain':
+        specifier: workspace:*
+        version: link:../domain
       ioredis:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)
@@ -263,9 +281,18 @@ importers:
       '@aluguei/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@aluguei/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@aluguei/storage':
         specifier: workspace:*
         version: link:../../packages/storage
+      '@aluguei/worker':
+        specifier: workspace:*
+        version: link:../../apps/worker
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@electric-sql/pglite@0.5.5)(@opentelemetry/api@1.9.1)(@types/pg@8.21.0)(pg@8.23.0)
     devDependencies:
       '@electric-sql/pglite':
         specifier: 0.5.5

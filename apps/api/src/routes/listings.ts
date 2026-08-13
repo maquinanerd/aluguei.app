@@ -9,6 +9,7 @@ import {
   propertyFinancialTerms,
   propertyMedia,
   timelineEvents,
+  listingChannelPublications,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import {
@@ -32,6 +33,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
+import { enqueueChannelJob } from './channel-jobs.js';
 import { first } from './helpers.js';
 
 /** Guarda de prontidão: READY exige termos financeiros + endereço público. */
@@ -312,6 +314,31 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
         entityType: 'LISTING',
         entityId: updated.id,
       });
+
+      // Conteúdo mudou → enfileira UPDATE em cada canal com publicação ativa.
+      const contentChanged =
+        input.title !== undefined || input.description !== undefined || input.slug !== undefined;
+      if (contentChanged) {
+        const active = await db
+          .select()
+          .from(listingChannelPublications)
+          .where(
+            and(
+              eq(listingChannelPublications.listingId, updated.id),
+              eq(listingChannelPublications.orgId, auth.orgId),
+              eq(listingChannelPublications.status, 'PUBLISHED'),
+            ),
+          );
+        for (const publication of active) {
+          await enqueueChannelJob(db, {
+            orgId: auth.orgId,
+            listingId: updated.id,
+            channel: publication.channel,
+            jobType: 'UPDATE',
+            payload: { listingId: updated.id },
+          });
+        }
+      }
 
       const detail = await loadListingDetail(db, auth.orgId, updated.id);
       if (!detail) {

@@ -2,9 +2,11 @@ import { buildApp } from '@aluguei/api';
 import { createTestDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { FastifyInstance } from 'fastify';
+import { FakeChannel } from '@aluguei/integrations';
 import { FakeStorageService } from './fakes.js';
 
 export const fakeStorage = new FakeStorageService();
+export const fakeChannel = new FakeChannel();
 
 /** Env mínimo de teste (cookie não-seguro via config override). */
 export const testEnv: AppEnv = {
@@ -35,6 +37,7 @@ export async function buildTestApp(): Promise<FastifyInstance> {
     env: testEnv,
     config: { cookieSecure: false },
     storage: fakeStorage,
+    channels: { fake: fakeChannel },
   });
   appCache = app;
   return app;

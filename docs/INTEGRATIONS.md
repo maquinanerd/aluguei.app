@@ -25,6 +25,8 @@ Criar `IListingChannelAdapter` com operações conceituais:
 
 Cada canal pode usar REST, XML/feed, SFTP, webhook ou outra modalidade contratada. O agente DEVE pesquisar a documentação oficial/contratual vigente antes de implementar chamadas reais. Se não houver acesso, entregar adapter e fixtures sem inventar endpoint.
 
+Implementação concreta (Fase 04): interface em `packages/integrations/src/channels/types.ts`, `FakeChannel` de referência (dev/test, determinístico, falhas injetáveis) em `channels/fake.ts`, registry em `channels/registry.ts` (canais reais — canalpro/vivareal/zap/olx/imovelweb — registrados SEM adapter: rotas respondem 404 "canal não configurado"). Jobs enfileirados em `channel_sync_jobs` (idempotency_key UNIQUE) e processados pelo worker com claim atômico no Postgres (ADR-010). Estado desejado por (listing, canal) em `listing_channel_publications`. Contrato de idempotência obrigatório: `channelListingId` determinístico por (channel, externalId); remove de item inexistente resolve com sucesso. Nota: o FakeChannel mantém store em memória por processo — em dev, API e worker não compartilham estado (relevante só para o canal fake).
+
 ## Crédito/identidade
 
 `IScreeningProvider` e adapters Serasa/SPC/outros. Consentimento e finalidade registrados antes da consulta.

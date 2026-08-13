@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/app.ts",
       "default": "./src/app.ts"
+    },
+    "./channel-jobs": {
+      "types": "./src/routes/channel-jobs.ts",
+      "default": "./src/routes/channel-jobs.ts"
     }
   },
   "scripts": {

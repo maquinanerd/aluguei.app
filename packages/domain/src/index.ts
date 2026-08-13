@@ -34,3 +34,22 @@ export {
   transitionListing,
 } from './property/listing.js';
 export type { ListingStatus } from './property/listing.js';
+
+export {
+  CHANNEL_TYPES,
+  CHANNEL_PUBLICATION_STATUSES,
+  CHANNEL_JOB_TYPES,
+  CHANNEL_JOB_STATUSES,
+  isChannelType,
+  isChannelPublicationStatus,
+  isChannelJobType,
+  isChannelJobStatus,
+  canTransitionChannelPublication,
+  transitionChannelPublication,
+} from './channel/publication.js';
+export type {
+  ChannelType,
+  ChannelPublicationStatus,
+  ChannelJobType,
+  ChannelJobStatus,
+} from './channel/publication.js';

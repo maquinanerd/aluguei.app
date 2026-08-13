@@ -22,6 +22,13 @@
       "when": 1786658322704,
       "tag": "0002_cool_raza",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786660554000,
+      "tag": "0003_complex_shaman",
+      "breakpoints": true
     }
   ]
 }

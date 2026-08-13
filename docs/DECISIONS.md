@@ -2,17 +2,35 @@
 
 Registro append-only simplificado. O agente adiciona decisões reversíveis tomadas sem perguntar ao usuário.
 
-| ID      | Data       | Decisão                                                                                 | Motivo                                                                           | Alternativas                                  | Reversibilidade |
-| ------- | ---------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------- | --------------- |
-| ADR-001 | bootstrap  | Monorepo TypeScript                                                                     | Compartilhar contratos e reduzir linguagens no produto independente              | C# + TS, microserviços                        | alta            |
-| ADR-002 | bootstrap  | Modular monolith + workers                                                              | Menos complexidade operacional inicial                                           | microserviços                                 | média           |
-| ADR-003 | bootstrap  | Meta Ads como MCP interno + adapter Marketing API                                       | Permitir operação por agente sem expor tokens                                    | chamadas Meta direto pelo LLM                 | alta            |
-| ADR-004 | 2026-08-13 | Toolchain e versões pinadas da Fase 01                                                  | Determinismo e compatibilidade do ecossistema                                    | versões floating                              | alta            |
-| ADR-005 | 2026-08-13 | Autenticação: sessão opaca em DB + cookie HttpOnly (web) / Bearer (mobile)              | Revogação imediata, sem gestão de segredo JWT, web e mobile consomem a mesma API | JWT assinado (@fastify/jwt), sessões em Redis | alta            |
-| ADR-006 | 2026-08-13 | Segurança do gate da Fase 02 (pós-review)                                               | Fechar P1/P2 de enumeração, contrato de erro e CSRF antes de expor auth          | aceitar dívida                                | alta            |
-| ADR-007 | 2026-08-13 | Upload de mídia via presigned PUT (R2/S3) + confirmação server-side                     | Sem credencial no frontend, MIME real validado no confirm, sem multipart         | multipart via API                             | alta            |
-| ADR-008 | 2026-08-13 | Geocoding: adapter Google Maps REST + mock determinístico                               | Sem SDK; mock em dev/test; produção sem chave retorna null (nunca dados falsos)  | SDK oficial                                   | alta            |
-| ADR-009 | 2026-08-13 | Modelo Fase 03: soft delete de property, FKs SET NULL, fonte única de preço, slug único | Auditoria, integridade de referências, sem drift de preço                        | hard delete, priceCents no listing            | média           |
+| ID      | Data       | Decisão                                                                                                           | Motivo                                                                           | Alternativas                                    | Reversibilidade |
+| ------- | ---------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------- | --------------- |
+| ADR-001 | bootstrap  | Monorepo TypeScript                                                                                               | Compartilhar contratos e reduzir linguagens no produto independente              | C# + TS, microserviços                          | alta            |
+| ADR-002 | bootstrap  | Modular monolith + workers                                                                                        | Menos complexidade operacional inicial                                           | microserviços                                   | média           |
+| ADR-003 | bootstrap  | Meta Ads como MCP interno + adapter Marketing API                                                                 | Permitir operação por agente sem expor tokens                                    | chamadas Meta direto pelo LLM                   | alta            |
+| ADR-004 | 2026-08-13 | Toolchain e versões pinadas da Fase 01                                                                            | Determinismo e compatibilidade do ecossistema                                    | versões floating                                | alta            |
+| ADR-005 | 2026-08-13 | Autenticação: sessão opaca em DB + cookie HttpOnly (web) / Bearer (mobile)                                        | Revogação imediata, sem gestão de segredo JWT, web e mobile consomem a mesma API | JWT assinado (@fastify/jwt), sessões em Redis   | alta            |
+| ADR-006 | 2026-08-13 | Segurança do gate da Fase 02 (pós-review)                                                                         | Fechar P1/P2 de enumeração, contrato de erro e CSRF antes de expor auth          | aceitar dívida                                  | alta            |
+| ADR-007 | 2026-08-13 | Upload de mídia via presigned PUT (R2/S3) + confirmação server-side                                               | Sem credencial no frontend, MIME real validado no confirm, sem multipart         | multipart via API                               | alta            |
+| ADR-008 | 2026-08-13 | Geocoding: adapter Google Maps REST + mock determinístico                                                         | Sem SDK; mock em dev/test; produção sem chave retorna null (nunca dados falsos)  | SDK oficial                                     | alta            |
+| ADR-009 | 2026-08-13 | Modelo Fase 03: soft delete de property, FKs SET NULL, fonte única de preço, slug único                           | Auditoria, integridade de referências, sem drift de preço                        | hard delete, priceCents no listing              | média           |
+| ADR-010 | 2026-08-13 | Jobs de canal: fila no Postgres com claim atômico (SKIP LOCKED), sem BullMQ/Redis                                 | CI sem Redis, PGlite suporta, volume de portais não exige fila externa           | BullMQ+Redis, outbox-only                       | média           |
+| ADR-011 | 2026-08-13 | IListingChannelAdapter em @aluguei/integrations + FakeChannel de referência; canais reais registrados sem adapter | Sem contrato oficial de portal acessível — nunca inventar endpoints              | package dedicado, endpoints de portal fictícios | alta            |
+
+## ADR-010 — Jobs de canal: fila no Postgres (Fase 04)
+
+Status: Aceito.
+
+Contexto: worker é shell; BullMQ não instalado; Redis opcional (docker-compose); CI roda PGlite sem serviços externos.
+
+Decisão: `channel_sync_jobs` como fila no próprio Postgres. Claim atômico com `UPDATE ... WHERE id IN (SELECT ... WHERE status='PENDING' AND run_at <= now() ORDER BY created_at LIMIT n FOR UPDATE SKIP LOCKED) RETURNING` (PGlite suporta SKIP LOCKED). Retry/backoff via coluna `run_at = now() + LEAST(POWER(2, attempts), 600)s`. Idempotência: `idempotency_key` UNIQUE (PUBLISH/REMOVE por org+listing+channel; UPDATE inclui hash canônico do payload; IMPORT_LEADS por timestamp) com `ON CONFLICT DO UPDATE` reusando a linha (retry nunca duplica). BullMQ fica atrás da fachada `runChannelJobs` se o volume exigir. Reversibilidade: média.
+
+## ADR-011 — Adapter de canal + FakeChannel (Fase 04)
+
+Status: Aceito.
+
+Contexto: sem documentação oficial/contratual acessível de Canal Pro/VivaReal/ZAP/OLX/Imovelweb; docs/INTEGRATIONS.md proíbe inventar endpoints.
+
+Decisão: `IListingChannelAdapter` (validate/publish/update/remove/reconcile/importLeads) e tipos em `@aluguei/integrations/src/channels/`; `FakeChannel` determinístico com falhas injetáveis (`failNext`) como adapter de referência; registry com canais reais registrados SEM adapter (`adapter: null`) → rotas respondem 404 "canal não configurado". Contrato de idempotência dos adapters: `channelListingId` determinístico por (channel, externalId); remove de inexistente = sucesso. Reversibilidade: alta.
 
 ## ADR-007 — Upload de mídia: presigned PUT + confirm (Fase 03)
 
