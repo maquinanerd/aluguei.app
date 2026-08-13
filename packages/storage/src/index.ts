@@ -5,4 +5,6 @@ export type {
   StoragePutInput,
   StoragePutResult,
   StorageObjectHead,
+  PresignedPutOptions,
+  PresignedPutResult,
 } from './types.js';

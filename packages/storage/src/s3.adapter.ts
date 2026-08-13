@@ -5,7 +5,14 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import type { StorageObjectHead, StoragePutResult, StorageService } from './types.js';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import type {
+  PresignedPutOptions,
+  PresignedPutResult,
+  StorageObjectHead,
+  StoragePutResult,
+  StorageService,
+} from './types.js';
 
 type S3ClientOptions = ConstructorParameters<typeof S3Client>[0];
 
@@ -93,5 +100,16 @@ export class S3StorageAdapter implements StorageService {
       }
       throw err;
     }
+  }
+
+  async getPresignedPutUrl(input: PresignedPutOptions): Promise<PresignedPutResult> {
+    const expiresIn = input.expiresInSeconds ?? 300;
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: input.key,
+      ContentType: input.contentType,
+    });
+    const url = await getSignedUrl(this.client, command, { expiresIn });
+    return { url, expiresIn };
   }
 }

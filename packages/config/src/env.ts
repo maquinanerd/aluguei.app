@@ -19,6 +19,9 @@ export const envSchema = z.object({
   STORAGE_ENDPOINT: z.string().optional(),
   STORAGE_REGION: z.string().optional(),
   STORAGE_BUCKET: z.string().optional(),
+  STORAGE_ACCESS_KEY_ID: z.string().optional(),
+  STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
+  GOOGLE_MAPS_API_KEY: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
 });
 

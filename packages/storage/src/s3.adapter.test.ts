@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { S3Client } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import { S3StorageAdapter } from './s3.adapter.js';
 
 interface FakeCommandLike {
@@ -64,5 +64,21 @@ describe('S3StorageAdapter', () => {
     const { adapter, fake } = makeAdapter();
     await adapter.deleteObject('a/b.txt');
     expect(fake.sent[0]?.constructor.name).toBe('DeleteObjectCommand');
+  });
+
+  it('getPresignedPutUrl gera URL assinada sem rede (SigV4 local)', async () => {
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: 'http://localhost:9000',
+      credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
+    });
+    const adapter = new S3StorageAdapter({ bucket: 'aluguei-test', client });
+    const result = await adapter.getPresignedPutUrl({
+      key: 'orgs/1/properties/2/photo.jpg',
+      contentType: 'image/jpeg',
+    });
+    expect(result.expiresIn).toBe(300);
+    expect(result.url).toContain('X-Amz-Signature=');
+    expect(result.url).toContain('aluguei-test');
   });
 });

@@ -26,3 +26,11 @@ export type { IdentityKind, DedupeMatch } from './crm/dedupe.js';
 
 export { AUDIT_ACTIONS } from './audit/actions.js';
 export type { AuditAction } from './audit/actions.js';
+
+export {
+  LISTING_STATUSES,
+  isListingStatus,
+  canTransitionListing,
+  transitionListing,
+} from './property/listing.js';
+export type { ListingStatus } from './property/listing.js';

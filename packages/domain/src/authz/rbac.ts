@@ -13,6 +13,10 @@ export type Permission =
   | 'proposal:write'
   | 'timeline:read'
   | 'timeline:write'
+  | 'property:read'
+  | 'property:write'
+  | 'listing:read'
+  | 'listing:write'
   | 'member:read'
   | 'member:manage'
   | 'org:manage'
@@ -31,6 +35,10 @@ export const ALL_PERMISSIONS: readonly Permission[] = [
   'proposal:write',
   'timeline:read',
   'timeline:write',
+  'property:read',
+  'property:write',
+  'listing:read',
+  'listing:write',
   'member:read',
   'member:manage',
   'org:manage',
@@ -54,6 +62,10 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'proposal:write',
     'timeline:read',
     'timeline:write',
+    'property:read',
+    'property:write',
+    'listing:read',
+    'listing:write',
   ],
   inspector: [
     'lead:read',
@@ -63,9 +75,29 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'visit:read',
     'visit:write',
     'timeline:read',
+    'property:read',
+    'listing:read',
   ],
-  finance: ['lead:read', 'party:read', 'task:read', 'visit:read', 'proposal:read', 'timeline:read'],
-  viewer: ['lead:read', 'party:read', 'task:read', 'visit:read', 'proposal:read', 'timeline:read'],
+  finance: [
+    'lead:read',
+    'party:read',
+    'task:read',
+    'visit:read',
+    'proposal:read',
+    'timeline:read',
+    'property:read',
+    'listing:read',
+  ],
+  viewer: [
+    'lead:read',
+    'party:read',
+    'task:read',
+    'visit:read',
+    'proposal:read',
+    'timeline:read',
+    'property:read',
+    'listing:read',
+  ],
 };
 
 export function hasPermission(role: Role, permission: Permission): boolean {

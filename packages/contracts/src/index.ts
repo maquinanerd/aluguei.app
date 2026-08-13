@@ -9,3 +9,7 @@ export * from './tasks.js';
 export * from './visits.js';
 export * from './proposals.js';
 export * from './timeline.js';
+export * from './property.js';
+export * from './listing.js';
+export * from './media.js';
+export * from './public.js';

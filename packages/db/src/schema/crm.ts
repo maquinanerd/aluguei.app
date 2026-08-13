@@ -11,6 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { organizations, users } from './identity.js';
+import { properties } from './properties.js';
 
 export const parties = pgTable(
   'parties',
@@ -162,8 +163,8 @@ export const leadPropertyInterests = pgTable(
     leadId: uuid('lead_id')
       .notNull()
       .references(() => leads.id, { onDelete: 'cascade' }),
-    // FK para properties adicionada na Fase 03
-    propertyId: uuid('property_id'),
+    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
+    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -205,8 +206,8 @@ export const visits = pgTable(
       .references(() => organizations.id, { onDelete: 'cascade' }),
     leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
     partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
-    // FK para properties adicionada na Fase 03
-    propertyId: uuid('property_id'),
+    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
+    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
     status: text('status').notNull().default('SCHEDULED'), // SCHEDULED | CONFIRMED | DONE | CANCELLED | NO_SHOW
     note: text('note'),
@@ -225,8 +226,8 @@ export const proposals = pgTable(
       .references(() => organizations.id, { onDelete: 'cascade' }),
     leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
     partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
-    // FK para properties adicionada na Fase 03
-    propertyId: uuid('property_id'),
+    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
+    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
     status: text('status').notNull().default('DRAFT'), // DRAFT | SENT | ACCEPTED | REJECTED | EXPIRED
     monthlyRentCents: integer('monthly_rent_cents').notNull(),
     terms: text('terms'),

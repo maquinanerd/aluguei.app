@@ -17,6 +17,20 @@ export const AUDIT_ACTIONS = {
   VISIT_CREATED: 'visit.created',
   PROPOSAL_CREATED: 'proposal.created',
   TIMELINE_CREATED: 'timeline.created',
+  PROPERTY_CREATED: 'property.created',
+  PROPERTY_UPDATED: 'property.updated',
+  PROPERTY_ARCHIVED: 'property.archived',
+  PROPERTY_ADDRESS_UPDATED: 'property.address_updated',
+  PROPERTY_FINANCIAL_TERMS_UPDATED: 'property.financial_terms_updated',
+  PROPERTY_OWNER_ADDED: 'property.owner_added',
+  PROPERTY_OWNER_REMOVED: 'property.owner_removed',
+  PROPERTY_FEATURE_ADDED: 'property.feature_added',
+  PROPERTY_FEATURE_REMOVED: 'property.feature_removed',
+  PROPERTY_MEDIA_CONFIRMED: 'property.media_confirmed',
+  PROPERTY_MEDIA_DELETED: 'property.media_deleted',
+  LISTING_CREATED: 'listing.created',
+  LISTING_UPDATED: 'listing.updated',
+  LISTING_STATUS_CHANGED: 'listing.status_changed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

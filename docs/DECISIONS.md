@@ -2,14 +2,39 @@
 
 Registro append-only simplificado. O agente adiciona decisões reversíveis tomadas sem perguntar ao usuário.
 
-| ID      | Data       | Decisão                                                                    | Motivo                                                                           | Alternativas                                  | Reversibilidade |
-| ------- | ---------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------- | --------------- |
-| ADR-001 | bootstrap  | Monorepo TypeScript                                                        | Compartilhar contratos e reduzir linguagens no produto independente              | C# + TS, microserviços                        | alta            |
-| ADR-002 | bootstrap  | Modular monolith + workers                                                 | Menos complexidade operacional inicial                                           | microserviços                                 | média           |
-| ADR-003 | bootstrap  | Meta Ads como MCP interno + adapter Marketing API                          | Permitir operação por agente sem expor tokens                                    | chamadas Meta direto pelo LLM                 | alta            |
-| ADR-004 | 2026-08-13 | Toolchain e versões pinadas da Fase 01                                     | Determinismo e compatibilidade do ecossistema                                    | versões floating                              | alta            |
-| ADR-005 | 2026-08-13 | Autenticação: sessão opaca em DB + cookie HttpOnly (web) / Bearer (mobile) | Revogação imediata, sem gestão de segredo JWT, web e mobile consomem a mesma API | JWT assinado (@fastify/jwt), sessões em Redis | alta            |
-| ADR-006 | 2026-08-13 | Segurança do gate da Fase 02 (pós-review)                                  | Fechar P1/P2 de enumeração, contrato de erro e CSRF antes de expor auth          | aceitar dívida                                | alta            |
+| ID      | Data       | Decisão                                                                                 | Motivo                                                                           | Alternativas                                  | Reversibilidade |
+| ------- | ---------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------- | --------------- |
+| ADR-001 | bootstrap  | Monorepo TypeScript                                                                     | Compartilhar contratos e reduzir linguagens no produto independente              | C# + TS, microserviços                        | alta            |
+| ADR-002 | bootstrap  | Modular monolith + workers                                                              | Menos complexidade operacional inicial                                           | microserviços                                 | média           |
+| ADR-003 | bootstrap  | Meta Ads como MCP interno + adapter Marketing API                                       | Permitir operação por agente sem expor tokens                                    | chamadas Meta direto pelo LLM                 | alta            |
+| ADR-004 | 2026-08-13 | Toolchain e versões pinadas da Fase 01                                                  | Determinismo e compatibilidade do ecossistema                                    | versões floating                              | alta            |
+| ADR-005 | 2026-08-13 | Autenticação: sessão opaca em DB + cookie HttpOnly (web) / Bearer (mobile)              | Revogação imediata, sem gestão de segredo JWT, web e mobile consomem a mesma API | JWT assinado (@fastify/jwt), sessões em Redis | alta            |
+| ADR-006 | 2026-08-13 | Segurança do gate da Fase 02 (pós-review)                                               | Fechar P1/P2 de enumeração, contrato de erro e CSRF antes de expor auth          | aceitar dívida                                | alta            |
+| ADR-007 | 2026-08-13 | Upload de mídia via presigned PUT (R2/S3) + confirmação server-side                     | Sem credencial no frontend, MIME real validado no confirm, sem multipart         | multipart via API                             | alta            |
+| ADR-008 | 2026-08-13 | Geocoding: adapter Google Maps REST + mock determinístico                               | Sem SDK; mock em dev/test; produção sem chave retorna null (nunca dados falsos)  | SDK oficial                                   | alta            |
+| ADR-009 | 2026-08-13 | Modelo Fase 03: soft delete de property, FKs SET NULL, fonte única de preço, slug único | Auditoria, integridade de referências, sem drift de preço                        | hard delete, priceCents no listing            | média           |
+
+## ADR-007 — Upload de mídia: presigned PUT + confirm (Fase 03)
+
+Status: Aceito.
+
+Contexto: fotos/documentos de imóvel no R2/S3. SECURITY.md exige upload por URL pré-assinada, MIME real validado, limite de tamanho, sem credencial no frontend.
+
+Decisão: `POST /properties/:id/media/upload-url` (RBAC `property:write`) valida MIME (whitelist jpeg/png/webp/pdf), tamanho (foto/floorplan ≤ 10MB, documento ≤ 20MB), gera `storageKey = orgs/{orgId}/properties/{propertyId}/{kind}/{uuid}.{ext}` e retorna URL assinada (`@aws-sdk/s3-request-presigner`). `POST /properties/:id/media/confirm` faz `headObject` (existência + tamanho real) e valida prefixo da key. DOCUMENT nunca é público; PHOTO/FLOORPLAN ficam públicos. Storage ausente → 400. Sem upload via API (sem multipart). Reversibilidade: alta.
+
+## ADR-008 — Geocoding: Google REST + mock (Fase 03)
+
+Status: Aceito.
+
+Contexto: lat/lng do endereço sem credencial de homologação; AGENTS.md permite adapter + mock.
+
+Decisão: interface `GeocodingService` em `@aluguei/integrations`; `GoogleMapsGeocodingAdapter` (fetch nativo + zod + timeout 5s, sem SDK); `GeocodingMockService` determinístico (hash → lat/lng estáveis, confidence 0.6) para dev/test; produção sem chave → `geocode` retorna null (nunca dados falsos). lat/lng persistem em `property_addresses` mas não entram no DTO público. `IMPLEMENTED_NOT_LIVE_VERIFIED` em docs/BLOCKERS.md. Reversibilidade: alta.
+
+## ADR-009 — Modelo de dados Fase 03 (Fase 03)
+
+Status: Aceito.
+
+Decisões: property sem hard delete (PATCH status=ARCHIVED; auditoria/referências); FKs pendentes da Fase 02 (`lead_property_interests`/`visits`/`proposals`.property_id) → `ON DELETE SET NULL`; `property_owners` UNIQUE(property,party) e party FK cascade; features em tabela (whitelist app-level) em vez de colunas boolean; preço do listing vem de `property_financial_terms.monthlyRentCents` (sem `priceCents` no listing); slug UNIQUE(org,slug) com sufixo numérico em colisão; até 1 endereço público e 1 privado por property (UNIQUE(property_id, is_public)); endereço privado nunca promovido a público automaticamente.
 
 ## ADR-006 — Correções de segurança do gate da Fase 02 (2026-08-13)
 

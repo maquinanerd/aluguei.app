@@ -5,11 +5,17 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
+import type { StorageService } from '@aluguei/storage';
+import type { GeocodingService } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
 import type { AppConfig } from './plugins/config.js';
 import { dbPlugin } from './plugins/db.js';
 import type { DbPluginOptions } from './plugins/db.js';
 import { sessionPlugin } from './plugins/session.js';
+import { storagePlugin } from './plugins/storage.js';
+import type { StoragePluginOptions } from './plugins/storage.js';
+import { geocodingPlugin } from './plugins/geocoding.js';
+import type { GeocodingPluginOptions } from './plugins/geocoding.js';
 import { setErrorHandler } from './errors.js';
 import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
@@ -21,11 +27,16 @@ import { taskRoutes } from './routes/tasks.js';
 import { visitRoutes } from './routes/visits.js';
 import { proposalRoutes } from './routes/proposals.js';
 import { timelineRoutes } from './routes/timeline.js';
+import { propertyRoutes } from './routes/properties.js';
+import { listingRoutes } from './routes/listings.js';
+import { publicRoutes } from './routes/public.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
   env?: AppEnv;
   config?: Partial<AppConfig>;
+  storage?: StorageService;
+  geocoding?: GeocodingService;
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -82,6 +93,35 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     db: app.db,
     cookieName: config.cookieName,
   });
+  const storageOptions: StoragePluginOptions = {};
+  if (opts.storage) {
+    storageOptions.storage = opts.storage;
+  }
+  if (env.STORAGE_ENDPOINT) {
+    storageOptions.endpoint = env.STORAGE_ENDPOINT;
+  }
+  if (env.STORAGE_REGION) {
+    storageOptions.region = env.STORAGE_REGION;
+  }
+  if (env.STORAGE_BUCKET) {
+    storageOptions.bucket = env.STORAGE_BUCKET;
+  }
+  if (env.STORAGE_ACCESS_KEY_ID) {
+    storageOptions.accessKeyId = env.STORAGE_ACCESS_KEY_ID;
+  }
+  if (env.STORAGE_SECRET_ACCESS_KEY) {
+    storageOptions.secretAccessKey = env.STORAGE_SECRET_ACCESS_KEY;
+  }
+  await app.register(storagePlugin, storageOptions);
+
+  const geocodingOptions: GeocodingPluginOptions = { nodeEnv: env.NODE_ENV };
+  if (opts.geocoding) {
+    geocodingOptions.geocoding = opts.geocoding;
+  }
+  if (env.GOOGLE_MAPS_API_KEY) {
+    geocodingOptions.apiKey = env.GOOGLE_MAPS_API_KEY;
+  }
+  await app.register(geocodingPlugin, geocodingOptions);
 
   await app.register(healthRoutes);
   await app.register(authRoutes);
@@ -93,6 +133,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(visitRoutes);
   await app.register(proposalRoutes);
   await app.register(timelineRoutes);
+  await app.register(propertyRoutes);
+  await app.register(listingRoutes);
+  await app.register(publicRoutes);
 
   return app;
 }
