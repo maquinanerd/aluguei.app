@@ -1,0 +1,38 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+planejamento-plataforma-inteligencia-imobiliaria-v2.pdf
+credentials*.json
+secrets*.json
+
+# dependencies/build/cache
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.turbo/
+.expo/
+tmp/
+temp/
+.cache/
+*.log
+
+# local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# editors/os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# legacy reference from another product — never version as Aluguei.app specification
+planejamento-plataforma-inteligencia-imobiliaria-v2.pdf

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-flash",
+  "small_model": "deepseek/deepseek-v4-flash",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 12000
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      ".next/**",
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      ".turbo/**",
+      ".expo/**",
+      ".git/**",
+      "tmp/**",
+      "temp/**",
+      "logs/**",
+      "*.log",
+      "*.sqlite",
+      "*.sqlite3"
+    ]
+  },
+  "mcp": {
+    "aluguei-meta": {
+      "type": "local",
+      "command": ["pnpm", "--filter", "@aluguei/meta-mcp", "dev:stdio"],
+      "cwd": ".",
+      "enabled": false,
+      "timeout": 10000
+    }
+  }
+}
