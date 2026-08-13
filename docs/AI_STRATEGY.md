@@ -16,18 +16,23 @@ IA é uma camada assistiva atrás de adapters. Nenhum domínio depende do nome d
 ## Casos de uso
 
 ### Vistoria por áudio
+
 Áudio → transcrição → extração estruturada por ambiente/objeto/condição → revisão humana.
 
 ### Vistoria visual
+
 Foto segura → modelo multimodal → sugestões com `observation`, `evidence_media_id`, `confidence_band` e `provider_metadata` → revisão humana.
 
 ### CRM/WhatsApp
+
 Conversa → intenção + filtros do cliente → campos estruturados. A busca real é determinística no banco.
 
 ### Meta Ads
+
 A IA pode gerar variantes de headline/body/CTA a partir exclusivamente dos dados publicáveis do imóvel. Nunca altera orçamento, agenda, targeting ou status por criatividade própria.
 
 ### Documentos
+
 Extrair dados, verificar campos faltantes e apontar inconsistências. Não inventar cláusulas legais ou decisões de crédito.
 
 ## Provider policy

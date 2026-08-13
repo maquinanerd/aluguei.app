@@ -3,16 +3,21 @@
 ## Pirâmide
 
 ### Unitários
+
 Domínio: estados, cálculos, split, ledger, políticas, parsing, autorização pura.
 
 ### Integração
+
 PostgreSQL/repositories, filas, storage adapter, webhooks, Meta adapter com mock server/fixtures, Asaas sandbox/fixtures quando possível.
 
 ### Contrato
+
 Schemas de providers e MCP tools. Fixtures devem preservar respostas reais sanitizadas quando obtidas legalmente.
 
 ### E2E
+
 Fluxos críticos:
+
 1. imóvel → anúncio no site
 2. lead → visita → proposta
 3. vistoria com mídia → revisão → relatório

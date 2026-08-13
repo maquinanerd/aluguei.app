@@ -3,6 +3,7 @@
 ## Entidades principais
 
 ### Organização e identidade
+
 - Organization
 - User
 - Membership
@@ -10,6 +11,7 @@
 - AuditEvent
 
 ### Pessoas/partes
+
 - Party
 - PartyRole: OWNER | TENANT | GUARANTOR | BROKER | LEGAL_REPRESENTATIVE
 - PartyIdentity
@@ -19,6 +21,7 @@
 - PartyConsent
 
 ### Imóvel
+
 - Property
 - PropertyAddress
 - PropertyFinancialTerms
@@ -29,6 +32,7 @@
 - ListingChannelPublication
 
 ### CRM
+
 - Lead
 - LeadPropertyInterest
 - Conversation
@@ -40,6 +44,7 @@
 - TimelineEvent
 
 ### Vistoria
+
 - Inspection
 - InspectionRoom
 - InspectionMedia
@@ -51,6 +56,7 @@
 - InspectionReport
 
 ### Locação
+
 - RentalApplication
 - ScreeningRequest
 - ScreeningResult
@@ -59,6 +65,7 @@
 - Lease
 
 ### Documentos
+
 - ContractTemplate
 - ContractTemplateVersion
 - Contract
@@ -68,6 +75,7 @@
 - StoredDocument
 
 ### Financeiro
+
 - Charge
 - Payment
 - PaymentAttempt
@@ -80,6 +88,7 @@
 - Reconciliation
 
 ### Integração Meta
+
 - MetaConnection
 - MetaAsset
 - MetaAdProfile
@@ -93,29 +102,37 @@
 ## Máquinas de estado essenciais
 
 ### Listing
+
 `DRAFT → READY → PUBLISHED → PAUSED → ARCHIVED`
 
 Estados por canal são independentes do listing principal.
 
 ### Lead/Opportunity
+
 `NEW → QUALIFYING → QUALIFIED → VISIT → PROPOSAL → APPLICATION → WON | LOST`
 
 ### RentalApplication
+
 `DRAFT → SUBMITTED → SCREENING → MANUAL_REVIEW | APPROVED | REJECTED → CONTRACTING`
 
 ### Contract
+
 `DRAFT → GENERATED → SENT_FOR_SIGNATURE → PARTIALLY_SIGNED → SIGNED | VOID`
 
 ### Inspection
+
 `DRAFT → CAPTURING → PROCESSING → REVIEW → COMPLETED → SIGNED`
 
 ### Lease
+
 `PENDING → ACTIVE → DELINQUENT → TERMINATING → ENDED`
 
 ### Charge
+
 `SCHEDULED → OPEN → PAID | OVERDUE | CANCELLED | REFUNDED`
 
 ### Meta campaign local
+
 `DRAFT → PREPARED → CREATED_PAUSED → ACTIVE → PAUSED → ARCHIVED | ERROR`
 
 ## Regras invariantes

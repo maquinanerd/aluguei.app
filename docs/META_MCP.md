@@ -72,6 +72,7 @@ Durante desenvolvimento, manter `META_MODE=dry_run`. Em testes nunca criar campa
 ## MCP tools v1
 
 ### Leitura
+
 - `meta_connection_status`
 - `meta_list_assets`
 - `meta_get_property_ad_material`
@@ -81,6 +82,7 @@ Durante desenvolvimento, manter `META_MODE=dry_run`. Em testes nunca criar campa
 - `meta_list_property_campaigns`
 
 ### Escrita controlada
+
 - `meta_prepare_property_campaign`
 - `meta_create_prepared_campaign_paused`
 - `meta_publish_prepared_campaign`

@@ -22,6 +22,7 @@ PII inclui CPF, documentos, endereço exato, telefone, dados bancários, resulta
 ## Webhooks
 
 Meta/WhatsApp, assinatura, bureau e pagamentos:
+
 - validar assinatura/token do provider
 - preservar body necessário à validação
 - deduplicar por event id/hash

@@ -21,6 +21,7 @@ Uma aplicação Next.js pode conter inicialmente:
 ## Mobile
 
 Foco operacional, não réplica completa do CRM:
+
 - login
 - agenda/visitas
 - imóveis
@@ -31,6 +32,7 @@ Foco operacional, não réplica completa do CRM:
 ## Meta Ads
 
 Tela deve permitir:
+
 - conectar Meta
 - escolher conta/ativos
 - selecionar imóveis

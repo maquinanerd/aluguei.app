@@ -5,6 +5,7 @@ Objetivo: reduzir tokens sem reduzir qualidade, auditabilidade ou segurança.
 ## Contexto mínimo por fase
 
 Carregar sempre apenas:
+
 1. `AGENTS.md`;
 2. `docs/EXECUTION_STATE.md`;
 3. o arquivo `orchestration/NN_*.md` da fase atual.

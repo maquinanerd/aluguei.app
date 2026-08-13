@@ -49,24 +49,31 @@ orchestration/
 ## Fronteiras
 
 ### `packages/domain`
+
 Regras puras: estados, transições, cálculo financeiro, políticas, erros de domínio. Não conhece HTTP, SDK Meta, Redis, R2 ou framework web.
 
 ### `packages/contracts`
+
 Schemas Zod versionados usados em API, eventos, MCP e validação de payloads externos.
 
 ### `packages/db`
+
 Schema, migrations, repositories e transações. Multi-tenant por `organization_id`; RLS pode ser adicionada quando o modelo estiver estável, mas autorização também é obrigatória na aplicação.
 
 ### `packages/integrations`
+
 Interfaces e adapters: Meta, WhatsApp, Google, canais imobiliários, crédito, assinatura, pagamento, IA, storage.
 
 ### `apps/api`
+
 HTTP, auth, autorização, orquestração de application services, webhooks e OpenAPI.
 
 ### `apps/worker`
+
 Jobs idempotentes: mídia/IA, sincronização de portais, assinatura, pagamento, Meta insights, notificações.
 
 ### `apps/meta-mcp`
+
 Servidor MCP interno. Não replica regra de negócio; chama application services/adapters autorizados do Aluguei.app.
 
 ## Consistência

@@ -20,6 +20,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 ## Módulos obrigatórios
 
 ### Imóveis e anúncios
+
 - cadastro completo do imóvel
 - proprietário vinculado
 - dados financeiros de locação
@@ -31,6 +32,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - estado por canal e reconciliação
 
 ### CRM e leads
+
 - funil configurável
 - origem do lead e imóvel de interesse
 - histórico/timeline
@@ -39,6 +41,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - deduplicação de contatos
 
 ### WhatsApp
+
 - integração oficial servidor-servidor
 - identificar imóvel por código/link/origem
 - chatbot baseado apenas em dados persistidos do imóvel
@@ -49,6 +52,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - chatbot lógico por imóvel, mas um único motor multi-contexto
 
 ### Vistoria
+
 - app mobile focado em câmera e áudio
 - ambientes, checklist e fotos
 - gravação/transcrição de áudio
@@ -59,6 +63,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - relatório PDF derivado dos dados estruturados
 
 ### Candidato e análise cadastral
+
 - proprietário, locatário, fiador/garantidor como parties com papéis
 - consentimentos e finalidade de consulta
 - adapter para Serasa/SPC/outros
@@ -66,6 +71,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - IA pode resumir achados, mas não decidir sozinha
 
 ### Contratos e assinatura
+
 - templates versionados aprovados
 - variáveis preenchidas pelo sistema
 - geração de documento
@@ -74,6 +80,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - trilha de auditoria e hash do documento final
 
 ### Locação e financeiro
+
 - lease/contrato ativo
 - cobranças recorrentes
 - Pix/Pix recorrente/Pix Automático quando suportado
@@ -85,6 +92,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - adapter financeiro (baseline: Asaas em sandbox até validação)
 
 ### Meta Ads via MCP
+
 - conectar Business/Business Manager, conta de anúncios, Página e Instagram
 - selecionar imóveis do Aluguei.app
 - escolher imagens/copy, orçamento, período e parâmetros permitidos

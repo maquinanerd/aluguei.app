@@ -1,6 +1,6 @@
 export const AlugueiCompactionPlugin = async () => {
   return {
-    "experimental.session.compacting": async (_input, output) => {
+    'experimental.session.compacting': async (_input, output) => {
       output.prompt = `
 Create a minimal continuation checkpoint for the Aluguei.app autonomous development session.
 

@@ -7,6 +7,7 @@
 ## Contexto obrigatório mínimo
 
 Por fase, carregue somente:
+
 - `AGENTS.md`;
 - `docs/EXECUTION_STATE.md`;
 - `orchestration/NN_*.md` da fase atual.

@@ -21,6 +21,7 @@ Quando surgir uma decisão:
 ## Subagentes
 
 Orquestrador deve usar, quando disponível:
+
 - architect
 - implementer
 - reviewer
@@ -33,6 +34,7 @@ O revisor nunca assume que o implementador está correto.
 ## Blockers externos
 
 Formato em `docs/BLOCKERS.md`:
+
 - ID
 - provider
 - o que falta
