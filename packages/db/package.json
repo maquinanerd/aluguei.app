@@ -1,6 +1,6 @@
 {
   "name": "@aluguei/db",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -21,6 +21,7 @@
     "pg": "8.23.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.5",
     "@types/pg": "8.21.0",
     "drizzle-kit": "0.31.10"
   }

@@ -30,6 +30,8 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      // Desabilitado: casts `as X` sobre any (ex.: response.json() em testes) são intencionais.
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     },
   },
 );

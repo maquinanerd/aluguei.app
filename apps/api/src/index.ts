@@ -4,9 +4,9 @@ import { buildApp } from './app.js';
 
 const env = loadEnv();
 const log = createLogger({ level: env.LOG_LEVEL });
-const tracer = initTracer({ serviceName: 'aluguei-api', serviceVersion: '0.1.0' });
+const tracer = initTracer({ serviceName: 'aluguei-api', serviceVersion: '0.2.0' });
 
-const app = await buildApp({ logger: loggerOptions({ level: env.LOG_LEVEL }) });
+const app = await buildApp({ logger: loggerOptions({ level: env.LOG_LEVEL }), env });
 
 const shutdown = async (signal: string): Promise<void> => {
   log.info({ signal }, 'shutting down api');

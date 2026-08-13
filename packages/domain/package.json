@@ -1,6 +1,6 @@
 {
   "name": "@aluguei/domain",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -12,6 +12,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run src"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "2.1.0"
+  },
+  "devDependencies": {
+    "vitest": "4.1.10"
   }
 }

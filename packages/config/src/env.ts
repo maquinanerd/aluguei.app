@@ -10,6 +10,10 @@ export const envSchema = z.object({
   LOG_LEVEL: z.string().default('info'),
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().default(4000),
+  APP_BASE_URL: z.url().default('http://localhost:3000'),
+  CORS_ORIGINS: z.string().optional(),
+  SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(2_592_000), // 30 dias
+  COOKIE_SECURE: z.enum(['true', 'false']).optional(),
   DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
   STORAGE_ENDPOINT: z.string().optional(),
