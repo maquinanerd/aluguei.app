@@ -1,16 +1,16 @@
 # Estado da execução autônoma
 
-- current_phase: 0
-- status: NOT_STARTED
-- last_completed_phase: none
-- last_commit: none
+- current_phase: 2
+- status: GREEN
+- last_completed_phase: 01 Foundation
+- last_commit: fase 01 (foundation)
 - blockers_external: 0
-- tests: not_run
-- updated_at: bootstrap
+- tests: passing (format/lint/typecheck/test/build green)
+- updated_at: 2026-08-13
 
 ## Fases
 
-- [ ] 01 Foundation
+- [x] 01 Foundation — monorepo pnpm+turbo, TS strict, Fastify API (/health), Next web shell, Expo mobile shell, worker shell, packages (contracts/config/observability/db/storage/integrations/domain/ui), migration drizzle inicial, CI, docker-compose opcional. ADR-004 em docs/DECISIONS.md.
 - [ ] 02 Identity + CRM
 - [ ] 03 Properties + Listings
 - [ ] 04 Channel Distribution

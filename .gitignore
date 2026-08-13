@@ -7,6 +7,9 @@
 *.p12
 *.pfx
 planejamento-plataforma-inteligencia-imobiliaria-v2.pdf
+.turbo/
+.expo/
+*.tsbuildinfo
 credentials*.json
 secrets*.json
 

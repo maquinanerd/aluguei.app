@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Aluguei",
+    "slug": "aluguei",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "sdkVersion": "57.0.0",
+    "platforms": ["ios", "android", "web"],
+    "plugins": ["expo-status-bar"]
+  }
+}

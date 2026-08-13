@@ -1,0 +1,10 @@
+node_modules
+dist
+.next
+.expo
+coverage
+drizzle
+pnpm-lock.yaml
+package-lock.json
+*.pdf
+next-env.d.ts
