@@ -12,6 +12,10 @@
       "types": "./src/routes/channel-jobs.ts",
       "default": "./src/routes/channel-jobs.ts"
     },
+    "./ledger": {
+      "types": "./src/ledger.ts",
+      "default": "./src/ledger.ts"
+    },
     "./audit": {
       "types": "./src/plugins/audit.ts",
       "default": "./src/plugins/audit.ts"

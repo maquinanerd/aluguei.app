@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { webhookInbox, whatsappConnections, signatureEnvelopes } from '@aluguei/db';
+import { charges, webhookInbox, whatsappConnections, signatureEnvelopes } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import { writeAudit } from '../plugins/audit.js';
-import { signatureWebhookEventSchema } from '@aluguei/contracts';
+import { paymentWebhookEventSchema, signatureWebhookEventSchema } from '@aluguei/contracts';
 import type { VerifyWebhookParams } from '@aluguei/integrations';
 
 /**
@@ -132,6 +132,33 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         entityId: 'signature',
         payload: { envelopeId: envelope.id, eventType: input.eventType },
       });
+      return reply.status(200).send({ status: 'queued' });
+    },
+  );
+
+  app.post(
+    '/webhooks/payments',
+    { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const input = paymentWebhookEventSchema.parse(request.body);
+      // Resolve org por provider_charge_id (não confia em org_id do payload).
+      const [charge] = await db
+        .select({ orgId: charges.orgId })
+        .from(charges)
+        .where(eq(charges.providerChargeId, input.providerChargeId))
+        .limit(1);
+      if (!charge) {
+        return reply.status(200).send({ status: 'ignored' });
+      }
+      await db
+        .insert(webhookInbox)
+        .values({
+          orgId: charge.orgId,
+          provider: 'PAYMENT',
+          providerEventId: `PAY:${input.providerEventId}`,
+          payload: { ...input } as unknown as Record<string, unknown>,
+        })
+        .onConflictDoNothing();
       return reply.status(200).send({ status: 'queued' });
     },
   );

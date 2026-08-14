@@ -67,6 +67,17 @@ export const AUDIT_ACTIONS = {
   CONTRACT_SIGNED: 'contract.signed',
   SIGNATURE_WEBHOOK_RECEIVED: 'signature.webhook_received',
   SIGNATURE_ENVELOPE_UPDATED: 'signature.envelope_updated',
+  LEASE_CREATED: 'lease.created',
+  CHARGE_CREATED: 'charge.created',
+  CHARGE_CANCELLED: 'charge.cancelled',
+  PAYMENT_INITIATED: 'payment.initiated',
+  PAYMENT_CONFIRMED: 'payment.confirmed',
+  PAYMENT_REFUNDED: 'payment.refunded',
+  PAYOUT_CREATED: 'payout.created',
+  LEDGER_POSTED: 'ledger.posted',
+  FINANCE_BANK_ACCOUNT_CREATED: 'finance.bank_account_created',
+  RECONCILIATION_REQUESTED: 'reconciliation.requested',
+  RECONCILIATION_COMPLETED: 'reconciliation.completed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

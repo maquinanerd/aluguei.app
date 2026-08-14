@@ -1,4 +1,4 @@
-# Estado da execução autônoma
+﻿# Estado da execução autônoma
 
 - current_phase: 8
 - status: GREEN
@@ -17,7 +17,7 @@
 - [x] 05 WhatsApp + Lead Automation — WhatsAppMessenger (Meta REST + Fake), AiProvider mock, webhook inbox, gateway (vínculo/imóvel/intenção/visita/handoff), rotas conversation:* + connections. ADR-012/013/014.
 - [x] 06 Inspections + AI — Inspection com máquina de estado, media com privacy guard (ADR-015), transcrição + sugestões (evidência observável), confirmação humana, comparação entrada×saída, relatório snapshot, jobs provider INSPECTION. ADR-016/017.
 - [x] 07 Screening + Contracts + Signature — RentalApplication com máquina de estado, consentimento LGPD obrigatório (ADR-018), regras determinísticas explicáveis (ADR-019), screening provider (Serasa/SPC/FAKE — reais sem adapter), templates versionados + render com hash, contratos com máquina de estado, envelope de assinatura via provider + webhook inbox (ADR-020), jobs SCREENING/SIGNATURE. ADR-021.
-- [ ] 08 Payments + Split + Ledger
+- [x] 08 Payments + Split + Ledger — Charges com multa/juros/desconto determinísticos, pagamento via IPaymentProvider (Fake; Asaas registrado SEM adapter — ADR-024), webhook PAYMENT_CONFIRMED/REFUNDED/OVERDUE/FAILED via inbox, ledger dupla entrada (ADR-022/023), split AGENCY/LANDLORD determinístico + payout PENDING (ADR-025), banco de contas com validação de documento, reconciliação, jobs PAYMENT/PAYMENT_SCHEDULER/PAYMENT_RECONCILE. ADR-022/023/024/025.
 - [ ] 09 Meta MCP + Ads
 - [ ] 10 Portals + Reporting
 - [ ] 11 Hardening

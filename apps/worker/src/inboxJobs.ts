@@ -6,12 +6,15 @@ import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
 import {
   getAiProvider,
   getInspectionAiProvider,
+  getPaymentProvider,
   getScreeningProvider,
   getWhatsAppMessenger,
 } from '@aluguei/integrations';
 import type {
   AiProvider,
   InspectionAiProvider,
+  IPaymentProvider,
+  PaymentRegistryOptions,
   IScreeningProvider,
   ISignatureProvider,
   WhatsAppMessenger,
@@ -20,6 +23,11 @@ import type {
 import { processInspectionJob } from './inspectionJobs.js';
 import { processScreeningJob } from './screeningJobs.js';
 import { processSignatureJob } from './signatureJobs.js';
+import {
+  processPaymentJob,
+  processPaymentSchedulerJob,
+  processReconcileJob,
+} from './paymentJobs.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
@@ -31,6 +39,37 @@ export interface RunInboxJobsOptions {
   screening?: IScreeningProvider;
   signature?: ISignatureProvider;
   screeningApproveScoreMin?: number;
+  payments?: IPaymentProvider | null;
+}
+
+/** Enfileira jobs recorrentes (scheduler de charges e reconciliação) antes do claim. */
+async function enqueueSchedulerJobs(db: AppDb, log?: (msg: string) => void): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  const periodStart = `${today.slice(0, 8)}01`;
+  const orgs = await db
+    .select({ id: (await import('@aluguei/db')).organizations.id })
+    .from((await import('@aluguei/db')).organizations);
+  for (const org of orgs) {
+    await db
+      .insert(webhookInbox)
+      .values({
+        orgId: org.id,
+        provider: 'PAYMENT_SCHEDULER',
+        providerEventId: `SCHED:${org.id}:${periodStart}`,
+        payload: { periodStart },
+      })
+      .onConflictDoNothing();
+    await db
+      .insert(webhookInbox)
+      .values({
+        orgId: org.id,
+        provider: 'PAYMENT_RECONCILE',
+        providerEventId: `RECON:${org.id}:${today}`,
+        payload: { periodStart: today },
+      })
+      .onConflictDoNothing();
+  }
+  log?.('scheduler jobs enqueued');
 }
 
 interface InboxJob {
@@ -74,6 +113,7 @@ async function claimInboxJobs(db: AppDb, limit: number): Promise<InboxJob[]> {
 /** Executa um ciclo de processamento do inbox. */
 export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ processed: number }> {
   const { db, limit = 10, log } = opts;
+  await enqueueSchedulerJobs(db, log);
   const jobs = await claimInboxJobs(db, limit);
   const ai = opts.ai ?? getAiProvider({ provider: process.env.AI_PROVIDER ?? 'mock' });
   const messenger =
@@ -107,6 +147,18 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
     (process.env.SCREENING_APPROVE_SCORE_MIN
       ? Number(process.env.SCREENING_APPROVE_SCORE_MIN)
       : undefined);
+  const paymentProvider =
+    opts.payments !== undefined
+      ? opts.payments
+      : (() => {
+          const paymentOptions: PaymentRegistryOptions = {
+            provider: process.env.PAYMENT_PROVIDER ?? 'FAKE',
+          };
+          if (process.env.ASAAS_API_KEY) {
+            paymentOptions.apiKey = process.env.ASAAS_API_KEY;
+          }
+          return getPaymentProvider(paymentOptions);
+        })();
 
   for (const job of jobs) {
     try {
@@ -121,6 +173,15 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         await processScreeningJob(db, job, screeningProvider, approveScoreMin);
       } else if (job.provider === 'SIGNATURE') {
         await processSignatureJob(db, job);
+      } else if (job.provider === 'PAYMENT') {
+        if (!paymentProvider) {
+          throw new Error('provider de pagamento não configurado');
+        }
+        await processPaymentJob(db, job, paymentProvider);
+      } else if (job.provider === 'PAYMENT_SCHEDULER') {
+        await processPaymentSchedulerJob(db, job);
+      } else if (job.provider === 'PAYMENT_RECONCILE') {
+        await processReconcileJob(db, job, paymentProvider);
       } else {
         throw new Error(`provider desconhecido: ${job.provider}`);
       }

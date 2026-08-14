@@ -4,6 +4,7 @@ import type { AppEnv } from '@aluguei/config';
 import type { FastifyInstance } from 'fastify';
 import {
   FakeChannel,
+  FakePaymentProvider,
   FakeSignatureProvider,
   FakeWhatsAppMessenger,
   MockAiProvider,
@@ -15,6 +16,7 @@ export const fakeChannel = new FakeChannel();
 export const fakeWhatsApp = new FakeWhatsAppMessenger('test-verify-token');
 export const fakeAi = new MockAiProvider();
 export const fakeSignature = new FakeSignatureProvider();
+export const fakePayments = new FakePaymentProvider();
 
 /** Env mínimo de teste (cookie não-seguro via config override). */
 export const testEnv: AppEnv = {
@@ -49,6 +51,7 @@ export async function buildTestApp(): Promise<FastifyInstance> {
     whatsapp: fakeWhatsApp,
     ai: fakeAi,
     signature: fakeSignature,
+    payments: fakePayments,
   });
   appCache = app;
   return app;

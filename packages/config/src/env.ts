@@ -39,6 +39,9 @@ export const envSchema = z.object({
   D4SIGN_API_TOKEN: z.string().optional(),
   SIGNATURE_WEBHOOK_TOKEN: z.string().optional(),
   SCREENING_APPROVE_SCORE_MIN: z.coerce.number().int().optional(),
+  ASAAS_API_KEY: z.string().optional(),
+  ASAAS_ENV: z.enum(['sandbox', 'production']).optional(),
+  ASAAS_WEBHOOK_TOKEN: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
 });
 

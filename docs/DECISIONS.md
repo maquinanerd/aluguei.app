@@ -1,4 +1,4 @@
-# Decisões arquiteturais
+﻿# Decisões arquiteturais
 
 Registro append-only simplificado. O agente adiciona decisões reversíveis tomadas sem perguntar ao usuário.
 
@@ -25,6 +25,10 @@ Registro append-only simplificado. O agente adiciona decisões reversíveis toma
 | ADR-019 | 2026-08-13 | Decisão de crédito por regras determinísticas explicáveis (decision_rules persistido); IA nunca decide                                                                | SECURITY.md exige decisões automatizadas explicáveis/revisáveis                       | IA na decisão                                   | alta            |
 | ADR-020 | 2026-08-13 | Webhook de assinatura via webhook_inbox (provider SIGNATURE)                                                                                                          | Reusa claim/retry/reaper; 200 imediato; dedup por UNIQUE                              | inline                                          | média           |
 | ADR-021 | 2026-08-13 | Modelo Fase 07: decision fundido em screening_results; template versionado na própria tabela; Guarantee adiado (GUARANTOR em contract_parties); lease_id para Fase 08 | Menor schema, histórico de versões aprovadas                                          | tabela de decisões, tabela de versões           | média           |
+| ADR-022 | 2026-08-13 | Dinheiro em centavos inteiros em todo o domínio financeiro; datas em UTC; multiplicadores em bps | Evitar float e arredondamento duplo; cálculo determinístico e auditável              | decimal no DB, microcentavos                  | alta            |
+| ADR-023 | 2026-08-13 | Ledger dupla entrada via postLedgerTransaction (DEBIT positivo/CREDIT negativo, soma=0, idempotente por transaction+account) | Razão auditável; balanceamento garantido por construção                            | ledger eventualmente consistente              | média           |
+| ADR-024 | 2026-08-13 | IPaymentProvider + FakePaymentProvider determinístico; Asaas registrado SEM adapter (rotas 400 'não configurado') | Sem credencial/documentação oficial — nunca inventar endpoints                     | SDK Asaas, endpoints fictícios                 | alta            |
+| ADR-025 | 2026-08-13 | Split determinístico por regra (agencyShareBps default 10%); comissão nunca excede pagamento; payout PENDING | Previsibilidade de repasse; sem efeito real de dinheiro em dev                     | split por valor livre no payout                | média           |
 
 ## ADR-010 — Jobs de canal: fila no Postgres (Fase 04)
 

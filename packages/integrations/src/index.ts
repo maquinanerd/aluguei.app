@@ -60,6 +60,16 @@ export type {
   EnvelopeParty,
   EnvelopeStatus,
 } from './signature/types.js';
+
+export { FakePaymentProvider } from './payments/fake.js';
+export { getPaymentProvider } from './payments/registry.js';
+export type { PaymentRegistryOptions } from './payments/registry.js';
+export type {
+  IPaymentProvider,
+  CreateChargeInput,
+  CreateChargeResult,
+  PaymentChargeStatus,
+} from './payments/types.js';
 export type {
   WhatsAppMessenger,
   WebhookMessageEvent,

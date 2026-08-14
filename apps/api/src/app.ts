@@ -11,6 +11,7 @@ import type {
   WhatsAppMessenger,
   AiProvider,
   ISignatureProvider,
+  IPaymentProvider,
 } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
@@ -48,7 +49,12 @@ import { inspectionRoutes } from './routes/inspections.js';
 import { rentalApplicationRoutes } from './routes/rental-applications.js';
 import { contractTemplateRoutes } from './routes/contract-templates.js';
 import { contractRoutes } from './routes/contracts.js';
+import { leaseRoutes } from './routes/leases.js';
+import { chargeRoutes } from './routes/charges.js';
+import { paymentsRoutes } from './routes/payments.js';
+import { paymentsPlugin } from './plugins/payments.js';
 import { signaturePlugin } from './plugins/signature.js';
+import type { PaymentsPluginOptions } from './plugins/payments.js';
 import type { SignaturePluginOptions } from './plugins/signature.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
@@ -61,6 +67,7 @@ export interface BuildAppOptions extends FastifyServerOptions {
   whatsapp?: WhatsAppMessenger;
   ai?: AiProvider;
   signature?: ISignatureProvider;
+  payments?: IPaymentProvider;
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -192,6 +199,14 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     signatureOptions.token = env.D4SIGN_API_TOKEN;
   }
   await app.register(signaturePlugin, signatureOptions);
+  const paymentsOptions: PaymentsPluginOptions = {};
+  if (opts.payments) {
+    paymentsOptions.payments = opts.payments;
+  }
+  if (env.ASAAS_API_KEY) {
+    paymentsOptions.apiKey = env.ASAAS_API_KEY;
+  }
+  await app.register(paymentsPlugin, paymentsOptions);
 
   await app.register(healthRoutes);
   await app.register(authRoutes);
@@ -214,6 +229,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(rentalApplicationRoutes);
   await app.register(contractTemplateRoutes);
   await app.register(contractRoutes);
+  await app.register(leaseRoutes);
+  await app.register(chargeRoutes);
+  await app.register(paymentsRoutes);
 
   return app;
 }

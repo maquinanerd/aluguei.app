@@ -6,7 +6,8 @@ export type DomainErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
-  | 'PROVIDER_ERROR';
+  | 'PROVIDER_ERROR'
+  | 'MONEY_OVERFLOW';
 
 export class DomainError extends Error {
   readonly code: DomainErrorCode;

@@ -18,3 +18,4 @@ export * from './conversations.js';
 export * from './inspections.js';
 export * from './rental.js';
 export * from './contracts.js';
+export * from './finance.js';

@@ -116,6 +116,27 @@ export {
 export type { ContractStatus, ContractTransitionContext } from './contract/contract.js';
 
 export { renderTemplate } from './contract/template.js';
+
+export { add, sub, negate, mulBpsFloor, splitAmount } from './finance/money.js';
+export { calculateChargeBreakdown } from './finance/chargeCalc.js';
+export type { ChargeBreakdown, ChargeCalcInput } from './finance/chargeCalc.js';
+export { splitPayment, splitAmong } from './finance/split.js';
+export type { SplitAllocation, SplitInput } from './finance/split.js';
+export {
+  CHARGE_STATUSES,
+  LEASE_STATUSES,
+  PAYMENT_STATUSES,
+  isChargeStatus,
+  isLeaseStatus,
+  isPaymentStatus,
+  canTransitionCharge,
+  canTransitionLease,
+  canTransitionPayment,
+  transitionCharge,
+  transitionLease,
+  transitionPayment,
+} from './finance/stateMachines.js';
+export type { ChargeStatus, LeaseStatus, PaymentStatus } from './finance/stateMachines.js';
 export type {
   ComparisonKind,
   DifferenceItem,

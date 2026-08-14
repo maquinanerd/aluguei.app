@@ -1,4 +1,4 @@
-# Blockers externos
+﻿# Blockers externos
 
 Nenhum no bootstrap.
 
@@ -34,3 +34,10 @@ O agente deve registrar aqui apenas dependências externas reais: credenciais, A
 - `IScreeningProvider` com `FakeScreeningProvider` determinístico; Serasa/SPC reais registrados SEM adapter (sem documentação/credencial acessível — job falha com "provider não configurado", nunca inventa endpoints).
 - `ISignatureProvider` com `FakeSignatureProvider`; Clicksign/D4Sign reais sem token/doc → 400 "assinatura não configurada" (produção NUNCA assina fake). Webhook de assinatura aceita payload mínimo (sem validação HMAC — `SIGNATURE_WEBHOOK_TOKEN` reservado para quando o provider real documentar).
 - Decisões de crédito são AUTOMÁTICAS por regras determinísticas (threshold `SCREENING_APPROVE_SCORE_MIN` default 700, rastreio em `decision_rules`); revisão humana obrigatória em casos inconclusivos (MANUAL_REVIEW com motivo).
+
+
+## Fase 08 - IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- IPaymentProvider com FakePaymentProvider deterministico (dev/test); Asaas real registrado SEM adapter (sem documentacao/credencial acessivel - rotas respondem 400 Pagamento nao configurado e worker nunca confirma pagamento fake em producao). Webhook /webhooks/payments aceita payload minimo sem validacao HMAC (ASAAS_WEBHOOK_TOKEN reservado para quando o provider real documentar).
+- Ledger dupla entrada via postLedgerTransaction (balance = 0, DEBIT positivo / CREDIT negativo, idempotente por UNIQUE transaction+account); contas CASH/AR_RECEIVABLE/AGENCY_FEE_REVENUE/LANDLORD_PAYABLE criadas por org sob demanda.
+- Split deterministico: comissao da agencia (default 10%) nunca excede o valor pago; payout PENDING criado para o landlord, execucao de transferencia real adiada (sem credencial bancaria).
