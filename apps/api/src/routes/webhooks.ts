@@ -1,3 +1,5 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { Readable } from 'node:stream';
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
 import {
@@ -17,12 +19,52 @@ import {
 } from '@aluguei/contracts';
 import type { VerifyWebhookParams } from '@aluguei/integrations';
 
+/** body cru capturado no preParsing (necessário para validar X-Hub-Signature-256). */
+declare module 'fastify' {
+  interface FastifyRequest {
+    rawBody?: Buffer;
+  }
+}
+
+/** Valida X-Hub-Signature-256 do payload bruto (comparação em tempo constante). */
+function isValidHubSignature(
+  rawBody: Buffer,
+  signature: string | undefined,
+  secret: string,
+): boolean {
+  if (!signature?.startsWith('sha256=')) {
+    return false;
+  }
+  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+  const presented = signature.slice('sha256='.length);
+  const a = Buffer.from(expected, 'hex');
+  const b = Buffer.from(presented, 'hex');
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 /**
  * Webhook do WhatsApp (público, sem sessão). Valida → deduplica → enfileira
  * no webhook_inbox e responde 200 imediatamente (processamento assíncrono).
+ * Autenticidade: X-Hub-Signature-256 exigida quando META_APP_SECRET configurado
+ * (P1 da auditoria final); sem secret, a segurança vem do verify token.
  */
 export const webhookRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  // Captura o raw body do webhook WhatsApp antes do parse JSON.
+  // preParsing deve retornar um Stream (Buffer direto trava o parser).
+  app.addHook('preParsing', async (request, _reply, payload) => {
+    if (request.url === '/webhooks/whatsapp') {
+      const chunks: Buffer[] = [];
+      for await (const chunk of payload) {
+        chunks.push(
+          typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk as Uint8Array),
+        );
+      }
+      request.rawBody = Buffer.concat(chunks);
+      return Readable.from([request.rawBody]);
+    }
+  });
 
   app.get('/webhooks/whatsapp', async (request, reply) => {
     const query = request.query as {
@@ -58,6 +100,23 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
       const messenger = app.whatsapp;
       if (!messenger) {
         return reply.status(200).send({ status: 'ignored' });
+      }
+      // Autenticidade (P1): X-Hub-Signature-256 exigida quando META_APP_SECRET
+      // está configurado. Sem secret configurado (dev/dry-run), aceita — mas
+      // produção DEVE configurar o secret (docs/THREAT_MODEL.md).
+      const appSecret = process.env.META_APP_SECRET;
+      if (appSecret) {
+        const rawBody = request.rawBody ?? Buffer.from(JSON.stringify(request.body ?? {}));
+        if (
+          !isValidHubSignature(
+            rawBody,
+            request.headers['x-hub-signature-256'] as string | undefined,
+            appSecret,
+          )
+        ) {
+          app.log.warn('whatsapp webhook: assinatura X-Hub-Signature-256 inválida');
+          return reply.status(401).send({ error: 'Unauthorized' });
+        }
       }
       const events = messenger.parseWebhookEvent(request.body);
       if (events.length === 0) {
@@ -152,14 +211,29 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const input = paymentWebhookEventSchema.parse(request.body);
+      // Autenticidade (P1): quando ASAAS_WEBHOOK_TOKEN está configurado, o
+      // provider real envia o token no header `asaas-webhook-token`. Sem o
+      // token esperado → 401 (nunca enfileira). Em dev (provider FAKE sem
+      // token), a segurança vem da confirmação no provider feita pelo worker.
+      const expectedToken = process.env.ASAAS_WEBHOOK_TOKEN;
+      const presentedToken = request.headers['asaas-webhook-token'];
+      if (expectedToken && presentedToken !== expectedToken) {
+        return reply.status(401).send({ error: 'Unauthorized' });
+      }
       // Resolve org por provider_charge_id (não confia em org_id do payload).
       const [charge] = await db
-        .select({ orgId: charges.orgId })
+        .select({ orgId: charges.orgId, providerChargeId: charges.providerChargeId })
         .from(charges)
         .where(eq(charges.providerChargeId, input.providerChargeId))
         .limit(1);
       if (!charge) {
         return reply.status(200).send({ status: 'ignored' });
+      }
+      // Em modo FAKE, o webhook confirma a cobrança no provider para que o
+      // worker (que SEMPRE confirma via getChargeStatus) possa creditar.
+      const provider = app.payments;
+      if (provider?.confirmCharge && charge.providerChargeId) {
+        await provider.confirmCharge(charge.providerChargeId);
       }
       await db
         .insert(webhookInbox)

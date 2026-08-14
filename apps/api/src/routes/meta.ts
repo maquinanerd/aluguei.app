@@ -594,6 +594,44 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
 
   // ---- Intents (alta impacto: enfileira; execução no worker) ----
 
+  /** Resolve a campanha escopada à org (P2 da auditoria final: ownership antes de enfileirar). */
+  async function campaignOfOrg(orgId: string, campaignId: string) {
+    const [row] = await db
+      .select()
+      .from(metaCampaignLinks)
+      .where(and(eq(metaCampaignLinks.id, campaignId), eq(metaCampaignLinks.orgId, orgId)))
+      .limit(1);
+    return row ?? null;
+  }
+
+  /** Valida orçamento contra os limites da org (P1 da auditoria final: caps no UPDATE_BUDGET). */
+  async function assertBudgetWithinOrgLimits(
+    orgId: string,
+    input: { dailyBudgetCents?: number; lifetimeBudgetCents?: number },
+  ): Promise<void> {
+    const [settings] = await db
+      .select()
+      .from(metaOrgSettings)
+      .where(eq(metaOrgSettings.orgId, orgId))
+      .limit(1);
+    const budgetInput: Parameters<typeof validateBudget>[0] = {
+      limits: {
+        maxDailyBudgetCents: settings?.maxDailyBudgetCents ?? 10_000_00,
+        maxLifetimeBudgetCents: settings?.maxLifetimeBudgetCents ?? 100_000_00,
+      },
+    };
+    if (input.dailyBudgetCents !== undefined) {
+      budgetInput.dailyBudgetCents = input.dailyBudgetCents;
+    }
+    if (input.lifetimeBudgetCents !== undefined) {
+      budgetInput.lifetimeBudgetCents = input.lifetimeBudgetCents;
+    }
+    const budget = validateBudget(budgetInput);
+    if (!budget.valid) {
+      throw new DomainError('INVALID_INPUT', budget.errors.join('; '));
+    }
+  }
+
   async function enqueueIntent(
     orgId: string,
     userId: string,
@@ -635,12 +673,16 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = campaignActionRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'PUBLISH_INTENT',
-        null,
+        campaign.adProfileId,
         { campaignLinkId: id },
         AUDIT_ACTIONS.META_CAMPAIGN_PUBLISHED,
       );
@@ -655,12 +697,16 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = campaignActionRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'PAUSE',
-        null,
+        campaign.adProfileId,
         { campaignLinkId: id },
         AUDIT_ACTIONS.META_CAMPAIGN_PAUSED,
       );
@@ -675,12 +721,16 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = campaignActionRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'RESUME',
-        null,
+        campaign.adProfileId,
         { campaignLinkId: id },
         AUDIT_ACTIONS.META_CAMPAIGN_RESUMED,
       );
@@ -695,12 +745,16 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = campaignActionRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'ARCHIVE',
-        null,
+        campaign.adProfileId,
         { campaignLinkId: id },
         AUDIT_ACTIONS.META_CAMPAIGN_ARCHIVED,
       );
@@ -715,12 +769,25 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = updateBudgetRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
+      // P1: nunca enfileira orçamento acima do teto da org.
+      const budgetArgs: { dailyBudgetCents?: number; lifetimeBudgetCents?: number } = {};
+      if (input.dailyBudgetCents !== undefined) {
+        budgetArgs.dailyBudgetCents = input.dailyBudgetCents;
+      }
+      if (input.lifetimeBudgetCents !== undefined) {
+        budgetArgs.lifetimeBudgetCents = input.lifetimeBudgetCents;
+      }
+      await assertBudgetWithinOrgLimits(auth.orgId, budgetArgs);
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'UPDATE_BUDGET',
-        null,
+        campaign.adProfileId,
         {
           campaignLinkId: id,
           dailyBudgetCents: input.dailyBudgetCents,
@@ -739,12 +806,16 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const input = updateScheduleRequestSchema.parse(request.body);
+      const campaign = await campaignOfOrg(auth.orgId, id);
+      if (!campaign) {
+        throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
+      }
       const result = await enqueueIntent(
         auth.orgId,
         auth.userId,
         input,
         'UPDATE_SCHEDULE',
-        null,
+        campaign.adProfileId,
         { campaignLinkId: id, startAt: input.startAt, endAt: input.endAt },
         AUDIT_ACTIONS.META_SCHEDULE_UPDATED,
       );

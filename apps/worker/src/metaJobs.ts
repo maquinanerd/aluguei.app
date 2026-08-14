@@ -5,10 +5,11 @@ import {
   metaCampaignLinks,
   metaCreativeLinks,
   metaInsightSnapshots,
+  metaOrgSettings,
   metaSyncJobs,
   metaWebhookEvents,
 } from '@aluguei/db';
-import { AUDIT_ACTIONS, DomainError, transitionCampaign } from '@aluguei/domain';
+import { AUDIT_ACTIONS, DomainError, transitionCampaign, validateBudget } from '@aluguei/domain';
 import type { IMetaAdsProvider, MetaInsights } from '@aluguei/integrations';
 import { writeAudit } from '@aluguei/api/audit';
 import { webhookInbox } from '@aluguei/db';
@@ -82,8 +83,11 @@ async function claimMetaJobs(db: AppDb, limit: number): Promise<ClaimedMetaJob[]
 }
 
 function sanitizeError(message: string): string {
-  // Nunca logar credenciais/URLs sensíveis.
-  return message.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 500);
+  // Nunca logar credenciais/URLs sensíveis nem fragmentos de token EAAG.
+  return message
+    .replace(/https?:\/\/[^\s]+/g, '[url]')
+    .replace(/\bEAAG[0-9A-Za-z_-]{10,}/g, '[token]')
+    .slice(0, 500);
 }
 
 async function markMetaJobSuccess(db: AppDb, jobId: string): Promise<void> {
@@ -241,6 +245,33 @@ export async function processMetaJob(
       }
       const daily = resolveNumber(payload, 'dailyBudgetCents');
       const lifetime = resolveNumber(payload, 'lifetimeBudgetCents');
+      // P1 (auditoria final): defesa em profundidade — nunca aplica orçamento
+      // acima do teto da org, mesmo que o intent tenha sido enfileirado antes
+      // da validação ou por uma tool antiga.
+      const [settings] = await db
+        .select()
+        .from(metaOrgSettings)
+        .where(eq(metaOrgSettings.orgId, job.orgId))
+        .limit(1);
+      const budgetInput: Parameters<typeof validateBudget>[0] = {
+        limits: {
+          maxDailyBudgetCents: settings?.maxDailyBudgetCents ?? 10_000_00,
+          maxLifetimeBudgetCents: settings?.maxLifetimeBudgetCents ?? 100_000_00,
+        },
+      };
+      if (daily !== null) {
+        budgetInput.dailyBudgetCents = daily;
+      }
+      if (lifetime !== null) {
+        budgetInput.lifetimeBudgetCents = lifetime;
+      }
+      const budgetValidation = validateBudget(budgetInput);
+      if (!budgetValidation.valid) {
+        throw new DomainError(
+          'INVALID_INPUT',
+          `UPDATE_BUDGET rejeitado: ${budgetValidation.errors.join('; ')}`,
+        );
+      }
       const budget = { dailyBudgetCents: daily, lifetimeBudgetCents: lifetime };
       await meta.updateCampaignBudget(campaignLink.providerCampaignId, budget);
       await db

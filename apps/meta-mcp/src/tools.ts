@@ -35,6 +35,18 @@ const idempotencySchema = z.string().min(8).max(64);
 
 type Ctx = McpContext;
 
+/**
+ * Restrição de org (P2 da auditoria final): quando MCP_ALLOWED_ORG_ID está
+ * configurado, o servidor MCP só opera na org autorizada — o orgId é um
+ * argumento do chamador e não há sessão de usuário no stdio.
+ */
+const allowedOrgId = process.env.MCP_ALLOWED_ORG_ID ?? null;
+function assertOrgAllowed(orgId: string): void {
+  if (allowedOrgId && orgId !== allowedOrgId) {
+    throw invalidInput('Organização não autorizada para este servidor MCP');
+  }
+}
+
 /** Enfileira intent de alta impacto em meta_sync_jobs (idempotente). */
 async function enqueueIntent(
   db: AppDb,
@@ -85,6 +97,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const rows = await db
           .select({
             id: metaConnections.id,
@@ -135,6 +148,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const rows = await db
           .select()
           .from(metaAssets)
@@ -183,6 +197,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const [property] = await db
           .select()
           .from(properties)
@@ -243,6 +258,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const [adset] = await db
@@ -314,6 +330,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const [profile] = await db
@@ -362,6 +379,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const [snapshot] = await db
@@ -416,6 +434,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const [property] = await db
           .select({ id: properties.id })
           .from(properties)
@@ -502,6 +521,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         if (!meta) throw invalidInput('Meta Ads não configurado');
         const [property] = await db
           .select()
@@ -640,6 +660,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         if (!meta) throw invalidInput('Meta Ads não configurado');
         const profile = await resolveProfile(db, args.orgId, args.adProfileId);
         if (!profile) throw notFound('AdProfile não encontrado');
@@ -793,6 +814,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued } = await enqueueIntent(
@@ -841,6 +863,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued } = await enqueueIntent(
@@ -878,6 +901,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued } = await enqueueIntent(
@@ -917,6 +941,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         if ((args.dailyBudgetCents === undefined) === (args.lifetimeBudgetCents === undefined)) {
@@ -963,6 +988,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued } = await enqueueIntent(
@@ -1002,6 +1028,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const [adset] = await db
@@ -1055,6 +1082,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued } = await enqueueIntent(
@@ -1091,6 +1119,7 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
     },
     async (args) => {
       try {
+        assertOrgAllowed(args.orgId);
         const campaign = await resolveCampaignLink(db, args.orgId, args.campaignId);
         if (!campaign) throw notFound('Campanha não encontrada');
         const { queued, jobId } = await enqueueIntent(

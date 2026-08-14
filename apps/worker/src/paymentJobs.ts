@@ -12,6 +12,7 @@ import {
 } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
+  DomainError,
   isChargeStatus,
   isLeaseStatus,
   isPaymentStatus,
@@ -69,6 +70,15 @@ export async function processPaymentJob(
   if (eventType === 'PAYMENT_CONFIRMED') {
     if (payment.status === 'CONFIRMED') {
       return; // idempotente
+    }
+    // P1 (auditoria final): NUNCA creditar sem confirmação no provider.
+    // Um webhook forjado com providerChargeId não confirma o pagamento real.
+    const providerStatus = await provider.getChargeStatus(charge.providerChargeId ?? '');
+    if (providerStatus !== 'CONFIRMED') {
+      throw new DomainError(
+        'PROVIDER_ERROR',
+        `Pagamento não confirmado no provider (status ${providerStatus})`,
+      );
     }
     transitionPayment(payment.status as PaymentStatus, 'CONFIRMED');
     transitionCharge(charge.status as ChargeStatus, 'PAID');
@@ -130,6 +140,10 @@ export async function processPaymentJob(
       payload: { paymentId: payment.id, amountCents: payment.amountCents },
     });
   } else if (eventType === 'PAYMENT_REFUNDED') {
+    // Confirma estorno no provider antes de marcar localmente (P2-6).
+    if (charge.providerChargeId) {
+      await provider.refundPayment(charge.providerChargeId);
+    }
     transitionPayment(payment.status as PaymentStatus, 'REFUNDED');
     transitionCharge(charge.status as ChargeStatus, 'REFUNDED');
     await db.update(payments).set({ status: 'REFUNDED' }).where(eq(payments.id, payment.id));
@@ -137,6 +151,18 @@ export async function processPaymentJob(
       .update(charges)
       .set({ status: 'REFUNDED', updatedAt: new Date() })
       .where(eq(charges.id, charge.id));
+    // Reversão contábil do pagamento (T2'): AR_RECEIVABLE débito / CASH crédito.
+    await postLedgerTransaction(db, job.orgId, randomUUID(), 'REFUND', payment.id, [
+      { code: 'AR_RECEIVABLE', amountCents: payment.amountCents },
+      { code: 'CASH', amountCents: -payment.amountCents },
+    ]);
+    await writeAudit(db, {
+      orgId: job.orgId,
+      action: AUDIT_ACTIONS.PAYMENT_REFUNDED,
+      entityType: 'CHARGE',
+      entityId: charge.id,
+      payload: { paymentId: payment.id, amountCents: payment.amountCents },
+    });
   } else if (eventType === 'PAYMENT_OVERDUE') {
     if (isChargeStatus(charge.status) && charge.status === 'OPEN') {
       transitionCharge('OPEN', 'OVERDUE');

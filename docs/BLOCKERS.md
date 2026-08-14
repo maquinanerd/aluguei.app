@@ -55,9 +55,12 @@ O agente deve registrar aqui apenas dependï¿½ncias externas reais: credenciais, 
 - Reporting: KPIs (leads-funnel, revenue-monthly via ledger AGENCY_FEE_REVENUE, meta-spend via snapshots) e exportacao CSV/JSON com RBAC
   report:export, max 10.000 linhas, rate limit 10/min, auditoria e whitelist de colunas por papel (sem PII desnecessaria) - ADR-034.
 
-
 ## Fase 11 - Hardening
 
-- 3 vulnerabilidades pnpm audit --prod: 2 high (image-size DoS em ICNS/JXL/HEIF) e 1 moderate (uuid bounds check em v3/v5/v6) — TODAS transitivas do tooling Expo (metro/@expo/config-plugins via apps/mobile), nao expostas em runtime da API/CRM. Sem fix sem upgrade do SDK Expo (versoes estaveis/suportadas exigidas); monitoradas no CI via pnpm security:audit (informativo) + gate bloqueante para novos critical (docs/THREAT_MODEL.md).
+- 2 vulnerabilidades pnpm audit --prod: image-size (DoS em ICNS/JXL/HEIF) â€” fix publicado exige >=2.0.3 que NAO existe no npm (ultima 2.0.2; 2.x quebra o metro). Mantido 1.2.1 por compatibilidade; nao exposto em runtime da API/CRM; monitorado no CI via pnpm security:audit (informativo) + gate bloqueante para novos critical (docs/THREAT_MODEL.md). A vuln moderate uuid (bounds check) foi zerada via pnpm.overrides (pnpm-workspace.yaml).
 - Observabilidade/SLOs definidos em docs/SLO.md com medidores via @aluguei/observability (pino + OTEL); coleta de metricas em producao depende da implantacao (fora do MVP).
-- Backup/restore documentado em docs/OPERATIONS.md (pg_dump + PITR; RPO/RTO em SLO.md) — procedimento nao executado em ambiente real (sem infraestrutura).
+- Backup/restore documentado em docs/OPERATIONS.md (pg_dump + PITR; RPO/RTO em SLO.md) â€” procedimento nao executado em ambiente real (sem infraestrutura).
+
+## Fase 12 - Final Audit
+
+- Auditoria de seguranca final: 0 P0, 3 P1 corrigidos (webhook payments agora confirma no provider antes de creditar + valida ASAAS_WEBHOOK_TOKEN; webhook WhatsApp valida X-Hub-Signature-256 quando META_APP_SECRET configurado; UPDATE_BUDGET valida caps da org na rota, tool MCP e worker) e 7 P2 tratados (ownership em intents, MCP_ALLOWED_ORG_ID, redacao EAAG, refund com reversao contabil + confirmacao no provider, overrides uuid). P2-7 (content de contrato antes de SIGNED para staff) e decisao documentada: staff interno revisa antes de enviar â€” portal externo segue o gate SIGNED.

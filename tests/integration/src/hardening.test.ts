@@ -176,4 +176,117 @@ describe('Fase 11: Hardening (readiness, rate limits, cross-tenant)', () => {
       .where(and(eq(metaWebhookEvents.providerEventId, event.providerEventId)));
     expect(rows.length).toBe(1);
   });
+
+  it('webhook WhatsApp: X-Hub-Signature-256 exigida quando META_APP_SECRET configurado', async () => {
+    process.env.META_APP_SECRET = 'app-secret-de-teste';
+    try {
+      const noSignature = await app.inject({
+        method: 'POST',
+        url: '/webhooks/whatsapp',
+        payload: { entry: [], object: 'whatsapp_business_account' },
+      });
+      expect(noSignature.statusCode).toBe(401);
+
+      const { createHmac } = await import('node:crypto');
+      const raw = JSON.stringify({ entry: [], object: 'whatsapp_business_account' });
+      const signature = `sha256=${createHmac('sha256', 'app-secret-de-teste').update(raw).digest('hex')}`;
+      const valid = await app.inject({
+        method: 'POST',
+        url: '/webhooks/whatsapp',
+        headers: { 'x-hub-signature-256': signature },
+        payload: { entry: [], object: 'whatsapp_business_account' },
+      });
+      // payload vazio → sem mensagens → 200 (assinatura válida aceita)
+      expect(valid.statusCode).toBe(200);
+    } finally {
+      delete process.env.META_APP_SECRET;
+    }
+  });
+
+  it('webhook payments: token ASAAS exigido quando ASAAS_WEBHOOK_TOKEN configurado', async () => {
+    process.env.ASAAS_WEBHOOK_TOKEN = 'token-teste';
+    try {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/webhooks/payments',
+        payload: {
+          provider: 'FAKE',
+          eventType: 'PAYMENT_CONFIRMED',
+          providerEventId: `tok-${Math.random().toString(36).slice(2, 8)}`,
+          providerChargeId: 'pc.fake.xxxxxxxxxxxx',
+          amountCents: 100_000,
+          paidAt: '2026-11-05T00:00:00.000Z',
+        },
+      });
+      expect(res.statusCode).toBe(401);
+    } finally {
+      delete process.env.ASAAS_WEBHOOK_TOKEN;
+    }
+  });
+
+  it('UPDATE_BUDGET: orçamento acima do teto da org é rejeitado (400)', async () => {
+    const { cookie, body } = await registerUser(app);
+    // Seed: conexão + adProfile + campanha (caps default: daily max 10_000_00)
+    const { metaConnections, metaCampaignLinks, metaAdProfiles, properties } =
+      await import('@aluguei/db');
+    const [property] = await app.db
+      .insert(properties)
+      .values({ orgId: body.org.id, title: 'Casa Budget', propertyType: 'HOUSE' })
+      .returning();
+    const [connection] = await app.db
+      .insert(metaConnections)
+      .values({ orgId: body.org.id, status: 'ACTIVE', scopes: [] })
+      .returning();
+    const [profile] = await app.db
+      .insert(metaAdProfiles)
+      .values({
+        orgId: body.org.id,
+        connectionId: connection?.id ?? '',
+        propertyId: property?.id ?? '',
+        name: 'Campanha Budget',
+        objective: 'OUTCOME_TRAFFIC',
+        specialAdCategories: ['HOUSING'],
+        dailyBudgetCents: 1_000_00,
+        mediaSelection: [],
+        landingUrl: 'https://x.app',
+        copyPrimary: 'Copy',
+        status: 'CREATED',
+      })
+      .returning();
+    const [campaign] = await app.db
+      .insert(metaCampaignLinks)
+      .values({
+        orgId: body.org.id,
+        adProfileId: profile?.id ?? '',
+        providerCampaignId: 'cmp_budget_test',
+        name: 'Campanha Budget',
+        objective: 'OUTCOME_TRAFFIC',
+        specialAdCategories: ['HOUSING'],
+        dailyBudgetCents: 1_000_00,
+        status: 'CREATED_PAUSED',
+      })
+      .returning();
+
+    const overLimit = await app.inject({
+      method: 'POST',
+      url: `/meta/campaigns/${campaign?.id ?? ''}/budget`,
+      headers: { cookie },
+      payload: {
+        dailyBudgetCents: 99_999_99,
+        idempotencyKey: `bgt-${Math.random().toString(36).slice(2, 8)}`,
+      },
+    });
+    expect(overLimit.statusCode).toBe(400);
+
+    const within = await app.inject({
+      method: 'POST',
+      url: `/meta/campaigns/${campaign?.id ?? ''}/budget`,
+      headers: { cookie },
+      payload: {
+        dailyBudgetCents: 5_000_00,
+        idempotencyKey: `bgt-${Math.random().toString(36).slice(2, 8)}`,
+      },
+    });
+    expect(within.statusCode).toBe(202);
+  });
 });

@@ -20,4 +20,11 @@ export interface IPaymentProvider {
   getChargeStatus(providerChargeId: string): Promise<PaymentChargeStatus>;
   cancelCharge(providerChargeId: string): Promise<void>;
   refundPayment(providerPaymentId: string): Promise<void>;
+  /**
+   * Hook opcional usado pelo webhook de pagamento: confirma a cobrança no
+   * provider (modo FAKE/sandbox). Provider real não expõe — a confirmação
+   * vem do próprio provider. O worker SEMPRE confirma via getChargeStatus
+   * antes de creditar (P1 da auditoria final).
+   */
+  confirmCharge?(providerChargeId: string): Promise<void>;
 }

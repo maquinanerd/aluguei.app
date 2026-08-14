@@ -29,6 +29,12 @@ export class FakePaymentProvider implements IPaymentProvider {
     return Promise.resolve(this.statuses.get(providerChargeId) ?? 'PENDING');
   }
 
+  /** Confirma a cobrança no provider (webhook FAKE) — o worker só credita se CONFIRMED. */
+  confirmCharge(providerChargeId: string): Promise<void> {
+    this.statuses.set(providerChargeId, 'CONFIRMED');
+    return Promise.resolve();
+  }
+
   cancelCharge(providerChargeId: string): Promise<void> {
     this.statuses.set(providerChargeId, 'FAILED');
     return Promise.resolve();

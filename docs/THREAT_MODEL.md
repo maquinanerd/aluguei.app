@@ -94,7 +94,7 @@ Aplicado na Fase 11 (Hardening). Estrutura: ativo → ameaça → controle exist
 
 ## Gap residual (aceito/documentado)
 
-- 3 vulnerabilidades `pnpm audit --prod` — transitivas do tooling Expo (`image-size` DoS em parser de imagem usado pelo metro; `uuid` bounds check nas config-plugins). Não expostas em runtime da API/CRM; sem fix sem upgrade do SDK Expo. Monitorar via `pnpm security:audit` no CI (não bloqueante).
+- 2 vulnerabilidades `pnpm audit --prod` — `image-size` (DoS em parser de imagem usado pelo metro/Expo): o fix publicado exige `>=2.0.3`, que NÃO existe no npm (última 2.0.2; 2.x quebra o metro). Mantido 1.2.1 por compatibilidade; não exposto em runtime da API/CRM; monitorar via `pnpm security:audit` no CI (informativo) + gate bloqueante para novos critical. A vuln moderate `uuid` (bounds check) foi resolvida via `pnpm.overrides: { uuid: '>=11.1.1' }` (pnpm-workspace.yaml).
 - Entrega de token de portal por e-mail: manual no MVP (sem provider de e-mail) — `IMPLEMENTED_NOT_LIVE_VERIFIED` (docs/BLOCKERS.md).
 
 ## Correções aplicadas nesta fase

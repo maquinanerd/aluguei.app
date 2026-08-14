@@ -22,6 +22,11 @@ export async function recordToolCall(
     idempotencyKey: input.idempotencyKey ?? null,
     inputDigest: input.inputRaw ? digestInput(input.inputRaw) : null,
     status: input.status,
-    error: input.error ? input.error.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 500) : null,
+    error: input.error
+      ? input.error
+          .replace(/https?:\/\/[^\s]+/g, '[url]')
+          .replace(/\bEAAG[0-9A-Za-z_-]{10,}/g, '[token]')
+          .slice(0, 500)
+      : null,
   });
 }

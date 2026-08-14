@@ -1,11 +1,11 @@
 ﻿# Estado da execução autônoma
 
 - current_phase: 12
-- status: GREEN
-- last_completed_phase: 11 Hardening
-- last_commit: fase 11 (hardening)
-- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md)
-- tests: passing (format/lint/typecheck/test 20 tasks incl. hardening 6 PGlite/build green + secret scan)
+- status: GREEN (todas as fases 01-12 concluídas)
+- last_completed_phase: 12 Final Audit
+- last_commit: fase 12 (final-audit)
+- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md)
+- tests: passing (format/lint/typecheck/test 20 tasks / integration 79 PGlite / build green / secret scan limpo / audit 0 critical)
 - updated_at: 2026-08-14
 
 ## Fases
@@ -21,4 +21,4 @@
 - [x] 09 Meta MCP + Ads — Conexão Meta com token criptografado (ADR-028), ativos locais, AdProfile com validação de material/Housing/budget (ADR-031), criação de campanha CREATED_PAUSED via IMetaAdsProvider (Fake; Graph real SEM adapter — ADR-024-style), intents de alta impacto em meta_sync_jobs (ADR-029), insights em snapshots com spend em centavos, webhook via inbox (ADR-027), apps/meta-mcp com 17 tools stdio (ADR-026/030), RBAC meta:read/meta:write. ADR-026/027/028/029/030/031.
 - [x] 10 Portals + Reporting — Portal externo proprietário/locatário com grant `portal_access` + token one-time → sessão opaca revogável (ADR-032), extratos (locatário/proprietário) sobre valores persistidos, contratos com content só SIGNED, vistorias como relatório estruturado sem mídia bruta (ADR-033), pagamento com QR via portal (idempotente), reporting KPIs (leads-funnel, receita mensal via ledger, spend Meta) e exportação segura CSV/JSON com RBAC report:export + rate limit + auditoria (ADR-034), paginação em payouts/reconciliations/ad-profiles, páginas web /proprietario e /inquilino. ADR-032/033/034 (+backfill 026-031).
 - [x] 11 Hardening — Threat model aplicado (docs/THREAT_MODEL.md), readiness /health/ready com check de DB, rate limits sensíveis + trustProxy loopback + XFF + RedisStore (ADR-035), bodyLimit 1MB, error handler respeita 4xx de framework, secret scan local + CI (allowlist por valor), pnpm audit (informativo + gate critical), docs OPERATIONS (backup/restore) e SLO, a11y login, mobile offline banner + error boundary, testes cross-tenant ampliados (hardening 6). ADR-035.
-- [ ] 12 Final Audit
+- [x] 12 Final Audit — Auditoria ponta-a-ponta: gates completos, migrations from zero (11), E2E crítico (journey imóvel→portal), auditoria de segurança final (0 P0, 3 P1 corrigidos: webhook payments confirma no provider antes de creditar + valida ASAAS_WEBHOOK_TOKEN; WhatsApp valida X-Hub-Signature-256; UPDATE_BUDGET com caps da org na rota/tool/worker; +7 P2: ownership em intents, MCP_ALLOWED_ORG_ID, redação EAAG, refund com reversão contábil, override uuid), INTEGRATIONS.md atualizado, `docs/FINAL_REPORT.md` com classificações LIVE/SANDBOX/MOCK/IMPLEMENTED_NOT_LIVE_VERIFIED.
