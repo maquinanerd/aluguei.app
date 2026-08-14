@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 6
-current_phase_name: INBOX_SERVICE
-last_completed_phase: 5
-last_commit: feat(web): complete property and distribution UI
+current_phase: 7
+current_phase_name: SCREENING_CONTRACTS
+last_completed_phase: 6
+last_commit: feat(web): complete inbox visits and proposals UI
 p0: 0
 p1: 0
 build: green
@@ -20,26 +20,23 @@ accessibility: PENDING
 - Phase 02 — PEG Foundation & Calibration.
 - Phase 03 — Application Shell & Navigation.
 - Phase 04 — Dashboard & CRM.
-- Phase 05 — Properties, Media, Listings & Channels:
-  - /app/properties: lista table+grid, busca, filtro por status, row → Property 360.
-  - /app/properties/new: formulário de criação completo via createPropertyRequest.
-  - /app/properties/[id]: Property 360 (header + tabs dados/mídia/proprietário/
-    financeiro/histórico + context rail), features add/remove, termos financeiros
-    (PUT financial-terms), remoção com confirm. Histórico: gap registrado (timeline
-    não suporta PROPERTY entityType).
-  - /app/listings: lista, criação, transição de status (DRAFT→READY→PUBLISHED→PAUSED).
-  - /app/channels: resumo por canal, publicações por listing, publish/remove/
-    reconcile/import-leads com estados e retry.
-  - Validado runtime (fluxo completo): criar imóvel → termos → endereço público →
-    listing → publish no canal fake → summary reflete publicação.
+- Phase 05 — Properties, Media, Listings & Channels.
+- Phase 06 — Inbox, WhatsApp, Visits & Proposals:
+  - /app/inbox: shell 3 zonas (conversation list + active conversation + CRM
+    context panel), busca/filtro/status, thread de mensagens com direção, composer
+    (POST /conversations/:id/messages), handoff, intenções extraídas no contexto.
+  - /app/visits: lista com filtro por status, drawer de detalhe, agendamento.
+  - /app/proposals: lista com filtro, drawer de detalhe, criação (imóvel + aluguel
+    + condições + validade).
+  - Validado runtime: 3 rotas 200; create visit 201; create proposal 201.
 
 ## In progress
-- Phase 06 — Inbox, WhatsApp, Visits & Proposals (conversation list + detail +
-  CRM context, handoff; visit list/calendar/detail; proposals lifecycle).
+- Phase 07 — Screening, Contracts & Signatures (rental applications, screening
+  decision, contracts, templates, signature envelope).
 
 ## Next
-- Phase 06 → 07 Screening/Contracts → 08 Inspections/Leases → 09 Finance →
-  10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
+- Phase 07 → 08 Inspections/Leases → 09 Finance → 10 Marketing/Reporting →
+  11 Admin/Integrations → 12 Final Audit.
 
 ## Blockers
 - none known
