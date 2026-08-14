@@ -30,6 +30,17 @@ export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
 export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
 export { getWhatsAppMessenger } from './whatsapp/registry.js';
 export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
+
+export { MockInspectionAiProvider } from './inspection-ai/mock.js';
+export { getInspectionAiProvider } from './inspection-ai/registry.js';
+export type {
+  InspectionAiProvider,
+  InspectionMediaKind,
+  ObservationCategory,
+  ObservationSuggestion,
+  Severity,
+  TranscribeResult,
+} from './inspection-ai/types.js';
 export type {
   WhatsAppMessenger,
   WebhookMessageEvent,

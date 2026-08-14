@@ -43,6 +43,13 @@ export const AUDIT_ACTIONS = {
   CONVERSATION_MESSAGE_SENT: 'conversation.message_sent',
   WHATSAPP_WEBHOOK_RECEIVED: 'whatsapp.webhook_received',
   WHATSAPP_INBOX_PROCESSED: 'whatsapp.inbox_processed',
+  INSPECTION_CREATED: 'inspection.created',
+  INSPECTION_STATUS_CHANGED: 'inspection.status_changed',
+  INSPECTION_MEDIA_CONFIRMED: 'inspection.media_confirmed',
+  INSPECTION_PROCESS_REQUESTED: 'inspection.process_requested',
+  INSPECTION_OBSERVATION_CREATED: 'inspection.observation_created',
+  INSPECTION_SUGGESTION_RESOLVED: 'inspection.suggestion_resolved',
+  INSPECTION_COMPARISON_CREATED: 'inspection.comparison_created',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

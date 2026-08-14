@@ -39,6 +39,7 @@ import { channelRoutes } from './routes/channels.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
 import { whatsappConnectionRoutes } from './routes/whatsapp-connections.js';
+import { inspectionRoutes } from './routes/inspections.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -187,6 +188,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(webhookRoutes);
   await app.register(conversationRoutes);
   await app.register(whatsappConnectionRoutes);
+  await app.register(inspectionRoutes);
 
   return app;
 }

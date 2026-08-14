@@ -3,8 +3,18 @@ import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import { webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
-import { getAiProvider, getWhatsAppMessenger } from '@aluguei/integrations';
-import type { AiProvider, WhatsAppMessenger, WhatsAppRegistryOptions } from '@aluguei/integrations';
+import {
+  getAiProvider,
+  getInspectionAiProvider,
+  getWhatsAppMessenger,
+} from '@aluguei/integrations';
+import type {
+  AiProvider,
+  InspectionAiProvider,
+  WhatsAppMessenger,
+  WhatsAppRegistryOptions,
+} from '@aluguei/integrations';
+import { processInspectionJob } from './inspectionJobs.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
@@ -12,6 +22,7 @@ export interface RunInboxJobsOptions {
   log?: (msg: string) => void;
   ai?: AiProvider;
   messenger?: WhatsAppMessenger | null;
+  inspectionAi?: InspectionAiProvider;
 }
 
 interface InboxJob {
@@ -75,11 +86,14 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
           }
           return getWhatsAppMessenger(messengerOptions);
         })();
+  const inspectionAi = opts.inspectionAi ?? getInspectionAiProvider({});
 
   for (const job of jobs) {
     try {
       if (job.provider === 'WHATSAPP') {
         await processWhatsAppInboxJob(db, job, ai, messenger);
+      } else if (job.provider === 'INSPECTION') {
+        await processInspectionJob(db, job, inspectionAi);
       } else {
         throw new Error(`provider desconhecido: ${job.provider}`);
       }

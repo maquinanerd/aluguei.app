@@ -73,3 +73,19 @@ export {
 } from './whatsapp/propertyCode.js';
 
 export { advanceLeadTo } from './crm/funnel.js';
+
+export {
+  INSPECTION_STATUSES,
+  isInspectionStatus,
+  canTransitionInspection,
+  inspectionCompletionIssues,
+  transitionInspection,
+} from './inspection/stateMachine.js';
+export type { InspectionStatus, InspectionTransitionContext } from './inspection/stateMachine.js';
+
+export { computeInspectionDifferences } from './inspection/compare.js';
+export type {
+  ComparisonKind,
+  DifferenceItem,
+  ComparableObservation,
+} from './inspection/compare.js';

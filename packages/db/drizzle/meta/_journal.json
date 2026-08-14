@@ -43,6 +43,13 @@
       "when": 1786665919877,
       "tag": "0005_useful_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786666247511,
+      "tag": "0006_ambitious_ironclad",
+      "breakpoints": true
     }
   ]
 }

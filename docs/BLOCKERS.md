@@ -23,3 +23,8 @@ O agente deve registrar aqui apenas dependências externas reais: credenciais, A
 - `MetaWhatsAppAdapter` (Cloud API REST) implementado com zod, timeout 10s e verify token; sem credencial real de homologação → não validado contra a Meta live (`META_MODE=dry_run` usa FakeWhatsAppMessenger).
 - `AiProvider` com `MockAiProvider` (regras determinísticas); adapters OpenAI/Gemini reais adiados (registry é o gancho; sem chave nunca chama LLM externo).
 - Assinatura `X-Hub-Signature-256` validada quando `META_APP_SECRET` presente; sem secret, a segurança vem do verify token trocado na assinatura do webhook (documentado em INTEGRATIONS.md).
+
+## Fase 06 — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- `MockInspectionAiProvider` (transcrição/sugestões determinísticas por regras) é o padrão; adapters reais de transcrição/visão (LLM) exigem chave e devem obedecer o contrato de payload com EVIDÊNCIA OBSERVÁVEL apenas (nunca causa/diagnóstico) — nota em docs/AI_STRATEGY.md. Sem credencial → mock, nunca LLM externo.
+- Assinatura de vistoria (SIGNED) reservada: transição existe na máquina, rota rejeita com 400 até a Fase 07. PDF de relatório adiado para a fase de relatórios (10) — endpoint de snapshot estruturado disponível.
