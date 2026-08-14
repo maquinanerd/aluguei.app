@@ -12,6 +12,7 @@ import type {
   AiProvider,
   ISignatureProvider,
   IPaymentProvider,
+  IMetaAdsProvider,
 } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
@@ -52,10 +53,13 @@ import { contractRoutes } from './routes/contracts.js';
 import { leaseRoutes } from './routes/leases.js';
 import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
+import { metaRoutes } from './routes/meta.js';
 import { paymentsPlugin } from './plugins/payments.js';
 import { signaturePlugin } from './plugins/signature.js';
+import { metaPlugin } from './plugins/meta.js';
 import type { PaymentsPluginOptions } from './plugins/payments.js';
 import type { SignaturePluginOptions } from './plugins/signature.js';
+import type { MetaPluginOptions } from './plugins/meta.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -68,6 +72,7 @@ export interface BuildAppOptions extends FastifyServerOptions {
   ai?: AiProvider;
   signature?: ISignatureProvider;
   payments?: IPaymentProvider;
+  meta?: IMetaAdsProvider;
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -208,6 +213,18 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(paymentsPlugin, paymentsOptions);
 
+  const metaOptions: MetaPluginOptions = {};
+  if (opts.meta) {
+    metaOptions.meta = opts.meta;
+  }
+  if (env.META_MODE) {
+    metaOptions.mode = env.META_MODE;
+  }
+  if (env.META_ACCESS_TOKEN) {
+    metaOptions.accessToken = env.META_ACCESS_TOKEN;
+  }
+  await app.register(metaPlugin, metaOptions);
+
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(meRoutes);
@@ -232,6 +249,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(leaseRoutes);
   await app.register(chargeRoutes);
   await app.register(paymentsRoutes);
+  await app.register(metaRoutes);
 
   return app;
 }

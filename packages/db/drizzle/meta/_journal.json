@@ -64,6 +64,13 @@
       "when": 1786672695484,
       "tag": "0008_youthful_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786676338963,
+      "tag": "0009_outgoing_chamber",
+      "breakpoints": true
     }
   ]
 }

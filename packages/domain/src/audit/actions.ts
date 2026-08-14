@@ -78,6 +78,20 @@ export const AUDIT_ACTIONS = {
   FINANCE_BANK_ACCOUNT_CREATED: 'finance.bank_account_created',
   RECONCILIATION_REQUESTED: 'reconciliation.requested',
   RECONCILIATION_COMPLETED: 'reconciliation.completed',
+  META_CONNECTION_CREATED: 'meta.connection_created',
+  META_CONNECTION_UPDATED: 'meta.connection_updated',
+  META_AD_PROFILE_PREPARED: 'meta.ad_profile_prepared',
+  META_CAMPAIGN_CREATED: 'meta.campaign_created',
+  META_CAMPAIGN_PUBLISHED: 'meta.campaign_published',
+  META_CAMPAIGN_PAUSED: 'meta.campaign_paused',
+  META_CAMPAIGN_RESUMED: 'meta.campaign_resumed',
+  META_BUDGET_UPDATED: 'meta.budget_updated',
+  META_SCHEDULE_UPDATED: 'meta.schedule_updated',
+  META_CREATIVE_UPDATED: 'meta.creative_updated',
+  META_CAMPAIGN_ARCHIVED: 'meta.campaign_archived',
+  META_INSIGHTS_SYNCED: 'meta.insights_synced',
+  META_WEBHOOK_RECEIVED: 'meta.webhook_received',
+  META_TOOL_CALLED: 'meta.tool_called',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

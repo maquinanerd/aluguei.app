@@ -6,4 +6,5 @@ export * from './whatsapp.js';
 export * from './inspections.js';
 export * from './contracts.js';
 export * from './finance.js';
+export * from './meta.js';
 export * from './app-metadata.js';

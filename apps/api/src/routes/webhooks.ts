@@ -1,9 +1,20 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { charges, webhookInbox, whatsappConnections, signatureEnvelopes } from '@aluguei/db';
+import {
+  charges,
+  webhookInbox,
+  whatsappConnections,
+  signatureEnvelopes,
+  metaAssets,
+  metaWebhookEvents,
+} from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import { writeAudit } from '../plugins/audit.js';
-import { paymentWebhookEventSchema, signatureWebhookEventSchema } from '@aluguei/contracts';
+import {
+  metaWebhookEventSchema,
+  paymentWebhookEventSchema,
+  signatureWebhookEventSchema,
+} from '@aluguei/contracts';
 import type { VerifyWebhookParams } from '@aluguei/integrations';
 
 /**
@@ -159,6 +170,78 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
           payload: { ...input } as unknown as Record<string, unknown>,
         })
         .onConflictDoNothing();
+      return reply.status(200).send({ status: 'queued' });
+    },
+  );
+
+  app.get('/webhooks/meta', async (request, reply) => {
+    const query = request.query as {
+      'hub.mode'?: string;
+      'hub.verify_token'?: string;
+      'hub.challenge'?: string;
+    };
+    const verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
+    if (
+      query['hub.mode'] !== 'subscribe' ||
+      !verifyToken ||
+      query['hub.verify_token'] !== verifyToken
+    ) {
+      return reply.status(403).send({ error: 'Forbidden' });
+    }
+    return reply.type('text/plain').send(query['hub.challenge'] ?? '');
+  });
+
+  app.post(
+    '/webhooks/meta',
+    { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const input = metaWebhookEventSchema.parse(request.body);
+
+      // Resolve org pelo ad account (não confia em org_id do payload).
+      let orgId: string | null = null;
+      if (input.adAccountId) {
+        const [asset] = await db
+          .select({ orgId: metaAssets.orgId })
+          .from(metaAssets)
+          .where(
+            and(
+              eq(metaAssets.kind, 'AD_ACCOUNT'),
+              eq(metaAssets.providerAssetId, input.adAccountId),
+            ),
+          )
+          .limit(1);
+        orgId = asset?.orgId ?? null;
+      }
+      if (!orgId) {
+        return reply.status(200).send({ status: 'ignored' });
+      }
+
+      // Arquiva (dedup por provider_event_id UNIQUE) + enfileira no inbox.
+      await db
+        .insert(metaWebhookEvents)
+        .values({
+          orgId,
+          providerEventId: input.providerEventId,
+          eventType: input.eventType,
+          payload: { ...input } as unknown as Record<string, unknown>,
+        })
+        .onConflictDoNothing();
+      await db
+        .insert(webhookInbox)
+        .values({
+          orgId,
+          provider: 'META',
+          providerEventId: `META:${input.providerEventId}`,
+          payload: { ...input } as unknown as Record<string, unknown>,
+        })
+        .onConflictDoNothing();
+      await writeAudit(db, {
+        orgId,
+        action: AUDIT_ACTIONS.META_WEBHOOK_RECEIVED,
+        entityType: 'WEBHOOK',
+        entityId: 'meta',
+        payload: { eventType: input.eventType },
+      });
       return reply.status(200).send({ status: 'queued' });
     },
   );

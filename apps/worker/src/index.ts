@@ -6,9 +6,11 @@ import { getChannelAdapter } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { runChannelJobs } from './channelJobs.js';
 import { runInboxJobs } from './inboxJobs.js';
+import { runMetaJobs } from './metaJobs.js';
 import { startHeartbeat } from './heartbeat.js';
+import { getMetaAdsProvider } from '@aluguei/integrations';
 
-export { runChannelJobs, runInboxJobs };
+export { runChannelJobs, runInboxJobs, runMetaJobs };
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const JOB_POLL_INTERVAL_MS = 5_000;
@@ -51,8 +53,15 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
     return Promise.resolve({ processed: 0 });
   }
   const fakeChannel = opts.fakeChannel ?? undefined;
+  const metaAdsOptions: Parameters<typeof getMetaAdsProvider>[0] = {
+    mode: process.env.META_MODE === 'live' ? 'live' : 'dry_run',
+  };
+  if (process.env.META_ACCESS_TOKEN) {
+    metaAdsOptions.accessToken = process.env.META_ACCESS_TOKEN;
+  }
+  const metaAds = getMetaAdsProvider(metaAdsOptions);
 
-  const [channels, inbox] = await Promise.all([
+  const [channels, inbox, metaJobs] = await Promise.all([
     runChannelJobs({
       db,
       adapterFor: (channel) =>
@@ -61,8 +70,9 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
       log,
     }),
     runInboxJobs({ db, limit: 10, log }),
+    runMetaJobs({ db, meta: metaAds, limit: 10, log }),
   ]);
-  return { processed: channels.processed + inbox.processed };
+  return { processed: channels.processed + inbox.processed + metaJobs.processed };
 }
 
 /** Executa o worker. Com `--run-once`, um único ciclo (testável); senão loop com poll. */

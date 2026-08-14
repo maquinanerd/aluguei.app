@@ -27,6 +27,12 @@ export type { IdentityKind, DedupeMatch } from './crm/dedupe.js';
 export { AUDIT_ACTIONS } from './audit/actions.js';
 export type { AuditAction } from './audit/actions.js';
 
+export * from './meta/housing.js';
+export * from './meta/adMaterial.js';
+export * from './meta/budget.js';
+export * from './meta/stateMachine.js';
+export * from './meta/campaignFlow.js';
+
 export {
   LISTING_STATUSES,
   isListingStatus,

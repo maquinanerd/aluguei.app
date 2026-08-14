@@ -28,6 +28,7 @@ import {
   processPaymentSchedulerJob,
   processReconcileJob,
 } from './paymentJobs.js';
+import { processMetaWebhookJob } from './metaJobs.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
@@ -182,6 +183,8 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         await processPaymentSchedulerJob(db, job);
       } else if (job.provider === 'PAYMENT_RECONCILE') {
         await processReconcileJob(db, job, paymentProvider);
+      } else if (job.provider === 'META') {
+        await processMetaWebhookJob(db, job);
       } else {
         throw new Error(`provider desconhecido: ${job.provider}`);
       }

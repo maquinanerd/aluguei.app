@@ -42,6 +42,9 @@ export const envSchema = z.object({
   ASAAS_API_KEY: z.string().optional(),
   ASAAS_ENV: z.enum(['sandbox', 'production']).optional(),
   ASAAS_WEBHOOK_TOKEN: z.string().optional(),
+  META_ACCESS_TOKEN: z.string().optional(),
+  META_AD_ACCOUNT_ID: z.string().optional(),
+  META_TOKEN_ENCRYPTION_KEY: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
 });
 

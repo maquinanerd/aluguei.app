@@ -70,6 +70,19 @@ export type {
   CreateChargeResult,
   PaymentChargeStatus,
 } from './payments/types.js';
+
+export { FakeMetaAdsProvider } from './meta-ads/fake.js';
+export { getMetaAdsProvider } from './meta-ads/registry.js';
+export type { MetaAdsRegistryOptions } from './meta-ads/registry.js';
+export type {
+  IMetaAdsProvider,
+  MetaAssetInfo,
+  MetaCampaignInput,
+  MetaAdSetInput,
+  MetaCreativeInput,
+  MetaConnectionTestResult,
+  MetaInsights,
+} from './meta-ads/types.js';
 export type {
   WhatsAppMessenger,
   WebhookMessageEvent,

@@ -19,3 +19,4 @@ export * from './inspections.js';
 export * from './rental.js';
 export * from './contracts.js';
 export * from './finance.js';
+export * from './meta.js';
