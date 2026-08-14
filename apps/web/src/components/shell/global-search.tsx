@@ -27,7 +27,7 @@ export function GlobalSearch({ session }: { session: Session }) {
       }
     }
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); };
   }, []);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function GlobalSearch({ session }: { session: Session }) {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('pointerdown', onPointer);
-    return () => document.removeEventListener('pointerdown', onPointer);
+    return () => { document.removeEventListener('pointerdown', onPointer); };
   }, [open]);
 
   const results = useMemo(() => {

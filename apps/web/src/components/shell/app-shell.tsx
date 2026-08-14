@@ -329,7 +329,7 @@ function ProfileMenu({ session }: { session: Session }) {
       if (!ref.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('pointerdown', onPointer);
-    return () => document.removeEventListener('pointerdown', onPointer);
+    return () => { document.removeEventListener('pointerdown', onPointer); };
   }, [open]);
 
   async function logout() {

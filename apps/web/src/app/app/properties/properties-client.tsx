@@ -151,8 +151,8 @@ function PropertiesBody() {
         <div className="peg-stack" style={{ gap: 2 }}>
           <h1 className="app-page__title">Imóveis</h1>
           <p className="app-page__desc">
-            {totalCount} {totalCount === 1 ? 'imóvel' : 'imóveis'}
-            {activeCount !== null ? ` · ${activeCount} disponíveis` : ''}
+            {String(totalCount)} {totalCount === 1 ? 'imóvel' : 'imóveis'}
+            {activeCount !== null ? ` · ${String(activeCount)} disponíveis` : ''}
           </p>
         </div>
         <Group gap={8}>

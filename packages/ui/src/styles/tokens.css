@@ -85,8 +85,8 @@
   --peg-rail-width: 64px;
   --peg-topbar-height: 52px;
   --peg-inspector-width: 336px;
-  --peg-table-row-height: 52px;
-  --peg-table-row-dense: 40px;
+  --peg-table-row-height: 44px;
+  --peg-table-row-dense: 36px;
   --peg-content-max: 1280px;
 
   /* ---- App frame (shell contido no viewport) ---- */

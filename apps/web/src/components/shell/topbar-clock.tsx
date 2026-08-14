@@ -9,7 +9,7 @@ export function TopbarClock() {
   useEffect(() => {
     setNow(new Date());
     const id = setInterval(() => { setNow(new Date()); }, 30_000);
-    return () => clearInterval(id);
+    return () => { clearInterval(id); };
   }, []);
 
   if (!now) return <span className="peg-text-tertiary">hoje</span>;

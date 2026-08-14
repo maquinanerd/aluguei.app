@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { apiFetch } from '@/lib/api-server';
-import { Icon, Stack } from '@aluguei/ui';
+import { Icon } from '@aluguei/ui';
 import type { IconName } from '@aluguei/ui';
 import { formatBRLShort, formatDate } from '@aluguei/ui';
 import { label, CHANNEL_TYPE_LABELS, CHARGE_STATUS_LABELS, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
@@ -130,7 +130,6 @@ export default async function OverviewPage() {
   // ---- Tarefas ----
   const overdueTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) < now);
   const todayTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) >= todayStart && new Date(t.dueAt) <= now);
-  const weekTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) > now && new Date(t.dueAt) <= new Date(now.getTime() + 7 * 864e5));
   const actionCount = overdueTasks.length + todayTasks.length + leadsWithoutOwner + overdueCharges(charges).length + pendingSignatureCount(contracts) + failedChannelCount(channelSummary);
 
   // ---- Imóveis ----
@@ -148,9 +147,7 @@ export default async function OverviewPage() {
   const overdue = overdueCharges(charges);
   const openCharges = charges.filter((c) => c.status === 'OPEN');
   const scheduledCharges = charges.filter((c) => c.status === 'SCHEDULED');
-  const paidCharges = charges.filter((c) => c.status === 'PAID');
   const payoutsPending = payouts.filter((p) => p.status === 'PENDING');
-  const payoutsTotal = payoutsPending.reduce((acc, p) => acc + p.amountCents, 0);
 
   // ---- Atendimento ----
   const convOpen = conversations.filter((c) => c.status === 'OPEN' || c.status === 'ACTIVE' || c.status === 'NEEDS_HUMAN');
@@ -177,7 +174,7 @@ export default async function OverviewPage() {
       tone: 'danger',
       icon: 'alertTriangle',
       title: `Falha de sincronização: ${names}`,
-      body: `${failedChannels.reduce((acc, c) => acc + c.failed, 0)} publicações falharam. Revise a integração e reprocesse.`,
+      body: `${String(failedChannels.reduce((acc, c) => acc + c.failed, 0))} publicações falharam. Revise a integração e reprocesse.`,
       href: '/app/channels',
       action: 'Ver integração',
     });
@@ -186,7 +183,7 @@ export default async function OverviewPage() {
     alerts.push({
       tone: 'warning',
       icon: 'alertTriangle',
-      title: `${overdue.length} cobrança(s) vencida(s)`,
+      title: `${String(overdue.length)} cobrança(s) vencida(s)`,
       body: `${formatBRLShort(overdue.reduce((acc, c) => acc + c.amountCents, 0))} em valores em aberto aguardam ação.`,
       href: '/app/charges',
       action: 'Ver cobranças',
@@ -219,7 +216,7 @@ export default async function OverviewPage() {
           <h1 className="app-page__title">Bom dia, {firstName}</h1>
           <p className="app-page__desc">
             {actionCount > 0
-              ? `${actionCount} ${actionCount === 1 ? 'item exige' : 'itens exigem'} ação hoje · ${overdue.length} ${overdue.length === 1 ? 'vencimento financeiro' : 'vencimentos financeiros'} · ${failedChannels.length} ${failedChannels.length === 1 ? 'integração com erro' : 'integrações com erro'}`
+              ? `${String(actionCount)} ${actionCount === 1 ? 'item exige' : 'itens exigem'} ação hoje · ${String(overdue.length)} ${overdue.length === 1 ? 'vencimento financeiro' : 'vencimentos financeiros'} · ${String(failedChannels.length)} ${failedChannels.length === 1 ? 'integração com erro' : 'integrações com erro'}`
               : 'Nenhuma pendência operacional no momento.'}
           </p>
         </div>
@@ -322,7 +319,7 @@ export default async function OverviewPage() {
                   <span className="dash-cycle-row__bar-track">
                     <span
                       className="dash-cycle-row__bar"
-                      style={{ width: `${Math.round((s.value / cycleMax) * 100)}%` }}
+                      style={{ width: `${String(Math.round((s.value / cycleMax) * 100))}%` }}
                     />
                   </span>
                   <span className="dash-cycle-row__value">{s.value}</span>
