@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 9
-current_phase_name: FINANCE
-last_completed_phase: 8
-last_commit: feat(web): complete inspection and lease UI
+current_phase: 10
+current_phase_name: MARKETING_REPORTING
+last_completed_phase: 9
+last_commit: feat(web): complete finance operations UI
 p0: 0
 p1: 0
 build: green
@@ -23,22 +23,28 @@ accessibility: PENDING
 - Phase 05 — Properties, Media, Listings & Channels.
 - Phase 06 — Inbox, WhatsApp, Visits & Proposals.
 - Phase 07 — Screening, Contracts & Signatures.
-- Phase 08 — Inspections & Active Leases:
-  - /app/inspections: lista com filtros tipo/status + criação.
-  - /app/inspections/[id]: 360 com resumo (mídia/progresso), ambientes (CRUD rooms),
-    ocorrências (registro + severidade/categoria + origem IA/humano), revisão IA
-    (sugestões pendentes com aceitar/rejeitar — confirmação humana), relatório,
-    processar mídia, mudar status.
-  - /app/leases: lista com filtro + criação (contrato assinado).
-  - /app/leases/[id]: Lease 360 (partes, aluguel/condomínio, split agency/landlord
-    bps, cobranças por período com status e total em aberto, gerar cobrança, link contrato).
-  - Validado runtime: create inspection + room 201; UI detail 200.
+- Phase 08 — Inspections & Active Leases.
+- Phase 09 — Finance:
+  - /app/finance: overview operacional (em aberto, recebido, cobrado, repasses
+    pendentes, locação ativa).
+  - /app/charges: lista com filtro, criação, drawer de detalhe com breakdown
+    (aluguel/condomínio/multa/juros/desconto), receber (Pix/boleto/cartão/manual —
+    sandbox fake), cancelar, estornar.
+  - /app/payments: lista com filtro, método/status/provedor.
+  - /app/payouts: lista de repasses com status.
+  - /app/reconciliation: lista + conciliar (POST /reconciliations).
+  - /app/ledger: partidas de dupla entrada com filtro por conta, débitos/créditos/
+    saldo, referência auditável.
+  - Validado runtime: 6 rotas 200; ledger/accounts + entries respondem (vazio real
+    sem transações processadas; fluxo completo coberto por testes de integração do repo).
 
 ## In progress
-- Phase 09 — Finance (overview, charges, payments, payouts, split, reconciliation, ledger).
+- Phase 10 — Marketing, Meta, Channels Analytics & Reporting (conexão Meta, assets,
+  ad profiles, campanhas com create paused/publish/pause/resume/budget/schedule/
+  creative/archive/insights; reporting: funnel, receita mensal, meta spend, export).
 
 ## Next
-- Phase 09 → 10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
+- Phase 10 → 11 Admin/Integrations → 12 Final Audit.
 
 ## Blockers
 - none known
