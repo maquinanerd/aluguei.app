@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Breadcrumb,
   Button,
   Card,
   Checkbox,
@@ -32,6 +31,15 @@ interface PropertyPayload {
   furnished?: boolean;
   petsAllowed?: boolean;
 }
+
+/** Etapas do fluxo de captação (mockup) — reflete a visão do produto. */
+const STEPS = [
+  { label: 'Áudio', available: false },
+  { label: 'Transcrição', available: false },
+  { label: 'Revisão dos dados', available: true },
+  { label: 'Mídia e anúncio', available: false },
+  { label: 'Publicação', available: false },
+];
 
 function PropertyFormBody() {
   const router = useRouter();
@@ -87,53 +95,116 @@ function PropertyFormBody() {
   }
 
   return (
-    <Stack gap={4} style={{ maxWidth: 900, width: '100%', margin: '0 auto' }}>
-      <Breadcrumb items={[{ label: 'Painel', href: '/app' }, { label: 'Imóveis', href: '/app/properties' }, { label: 'Novo imóvel' }]} />
-      <div>
-        <h1 className="app-page__title">Novo imóvel</h1>
-        <p className="app-page__desc">Dados básicos do imóvel para começar o cadastro.</p>
-      </div>
+    <div className="focus-page">
+      {/* Header superior do Focus Mode (mockup) */}
+      <header className="focus-header">
+        <button
+          type="button"
+          className="peg-icon-btn peg-icon-btn--sm"
+          aria-label="Fechar e voltar para imóveis"
+          onClick={() => { router.push('/app/properties'); }}
+        >
+          <Icon name="x" size={18} />
+        </button>
+        <div className="peg-stack" style={{ gap: 0, minWidth: 0 }}>
+          <span className="focus-header__title">Novo imóvel</span>
+          <span className="focus-header__hint">Revisão dos dados do cadastro</span>
+        </div>
+        <div className="peg-spacer" />
+        <nav className="focus-stepper" aria-label="Progresso do cadastro">
+          {STEPS.map((s, i) => (
+            <span key={s.label} className="peg-group" style={{ gap: 6 }}>
+              <span
+                className={s.available ? 'focus-step focus-step--active' : 'focus-step'}
+                aria-current={s.available ? 'step' : undefined}
+              >
+                {s.available ? <Icon name="check" size={12} /> : String(i + 1)}
+              </span>
+              <span className={s.available ? 'focus-step__label focus-step__label--active' : 'focus-step__label'}>
+                {s.label}
+              </span>
+              {i < STEPS.length - 1 ? <span className="focus-stepper__sep" /> : null}
+            </span>
+          ))}
+        </nav>
+        <div className="peg-spacer" />
+        <Button variant="tertiary" size="sm" onClick={() => { router.push('/app/properties'); }}>
+          Cancelar
+        </Button>
+        <Button type="submit" form="property-form" variant="brand" size="sm" loading={busy} icon={<Icon name="check" size={14} />}>
+          Criar imóvel
+        </Button>
+      </header>
 
-      <form onSubmit={(e) => { void submit(e); }} className="peg-stack" style={{ gap: 20 }}>
-        <Card title="Identificação" padless>
-          <Stack gap={4} style={{ padding: 20 }}>
-            <Input label="Título do anúncio" required value={title} onChange={(e) => { setTitle(e.target.value); }} placeholder="Ex.: Apartamento 2 dormitórios na Vila Mariana" />
-            <div className="peg-grid cols-2">
-              <Select
-                label="Tipo de imóvel"
-                value={propertyType}
-                onChange={(e) => { setPropertyType(e.target.value); }}
-                options={Object.entries(PROPERTY_TYPE_LABELS).map(([v, l]) => ({ value: v, label: l }))}
-              />
-              <Input label="Área total (m²)" optional inputMode="decimal" value={totalAreaSqm} onChange={(e) => { setTotalAreaSqm(e.target.value); }} />
-            </div>
-            <div className="peg-grid cols-3">
-              <Input label="Dormitórios" optional inputMode="numeric" value={bedrooms} onChange={(e) => { setBedrooms(e.target.value); }} />
-              <Input label="Banheiros" optional inputMode="numeric" value={bathrooms} onChange={(e) => { setBathrooms(e.target.value); }} />
-              <Input label="Vagas" optional inputMode="numeric" value={parkingSpots} onChange={(e) => { setParkingSpots(e.target.value); }} />
-            </div>
-            <Input label="Área construída (m²)" optional inputMode="decimal" value={builtAreaSqm} onChange={(e) => { setBuiltAreaSqm(e.target.value); }} />
-            <Textarea label="Descrição" optional rows={4} value={description} onChange={(e) => { setDescription(e.target.value); }} placeholder="Descreva o imóvel para o anúncio…" />
+      <div className="focus-layout">
+        {/* Left rail (mockup ~340px): contexto do fluxo */}
+        <aside className="focus-rail">
+          <h2 className="peg-inspector__section-title">Captação por áudio</h2>
+          <p className="focus-rail__text">
+            Grave ou envie o áudio descrevendo o imóvel. O Aluguei.app transcreve e extrai os dados
+            automaticamente para revisão.
+          </p>
+          <Stack gap={2} style={{ marginTop: 12 }}>
+            <RailStep done={false} label="Gravar/enviar áudio" />
+            <RailStep done={false} label="Speech-to-text" />
+            <RailStep done={false} label="Extração estruturada" />
+            <RailStep done={false} label="Dados canônicos" />
+            <RailStep done label="Revisão humana" />
+            <RailStep done={false} label="Imagens + análise visual" />
+            <RailStep done={false} label="Texto do anúncio" />
+            <RailStep done={false} label="Canais + publicação" />
           </Stack>
-        </Card>
+          <div className="focus-rail__note">
+            A captação por voz e a análise de mídia por IA entram em uma próxima etapa do produto.
+            Por enquanto, você pode cadastrar os dados básicos manualmente.
+          </div>
+        </aside>
 
-        <Card title="Condições" padless>
-          <Group gap={6} style={{ padding: 20 }} wrap>
-            <Checkbox checked={furnished} onChange={() => { setFurnished((v) => !v); }} label="Mobiliado" ref={undefined} />
-            <Checkbox checked={petsAllowed} onChange={() => { setPetsAllowed((v) => !v); }} label="Aceita pets" ref={undefined} />
-          </Group>
-        </Card>
+        {/* Main column: dados extraídos / formulário real */}
+        <main className="focus-main">
+          <form id="property-form" onSubmit={(e) => { void submit(e); }} className="peg-stack" style={{ gap: 16 }}>
+            <Card title="Dados extraídos" padless>
+              <Stack gap={4} style={{ padding: 20 }}>
+                <Input label="Título do anúncio" required value={title} onChange={(e) => { setTitle(e.target.value); }} placeholder="Ex.: Apartamento 2 dormitórios na Vila Mariana" />
+                <div className="peg-grid cols-2">
+                  <Select
+                    label="Tipo de imóvel"
+                    value={propertyType}
+                    onChange={(e) => { setPropertyType(e.target.value); }}
+                    options={Object.entries(PROPERTY_TYPE_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+                  />
+                  <Input label="Área total (m²)" optional inputMode="decimal" value={totalAreaSqm} onChange={(e) => { setTotalAreaSqm(e.target.value); }} />
+                </div>
+                <div className="peg-grid cols-3">
+                  <Input label="Dormitórios" optional inputMode="numeric" value={bedrooms} onChange={(e) => { setBedrooms(e.target.value); }} />
+                  <Input label="Banheiros" optional inputMode="numeric" value={bathrooms} onChange={(e) => { setBathrooms(e.target.value); }} />
+                  <Input label="Vagas" optional inputMode="numeric" value={parkingSpots} onChange={(e) => { setParkingSpots(e.target.value); }} />
+                </div>
+                <Input label="Área construída (m²)" optional inputMode="decimal" value={builtAreaSqm} onChange={(e) => { setBuiltAreaSqm(e.target.value); }} />
+                <Textarea label="Descrição" optional rows={4} value={description} onChange={(e) => { setDescription(e.target.value); }} placeholder="Descreva o imóvel para o anúncio…" />
+              </Stack>
+            </Card>
 
-        <Group gap={2} end>
-          <Button variant="tertiary" onClick={() => { router.push('/app/properties'); }}>
-            Cancelar
-          </Button>
-          <Button type="submit" variant="brand" loading={busy} icon={<Icon name="check" size={14} />}>
-            Criar imóvel
-          </Button>
-        </Group>
-      </form>
-    </Stack>
+            <Card title="Condições" padless>
+              <Group gap={6} style={{ padding: 20 }} wrap>
+                <Checkbox checked={furnished} onChange={() => { setFurnished((v) => !v); }} label="Mobiliado" ref={undefined} />
+                <Checkbox checked={petsAllowed} onChange={() => { setPetsAllowed((v) => !v); }} label="Aceita pets" ref={undefined} />
+              </Group>
+            </Card>
+          </form>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function RailStep({ done, label: l }: { done: boolean; label: string }) {
+  return (
+    <div className="focus-rail__step">
+      <span className={done ? 'focus-rail__step-dot focus-rail__step-dot--done' : 'focus-rail__step-dot'} />
+      <span className={done ? 'focus-rail__step-label focus-rail__step-label--done' : 'focus-rail__step-label'}>{l}</span>
+      {done ? <Icon name="check" size={12} className="peg-text-tertiary" /> : null}
+    </div>
   );
 }
 

@@ -17,6 +17,9 @@ import { TopbarClock } from './topbar-clock';
 
 const COLLAPSE_KEY = 'aluguei.sidebar.collapsed';
 
+/** Rotas Focus Mode (mockup): fluxo com navegação reduzida, sem shell normal. */
+const FOCUS_PREFIXES = ['/app/properties/new'];
+
 export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -25,6 +28,8 @@ export function AppShell({ session, children }: { session: Session; children: Re
   const crumbs = breadcrumbFor(pathname);
   const activeOrg = session.activeOrg;
   const role = activeRole(session);
+
+  const isFocus = FOCUS_PREFIXES.some((p) => pathname.startsWith(p));
 
   useEffect(() => {
     try {
@@ -172,6 +177,11 @@ export function AppShell({ session, children }: { session: Session; children: Re
       </footer>
     </>
   );
+
+  // Focus Mode: fluxo com navegação reduzida (mockup "Novo imóvel")
+  if (isFocus) {
+    return <div className="app-focus">{children}</div>;
+  }
 
   return (
     <div className="app-shell">
