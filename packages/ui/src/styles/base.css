@@ -1,0 +1,123 @@
+/* PEG base — reset, typography, foco e utilitários neutros. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--peg-font-family);
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--peg-text-primary);
+  background: var(--peg-canvas);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--peg-text-primary);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--aluguei-brand-strong);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Focus visible consistente e curto */
+:focus-visible {
+  outline: 2px solid var(--aluguei-brand-focus);
+  outline-offset: 1px;
+  border-radius: var(--peg-radius-xs);
+}
+
+/* Tipografia utilitária */
+.peg-text-secondary {
+  color: var(--peg-text-secondary);
+}
+.peg-text-tertiary {
+  color: var(--peg-text-tertiary);
+}
+.peg-text-disabled {
+  color: var(--peg-text-disabled);
+}
+.peg-text-strong {
+  font-weight: 500;
+}
+.peg-text-mono {
+  font-family: var(--peg-font-mono);
+}
+.peg-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Scrollbar discreta (WebKit) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--peg-border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

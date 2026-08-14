@@ -1,0 +1,122 @@
+/*
+ * PEG Product Design System — tokens
+ * Aluguei.app override (design authority: docs/frontend/00_DESIGN_AUTHORITY.md)
+ *
+ * Neutros Aluguei:
+ *   neutral.canvas = #FCFCFC · neutral.surface = #F0F0F0
+ *   neutral.mid    = #C7C7C7 · neutral.ink    = #2F332B
+ * Accent:
+ *   aluguei.brand.primary = #41945D · aluguei.brand.strong = #417D55
+ */
+
+:root {
+  /* ---- Color · light ---- */
+  --peg-canvas: #fcfcfc; /* neutral.canvas */
+  --peg-surface: #ffffff; /* cards/panels (PEG surface) */
+  --peg-surface-subtle: #f0f0f0; /* neutral.surface — áreas secundárias, hover leve */
+  --peg-surface-muted: #e9e9e6; /* selected/hover mais forte */
+  --peg-border: #e6e6e3; /* divisor padrão (derivado de neutral.mid) */
+  --peg-border-strong: #c7c7c7; /* neutral.mid — borders fortes, disabled, divisores */
+  --peg-text-primary: #2f332b; /* neutral.ink */
+  --peg-text-secondary: #5c6157; /* derivado de ink com opacidade controlada */
+  --peg-text-tertiary: #8b9087;
+  --peg-text-disabled: #b6b7bb;
+
+  /* ---- Brand (Aluguei) ---- */
+  --aluguei-brand: #41945d;
+  --aluguei-brand-strong: #417d55;
+  --aluguei-brand-subtle: #e9f1eb; /* nav active bg / selected */
+  --aluguei-brand-faint: #f3f7f4; /* hover leve de brand */
+  --aluguei-brand-on: #ffffff; /* texto sobre brand */
+  --aluguei-brand-focus: rgba(65, 148, 93, 0.35); /* focus ring */
+
+  /* ---- Semantic (independentes da marca) ---- */
+  --peg-success: #16a34a;
+  --peg-success-bg: #e9f7ee;
+  --peg-warning: #d97706;
+  --peg-warning-bg: #fdf3e3;
+  --peg-danger: #dc2626;
+  --peg-danger-bg: #fdecec;
+  --peg-info: #2563eb;
+  --peg-info-bg: #e9effd;
+
+  /* ---- Typography ---- */
+  --peg-font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --peg-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* ---- Radius ---- */
+  --peg-radius-xs: 4px;
+  --peg-radius-sm: 6px;
+  --peg-radius-md: 8px;
+  --peg-radius-lg: 12px;
+  --peg-radius-xl: 16px;
+
+  /* ---- Spacing ---- */
+  --peg-space-1: 4px;
+  --peg-space-2: 8px;
+  --peg-space-3: 12px;
+  --peg-space-4: 16px;
+  --peg-space-5: 20px;
+  --peg-space-6: 24px;
+  --peg-space-8: 32px;
+  --peg-space-10: 40px;
+  --peg-space-12: 48px;
+  --peg-space-16: 64px;
+
+  /* ---- Control heights ---- */
+  --peg-control-xs: 28px;
+  --peg-control-sm: 32px;
+  --peg-control-md: 36px;
+  --peg-control-lg: 40px;
+
+  /* ---- Layout ---- */
+  --peg-sidebar-width: 240px;
+  --peg-rail-width: 64px;
+  --peg-topbar-height: 52px;
+  --peg-inspector-width: 336px;
+  --peg-table-row-height: 52px;
+  --peg-table-row-dense: 40px;
+  --peg-content-max: 1280px;
+
+  /* ---- Elevation ---- */
+  --peg-shadow-1: 0 1px 2px rgba(47, 51, 43, 0.06), 0 1px 1px rgba(47, 51, 43, 0.04);
+  --peg-shadow-2: 0 4px 12px rgba(47, 51, 43, 0.1);
+  --peg-shadow-3: 0 12px 32px rgba(47, 51, 43, 0.16);
+
+  /* ---- Z-index ---- */
+  --peg-z-dropdown: 100;
+  --peg-z-tooltip: 110;
+  --peg-z-toast: 120;
+  --peg-z-modal: 130;
+  --peg-z-drawer: 140;
+
+  /* ---- Motion ---- */
+  --peg-duration-fast: 120ms;
+  --peg-duration-base: 180ms;
+  --peg-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-theme='dark'] {
+  --peg-canvas: #19191b;
+  --peg-surface: #202022;
+  --peg-surface-subtle: #262629;
+  --peg-surface-muted: #2d2d30;
+  --peg-border: #353538;
+  --peg-border-strong: #454549;
+  --peg-text-primary: #f5f5f5;
+  --peg-text-secondary: #b6b6ba;
+  --peg-text-tertiary: #8c8c91;
+  --peg-text-disabled: #6b6b70;
+
+  --aluguei-brand: #58b074;
+  --aluguei-brand-strong: #41945d;
+  --aluguei-brand-subtle: #23372a;
+  --aluguei-brand-faint: #1f2c24;
+  --aluguei-brand-on: #0f1511;
+  --aluguei-brand-focus: rgba(88, 176, 116, 0.4);
+
+  --peg-success: #3fae63;
+  --peg-warning: #e09b3f;
+  --peg-danger: #e55353;
+  --peg-info: #5b8beb;
+}

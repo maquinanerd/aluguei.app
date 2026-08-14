@@ -7,11 +7,31 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/base.css": "./src/styles/base.css",
+    "./styles/components.css": "./src/styles/components.css",
+    "./styles.css": "./src/styles/index.css"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run src"
+  },
+  "dependencies": {
+    "@aluguei/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
