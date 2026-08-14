@@ -6,7 +6,7 @@ import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
-import type { GeocodingService } from '@aluguei/integrations';
+import type { GeocodingService, WhatsAppMessenger, AiProvider } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
 import type { AppConfig } from './plugins/config.js';
@@ -17,6 +17,10 @@ import { storagePlugin } from './plugins/storage.js';
 import type { StoragePluginOptions } from './plugins/storage.js';
 import { geocodingPlugin } from './plugins/geocoding.js';
 import type { GeocodingPluginOptions } from './plugins/geocoding.js';
+import { whatsappPlugin } from './plugins/whatsapp.js';
+import type { WhatsAppPluginOptions } from './plugins/whatsapp.js';
+import { aiPlugin } from './plugins/ai.js';
+import type { AiPluginOptions } from './plugins/ai.js';
 import { setErrorHandler } from './errors.js';
 import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
@@ -32,6 +36,9 @@ import { propertyRoutes } from './routes/properties.js';
 import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
 import { channelRoutes } from './routes/channels.js';
+import { webhookRoutes } from './routes/webhooks.js';
+import { conversationRoutes } from './routes/conversations.js';
+import { whatsappConnectionRoutes } from './routes/whatsapp-connections.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -40,6 +47,8 @@ export interface BuildAppOptions extends FastifyServerOptions {
   storage?: StorageService;
   geocoding?: GeocodingService;
   channels?: { fake?: FakeChannel };
+  whatsapp?: WhatsAppMessenger;
+  ai?: AiProvider;
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -126,6 +135,39 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(geocodingPlugin, geocodingOptions);
 
+  const whatsappOptions: WhatsAppPluginOptions = {};
+  if (opts.whatsapp) {
+    whatsappOptions.messenger = opts.whatsapp;
+  }
+  if (env.META_MODE) {
+    whatsappOptions.mode = env.META_MODE;
+  }
+  if (env.WHATSAPP_ACCESS_TOKEN) {
+    whatsappOptions.accessToken = env.WHATSAPP_ACCESS_TOKEN;
+  }
+  if (env.WHATSAPP_PHONE_NUMBER_ID) {
+    whatsappOptions.phoneNumberId = env.WHATSAPP_PHONE_NUMBER_ID;
+  }
+  if (env.META_WEBHOOK_VERIFY_TOKEN) {
+    whatsappOptions.verifyToken = env.META_WEBHOOK_VERIFY_TOKEN;
+  }
+  await app.register(whatsappPlugin, whatsappOptions);
+
+  const aiOptions: AiPluginOptions = {};
+  if (opts.ai) {
+    aiOptions.ai = opts.ai;
+  }
+  if (env.AI_PROVIDER) {
+    aiOptions.provider = env.AI_PROVIDER;
+  }
+  if (env.OPENAI_API_KEY) {
+    aiOptions.openAiKey = env.OPENAI_API_KEY;
+  }
+  if (env.GEMINI_API_KEY) {
+    aiOptions.geminiKey = env.GEMINI_API_KEY;
+  }
+  await app.register(aiPlugin, aiOptions);
+
   app.decorate('channels', opts.channels ?? {});
 
   await app.register(healthRoutes);
@@ -142,6 +184,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(listingRoutes);
   await app.register(publicRoutes);
   await app.register(channelRoutes);
+  await app.register(webhookRoutes);
+  await app.register(conversationRoutes);
+  await app.register(whatsappConnectionRoutes);
 
   return app;
 }

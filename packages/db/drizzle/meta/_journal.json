@@ -29,6 +29,20 @@
       "when": 1786660554000,
       "tag": "0003_complex_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786663957679,
+      "tag": "0004_thin_rhino",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786665919877,
+      "tag": "0005_useful_valkyrie",
+      "breakpoints": true
     }
   ]
 }

@@ -53,3 +53,23 @@ export type {
   ChannelJobType,
   ChannelJobStatus,
 } from './channel/publication.js';
+
+export {
+  CONVERSATION_STATUSES,
+  isConversationStatus,
+  canTransitionConversation,
+  transitionConversation,
+} from './whatsapp/conversation.js';
+export type { ConversationStatus } from './whatsapp/conversation.js';
+
+export { extractIntentByRule } from './whatsapp/intents.js';
+export type { IntentKind, IntentExtraction } from './whatsapp/intents.js';
+
+export {
+  PROPERTY_CODE_RE,
+  parsePropertyCode,
+  codePrefixFor,
+  formatCode,
+} from './whatsapp/propertyCode.js';
+
+export { advanceLeadTo } from './crm/funnel.js';

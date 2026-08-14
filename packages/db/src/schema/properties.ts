@@ -24,6 +24,7 @@ export const properties = pgTable(
     description: text('description'),
     status: text('status').notNull().default('ACTIVE'), // ACTIVE | ARCHIVED (app-level)
     propertyType: text('property_type').notNull(), // APARTMENT | HOUSE | COMMERCIAL | LAND
+    code: text('code'),
     totalAreaSqm: doublePrecision('total_area_sqm'),
     builtAreaSqm: doublePrecision('built_area_sqm'),
     bedrooms: integer('bedrooms'),
@@ -37,6 +38,7 @@ export const properties = pgTable(
   (t) => [
     index('properties_org_idx').on(t.orgId),
     index('properties_org_status_idx').on(t.orgId, t.status),
+    uniqueIndex('properties_org_code_unique').on(t.orgId, t.code),
   ],
 );
 

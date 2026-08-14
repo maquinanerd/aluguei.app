@@ -17,6 +17,8 @@ export type Permission =
   | 'property:write'
   | 'listing:read'
   | 'listing:write'
+  | 'conversation:read'
+  | 'conversation:write'
   | 'member:read'
   | 'member:manage'
   | 'org:manage'
@@ -39,6 +41,8 @@ export const ALL_PERMISSIONS: readonly Permission[] = [
   'property:write',
   'listing:read',
   'listing:write',
+  'conversation:read',
+  'conversation:write',
   'member:read',
   'member:manage',
   'org:manage',
@@ -66,6 +70,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'property:write',
     'listing:read',
     'listing:write',
+    'conversation:read',
+    'conversation:write',
   ],
   inspector: [
     'lead:read',
@@ -77,6 +83,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'timeline:read',
     'property:read',
     'listing:read',
+    'conversation:read',
   ],
   finance: [
     'lead:read',
@@ -87,6 +94,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'timeline:read',
     'property:read',
     'listing:read',
+    'conversation:read',
   ],
   viewer: [
     'lead:read',
@@ -97,6 +105,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'timeline:read',
     'property:read',
     'listing:read',
+    'conversation:read',
   ],
 };
 

@@ -11,6 +11,10 @@
     "./channel-jobs": {
       "types": "./src/routes/channel-jobs.ts",
       "default": "./src/routes/channel-jobs.ts"
+    },
+    "./whatsapp": {
+      "types": "./src/whatsapp/gateway.ts",
+      "default": "./src/whatsapp/gateway.ts"
     }
   },
   "scripts": {

@@ -15,6 +15,9 @@ Registro append-only simplificado. O agente adiciona decisões reversíveis toma
 | ADR-009 | 2026-08-13 | Modelo Fase 03: soft delete de property, FKs SET NULL, fonte única de preço, slug único                           | Auditoria, integridade de referências, sem drift de preço                        | hard delete, priceCents no listing              | média           |
 | ADR-010 | 2026-08-13 | Jobs de canal: fila no Postgres com claim atômico (SKIP LOCKED), sem BullMQ/Redis                                 | CI sem Redis, PGlite suporta, volume de portais não exige fila externa           | BullMQ+Redis, outbox-only                       | média           |
 | ADR-011 | 2026-08-13 | IListingChannelAdapter em @aluguei/integrations + FakeChannel de referência; canais reais registrados sem adapter | Sem contrato oficial de portal acessível — nunca inventar endpoints              | package dedicado, endpoints de portal fictícios | alta            |
+| ADR-012 | 2026-08-13 | conversation_intents em tabela própria (não payload de timeline)                                                  | Intents são extrações reutilizáveis/queryáveis, não eventos                      | timeline payload                                | alta            |
+| ADR-013 | 2026-08-13 | properties.code (UNIQUE org) para código/link do imóvel no WhatsApp                                               | Slug é por anúncio; código curto amigável                                        | slug do listing                                 | média           |
+| ADR-014 | 2026-08-13 | Webhook WhatsApp processado via webhook_inbox (inbox/outbox)                                                      | SECURITY.md exige inbox; Meta retenta falhas; resposta 200 imediata              | processar inline, channel_sync_jobs             | média           |
 
 ## ADR-010 — Jobs de canal: fila no Postgres (Fase 04)
 

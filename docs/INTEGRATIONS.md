@@ -12,6 +12,8 @@ Uso: autocomplete/endereço, geocoding, mapa e validação de endereço quando c
 
 Uso: mensagens, webhooks, templates, identificação do lead/imóvel e atendimento inicial.
 
+Implementação (Fase 05): `WhatsAppMessenger` em `packages/integrations/src/whatsapp/` com `MetaWhatsAppAdapter` (REST Cloud API, IMPLEMENTED_NOT_LIVE_VERIFIED) e `FakeWhatsAppMessenger` (dev/test determinístico). Webhook `POST /webhooks/whatsapp` valida verify token → deduplica por `wa_message_id` → enfileira em `webhook_inbox` → responde 200; worker processa via `runInboxJobs`. Assinatura `X-Hub-Signature-256` validada quando `META_APP_SECRET` presente; sem secret, a segurança vem do verify token trocado na assinatura (não enviar body sensível no webhook). O bot responde APENAS com dados persistidos (termos financeiros/endereço público do imóvel); nunca inventa preço/disponibilidade. `AiProvider` (extração de intenção) usa mock por padrão; LLM real exige chave e nunca recebe PII além do texto da mensagem. Resolução de org do webhook via `whatsapp_connections` (phone_number_id). Nota: `FakeWhatsAppMessenger` mantém store em memória por processo — em dev, API e worker não compartilham outbox (relevante só para o canal fake).
+
 ## Portais imobiliários
 
 Criar `IListingChannelAdapter` com operações conceituais:

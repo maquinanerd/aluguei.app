@@ -17,3 +17,9 @@ O agente deve registrar aqui apenas dependências externas reais: credenciais, A
 
 - **LGPD — leads de canal sem consentimento registrado**: `importLeads` (worker) cria party+lead sem gravar `party_consents` (purpose `CHANNEL_LEAD_CONTACT`). O consentimento de leads provenientes de portais deve ser registrado na fase de Screening (Fase 07) antes de qualquer uso além de contato inicial.
 - **Retry automático de jobs**: FAILED volta elegível quando `run_at` vence (attempts < 5); acima disso exige re-enfileiramento manual via API. Sem dead-letter queue (jobs FAILED com attempts ≥ 5 ficam visíveis no painel com last_error).
+
+## Fase 05 — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- `MetaWhatsAppAdapter` (Cloud API REST) implementado com zod, timeout 10s e verify token; sem credencial real de homologação → não validado contra a Meta live (`META_MODE=dry_run` usa FakeWhatsAppMessenger).
+- `AiProvider` com `MockAiProvider` (regras determinísticas); adapters OpenAI/Gemini reais adiados (registry é o gancho; sem chave nunca chama LLM externo).
+- Assinatura `X-Hub-Signature-256` validada quando `META_APP_SECRET` presente; sem secret, a segurança vem do verify token trocado na assinatura do webhook (documentado em INTEGRATIONS.md).

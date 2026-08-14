@@ -10,6 +10,7 @@ const DOMAIN_STATUS: Record<string, number> = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
+  PROVIDER_ERROR: 502,
 };
 
 /** Error handler padrão: DomainError → status + ErrorResponse; ZodError → 400. */

@@ -5,7 +5,10 @@ import type { AppDb } from '@aluguei/db';
 import { getChannelAdapter } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { runChannelJobs } from './channelJobs.js';
+import { runInboxJobs } from './inboxJobs.js';
 import { startHeartbeat } from './heartbeat.js';
+
+export { runChannelJobs, runInboxJobs };
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const JOB_POLL_INTERVAL_MS = 5_000;
@@ -49,13 +52,17 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
   }
   const fakeChannel = opts.fakeChannel ?? undefined;
 
-  return runChannelJobs({
-    db,
-    adapterFor: (channel) =>
-      getChannelAdapter(channel as never, fakeChannel ? { fake: fakeChannel } : undefined),
-    limit: 10,
-    log,
-  });
+  const [channels, inbox] = await Promise.all([
+    runChannelJobs({
+      db,
+      adapterFor: (channel) =>
+        getChannelAdapter(channel as never, fakeChannel ? { fake: fakeChannel } : undefined),
+      limit: 10,
+      log,
+    }),
+    runInboxJobs({ db, limit: 10, log }),
+  ]);
+  return { processed: channels.processed + inbox.processed };
 }
 
 /** Executa o worker. Com `--run-once`, um único ciclo (testável); senão loop com poll. */

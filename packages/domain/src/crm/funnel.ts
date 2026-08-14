@@ -64,3 +64,31 @@ export function transitionLead(
   }
   return to;
 }
+
+/**
+ * Caminha o funil de `from` até `to` usando transições válidas (sem saltos).
+ * Retorna o estado final alcançado — nunca lança se o alvo for inalcançável.
+ */
+export function advanceLeadTo(from: FunnelStatus, to: FunnelStatus): FunnelStatus {
+  let current = from;
+  const order: FunnelStatus[] = [
+    'NEW',
+    'QUALIFYING',
+    'QUALIFIED',
+    'VISIT',
+    'PROPOSAL',
+    'APPLICATION',
+  ];
+  const fromIdx = order.indexOf(current);
+  const toIdx = order.indexOf(to);
+  if (fromIdx === -1 || toIdx === -1 || toIdx <= fromIdx) {
+    return current;
+  }
+  for (let idx = fromIdx; idx < toIdx; idx += 1) {
+    const next = order[idx + 1];
+    if (next && canTransition(current, next)) {
+      current = next;
+    }
+  }
+  return current;
+}

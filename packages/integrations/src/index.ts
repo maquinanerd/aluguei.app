@@ -19,3 +19,21 @@ export type {
   ChannelValidationResult,
   ChannelLeadInput,
 } from './channels/types.js';
+
+export { MockAiProvider } from './ai/mock.js';
+export { getAiProvider } from './ai/registry.js';
+export type { AiRegistryOptions } from './ai/registry.js';
+export type { AiProvider, IntentExtraction, IntentKind } from './ai/types.js';
+
+export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
+export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
+export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
+export { getWhatsAppMessenger } from './whatsapp/registry.js';
+export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
+export type {
+  WhatsAppMessenger,
+  WebhookMessageEvent,
+  SendTextResult,
+  VerifyWebhookParams,
+  VerifyWebhookResult,
+} from './whatsapp/types.js';

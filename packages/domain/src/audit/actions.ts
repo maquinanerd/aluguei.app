@@ -38,6 +38,11 @@ export const AUDIT_ACTIONS = {
   CHANNEL_IMPORT_LEADS_REQUESTED: 'channel.import_leads_requested',
   CHANNEL_JOB_SUCCEEDED: 'channel.job_succeeded',
   CHANNEL_JOB_FAILED: 'channel.job_failed',
+  CONVERSATION_CREATED: 'conversation.created',
+  CONVERSATION_HANDOFF_REQUESTED: 'conversation.handoff_requested',
+  CONVERSATION_MESSAGE_SENT: 'conversation.message_sent',
+  WHATSAPP_WEBHOOK_RECEIVED: 'whatsapp.webhook_received',
+  WHATSAPP_INBOX_PROCESSED: 'whatsapp.inbox_processed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
