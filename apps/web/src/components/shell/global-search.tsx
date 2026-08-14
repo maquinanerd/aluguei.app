@@ -103,7 +103,7 @@ export function GlobalSearch({ session }: { session: Session }) {
           ref={inputRef}
           type="text"
           className="peg-input__control"
-          placeholder="Buscar…"
+          placeholder="Buscar imóvel, lead, contato, cobrança"
           role="combobox"
           aria-label="Busca global"
           aria-expanded={visible}

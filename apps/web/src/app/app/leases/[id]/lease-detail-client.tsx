@@ -118,7 +118,7 @@ function LeaseBody() {
   }
 
   return (
-    <Stack gap={4} style={{ maxWidth: 1400, width: '100%', margin: '0 auto' }}>
+    <Stack gap={4} style={{ width: '100%' }}>
       <Breadcrumb items={[{ label: 'Painel', href: '/app' }, { label: 'Locações', href: '/app/leases' }, { label: property?.title ?? 'Locação' }]} />
 
       <div className="peg-card" style={{ padding: 20 }}>

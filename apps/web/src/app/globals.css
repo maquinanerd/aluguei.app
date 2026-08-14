@@ -308,11 +308,11 @@ body {
 .app-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--peg-space-6);
+  padding: var(--peg-page-padding);
 }
 
 .app-topbar__search {
-  width: 280px;
+  width: 340px;
 }
 
 .app-kbd {
@@ -410,13 +410,12 @@ body {
   }
 }
 
-/* Page header padrão */
+/* Page header padrão — workspace fluido (V3): sem max-width arbitrário.
+ * O padding horizontal vem de .app-content (24px desktop). */
 .app-page {
   display: flex;
   flex-direction: column;
   gap: var(--peg-space-4);
-  max-width: var(--peg-content-max);
-  margin: 0 auto;
   width: 100%;
 }
 
@@ -811,6 +810,12 @@ body {
 
 .dash-card {
   overflow: hidden;
+}
+
+/* Fila vazia: mantém geometria operacional (V3) — sem colapsar o módulo */
+.dash-queue .peg-empty {
+  min-height: 240px;
+  justify-content: center;
 }
 
 .dash-queue-row {

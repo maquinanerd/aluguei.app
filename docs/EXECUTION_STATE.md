@@ -1,10 +1,10 @@
 ﻿# Estado da execução autônoma
 
-- current_phase: 13 (Visual Fidelity V2)
-- status: GREEN (fases 01-12 + rodada de convergência visual concluídas)
-- last_completed_phase: 13 Visual Fidelity V2 (shell, sidebar, topbar, dashboard, imóveis, novo imóvel)
-- last_commit: fase 13 (visual-fidelity-v2)
-- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md + Playwright/screenshots de mockup ausentes — gap de tooling registrado em docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md)
+- current_phase: 13 (Visual Fidelity V3)
+- status: GREEN (fases 01-12 + V2 + V3 concluídas)
+- last_completed_phase: 13 Visual Fidelity V3 (workspace fluido, geometria dashboard, empty queue, topbar search)
+- last_commit: fase 13 (visual-fidelity-v3)
+- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md + Playwright/screenshots de mockup ausentes — gap de tooling registrado em docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md; comparação V3 via Chrome headless + CDP com medição real)
 - tests: passing (format/lint/typecheck 20 tasks / integration 79 PGlite / build green / secret scan limpo / audit 0 critical)
 - updated_at: 2026-08-14
 
@@ -23,3 +23,4 @@
 - [x] 11 Hardening — Threat model aplicado (docs/THREAT_MODEL.md), readiness /health/ready com check de DB, rate limits sensíveis + trustProxy loopback + XFF + RedisStore (ADR-035), bodyLimit 1MB, error handler respeita 4xx de framework, secret scan local + CI (allowlist por valor), pnpm audit (informativo + gate critical), docs OPERATIONS (backup/restore) e SLO, a11y login, mobile offline banner + error boundary, testes cross-tenant ampliados (hardening 6). ADR-035.
 - [x] 12 Final Audit — Auditoria ponta-a-ponta: gates completos, migrations from zero (11), E2E crítico (journey imóvel→portal), auditoria de segurança final (0 P0, 3 P1 corrigidos: webhook payments confirma no provider antes de creditar + valida ASAAS_WEBHOOK_TOKEN; WhatsApp valida X-Hub-Signature-256; UPDATE_BUDGET com caps da org na rota/tool/worker; +7 P2: ownership em intents, MCP_ALLOWED_ORG_ID, redação EAAG, refund com reversão contábil, override uuid), INTEGRATIONS.md atualizado, `docs/FINAL_REPORT.md` com classificações LIVE/SANDBOX/MOCK/IMPLEMENTED_NOT_LIVE_VERIFIED.
 - [x] 13 Visual Fidelity V2 — Convergência visual com mockups Claude Design + PEG: tokens recalibrados (active nav neutro, app frame, elevação), shell contido (radius/border/bg externo), sidebar por domínio com rail colapsável + profile footer, topbar com contexto + busca global ⌘K + atendimento, dashboard operacional com dados reais (alert strip, summary cards, fila, ciclo de locação, atendimento), property list densa com contagens/tabs, novo imóvel em Focus Mode, a11y (0 P0/P1), gates green. Gap de tooling: sem Playwright/screenshots de mockup no workspace (comparação estrutural sobre markdown). Detalhes em `docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md` e `docs/frontend/FINAL_FRONTEND_REPORT.md` (§ Visual Fidelity V2).
+- [x] 14 Visual Fidelity V3 — Refinamento final com medição real (Chrome headless + CDP): causa raiz de whitespace lateral identificada e provada — `.app-page` com `max-width: 1280px` + `margin: 0 auto` (folga 29px @1600 → 101px @1792 → 165px @1920). Workspace fluido (`--peg-page-padding: 24px`, sem max-width) em todas as telas operacionais (dashboard, listas, 360 com inspector, inbox). Fila vazia com min-height 240px (geometria estável), busca global 340px + placeholder específico, token órfão `--peg-content-max` removido. AFTER medido: page = workspace−24px/lado em 1440/1600/1792/1920; properties sem regressão; new-property Focus Mode intacto. P0 = 0, P1 = 0; gates green (lint/typecheck/test web+ui/integration 79/build/secret scan). Evidência: `docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V3.md`.

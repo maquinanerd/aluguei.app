@@ -118,6 +118,17 @@ dark-mode badge danger latente (tema dark não ativado hoje), foco `--aluguei-br
 Nenhum número fictício dos screenshots (418, 86, 31, R$ 18,4k etc.) foi inserido. Todos os
 valores vêm dos endpoints reais; estados vazios preservam a composição do mockup com zeros.
 
+## Visual Fidelity V3
+
+Refinamento final com **medição real** (Chrome headless + CDP + sessão de teste): o dashboard
+estava centralizado por `max-width: 1280px` em `.app-page`, gerando folga lateral que crescia
+com a viewport (29px @1600 → 101px @1792 → 165px @1920). Corrigido para workspace fluido
+(`--peg-page-padding: 24px`, sem max-width) em todas as telas operacionais (dashboard, listas,
+360 com inspector, inbox). Fila vazia com min-height 240px mantém geometria; busca global
+340px com placeholder específico. AFTER medido: page = workspace−24px/lado em 1440/1600/1792/1920;
+properties sem regressão; new-property (Focus Mode) intacto. P0 = 0, P1 = 0.
+Evidência: `docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V3.md`.
+
 ## Nota
 
 Nenhum efeito externo real (dinheiro, assinatura, WhatsApp, Meta Ads) foi executado em

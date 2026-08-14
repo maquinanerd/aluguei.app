@@ -278,7 +278,7 @@ export default async function OverviewPage() {
 
       {/* Fila + coluna lateral */}
       <div className="dash-main">
-        <section className="peg-card dash-card">
+        <section className="peg-card dash-card dash-queue">
           <header className="peg-card__header">
             <div className="peg-stack" style={{ gap: 0 }}>
               <h3 className="peg-card__title">Próximas ações · minha fila</h3>

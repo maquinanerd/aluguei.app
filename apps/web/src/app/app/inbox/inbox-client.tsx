@@ -154,7 +154,7 @@ function InboxBody() {
   const intents = intentQ.data?.intents ?? [];
 
   return (
-    <div className="app-page" style={{ maxWidth: 1600 }}>
+    <div className="app-page">
       <div className="inbox-grid">
         {/* Conversation list */}
         <section className={cx('inbox-list', selectedId && 'inbox-list--hidden')}>
