@@ -16,7 +16,9 @@
     "format:check": "prettier --check .",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "db:generate": "turbo run db:generate",
-    "db:migrate": "turbo run db:migrate"
+    "db:migrate": "turbo run db:migrate",
+    "security:scan": "node scripts/security-scan.mjs",
+    "security:audit": "pnpm audit --prod"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -624,7 +624,10 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
 
   app.post(
     '/properties/:id/media/upload-url',
-    { onRequest: [requirePermission('property:write')] },
+    {
+      onRequest: [requirePermission('property:write')],
+      config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
+    },
     async (request) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
@@ -654,7 +657,10 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
 
   app.post(
     '/properties/:id/media/confirm',
-    { onRequest: [requirePermission('property:write')] },
+    {
+      onRequest: [requirePermission('property:write')],
+      config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);

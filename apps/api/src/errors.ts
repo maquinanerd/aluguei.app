@@ -37,6 +37,26 @@ export function setErrorHandler(app: FastifyInstance): void {
       });
     }
 
+    // Erros de framework com statusCode explícito (ex.: 429 rate limit, 413
+    // bodyLimit, 400 body parse) não podem virar 500 genérico.
+    const frameworkError = err as {
+      statusCode?: unknown;
+      message?: string;
+      name?: string;
+      code?: string;
+    };
+    const statusCode =
+      typeof frameworkError.statusCode === 'number' ? frameworkError.statusCode : null;
+    if (statusCode !== null && statusCode >= 400 && statusCode < 500) {
+      const message = frameworkError.message ?? 'Requisição inválida';
+      request.log.debug({ code: statusCode }, 'request rejected by framework');
+      return reply.status(statusCode).send({
+        error: 'RequestError',
+        code: frameworkError.code ?? 'REQUEST',
+        message,
+      });
+    }
+
     request.log.error({ err }, 'unhandled error');
     return reply.status(500).send({
       error: 'InternalServerError',

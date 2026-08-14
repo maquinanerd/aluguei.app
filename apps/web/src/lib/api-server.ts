@@ -59,6 +59,12 @@ export async function apiProxy(
   const headers = new Headers(init.headers);
   headers.set('content-type', 'application/json');
   headers.set('cookie', request.headers.get('cookie') ?? '');
+  // Propaga o IP real do cliente (via XFF) quando o Next está atrás de
+  // LB/CDN — preserva o primeiro XFF original (sem spoofing).
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    headers.set('x-forwarded-for', forwardedFor);
+  }
   const res = await fetch(`${apiBase()}${path}`, {
     ...init,
     headers,

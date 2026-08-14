@@ -32,6 +32,19 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Secret scan
+        run: pnpm security:scan
+
+      - name: Dependency audit (prod) — informativo
+        run: pnpm security:audit
+        continue-on-error: true
+        # Vulnerabilidades atuais são transitivas do tooling Expo (image-size);
+        # monitoradas manualmente — ver docs/THREAT_MODEL.md.
+
+      - name: Dependency audit (critical) — bloqueante
+        run: pnpm security:audit --audit-level=critical
+        # Novo critical em runtime/prod quebra o CI.
+
       - name: Test
         run: pnpm test
 

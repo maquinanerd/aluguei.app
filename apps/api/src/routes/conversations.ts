@@ -171,7 +171,10 @@ export const conversationRoutes: FastifyPluginAsync = (app) => {
 
   app.post(
     '/conversations/:id/messages',
-    { onRequest: [requirePermission('conversation:write')] },
+    {
+      onRequest: [requirePermission('conversation:write')],
+      config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);

@@ -79,6 +79,12 @@ export interface BuildAppOptions extends FastifyServerOptions {
   meta?: IMetaAdsProvider;
 }
 
+/** Key de rate limit: IP quando não autenticado; userId quando autenticado. */
+function defaultKeyGenerator(request: { ip?: string; auth?: { userId: string } | null }): string {
+  const userId = request.auth?.userId;
+  return userId ? `user:${userId}` : `ip:${request.ip ?? 'unknown'}`;
+}
+
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
   const corsOrigins =
     overrides?.corsOrigins ??
@@ -113,13 +119,35 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
 
   // IMPORTANTE: não fazer spread de `opts` no Fastify() — BuildAppOptions contém
   // db/env/config (ex.: PGlite com buffers WASM) que o Fastify clonaria via rfdc.
-  const app = Fastify({ logger: opts.logger ?? false });
+  const app = Fastify({
+    logger: opts.logger ?? false,
+    bodyLimit: 1024 * 1024, // 1MB — uploads reais vão por presigned PUT (storage)
+    maxParamLength: 128,
+    // Confia apenas em proxies loopback (Next.js no mesmo host). NUNCA trustProxy
+    // irrestrito: permitiria spoofing de IP se a API fosse acessada diretamente.
+    trustProxy: 'loopback',
+  });
   setErrorHandler(app);
 
   await app.register(helmet);
   await app.register(cookie);
   await app.register(cors, { origin: config.corsOrigins, credentials: true });
-  await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
+  // Rate limit global por IP: 300 req/min. Rotas sensíveis têm limites menores.
+  // Store: Redis quando configurado (multi-instância); senão memória por processo.
+  const rateLimitOptions: {
+    max: number;
+    timeWindow: string;
+    keyGenerator: typeof defaultKeyGenerator;
+  } & Record<string, unknown> = {
+    max: 300,
+    timeWindow: '1 minute',
+    keyGenerator: defaultKeyGenerator,
+  };
+  if (env.REDIS_URL) {
+    const { createRedisClient } = await import('@aluguei/integrations');
+    rateLimitOptions.redis = createRedisClient(env.REDIS_URL);
+  }
+  await app.register(rateLimit, rateLimitOptions);
   await app.register(configPlugin, { config });
   const dbOptions: DbPluginOptions = {};
   if (opts.db) {

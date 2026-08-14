@@ -55,7 +55,9 @@ describe('Fase 10: Reporting (KPIs + exportação segura)', () => {
     const accounts = await app.db
       .select()
       .from(ledgerAccounts)
-      .where(and(eq(ledgerAccounts.code, 'AGENCY_FEE_REVENUE'), eq(ledgerAccounts.orgId, body.org.id)));
+      .where(
+        and(eq(ledgerAccounts.code, 'AGENCY_FEE_REVENUE'), eq(ledgerAccounts.orgId, body.org.id)),
+      );
     let accountId: string;
     if (accounts.length === 0) {
       const [created] = await app.db
