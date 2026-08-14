@@ -72,6 +72,52 @@ pagamentos (Asaas) usam adapters com mock/dry-run quando sem credencial:
 - `docs/frontend/generated/DESIGN_GAP_AUDIT.md`
 - `docs/frontend/10_FRONTEND_STATE.md` (status COMPLETE)
 
+## Visual Fidelity V2
+
+Rodada de convergência com os mockups do Claude Design e o PEG Product Design System
+(autoridade: screenshots/design Aluguei → PEG → `30_ALUGUEI_APP_COMPLETE_DESIGN.md`).
+Nenhuma mudança de backend; nenhuma regressão de domínio.
+
+### Divergências corrigidas (P0 → 0, P1 → 0)
+
+| Área | Antes | Depois |
+|---|---|---|
+| Tokens | active nav verde (`brand-subtle` em todo o item) | active neutro (`--peg-nav-active-bg #edece8`) + barra/accent verde de 3px + ícone verde controlado |
+| App frame | shell full-bleed, sidebar colada ao viewport | aplicação contida: background externo neutro, frame com radius 14, border sutil, elevação leve (`--peg-shadow-app`) |
+| Sidebar | grupos Operação/Financeiro/Crescimento/Admin; footer só org switcher | grupos de domínio (CRM/Imóveis/Operação/Financeiro/Crescimento/Administração), Visão Geral no topo, rail colapsável (64px), profile card no rodapé (avatar/nome/role/menu), badges suportadas |
+| Topbar | breadcrumb simples + org + avatar | breadcrumb + contexto (org + relógio ao vivo), busca global com ⌘K, atalho de atendimento (bell → inbox), account menu |
+| Dashboard | 4 KPIs + 4 empty states + 6 quick links | central operacional: header "Bom dia, {nome}" com resumo + ações, alert strip com dados reais (canais falhos/cobranças vencidas), 4 operation summary cards (CRM/Imóveis/Operação/Financeiro), fila de ações, ciclo de locação com barras CSS, card de atendimento — tudo com 0 semântico quando vazio |
+| Imóveis | tabela genérica | contagens reais no header, tabs de status, chip de filtro aplicado, tabela densa (row 44px) com thumbnail/código/título, paginação |
+| Novo imóvel | formulário full-width no shell | Focus Mode: sem sidebar/topbar, header com stepper (Áudio→…→Publicação, etapa real destacada), left rail com fluxo de captação + nota honesta de capability, main column com formulário real |
+| Densidade | tables 52px | token global 44px (dense 36px), fila/summary cards compactos |
+| Borders/shadow | flat puro | bordas finas + `--peg-shadow-app` sutil; sem sombras pesadas |
+
+### Acessibilidade (review com subagente — P0:0, P1:0, P2 restantes documentados)
+
+- Focus trap real no drawer mobile (Tab/Shift+Tab) + id único `mobile-nav`
+- Busca global como combobox APG (setas, Enter, Escape, `aria-expanded/controls/activedescendant`)
+- Tabs de status com roving tabindex + setas/Home/End
+- ProfileMenu com teclado APG (setas + Escape)
+- Skip link "Pular para o conteúdo", `aria-current` no breadcrumb, `aria-hidden` nos separadores
+- Contraste AA: stepper do Focus Mode, rail note e kbd passam a usar text-secondary; chevron da fila corrigido
+- Targets de toque ≥24px nos links do dashboard; h1 no Focus Mode; `aria-label` em rail links e busca
+
+P2 restantes (não bloqueiam): texto branco sobre brand `#41945d` (~3.7:1, decisão de identidade),
+dark-mode badge danger latente (tema dark não ativado hoje), foco `--aluguei-brand-focus` 0.35 alpha.
+
+### Verificação
+
+- lint monorepo green, typecheck monorepo green
+- tests ui (6) + web (6) green
+- `next build` green (rotas `/app`, `/app/properties`, `/app/properties/new` incluídas)
+- secret scan OK
+- `git diff --check` limpo
+
+### Nota de dados
+
+Nenhum número fictício dos screenshots (418, 86, 31, R$ 18,4k etc.) foi inserido. Todos os
+valores vêm dos endpoints reais; estados vazios preservam a composição do mockup com zeros.
+
 ## Nota
 
 Nenhum efeito externo real (dinheiro, assinatura, WhatsApp, Meta Ads) foi executado em

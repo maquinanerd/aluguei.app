@@ -1,11 +1,11 @@
 ﻿# Estado da execução autônoma
 
-- current_phase: 12
-- status: GREEN (todas as fases 01-12 concluídas)
-- last_completed_phase: 12 Final Audit
-- last_commit: fase 12 (final-audit)
-- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md)
-- tests: passing (format/lint/typecheck/test 20 tasks / integration 79 PGlite / build green / secret scan limpo / audit 0 critical)
+- current_phase: 13 (Visual Fidelity V2)
+- status: GREEN (fases 01-12 + rodada de convergência visual concluídas)
+- last_completed_phase: 13 Visual Fidelity V2 (shell, sidebar, topbar, dashboard, imóveis, novo imóvel)
+- last_commit: fase 13 (visual-fidelity-v2)
+- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md + Playwright/screenshots de mockup ausentes — gap de tooling registrado em docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md)
+- tests: passing (format/lint/typecheck 20 tasks / integration 79 PGlite / build green / secret scan limpo / audit 0 critical)
 - updated_at: 2026-08-14
 
 ## Fases
@@ -22,3 +22,4 @@
 - [x] 10 Portals + Reporting — Portal externo proprietário/locatário com grant `portal_access` + token one-time → sessão opaca revogável (ADR-032), extratos (locatário/proprietário) sobre valores persistidos, contratos com content só SIGNED, vistorias como relatório estruturado sem mídia bruta (ADR-033), pagamento com QR via portal (idempotente), reporting KPIs (leads-funnel, receita mensal via ledger, spend Meta) e exportação segura CSV/JSON com RBAC report:export + rate limit + auditoria (ADR-034), paginação em payouts/reconciliations/ad-profiles, páginas web /proprietario e /inquilino. ADR-032/033/034 (+backfill 026-031).
 - [x] 11 Hardening — Threat model aplicado (docs/THREAT_MODEL.md), readiness /health/ready com check de DB, rate limits sensíveis + trustProxy loopback + XFF + RedisStore (ADR-035), bodyLimit 1MB, error handler respeita 4xx de framework, secret scan local + CI (allowlist por valor), pnpm audit (informativo + gate critical), docs OPERATIONS (backup/restore) e SLO, a11y login, mobile offline banner + error boundary, testes cross-tenant ampliados (hardening 6). ADR-035.
 - [x] 12 Final Audit — Auditoria ponta-a-ponta: gates completos, migrations from zero (11), E2E crítico (journey imóvel→portal), auditoria de segurança final (0 P0, 3 P1 corrigidos: webhook payments confirma no provider antes de creditar + valida ASAAS_WEBHOOK_TOKEN; WhatsApp valida X-Hub-Signature-256; UPDATE_BUDGET com caps da org na rota/tool/worker; +7 P2: ownership em intents, MCP_ALLOWED_ORG_ID, redação EAAG, refund com reversão contábil, override uuid), INTEGRATIONS.md atualizado, `docs/FINAL_REPORT.md` com classificações LIVE/SANDBOX/MOCK/IMPLEMENTED_NOT_LIVE_VERIFIED.
+- [x] 13 Visual Fidelity V2 — Convergência visual com mockups Claude Design + PEG: tokens recalibrados (active nav neutro, app frame, elevação), shell contido (radius/border/bg externo), sidebar por domínio com rail colapsável + profile footer, topbar com contexto + busca global ⌘K + atendimento, dashboard operacional com dados reais (alert strip, summary cards, fila, ciclo de locação, atendimento), property list densa com contagens/tabs, novo imóvel em Focus Mode, a11y (0 P0/P1), gates green. Gap de tooling: sem Playwright/screenshots de mockup no workspace (comparação estrutural sobre markdown). Detalhes em `docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md` e `docs/frontend/FINAL_FRONTEND_REPORT.md` (§ Visual Fidelity V2).
