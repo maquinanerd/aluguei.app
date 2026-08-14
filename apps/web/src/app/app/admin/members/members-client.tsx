@@ -87,7 +87,7 @@ function MembersBody({ orgId }: { orgId: string }) {
     {
       key: 'role',
       header: 'Função',
-      render: (m) => <Badge tone="brand">{label(ROLE_LABELS, m.role)}</Badge>,
+      render: (m) => <Badge tone={m.role === 'owner' || m.role === 'admin' ? 'brand' : 'neutral'}>{label(ROLE_LABELS, m.role)}</Badge>,
     },
     {
       key: 'actions',

@@ -13,10 +13,10 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
-import { formatRelative } from '@aluguei/ui';
+import { cx, formatRelative } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
-import { label, CONVERSATION_STATUS_LABELS, CONVERSATION_STATUS_TONES } from '@/lib/labels';
+import { label, FUNNEL_LABELS, FUNNEL_TONES, CONVERSATION_STATUS_LABELS, CONVERSATION_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState, ErrorState } from '@aluguei/ui';
 
 interface Conversation {
@@ -155,13 +155,13 @@ function InboxBody() {
 
   return (
     <div className="app-page" style={{ maxWidth: 1600 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 320px) 1fr minmax(260px, 300px)', gap: 0, height: 'calc(100vh - 140px)', border: '1px solid var(--peg-border)', borderRadius: 'var(--peg-radius-md)', overflow: 'hidden', background: 'var(--peg-surface)' }}>
+      <div className="inbox-grid">
         {/* Conversation list */}
-        <section style={{ borderRight: '1px solid var(--peg-border)', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <section className={cx('inbox-list', selectedId && 'inbox-list--hidden')}>
           <Stack gap={2} style={{ padding: 12, borderBottom: '1px solid var(--peg-border)' }}>
             <Group between>
               <strong style={{ fontSize: 14 }}>Inbox</strong>
-              <Badge tone="brand">{convQ.data?.total ?? 0}</Badge>
+              <Badge tone="neutral">{convQ.data?.total ?? 0}</Badge>
             </Group>
             <Input size="sm" placeholder="Buscar conversa…" value={search} onChange={(e) => { setSearch(e.target.value); }} />
             <Select
@@ -219,7 +219,7 @@ function InboxBody() {
         </section>
 
         {/* Active conversation */}
-        <section style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <section className={cx('inbox-thread', selectedId && 'inbox-thread--active')}>
           {!selected ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <EmptyState title="Selecione uma conversa" body="Escolha uma conversa na lista para visualizar o histórico." icon="messageCircle" />
@@ -228,6 +228,9 @@ function InboxBody() {
             <>
               <Group between style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
                 <Group gap={2}>
+                  <Button size="xs" variant="tertiary" className="inbox-back" aria-label="Voltar para conversas" onClick={() => { setSelectedId(null); }}>
+                    <Icon name="arrowLeft" size={14} />
+                  </Button>
                   <Avatar name={selectedParty?.name ?? selected.waContactId ?? '?'} size="sm" brand />
                   <Stack gap={0}>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{selectedParty?.name ?? selected.waContactId ?? 'Contato'}</span>
@@ -282,7 +285,7 @@ function InboxBody() {
         </section>
 
         {/* CRM context panel */}
-        <section style={{ borderLeft: '1px solid var(--peg-border)', display: 'flex', flexDirection: 'column', minWidth: 0, background: 'var(--peg-canvas)' }}>
+        <section className="inbox-context">
           <Stack gap={4} style={{ padding: 16, overflowY: 'auto' }}>
             <strong style={{ fontSize: 13 }}>Contexto do CRM</strong>
             {!selected ? (
@@ -297,7 +300,7 @@ function InboxBody() {
                 <Stack gap={1}>
                   <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Lead</span>
                   {selectedLead ? (
-                    <Badge tone="brand">{label({ NEW: 'Novo', QUALIFYING: 'Qualificando', QUALIFIED: 'Qualificado', VISIT: 'Visita', PROPOSAL: 'Proposta', APPLICATION: 'Crédito', WON: 'Fechado', LOST: 'Perdido' }, selectedLead.status)}</Badge>
+                    <Badge tone={FUNNEL_TONES[selectedLead.status] ?? 'neutral'}>{label(FUNNEL_LABELS, selectedLead.status)}</Badge>
                   ) : (
                     <span className="peg-text-tertiary" style={{ fontSize: 12 }}>Sem lead vinculado</span>
                   )}

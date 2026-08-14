@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Badge, Card, Group, Stack } from '@aluguei/ui';
+import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
 
 export const metadata: Metadata = { title: 'Portal do Locatário | Aluguei.app' };
@@ -22,9 +24,14 @@ interface PortalCharge {
   amountCents: number;
 }
 
-function formatCents(cents: number): string {
-  return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
+const CHARGE_STATUS_LABELS: Record<string, string> = {
+  SCHEDULED: 'Agendada',
+  OPEN: 'Aberta',
+  PAID: 'Paga',
+  OVERDUE: 'Vencida',
+  CANCELLED: 'Cancelada',
+  REFUNDED: 'Estornada',
+};
 
 export default async function InquilinoPage() {
   let me: PortalMe;
@@ -42,49 +49,69 @@ export default async function InquilinoPage() {
     const data = await apiFetch<{ charges: PortalCharge[] }>('/portal/tenant/charges?limit=20');
     charges = data.charges;
   } catch {
-    // lista vazia
+    // sem cobranças
   }
 
-  let statement: { totals: { billedCents: number; paidCents: number; openCents: number } } | null =
-    null;
+  let totals: { billedCents: number; paidCents: number; openCents: number } | null = null;
   try {
-    statement = await apiFetch('/portal/tenant/statement');
+    const statement = await apiFetch<{ totals: { billedCents: number; paidCents: number; openCents: number } }>('/portal/tenant/statement');
+    totals = statement.totals;
   } catch {
-    // extrato indisponível
+    // sem extrato
   }
-  const totals = statement?.totals;
 
   return (
-    <main className="portal">
-      <h1>Portal do Locatário</h1>
-      <p>
-        {me.partyName} — {me.orgName}
-      </p>
-      {totals ? (
-        <section>
-          <h2>Resumo</h2>
-          <ul>
-            <li>Total cobrado: {formatCents(totals.billedCents)}</li>
-            <li>Pago: {formatCents(totals.paidCents)}</li>
-            <li>Em aberto: {formatCents(totals.openCents)}</li>
-          </ul>
-        </section>
-      ) : null}
-      <section>
-        <h2>Cobranças</h2>
-        <ul>
-          {charges.map((charge) => (
-            <li key={charge.id}>
-              <strong>{charge.periodStart}</strong> — {charge.status} —{' '}
-              {formatCents(charge.amountCents)} (vencimento {charge.dueDate})
-            </li>
-          ))}
-          {charges.length === 0 ? <li>Nenhuma cobrança.</li> : null}
-        </ul>
-      </section>
-      <p>
-        <Link href="/">Voltar ao início</Link>
-      </p>
-    </main>
+    <div className="marketing-shell">
+      <nav className="marketing-nav">
+        <span className="peg-group" style={{ gap: 8 }}>
+          <span className="app-sidebar__logo">A</span>
+          <strong style={{ fontSize: 15 }}>{me.orgName}</strong>
+        </span>
+        <span className="peg-spacer" />
+        <span className="peg-text-secondary" style={{ fontSize: 13 }}>{me.partyName}</span>
+        <Link href="/" style={{ fontSize: 13 }}>Sair</Link>
+      </nav>
+      <main className="app-page" style={{ padding: '32px 24px', maxWidth: 900 }}>
+        <div>
+          <h1 className="app-page__title">Portal do Locatário</h1>
+          <p className="app-page__desc">Cobranças, pagamentos e documentos da sua locação.</p>
+        </div>
+
+        {totals ? (
+          <div className="peg-grid cols-3">
+            <Card title="Total cobrado" padless>
+              <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>{formatBRL(totals.billedCents)}</div>
+            </Card>
+            <Card title="Pago" padless>
+              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}>{formatBRL(totals.paidCents)}</div>
+            </Card>
+            <Card title="Em aberto" padless>
+              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: totals.openCents > 0 ? 'var(--peg-danger)' : 'inherit' }}>{formatBRL(totals.openCents)}</div>
+            </Card>
+          </div>
+        ) : null}
+
+        <Card title="Cobranças" padless>
+          {charges.length === 0 ? (
+            <div className="peg-empty" style={{ padding: 24 }}>
+              <span className="peg-empty__body">Nenhuma cobrança registrada.</span>
+            </div>
+          ) : (
+            <Stack gap={0}>
+              {charges.map((c) => (
+                <Group key={c.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>{formatDate(c.periodStart)}</span>
+                  <Badge tone={c.status === 'PAID' ? 'success' : c.status === 'OVERDUE' ? 'danger' : c.status === 'OPEN' ? 'warning' : 'neutral'}>
+                    {CHARGE_STATUS_LABELS[c.status] ?? c.status}
+                  </Badge>
+                  <span className="peg-grow" style={{ fontSize: 13 }}>venc. {formatDate(c.dueDate)}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(c.amountCents)}</span>
+                </Group>
+              ))}
+            </Stack>
+          )}
+        </Card>
+      </main>
+    </div>
   );
 }

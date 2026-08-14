@@ -230,6 +230,79 @@ body {
   color: var(--peg-text-secondary);
 }
 
+/* ============ Inbox (3 panes) ============ */
+
+.inbox-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) 1fr minmax(260px, 300px);
+  gap: 0;
+  height: calc(100vh - 140px);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-md);
+  overflow: hidden;
+  background: var(--peg-surface);
+}
+
+.inbox-list {
+  border-right: 1px solid var(--peg-border);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.inbox-thread {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.inbox-context {
+  border-left: 1px solid var(--peg-border);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--peg-canvas);
+}
+
+.inbox-back {
+  display: none;
+}
+
+@media (max-width: 1279px) {
+  .inbox-grid {
+    grid-template-columns: minmax(260px, 300px) 1fr;
+  }
+  .inbox-context {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .inbox-grid {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 120px);
+  }
+  .inbox-thread {
+    display: none;
+  }
+  .inbox-thread--active {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    z-index: var(--peg-z-drawer);
+    background: var(--peg-surface);
+  }
+  .inbox-list {
+    display: none;
+  }
+  .inbox-list--hidden {
+    display: none;
+  }
+  .inbox-back {
+    display: inline-flex;
+  }
+}
+
 /* ============ Focus Mode (auth/marketing) ============ */
 
 .auth-page {

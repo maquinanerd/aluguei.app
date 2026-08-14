@@ -306,7 +306,7 @@ function InspectionBody() {
           <Stack gap={3} style={{ padding: 20 }}>
             <Group gap={2} wrap>
               {agg.rooms.map((r) => (
-                <Badge key={r.id} tone="brand">{r.name}</Badge>
+                <Badge key={r.id} tone="neutral">{r.name}</Badge>
               ))}
               {agg.rooms.length === 0 ? <span className="peg-text-tertiary" style={{ fontSize: 13 }}>Nenhum ambiente criado.</span> : null}
             </Group>

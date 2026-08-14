@@ -33,7 +33,7 @@ vi.mock('@/lib/public-api', () => ({
     ],
     total: 1,
   }),
-  formatBRL: (cents: number | null) => (cents === null ? '—' : `R$ ${(cents / 100).toFixed(2)}`),
+  formatBRL: (cents: number | null) => (cents === null ? '—' : `R$ ${(cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`),
 }));
 
 import ImoveisPage from './page';
@@ -42,7 +42,7 @@ describe('ImoveisPage', () => {
   it('renderiza lista de imóveis públicos', async () => {
     const html = renderToStaticMarkup(await ImoveisPage());
     expect(html).toContain('Apartamento na Paulista');
-    expect(html).toContain('R$ 3500.00');
+    expect(html).toContain('3.500,00');
     expect(html).toContain('Bela Vista');
     expect(html).toContain('href="/imoveis/apto-paulista"');
   });

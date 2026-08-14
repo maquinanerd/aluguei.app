@@ -104,11 +104,6 @@ export function DataTable<T extends { id: string }>({
                   sortKey === (col.sortKey ?? col.key) && 'peg-table__sorted',
                   col.headerClassName,
                 )}
-                onClick={
-                  col.sortable && onSort
-                    ? () => { onSort(col.sortKey ?? col.key); }
-                    : undefined
-                }
                 aria-sort={
                   sortKey === (col.sortKey ?? col.key)
                     ? sortDir === 'asc'
@@ -117,21 +112,30 @@ export function DataTable<T extends { id: string }>({
                     : undefined
                 }
               >
-                <span className="peg-group" style={{ gap: 4 }}>
-                  {col.header}
-                  {col.sortable ? (
-                    <Icon
-                      name={
-                        sortKey === (col.sortKey ?? col.key)
-                          ? sortDir === 'asc'
-                            ? 'arrowUp'
-                            : 'arrowDown'
-                          : 'arrowUpDown'
-                      }
-                      size={12}
-                    />
-                  ) : null}
-                </span>
+                {col.sortable && onSort ? (
+                  <button
+                    type="button"
+                    className="peg-table__sort-btn"
+                    onClick={() => { onSort(col.sortKey ?? col.key); }}
+                    aria-label={`Ordenar por ${typeof col.header === 'string' ? col.header : col.key}`}
+                  >
+                    <span className="peg-group" style={{ gap: 4 }}>
+                      {col.header}
+                      <Icon
+                        name={
+                          sortKey === (col.sortKey ?? col.key)
+                            ? sortDir === 'asc'
+                              ? 'arrowUp'
+                              : 'arrowDown'
+                            : 'arrowUpDown'
+                        }
+                        size={12}
+                      />
+                    </span>
+                  </button>
+                ) : (
+                  col.header
+                )}
               </th>
             ))}
           </tr>

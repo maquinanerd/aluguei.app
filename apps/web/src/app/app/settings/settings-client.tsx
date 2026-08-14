@@ -34,7 +34,7 @@ function SettingsBody() {
             {(membershipsQ.data?.memberships ?? []).map((m) => (
               <Group key={m.id} between style={{ padding: '10px 12px', border: '1px solid var(--peg-border)', borderRadius: 'var(--peg-radius-sm)' }}>
                 <span className="peg-text-mono peg-text-tertiary" style={{ fontSize: 12 }}>{m.orgId.slice(0, 8)}</span>
-                <Badge tone="brand">{ROLE_LABELS[m.role] ?? m.role}</Badge>
+                <Badge tone={m.role === 'owner' || m.role === 'admin' ? 'brand' : 'neutral'}>{ROLE_LABELS[m.role] ?? m.role}</Badge>
               </Group>
             ))}
             {(membershipsQ.data?.memberships ?? []).length === 0 ? (

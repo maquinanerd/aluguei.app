@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { IconButton } from './IconButton';
@@ -23,13 +23,39 @@ export function Drawer({
   side?: 'right' | 'left';
   className?: string;
 }) {
+  const panelRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusables = panel.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    focusables[0]?.focus();
+
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
     }
     document.addEventListener('keydown', onKeyDown);
-    return () => { document.removeEventListener('keydown', onKeyDown); };
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus();
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -38,6 +64,7 @@ export function Drawer({
     <>
       <div className="peg-drawer-overlay" onClick={onClose} aria-hidden="true" />
       <aside
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}

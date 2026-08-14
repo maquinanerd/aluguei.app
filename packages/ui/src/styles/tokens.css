@@ -18,8 +18,8 @@
   --peg-border: #e6e6e3; /* divisor padrão (derivado de neutral.mid) */
   --peg-border-strong: #c7c7c7; /* neutral.mid — borders fortes, disabled, divisores */
   --peg-text-primary: #2f332b; /* neutral.ink */
-  --peg-text-secondary: #5c6157; /* derivado de ink com opacidade controlada */
-  --peg-text-tertiary: #8b9087;
+  --peg-text-secondary: #555a52; /* derivado de ink com opacidade controlada */
+  --peg-text-tertiary: #6e746b; /* AA sobre canvas #FCFCFC (~4.8:1) */
   --peg-text-disabled: #b6b7bb;
 
   /* ---- Brand (Aluguei) ---- */

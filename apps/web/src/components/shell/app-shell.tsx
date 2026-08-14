@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,8 +15,28 @@ import { OrgSwitcher } from './org-switcher';
 export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLElement | null>(null);
   const crumbs = breadcrumbFor(pathname);
   const activeOrg = session.activeOrg;
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusables = drawer.querySelectorAll<HTMLElement>(
+      'a[href], button, [tabindex]:not([tabindex="-1"])',
+    );
+    focusables[0]?.focus();
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setDrawerOpen(false);
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [drawerOpen]);
 
   const sidebar = (
     <>
@@ -26,7 +46,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
           Aluguei.app
         </Link>
       </header>
-      <nav className="app-sidebar__body" aria-label="Navegação principal">
+      <nav className="app-sidebar__body" aria-label="Navegação principal" id="mobile-nav">
         {NAV_GROUPS.map((group) => {
           const items = group.items.filter((item) => !item.permission || can(session, item.permission));
           if (items.length === 0) return null;
@@ -70,7 +90,8 @@ export function AppShell({ session, children }: { session: Session; children: Re
         <div className="app-drawer-overlay" onClick={() => { setDrawerOpen(false); }} aria-hidden="true" />
       ) : null}
       {drawerOpen ? (
-        <aside className="app-drawer-sidebar" role="dialog" aria-modal="true" aria-label="Menu de navegação">
+        <aside ref={drawerRef} className="app-drawer-sidebar" role="dialog" aria-modal="true" aria-label="Menu de navegação">
+          <GroupHeader onClose={() => { setDrawerOpen(false); }} />
           {sidebar}
         </aside>
       ) : null}
@@ -81,6 +102,8 @@ export function AppShell({ session, children }: { session: Session; children: Re
             type="button"
             className="peg-icon-btn peg-icon-btn--sm app-topbar__menu"
             aria-label="Abrir menu"
+            aria-expanded={drawerOpen}
+            aria-controls="mobile-nav"
             onClick={() => { setDrawerOpen(true); }}
           >
             <Icon name="menu" size={18} />
@@ -112,6 +135,25 @@ export function AppShell({ session, children }: { session: Session; children: Re
         </header>
         <main className="app-content">{children}</main>
       </div>
+    </div>
+  );
+}
+
+function GroupHeader({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="app-sidebar__header" style={{ justifyContent: 'space-between' }}>
+      <span className="app-sidebar__brand">
+        <span className="app-sidebar__logo">A</span>
+        Aluguei.app
+      </span>
+      <button
+        type="button"
+        className="peg-icon-btn peg-icon-btn--sm"
+        aria-label="Fechar menu"
+        onClick={onClose}
+      >
+        <Icon name="x" size={16} />
+      </button>
     </div>
   );
 }

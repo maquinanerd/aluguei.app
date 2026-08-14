@@ -48,6 +48,15 @@
 .peg-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .peg-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
+@media (max-width: 1023px) {
+  .peg-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 479px) {
+  .peg-grid.cols-3,
+  .peg-grid.cols-4 { grid-template-columns: 1fr; }
+  .peg-grid.cols-2 { grid-template-columns: 1fr; }
+}
+
 /* ============ Divider ============ */
 .peg-divider {
   height: 1px;
@@ -617,7 +626,21 @@
 .peg-table th.peg-table__sortable {
   cursor: pointer;
 }
-.peg-table th.peg-table__sortable:hover {
+.peg-table__sort-btn {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.peg-table th.peg-table__sortable:hover,
+.peg-table__sort-btn:hover {
   color: var(--peg-text-primary);
 }
 .peg-table th.peg-table__sorted {

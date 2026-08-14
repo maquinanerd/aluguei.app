@@ -13,7 +13,7 @@ import {
 } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
-import { label, CHARGE_STATUS_LABELS, CHARGE_STATUS_TONES } from '@/lib/labels';
+import { label, CHARGE_STATUS_LABELS, CHARGE_STATUS_TONES, LEASE_STATUS_LABELS } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 import { Badge } from '@aluguei/ui';
@@ -164,7 +164,7 @@ function FinanceBody() {
               <Group key={l.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
                 <Icon name="key" size={14} />
                 <span className="peg-grow" style={{ fontSize: 13 }}>{l.id.slice(0, 8)}</span>
-                <Badge tone={l.status === 'ACTIVE' ? 'success' : 'neutral'}>{label({ PENDING: 'Pendente', ACTIVE: 'Ativa', DELINQUENT: 'Inadimplente', TERMINATING: 'Encerrando', ENDED: 'Encerrada' }, l.status)}</Badge>
+                <Badge tone={l.status === 'ACTIVE' ? 'success' : l.status === 'DELINQUENT' ? 'danger' : 'neutral'}>{label(LEASE_STATUS_LABELS, l.status)}</Badge>
                 <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(l.monthlyRentCents)}</span>
               </Group>
             ))}

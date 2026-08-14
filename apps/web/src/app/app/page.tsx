@@ -5,7 +5,7 @@ import { apiFetch } from '@/lib/api-server';
 import { Badge, Card, Icon, Kpi, Stack } from '@aluguei/ui';
 import type { IconName } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
-import { label, FUNNEL_LABELS, FUNNEL_TONES, TASK_STATUS_LABELS, VISIT_STATUS_LABELS } from '@/lib/labels';
+import { label, FUNNEL_LABELS, FUNNEL_TONES, TASK_STATUS_LABELS, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
 import { hasPermission } from '@/lib/rbac';
 import { activeRole } from '@/lib/session';
 
@@ -193,7 +193,7 @@ export default async function OverviewPage() {
                 <div key={v.id} className="peg-group" style={{ gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
                   <Icon name="calendarClock" size={16} />
                   <span className="peg-grow" style={{ fontSize: 13 }}>{formatDate(v.scheduledAt)}</span>
-                  <Badge tone={VISIT_STATUS_LABELS[v.status] ? 'brand' : 'neutral'}>{label(VISIT_STATUS_LABELS, v.status)}</Badge>
+                  <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>{label(VISIT_STATUS_LABELS, v.status)}</Badge>
                 </div>
               ))}
             </Stack>
