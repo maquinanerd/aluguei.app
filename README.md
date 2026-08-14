@@ -37,3 +37,27 @@ Não execute ações externas reais durante desenvolvimento. Meta Ads, cobrança
 - Meta/MCP: `docs/META_MCP.md`
 - orquestração: `orchestration/00_MASTER.md`
 - estado: `docs/EXECUTION_STATE.md`
+
+## Rodar localmente (dev)
+
+Requisitos: PostgreSQL (Docker `docker compose up -d` ou instalação local) e Redis (opcional; sem ele os rate limits usam memória).
+
+```bash
+# 1. Postgres + migrations (aplica as 11 migrations versionadas do zero)
+pnpm --filter @aluguei/db db:apply        # usa DATABASE_URL (default postgresql://postgres:postgres@localhost:5432/aluguei)
+
+# 2. API — http://localhost:4000 (health: /health, readiness: /health/ready)
+DATABASE_URL=... pnpm --filter @aluguei/api dev
+
+# 3. Web — http://localhost:3000 (registro/login → dashboard; /proprietario e /inquilino para os portais)
+API_BASE_URL=http://localhost:4000 APP_BASE_URL=http://localhost:3000 pnpm --filter @aluguei/web dev
+
+# 4. Worker (opcional; processa webhooks/jobs)
+DATABASE_URL=... pnpm --filter @aluguei/worker dev
+```
+
+Links locais: **web http://localhost:3000** · **api http://localhost:4000** · health `http://localhost:4000/health`.
+
+Sem Docker e com Postgres local exigindo senha: crie um cluster dedicado do projeto com o binário do PostgreSQL (ex.: `initdb -D <dir> -U postgres --auth=trust`, inicie em outra porta com `pg_ctl -o "-p 5433" start`) e aponte `DATABASE_URL=postgresql://postgres@localhost:5433/aluguei` para o `db:apply`.
+
+Em dev, toda integração externa roda em dry-run/mock (fake determinístico); nenhuma ação real (dinheiro, assinatura, anúncio pago, mensagem) é executada sem ambiente homologado — ver `docs/INTEGRATIONS.md` e `docs/BLOCKERS.md`.
