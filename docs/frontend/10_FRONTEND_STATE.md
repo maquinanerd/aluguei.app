@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 8
-current_phase_name: INSPECTIONS_LEASES
-last_completed_phase: 7
-last_commit: feat(web): complete screening and contract UI
+current_phase: 9
+current_phase_name: FINANCE
+last_completed_phase: 8
+last_commit: feat(web): complete inspection and lease UI
 p0: 0
 p1: 0
 build: green
@@ -22,25 +22,23 @@ accessibility: PENDING
 - Phase 04 — Dashboard & CRM.
 - Phase 05 — Properties, Media, Listings & Channels.
 - Phase 06 — Inbox, WhatsApp, Visits & Proposals.
-- Phase 07 — Screening, Contracts & Signatures:
-  - /app/screening: lista de aplicações com filtro por status.
-  - /app/screening/[id]: 360 com resultado do screening (decisão/score/provedor),
-    consentimento LGPD, solicitar screening, aprovar com confirm. IA nunca autoridade
-    final: decisão vem do provedor/regras do backend.
-  - /app/contracts: lista com filtro, criação (aplicação aprovada + template aprovado).
-  - /app/contracts/[id]: 360 com partes, envelope de assinatura, gerar contrato,
-    enviar para assinatura, cancelar (VOID), visualizar conteúdo (hash verificado).
-  - /app/contract-templates: lista com busca/filtro, criação, aprovação.
-  - Validado runtime (fluxo real): party → application → consent LGPD →
-    SUBMITTED → SCREENING → screening request 202 → APPROVED → UI detail 200.
+- Phase 07 — Screening, Contracts & Signatures.
+- Phase 08 — Inspections & Active Leases:
+  - /app/inspections: lista com filtros tipo/status + criação.
+  - /app/inspections/[id]: 360 com resumo (mídia/progresso), ambientes (CRUD rooms),
+    ocorrências (registro + severidade/categoria + origem IA/humano), revisão IA
+    (sugestões pendentes com aceitar/rejeitar — confirmação humana), relatório,
+    processar mídia, mudar status.
+  - /app/leases: lista com filtro + criação (contrato assinado).
+  - /app/leases/[id]: Lease 360 (partes, aluguel/condomínio, split agency/landlord
+    bps, cobranças por período com status e total em aberto, gerar cobrança, link contrato).
+  - Validado runtime: create inspection + room 201; UI detail 200.
 
 ## In progress
-- Phase 08 — Inspections & Active Leases (vistorias desktop: agenda/detail/checklist/
-  rooms/media/áudio/transcrição/sugestões IA/confirmação humana/comparação/relatório;
-  Lease 360).
+- Phase 09 — Finance (overview, charges, payments, payouts, split, reconciliation, ledger).
 
 ## Next
-- Phase 08 → 09 Finance → 10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
+- Phase 09 → 10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
 
 ## Blockers
 - none known
