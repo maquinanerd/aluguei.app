@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 4
-current_phase_name: DASHBOARD_CRM
-last_completed_phase: 3
-last_commit: feat(web): build Aluguei operational app shell
+current_phase: 5
+current_phase_name: PROPERTIES_CHANNELS
+last_completed_phase: 4
+last_commit: feat(web): complete dashboard and CRM UI
 p0: 0
 p1: 0
 build: green
@@ -16,29 +16,35 @@ visual_qa: PENDING_CALIBRATION_SHOT
 accessibility: PENDING
 
 ## Completed
-- Phase 01 — Repository & Design Discovery (docs gerados em docs/frontend/generated/).
-- Phase 02 — PEG Foundation & Calibration (packages/ui completo, calibration screen /dev/calibration).
-- Phase 03 — Application Shell & Navigation:
-  - apps/web/src/lib: api-client (cliente HTTP único via /api/backend proxy),
-    session (sessão /auth/me), rbac (espelho de permissões p/ UX; servidor autoridade),
-    navigation (NAV_GROUPS + breadcrumbs, capability-aware).
-  - components/shell: AppShell (sidebar full 240px, topbar 52px, breadcrumbs, drawer
-    mobile <1024px), AccountMenu (logout), OrgSwitcher (troca de org via proxy).
-  - Route group /app com layout server-side (auth guard → redirect /login) e Visão
-    Geral inicial.
-  - Proxy genérico /api/backend/[...path] (BFF: origem + cookie + XFF + Set-Cookie).
-  - Recape das páginas públicas: home marketing, login/register (Focus Mode).
-  - Validado runtime: /app 307→/login sem sessão; login+register via proxy OK; shell
-    autenticado renderiza sidebar/brand; proxy GET /leads 200.
+- Phase 01 — Repository & Design Discovery.
+- Phase 02 — PEG Foundation & Calibration.
+- Phase 03 — Application Shell & Navigation.
+- Phase 04 — Dashboard & CRM:
+  - Infra reutilizável: useQuery (loading/error/permission/retry), labels de domínio
+    (funil, roles, status por módulo), PageToolbar (pattern List/Index).
+  - /app (Visão Geral): KPIs operacionais + cards de leads/tarefas/visitas/cobranças
+    + quick links, server component com Promise.allSettled + guard por permissão.
+  - /app/crm/leads: lista com busca, filtro por estágio, sort, seleção, paginação,
+    criação de lead, transição de status via dropdown, row click → Lead 360.
+  - /app/crm/leads/[id]: Lead 360 com header + tabs (overview/conversas/atividades)
+    + context rail (contato/origem/orçamento); adaptado ao contrato real (sem GET
+    /leads/:id — resolve via list; conversas via /leads/:id/conversations; timeline
+    via /timeline?entityType=LEAD).
+  - /app/crm/pipeline: board kanban por estágio + visão tabela, avanço 1-clique.
+  - /app/crm/contacts: lista de parties com busca, criação com dedupe (POST
+    /parties + /parties/dedupe), drawer de detalhe.
+  - /app/crm/tasks: CRUD (criar/concluir/cancelar) com filtro.
+  - /app/crm/calendar: agenda de visitas agrupada por dia + tarefas abertas.
+  - Validado runtime: 6 rotas CRM 200 com shell; create lead via proxy 201;
+    dashboard mostra o lead criado.
 
 ## In progress
-- Phase 04 — Dashboard & CRM (Visão Geral completa + Leads list/360 + Pipeline +
-  Contatos/parties + Tarefas + Agenda).
+- Phase 05 — Properties, Media, Listings & Channels (imóveis table/grid, Property 360,
+  cadastro/edição, mídia upload, listings, canais/portais com sync/retry).
 
 ## Next
-- Phase 04 implement; então 05 Properties → 06 Inbox/Visitas/Propostas →
-  07 Screening/Contracts → 08 Inspections/Leases → 09 Finance → 10 Marketing/Reporting →
-  11 Admin/Integrations → 12 Final Audit.
+- Phase 05 → 06 Inbox/Visitas/Propostas → 07 Screening/Contracts → 08 Inspections/Leases
+  → 09 Finance → 10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
 
 ## Blockers
 - none known

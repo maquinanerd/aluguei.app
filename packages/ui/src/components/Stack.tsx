@@ -1,9 +1,10 @@
 import type { HTMLAttributes } from 'react';
 import { cx } from '../lib/cx';
 
-export type GapSize = 1 | 2 | 3 | 4 | 6 | 8;
+export type GapSize = 0 | 1 | 2 | 3 | 4 | 6 | 8;
 
 const GAP_CLASS: Record<GapSize, string> = {
+  0: 'gap-0',
   1: 'gap-1',
   2: 'gap-2',
   3: 'gap-3',
