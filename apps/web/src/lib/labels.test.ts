@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { label, FUNNEL_LABELS, ROLE_LABELS, CHARGE_STATUS_LABELS } from './labels';
 
 describe('labels de domínio', () => {
