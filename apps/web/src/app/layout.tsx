@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import '@aluguei/ui/styles.css';
+import './globals.css';
 
 const inter = Inter({
   subsets: ['latin'],

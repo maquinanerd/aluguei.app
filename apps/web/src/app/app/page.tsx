@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { apiFetch } from '@/lib/api-server';
-import { Badge, Card, Icon, Kpi, Stack } from '@aluguei/ui';
+import { Icon, Stack } from '@aluguei/ui';
 import type { IconName } from '@aluguei/ui';
-import { formatBRL, formatDate } from '@aluguei/ui';
-import { label, FUNNEL_LABELS, FUNNEL_TONES, TASK_STATUS_LABELS, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
+import { formatBRLShort, formatDate } from '@aluguei/ui';
+import { label, CHANNEL_TYPE_LABELS, CHARGE_STATUS_LABELS, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
 import { hasPermission } from '@/lib/rbac';
 import { activeRole } from '@/lib/session';
 
@@ -21,42 +21,55 @@ interface MeDto {
 interface LeadDto {
   id: string;
   status: string;
-  source: string | null;
-  channel: string | null;
-  partyId: string | null;
   ownerUserId: string | null;
-  budgetMinCents: number | null;
-  budgetMaxCents: number | null;
-  notes: string | null;
   createdAt: string;
+  channel: string | null;
+  source: string | null;
+  budgetMinCents: number | null;
 }
-
 interface TaskDto {
   id: string;
   title: string;
   status: string;
   dueAt: string | null;
+  relatedEntityType: string | null;
 }
-
 interface VisitDto {
   id: string;
   scheduledAt: string;
   status: string;
   propertyId: string | null;
 }
-
+interface ProposalDto {
+  id: string;
+  status: string;
+  monthlyRentCents: number;
+  createdAt: string;
+}
 interface ChargeDto {
   id: string;
   status: string;
   amountCents: number;
   dueDate: string;
 }
-
 interface PropertyDto {
   id: string;
   title: string;
   status: string;
 }
+interface ConversationDto {
+  id: string;
+  status: string;
+  createdAt: string;
+}
+interface ChannelSummaryDto {
+  channels: Array<{ channel: string; total: number; published: number; pending: number; failed: number; removed: number }>;
+}
+interface ApplicationDto { id: string; status: string; }
+interface ContractDto { id: string; status: string; }
+interface InspectionDto { id: string; status: string; scheduledAt: string; }
+interface LeaseDto { id: string; status: string; }
+interface PayoutDto { id: string; status: string; amountCents: number; }
 
 export default async function OverviewPage() {
   let me: MeDto;
@@ -71,188 +84,317 @@ export default async function OverviewPage() {
     memberships: me.memberships as never,
   });
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const isToday = (iso: string | null | undefined) => !!iso && new Date(iso) >= todayStart && new Date(iso) <= now;
+
   const results = await Promise.allSettled([
-    hasPermission(role, 'lead:read') ? apiFetch<{ leads: LeadDto[]; total: number }>('/leads?limit=8') : null,
-    hasPermission(role, 'task:read') ? apiFetch<{ tasks: TaskDto[]; total: number }>('/tasks?limit=8') : null,
-    hasPermission(role, 'visit:read') ? apiFetch<{ visits: VisitDto[]; total: number }>('/visits?limit=8') : null,
-    hasPermission(role, 'finance:read') ? apiFetch<{ charges: ChargeDto[]; total: number }>('/charges?limit=8') : null,
-    hasPermission(role, 'property:read') ? apiFetch<{ properties: PropertyDto[]; total: number }>('/properties?limit=8') : null,
+    hasPermission(role, 'lead:read') ? apiFetch<{ leads: LeadDto[] }>('/leads?limit=200') : null,
+    hasPermission(role, 'task:read') ? apiFetch<{ tasks: TaskDto[] }>('/tasks?limit=200') : null,
+    hasPermission(role, 'visit:read') ? apiFetch<{ visits: VisitDto[] }>('/visits?limit=200') : null,
+    hasPermission(role, 'proposal:read') ? apiFetch<{ proposals: ProposalDto[] }>('/proposals?limit=200') : null,
+    hasPermission(role, 'finance:read') ? apiFetch<{ charges: ChargeDto[] }>('/charges?limit=200') : null,
+    hasPermission(role, 'finance:read') ? apiFetch<{ leases: LeaseDto[] }>('/leases?limit=200') : null,
+    hasPermission(role, 'finance:read') ? apiFetch<{ payouts: PayoutDto[] }>('/payouts?limit=200') : null,
+    hasPermission(role, 'property:read') ? apiFetch<{ properties: PropertyDto[] }>('/properties?limit=200') : null,
+    hasPermission(role, 'listing:read') ? apiFetch<ChannelSummaryDto>('/channels/summary') : null,
+    hasPermission(role, 'conversation:read') ? apiFetch<{ conversations: ConversationDto[] }>('/conversations?limit=200') : null,
+    hasPermission(role, 'screening:read') ? apiFetch<{ applications: ApplicationDto[] }>('/rental-applications?limit=200') : null,
+    hasPermission(role, 'contract:read') ? apiFetch<{ contracts: ContractDto[] }>('/contracts?limit=200') : null,
+    hasPermission(role, 'inspection:read') ? apiFetch<{ inspections: InspectionDto[] }>('/inspections?limit=200') : null,
   ]);
 
-  const [leadsRes, tasksRes, visitsRes, chargesRes, propertiesRes] = results;
-  const leads = leadsRes.status === 'fulfilled' ? leadsRes.value?.leads ?? [] : [];
-  const tasks = tasksRes.status === 'fulfilled' ? tasksRes.value?.tasks ?? [] : [];
-  const visits = visitsRes.status === 'fulfilled' ? visitsRes.value?.visits ?? [] : [];
-  const charges = chargesRes.status === 'fulfilled' ? chargesRes.value?.charges ?? [] : [];
-  const properties = propertiesRes.status === 'fulfilled' ? propertiesRes.value?.properties ?? [] : [];
+  const [leadsR, tasksR, visitsR, proposalsR, chargesR, leasesR, payoutsR, propsR, channelsR, convsR, appsR, contractsR, inspectionsR] = results;
+  const leads = leadsR.status === 'fulfilled' ? leadsR.value?.leads ?? [] : [];
+  const tasks = tasksR.status === 'fulfilled' ? tasksR.value?.tasks ?? [] : [];
+  const visits = visitsR.status === 'fulfilled' ? visitsR.value?.visits ?? [] : [];
+  const proposals = proposalsR.status === 'fulfilled' ? proposalsR.value?.proposals ?? [] : [];
+  const charges = chargesR.status === 'fulfilled' ? chargesR.value?.charges ?? [] : [];
+  const leases = leasesR.status === 'fulfilled' ? leasesR.value?.leases ?? [] : [];
+  const payouts = payoutsR.status === 'fulfilled' ? payoutsR.value?.payouts ?? [] : [];
+  const properties = propsR.status === 'fulfilled' ? propsR.value?.properties ?? [] : [];
+  const channelSummary = channelsR.status === 'fulfilled' ? channelsR.value?.channels ?? [] : [];
+  const conversations = convsR.status === 'fulfilled' ? convsR.value?.conversations ?? [] : [];
+  const applications = appsR.status === 'fulfilled' ? appsR.value?.applications ?? [] : [];
+  const contracts = contractsR.status === 'fulfilled' ? contractsR.value?.contracts ?? [] : [];
+  const inspections = inspectionsR.status === 'fulfilled' ? inspectionsR.value?.inspections ?? [] : [];
 
-  const openLeads = leads.filter((l) => l.status !== 'WON' && l.status !== 'LOST').length;
-  const openCharges = charges.filter((c) => c.status === 'OPEN' || c.status === 'OVERDUE').length;
-  const todayVisits = visits.filter((v) => v.status === 'SCHEDULED' || v.status === 'CONFIRMED').length;
+  // ---- CRM ----
+  const openLeads = leads.filter((l) => l.status !== 'WON' && l.status !== 'LOST');
+  const newLeadsToday = leads.filter((l) => isToday(l.createdAt)).length;
+  const leadsWithoutOwner = openLeads.filter((l) => !l.ownerUserId).length;
+  const awaitingResponse = openLeads.filter((l) => l.status === 'NEW' || l.status === 'QUALIFYING').length;
+  const qualified = openLeads.filter((l) => l.status === 'QUALIFIED').length;
+
+  // ---- Tarefas ----
+  const overdueTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) < now);
+  const todayTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) >= todayStart && new Date(t.dueAt) <= now);
+  const weekTasks = tasks.filter((t) => t.status === 'OPEN' && t.dueAt && new Date(t.dueAt) > now && new Date(t.dueAt) <= new Date(now.getTime() + 7 * 864e5));
+  const actionCount = overdueTasks.length + todayTasks.length + leadsWithoutOwner + overdueCharges(charges).length + pendingSignatureCount(contracts) + failedChannelCount(channelSummary);
+
+  // ---- Imóveis ----
+  const available = properties.filter((p) => p.status === 'ACTIVE').length;
+  const archived = properties.filter((p) => p.status === 'ARCHIVED').length;
+  const publishedListings = channelSummary.reduce((acc, c) => acc + c.published, 0);
+
+  // ---- Operação ----
+  const screeningPending = applications.filter((a) => ['SUBMITTED', 'SCREENING', 'MANUAL_REVIEW'].includes(a.status)).length;
+  const contractPending = contracts.filter((c) => ['DRAFT', 'GENERATED', 'SENT_FOR_SIGNATURE', 'PARTIALLY_SIGNED'].includes(c.status)).length;
+  const inspectionsOpen = inspections.filter((i) => ['DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW'].includes(i.status)).length;
+  const activeLeases = leases.filter((l) => l.status === 'ACTIVE' || l.status === 'DELINQUENT').length;
+
+  // ---- Financeiro ----
+  const overdue = overdueCharges(charges);
+  const openCharges = charges.filter((c) => c.status === 'OPEN');
+  const scheduledCharges = charges.filter((c) => c.status === 'SCHEDULED');
+  const paidCharges = charges.filter((c) => c.status === 'PAID');
+  const payoutsPending = payouts.filter((p) => p.status === 'PENDING');
+  const payoutsTotal = payoutsPending.reduce((acc, p) => acc + p.amountCents, 0);
+
+  // ---- Atendimento ----
+  const convOpen = conversations.filter((c) => c.status === 'OPEN' || c.status === 'ACTIVE' || c.status === 'NEEDS_HUMAN');
+  const convNeedsHuman = conversations.filter((c) => c.status === 'NEEDS_HUMAN').length;
+
+  // ---- Ciclo de locação (dados reais) ----
+  const cycle = [
+    { key: 'Leads', value: openLeads.length, href: '/app/crm/leads' },
+    { key: 'Qualif.', value: qualified, href: '/app/crm/pipeline' },
+    { key: 'Visitas', value: visits.filter((v) => v.status !== 'CANCELLED' && v.status !== 'NO_SHOW').length, href: '/app/visits' },
+    { key: 'Propostas', value: proposals.filter((p) => p.status !== 'DRAFT').length, href: '/app/proposals' },
+    { key: 'Crédito', value: applications.length, href: '/app/screening' },
+    { key: 'Contrato', value: contracts.filter((c) => c.status !== 'VOID').length, href: '/app/contracts' },
+    { key: 'Locação', value: leases.filter((l) => l.status !== 'ENDED').length, href: '/app/leases' },
+  ];
+  const cycleMax = Math.max(1, ...cycle.map((c) => c.value));
+
+  // ---- Alertas reais ----
+  const alerts: Array<{ tone: 'warning' | 'danger'; icon: IconName; title: string; body: string; href: string; action: string }> = [];
+  const failedChannels = channelSummary.filter((c) => c.failed > 0);
+  if (failedChannels.length > 0) {
+    const names = failedChannels.map((c) => label(CHANNEL_TYPE_LABELS, c.channel)).join(', ');
+    alerts.push({
+      tone: 'danger',
+      icon: 'alertTriangle',
+      title: `Falha de sincronização: ${names}`,
+      body: `${failedChannels.reduce((acc, c) => acc + c.failed, 0)} publicações falharam. Revise a integração e reprocesse.`,
+      href: '/app/channels',
+      action: 'Ver integração',
+    });
+  }
+  if (overdue.length > 0) {
+    alerts.push({
+      tone: 'warning',
+      icon: 'alertTriangle',
+      title: `${overdue.length} cobrança(s) vencida(s)`,
+      body: `${formatBRLShort(overdue.reduce((acc, c) => acc + c.amountCents, 0))} em valores em aberto aguardam ação.`,
+      href: '/app/charges',
+      action: 'Ver cobranças',
+    });
+  }
+
+  // ---- Fila de ações (minha fila) ----
+  const queueRows: Array<{ id: string; type: string; title: string; meta: string; tone: 'info' | 'warning' | 'danger' | 'neutral'; due: string; href: string }> = [];
+  for (const t of overdueTasks) {
+    queueRows.push({ id: t.id, type: 'Tarefa', title: t.title, meta: t.relatedEntityType ?? 'Atrasada', tone: 'danger', due: formatDate(t.dueAt), href: '/app/crm/tasks' });
+  }
+  for (const t of todayTasks) {
+    queueRows.push({ id: t.id, type: 'Tarefa', title: t.title, meta: t.relatedEntityType ?? 'Hoje', tone: 'info', due: formatDate(t.dueAt), href: '/app/crm/tasks' });
+  }
+  for (const c of overdue) {
+    queueRows.push({ id: c.id, type: 'Cobrança', title: formatBRLShort(c.amountCents), meta: label(CHARGE_STATUS_LABELS, c.status), tone: 'danger', due: formatDate(c.dueDate), href: '/app/charges' });
+  }
+  for (const v of visits.filter((x) => x.status === 'SCHEDULED' || x.status === 'CONFIRMED').slice(0, 6)) {
+    queueRows.push({ id: v.id, type: 'Visita', title: formatDate(v.scheduledAt), meta: label(VISIT_STATUS_LABELS, v.status), tone: VISIT_STATUS_TONES[v.status] === 'brand' ? 'info' : 'info', due: formatDate(v.scheduledAt), href: '/app/visits' });
+  }
+  queueRows.sort((a, b) => a.due.localeCompare(b.due));
+
+  const firstName = me.user.name.split(' ')[0];
 
   return (
-    <div className="app-page">
-      <div className="peg-group between" style={{ gap: 16 }}>
-        <div>
-          <h1 className="app-page__title">Visão Geral</h1>
+    <div className="app-page dashboard-page">
+      {/* Header operacional */}
+      <div className="dash-header">
+        <div className="peg-stack" style={{ gap: 2 }}>
+          <h1 className="app-page__title">Bom dia, {firstName}</h1>
           <p className="app-page__desc">
-            Olá, {me.user.name.split(' ')[0]} — central operacional de{' '}
-            <strong>{me.activeOrg?.name ?? 'sua organização'}</strong>.
+            {actionCount > 0
+              ? `${actionCount} ${actionCount === 1 ? 'item exige' : 'itens exigem'} ação hoje · ${overdue.length} ${overdue.length === 1 ? 'vencimento financeiro' : 'vencimentos financeiros'} · ${failedChannels.length} ${failedChannels.length === 1 ? 'integração com erro' : 'integrações com erro'}`
+              : 'Nenhuma pendência operacional no momento.'}
           </p>
+        </div>
+        <div className="peg-group" style={{ gap: 8 }}>
+          <Link href="/app/crm/calendar" className="peg-btn peg-btn--secondary peg-btn--sm">
+            <Icon name="calendar" size={14} />
+            <span className="peg-btn__label">Minha agenda</span>
+          </Link>
+          <Link href="/app/properties/new" className="peg-btn peg-btn--brand peg-btn--sm">
+            <Icon name="plus" size={14} />
+            <span className="peg-btn__label">Novo imóvel</span>
+          </Link>
         </div>
       </div>
 
-      <div className="peg-grid cols-4">
-        <Kpi label="Leads abertos" value={String(openLeads)} delta={`${String(leads.length)} mais recentes`} deltaTone="neutral" icon="users" />
-        <Kpi label="Visitas hoje" value={String(todayVisits)} delta={`${String(visits.length)} próximas`} deltaTone="neutral" icon="calendarClock" />
-        <Kpi label="Imóveis ativos" value={String(properties.filter((p) => p.status === 'ACTIVE').length)} delta={`${String(properties.length)} no total`} deltaTone="neutral" icon="home" />
-        <Kpi label="Cobranças em aberto" value={String(openCharges)} delta={`${String(charges.length)} recentes`} deltaTone="neutral" icon="receipt" />
+      {/* Alert strip — apenas quando há problema real */}
+      {alerts.map((a) => (
+        <div key={a.title} className={`dash-alert dash-alert--${a.tone}`} role={a.tone === 'danger' ? 'alert' : 'status'}>
+          <span className="dash-alert__icon"><Icon name={a.icon} size={16} /></span>
+          <div className="peg-stack" style={{ gap: 1, minWidth: 0, flex: 1 }}>
+            <strong className="dash-alert__title">{a.title}</strong>
+            <span className="dash-alert__body">{a.body}</span>
+          </div>
+          <Link href={a.href} className="dash-alert__action">{a.action}</Link>
+        </div>
+      ))}
+
+      {/* Summary cards operacionais */}
+      <div className="dash-grid">
+        <SummaryCard title="CRM" href="/app/crm/leads" icon="users"
+          rows={[
+            { label: 'Novos leads hoje', value: newLeadsToday },
+            { label: 'Sem atendimento', value: leadsWithoutOwner },
+            { label: 'Aguardando resposta', value: awaitingResponse },
+            { label: 'Atividades atrasadas', value: overdueTasks.length },
+          ]} />
+        <SummaryCard title="Imóveis" href="/app/properties" icon="home"
+          rows={[
+            { label: 'Disponíveis', value: available },
+            { label: 'Publicações ativas', value: publishedListings },
+            { label: 'Arquivados', value: archived },
+            { label: 'Reservados', value: activeLeases },
+          ]} />
+        <SummaryCard title="Operação" href="/app/leases" icon="key"
+          rows={[
+            { label: 'Crédito pendente', value: screeningPending },
+            { label: 'Contratos aguardando', value: contractPending },
+            { label: 'Vistorias em aberto', value: inspectionsOpen },
+            { label: 'Locações ativas', value: activeLeases },
+          ]} />
+        <SummaryCard title="Financeiro" href="/app/finance" icon="receipt"
+          rows={[
+            { label: 'Cobranças agendadas', value: scheduledCharges.length },
+            { label: 'Em aberto', value: openCharges.length },
+            { label: 'Vencidas', value: overdue.length },
+            { label: 'Repasses pendentes', value: payoutsPending.length },
+          ]} />
       </div>
 
-      <div className="peg-grid cols-2">
-        <Card
-          title="Leads recentes"
-          actions={
-            <Link href="/app/crm/leads" style={{ fontSize: 12 }}>
-              Ver todos
-            </Link>
-          }
-          padless
-        >
-          {leads.length === 0 ? (
-            <div className="peg-empty" style={{ padding: 24 }}>
-              <span className="peg-empty__body">Nenhum lead ainda. Crie o primeiro em Leads.</span>
+      {/* Fila + coluna lateral */}
+      <div className="dash-main">
+        <section className="peg-card dash-card">
+          <header className="peg-card__header">
+            <div className="peg-stack" style={{ gap: 0 }}>
+              <h3 className="peg-card__title">Próximas ações · minha fila</h3>
+              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{queueRows.length} item(ns) exigem atenção</span>
             </div>
-          ) : (
-            <Stack gap={0}>
-              {leads.map((l) => (
-                <Link
-                  key={l.id}
-                  href={`/app/crm/leads/${l.id}`}
-                  className="peg-group"
-                  style={{ gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--peg-border)', color: 'var(--peg-text-primary)', fontSize: 13 }}
-                >
-                  <Badge tone={FUNNEL_TONES[l.status] ?? 'neutral'}>{label(FUNNEL_LABELS, l.status)}</Badge>
-                  <span className="peg-grow peg-truncate">
-                    {l.channel ?? l.source ?? 'Lead sem origem'}
+            <Link href="/app/crm/tasks" style={{ fontSize: 12 }}>Ver tarefas</Link>
+          </header>
+          <div className="peg-stack" style={{ gap: 0 }}>
+            {queueRows.length === 0 ? (
+              <div className="peg-empty" style={{ padding: '20px 24px' }}>
+                <span className="peg-empty__body">Nada pendente agora.</span>
+              </div>
+            ) : (
+              queueRows.slice(0, 8).map((r) => (
+                <Link key={`${r.type}-${r.id}`} href={r.href} className="dash-queue-row">
+                  <span className="dash-queue-row__dot" style={{ background: toneDot(r.tone) }} />
+                  <span className="dash-queue-row__type">{r.type}</span>
+                  <span className="dash-queue-row__title">{r.title}</span>
+                  <span className="dash-queue-row__meta">{r.meta}</span>
+                  <span className="dash-queue-row__due">{r.due}</span>
+                  <Icon name="chevronRight" size={14} className="dash-queue-row__chevron" />
+                </Link>
+              ))
+            )}
+          </div>
+        </section>
+
+        <div className="peg-stack" style={{ gap: 16 }}>
+          {/* Ciclo de locação */}
+          <section className="peg-card dash-card">
+            <header className="peg-card__header">
+              <h3 className="peg-card__title">Ciclo de locação · esta semana</h3>
+            </header>
+            <div className="peg-stack" style={{ gap: 10, padding: '14px 16px' }}>
+              {cycle.map((s) => (
+                <Link key={s.key} href={s.href} className="dash-cycle-row">
+                  <span className="dash-cycle-row__label">{s.key}</span>
+                  <span className="dash-cycle-row__bar-track">
+                    <span
+                      className="dash-cycle-row__bar"
+                      style={{ width: `${Math.round((s.value / cycleMax) * 100)}%` }}
+                    />
                   </span>
-                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                    {l.budgetMinCents !== null ? formatBRL(l.budgetMinCents) : ''}
-                  </span>
-                  <Icon name="chevronRight" size={14} />
+                  <span className="dash-cycle-row__value">{s.value}</span>
                 </Link>
               ))}
-            </Stack>
-          )}
-        </Card>
-
-        <Card
-          title="Tarefas abertas"
-          actions={
-            <Link href="/app/crm/tasks" style={{ fontSize: 12 }}>
-              Ver todas
-            </Link>
-          }
-          padless
-        >
-          {tasks.length === 0 ? (
-            <div className="peg-empty" style={{ padding: 24 }}>
-              <span className="peg-empty__body">Nenhuma tarefa pendente.</span>
             </div>
-          ) : (
-            <Stack gap={0}>
-              {tasks.slice(0, 6).map((t) => (
-                <div key={t.id} className="peg-group" style={{ gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                  <Badge tone={t.status === 'OPEN' ? 'info' : 'neutral'}>{label(TASK_STATUS_LABELS, t.status)}</Badge>
-                  <span className="peg-grow peg-truncate" style={{ fontSize: 13 }}>{t.title}</span>
-                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{formatDate(t.dueAt)}</span>
-                </div>
-              ))}
-            </Stack>
-          )}
-        </Card>
-      </div>
+          </section>
 
-      <div className="peg-grid cols-2">
-        <Card
-          title="Próximas visitas"
-          actions={
-            <Link href="/app/visits" style={{ fontSize: 12 }}>
-              Ver todas
-            </Link>
-          }
-          padless
-        >
-          {visits.length === 0 ? (
-            <div className="peg-empty" style={{ padding: 24 }}>
-              <span className="peg-empty__body">Nenhuma visita agendada.</span>
+          {/* Atendimento */}
+          <section className="peg-card dash-card">
+            <header className="peg-card__header">
+              <div className="peg-stack" style={{ gap: 0 }}>
+                <h3 className="peg-card__title">Atendimento</h3>
+              </div>
+              <Link href="/app/inbox" style={{ fontSize: 12 }}>Inbox</Link>
+            </header>
+            <div className="peg-stack" style={{ gap: 0, padding: '6px 16px 12px' }}>
+              <MetricRow label="Conversas aguardando" value={convOpen.length} tone="neutral" />
+              <MetricRow label="Precisam de humano" value={convNeedsHuman} tone={convNeedsHuman > 0 ? 'danger' : 'neutral'} />
+              <MetricRow label="Leads sem atendimento" value={leadsWithoutOwner} tone={leadsWithoutOwner > 0 ? 'warning' : 'neutral'} />
+              <MetricRow label="Leads qualificados" value={qualified} tone="brand" />
             </div>
-          ) : (
-            <Stack gap={0}>
-              {visits.slice(0, 5).map((v) => (
-                <div key={v.id} className="peg-group" style={{ gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                  <Icon name="calendarClock" size={16} />
-                  <span className="peg-grow" style={{ fontSize: 13 }}>{formatDate(v.scheduledAt)}</span>
-                  <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>{label(VISIT_STATUS_LABELS, v.status)}</Badge>
-                </div>
-              ))}
-            </Stack>
-          )}
-        </Card>
-
-        <Card
-          title="Cobranças em aberto"
-          actions={
-            <Link href="/app/charges" style={{ fontSize: 12 }}>
-              Ver todas
-            </Link>
-          }
-          padless
-        >
-          {openCharges === 0 ? (
-            <div className="peg-empty" style={{ padding: 24 }}>
-              <span className="peg-empty__body">Nenhuma cobrança em aberto.</span>
-            </div>
-          ) : (
-            <Stack gap={0}>
-              {charges
-                .filter((c) => c.status === 'OPEN' || c.status === 'OVERDUE')
-                .slice(0, 5)
-                .map((c) => (
-                  <div key={c.id} className="peg-group" style={{ gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                    <Badge tone={c.status === 'OVERDUE' ? 'danger' : 'warning'}>{label({ OPEN: 'Aberta', OVERDUE: 'Vencida' }, c.status)}</Badge>
-                    <span className="peg-grow" style={{ fontSize: 13 }}>{formatDate(c.dueDate)}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(c.amountCents)}</span>
-                  </div>
-                ))}
-            </Stack>
-          )}
-        </Card>
-      </div>
-
-      <div className="peg-grid cols-3">
-        <QuickLink href="/app/crm/leads" icon="users" label="Leads" />
-        <QuickLink href="/app/properties" icon="home" label="Imóveis" />
-        <QuickLink href="/app/crm/contacts" icon="user" label="Contatos" />
-        <QuickLink href="/app/visits" icon="calendarClock" label="Visitas" />
-        <QuickLink href="/app/proposals" icon="handshake" label="Propostas" />
-        <QuickLink href="/app/charges" icon="receipt" label="Cobranças" />
+          </section>
+        </div>
       </div>
     </div>
   );
 }
 
-function QuickLink({ href, icon, label: l }: { href: string; icon: IconName; label: string }) {
+function overdueCharges(charges: ChargeDto[]): ChargeDto[] {
+  return charges.filter((c) => c.status === 'OVERDUE');
+}
+function pendingSignatureCount(contracts: ContractDto[]): number {
+  return contracts.filter((c) => c.status === 'SENT_FOR_SIGNATURE' || c.status === 'PARTIALLY_SIGNED').length;
+}
+function failedChannelCount(channels: Array<{ failed: number }>): number {
+  return channels.reduce((acc, c) => acc + c.failed, 0);
+}
+function toneDot(tone: 'info' | 'warning' | 'danger' | 'neutral'): string {
+  if (tone === 'danger') return 'var(--peg-danger)';
+  if (tone === 'warning') return 'var(--peg-warning)';
+  return 'var(--peg-border-strong)';
+}
+
+function SummaryCard({ title, href, icon, rows }: { title: string; href: string; icon: IconName; rows: Array<{ label: string; value: number }> }) {
   return (
-    <Link
-      href={href}
-      className="peg-card peg-group"
-      style={{ gap: 12, padding: '14px 16px', color: 'var(--peg-text-primary)', textDecoration: 'none' }}
-    >
-      <Icon name={icon} size={18} />
-      <span style={{ fontSize: 13, fontWeight: 500 }}>{l}</span>
-      <span className="peg-spacer" />
-      <Icon name="chevronRight" size={14} />
+    <Link href={href} className="peg-card dash-summary" style={{ textDecoration: 'none' }}>
+      <header className="dash-summary__header">
+        <span className="dash-summary__icon"><Icon name={icon} size={15} /></span>
+        <h3 className="peg-card__title">{title}</h3>
+        <span className="peg-spacer" />
+        <Icon name="chevronRight" size={14} className="peg-text-tertiary" />
+      </header>
+      <div className="peg-stack" style={{ gap: 6, padding: '10px 16px 14px' }}>
+        {rows.map((r) => (
+          <div key={r.label} className="dash-summary__row">
+            <span className="dash-summary__label">{r.label}</span>
+            <span className="dash-summary__value">{r.value}</span>
+          </div>
+        ))}
+      </div>
     </Link>
+  );
+}
+
+function MetricRow({ label: l, value, tone }: { label: string; value: number; tone: 'neutral' | 'danger' | 'warning' | 'brand' }) {
+  const dot = tone === 'danger' ? 'var(--peg-danger)' : tone === 'warning' ? 'var(--peg-warning)' : tone === 'brand' ? 'var(--aluguei-brand)' : 'var(--peg-border-strong)';
+  return (
+    <div className="dash-metric-row">
+      <span className="dash-metric-row__dot" style={{ background: dot }} />
+      <span className="dash-metric-row__label">{l}</span>
+      <span className="dash-metric-row__value">{value}</span>
+    </div>
   );
 }
