@@ -20,3 +20,5 @@ export * from './rental.js';
 export * from './contracts.js';
 export * from './finance.js';
 export * from './meta.js';
+export * from './portal.js';
+export * from './reporting.js';

@@ -32,6 +32,7 @@ export * from './meta/adMaterial.js';
 export * from './meta/budget.js';
 export * from './meta/stateMachine.js';
 export * from './meta/campaignFlow.js';
+export * from './portal/portal.js';
 
 export {
   LISTING_STATUSES,

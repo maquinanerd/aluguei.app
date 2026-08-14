@@ -250,6 +250,11 @@ export const listCampaignsQuerySchema = paginationQuerySchema.extend({
   status: metaCampaignStatusSchema.optional(),
 });
 
+export const listAdProfilesQuerySchema = paginationQuerySchema.extend({
+  status: metaAdProfileStatusSchema.optional(),
+  propertyId: uuidSchema.optional(),
+});
+
 export const metaWebhookEventSchema = z.object({
   provider: z.enum(['FAKE', 'META']),
   eventType: z.string().min(1),

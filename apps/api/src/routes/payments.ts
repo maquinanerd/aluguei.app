@@ -20,6 +20,8 @@ import {
   listLedgerEntriesQuerySchema,
   listLedgerEntriesResponseSchema,
   listPaymentsQuerySchema,
+  listPayoutsQuerySchema,
+  listReconciliationsQuerySchema,
   listPaymentsResponseSchema,
   listPayoutsResponseSchema,
   listReconciliationsResponseSchema,
@@ -71,11 +73,19 @@ export const paymentsRoutes: FastifyPluginAsync = (app) => {
 
   app.get('/payouts', { onRequest: [requirePermission('finance:read')] }, async (request) => {
     const auth = requireAuth(request);
+    const query = listPayoutsQuerySchema.parse(request.query);
+    const where = and(
+      eq(payouts.orgId, auth.orgId),
+      query.status ? eq(payouts.status, query.status) : undefined,
+    );
     const rows = await db
       .select()
       .from(payouts)
-      .where(eq(payouts.orgId, auth.orgId))
-      .orderBy(desc(payouts.createdAt));
+      .where(where)
+      .orderBy(desc(payouts.createdAt))
+      .limit(query.limit)
+      .offset(query.offset);
+    const totalRows = await db.select().from(payouts).where(where);
     return listPayoutsResponseSchema.parse({
       payouts: rows.map((row) =>
         payoutSchema.parse({
@@ -89,7 +99,7 @@ export const paymentsRoutes: FastifyPluginAsync = (app) => {
           createdAt: row.createdAt.toISOString(),
         }),
       ),
-      total: rows.length,
+      total: totalRows.length,
     });
   });
 
@@ -269,11 +279,19 @@ export const paymentsRoutes: FastifyPluginAsync = (app) => {
     { onRequest: [requirePermission('finance:read')] },
     async (request) => {
       const auth = requireAuth(request);
+      const query = listReconciliationsQuerySchema.parse(request.query);
+      const where = and(
+        eq(reconciliations.orgId, auth.orgId),
+        query.status ? eq(reconciliations.status, query.status) : undefined,
+      );
       const rows = await db
         .select()
         .from(reconciliations)
-        .where(eq(reconciliations.orgId, auth.orgId))
-        .orderBy(desc(reconciliations.createdAt));
+        .where(where)
+        .orderBy(desc(reconciliations.createdAt))
+        .limit(query.limit)
+        .offset(query.offset);
+      const totalRows = await db.select().from(reconciliations).where(where);
       return listReconciliationsResponseSchema.parse({
         reconciliations: rows.map((row) =>
           reconciliationSchema.parse({
@@ -288,7 +306,7 @@ export const paymentsRoutes: FastifyPluginAsync = (app) => {
             createdAt: row.createdAt.toISOString(),
           }),
         ),
-        total: rows.length,
+        total: totalRows.length,
       });
     },
   );

@@ -29,6 +29,7 @@ import {
   campaignActionRequestSchema,
   createCampaignRequestSchema,
   createMetaConnectionRequestSchema,
+  listAdProfilesQuerySchema,
   listCampaignsQuerySchema,
   metaAdProfileSchema,
   metaAssetSchema,
@@ -210,12 +211,21 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
 
   app.get('/meta/ad-profiles', { onRequest: [requirePermission('meta:read')] }, async (request) => {
     const auth = requireAuth(request);
+    const query = listAdProfilesQuerySchema.parse(request.query);
+    const where = and(
+      eq(metaAdProfiles.orgId, auth.orgId),
+      query.status ? eq(metaAdProfiles.status, query.status) : undefined,
+      query.propertyId ? eq(metaAdProfiles.propertyId, query.propertyId) : undefined,
+    );
     const rows = await db
       .select()
       .from(metaAdProfiles)
-      .where(eq(metaAdProfiles.orgId, auth.orgId))
-      .orderBy(desc(metaAdProfiles.createdAt));
-    return { adProfiles: rows.map((row) => toAdProfileDto(row)) };
+      .where(where)
+      .orderBy(desc(metaAdProfiles.createdAt))
+      .limit(query.limit)
+      .offset(query.offset);
+    const totalRows = await db.select().from(metaAdProfiles).where(where);
+    return { adProfiles: rows.map((row) => toAdProfileDto(row)), total: totalRows.length };
   });
 
   app.post(

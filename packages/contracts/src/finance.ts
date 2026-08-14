@@ -195,6 +195,10 @@ export const listPayoutsResponseSchema = z.object({
   total: z.number().int().nonnegative(),
 });
 
+export const listPayoutsQuerySchema = paginationQuerySchema.extend({
+  status: z.enum(['PENDING', 'PAID', 'FAILED', 'CANCELLED']).optional(),
+});
+
 export const listLedgerAccountsResponseSchema = z.object({
   accounts: z.array(ledgerAccountSchema),
 });
@@ -230,6 +234,10 @@ export const createReconciliationResponseSchema = z.object({ ok: z.literal(true)
 export const listReconciliationsResponseSchema = z.object({
   reconciliations: z.array(reconciliationSchema),
   total: z.number().int().nonnegative(),
+});
+
+export const listReconciliationsQuerySchema = paginationQuerySchema.extend({
+  status: z.enum(['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']).optional(),
 });
 
 export const paymentWebhookEventSchema = z.object({

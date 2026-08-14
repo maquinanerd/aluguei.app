@@ -54,12 +54,16 @@ import { leaseRoutes } from './routes/leases.js';
 import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
 import { metaRoutes } from './routes/meta.js';
+import { portalRoutes } from './routes/portal.js';
+import { reportingRoutes } from './routes/reporting.js';
 import { paymentsPlugin } from './plugins/payments.js';
 import { signaturePlugin } from './plugins/signature.js';
 import { metaPlugin } from './plugins/meta.js';
+import { portalSessionPlugin } from './plugins/portal-session.js';
 import type { PaymentsPluginOptions } from './plugins/payments.js';
 import type { SignaturePluginOptions } from './plugins/signature.js';
 import type { MetaPluginOptions } from './plugins/meta.js';
+import type { PortalSessionPluginOptions } from './plugins/portal-session.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -225,6 +229,12 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(metaPlugin, metaOptions);
 
+  const portalSessionOptions: PortalSessionPluginOptions = {
+    db: app.db,
+    cookieName: 'aluguei_portal',
+  };
+  await app.register(portalSessionPlugin, portalSessionOptions);
+
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(meRoutes);
@@ -250,6 +260,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(chargeRoutes);
   await app.register(paymentsRoutes);
   await app.register(metaRoutes);
+  await app.register(portalRoutes);
+  await app.register(reportingRoutes);
 
   return app;
 }

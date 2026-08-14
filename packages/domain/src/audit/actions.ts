@@ -92,6 +92,12 @@ export const AUDIT_ACTIONS = {
   META_INSIGHTS_SYNCED: 'meta.insights_synced',
   META_WEBHOOK_RECEIVED: 'meta.webhook_received',
   META_TOOL_CALLED: 'meta.tool_called',
+  PORTAL_ACCESS_CREATED: 'portal.access_created',
+  PORTAL_ACCESS_REVOKED: 'portal.access_revoked',
+  PORTAL_LOGIN: 'portal.login',
+  PORTAL_LOGOUT: 'portal.logout',
+  REPORT_VIEWED: 'report.viewed',
+  REPORT_EXPORTED: 'report.exported',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

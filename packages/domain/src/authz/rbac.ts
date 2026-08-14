@@ -29,6 +29,9 @@ export type Permission =
   | 'finance:write'
   | 'meta:read'
   | 'meta:write'
+  | 'report:read'
+  | 'report:export'
+  | 'portal:manage'
   | 'member:read'
   | 'member:manage'
   | 'org:manage'
@@ -63,6 +66,9 @@ export const ALL_PERMISSIONS: readonly Permission[] = [
   'finance:write',
   'meta:read',
   'meta:write',
+  'report:read',
+  'report:export',
+  'portal:manage',
   'member:read',
   'member:manage',
   'org:manage',
@@ -100,6 +106,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'contract:write',
     'meta:read',
     'meta:write',
+    'portal:manage',
   ],
   inspector: [
     'lead:read',
@@ -131,6 +138,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'finance:read',
     'finance:write',
     'meta:read',
+    'report:read',
+    'report:export',
   ],
   viewer: [
     'lead:read',
