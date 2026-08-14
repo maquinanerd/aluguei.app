@@ -6,11 +6,39 @@ export function apiBase(): string {
   return process.env.API_BASE_URL ?? 'http://localhost:4000';
 }
 
-/** Valida o header Origin contra APP_BASE_URL (mitigação de login-CSRF). */
+/**
+ * Valida o header Origin contra APP_BASE_URL (mitigação de login-CSRF).
+ * Em produção, APP_BASE_URL é obrigatória (fail-fast evita origin errada).
+ */
 export function isSameOrigin(request: NextRequest | Request): boolean {
   const origin = request.headers.get('origin');
-  const allowed = process.env.APP_BASE_URL ?? 'http://localhost:3000';
-  return origin !== null && origin === allowed;
+  const allowed = normalizeBaseUrl(process.env.APP_BASE_URL ?? 'http://localhost:3000');
+  return origin !== null && normalizeBaseUrl(origin) === allowed;
+}
+
+/** Normaliza base URL para comparação (host lowercase, sem trailing slash). */
+export function normalizeBaseUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    u.pathname = u.pathname.replace(/\/+$/, '');
+    return u.origin + u.pathname;
+  } catch {
+    return url.toLowerCase().replace(/\/+$/, '');
+  }
+}
+
+/** Garante que API_BASE_URL use HTTPS fora de desenvolvimento. */
+export function assertSecureApiBase(): void {
+  const base = process.env.API_BASE_URL;
+  if (base && process.env.NODE_ENV === 'production' && !base.startsWith('https://')) {
+    throw new Error('API_BASE_URL deve usar HTTPS em produção');
+  }
+}
+
+/** Guard usado em rotas públicas autenticadas (server components). */
+export function secureFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  assertSecureApiBase();
+  return apiFetch<T>(path, init);
 }
 
 export class ApiError extends Error {
@@ -59,12 +87,11 @@ export async function apiProxy(
   const headers = new Headers(init.headers);
   headers.set('content-type', 'application/json');
   headers.set('cookie', request.headers.get('cookie') ?? '');
-  // Propaga o IP real do cliente (via XFF) quando o Next está atrás de
-  // LB/CDN — preserva o primeiro XFF original (sem spoofing).
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    headers.set('x-forwarded-for', forwardedFor);
-  }
+  // NÃO repassa X-Forwarded-For do cliente: o Next é o peer imediato confiável
+  // (trustProxy: 'loopback' na API) e repassar o header verbatim permitiria
+  // falsificar o IP usado no rate limit (brute-force de login). O rate limit da
+  // API passa a ver o IP do proxy (Next) — correto e determinístico. Em topologias
+  // com LB/CDN, o LB deve setar XFF para a API (ajustar trustProxy conforme ADR).
   const res = await fetch(`${apiBase()}${path}`, {
     ...init,
     headers,
