@@ -68,6 +68,22 @@ function PropertiesBody() {
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a imóveis" />;
 
+  function onTabsKeyDown(e: React.KeyboardEvent) {
+    const idx = TABS.findIndex((t) => t.value === tab);
+    let next = -1;
+    if (e.key === 'ArrowRight') next = (idx + 1) % TABS.length;
+    else if (e.key === 'ArrowLeft') next = (idx - 1 + TABS.length) % TABS.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = TABS.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    const target = TABS[next];
+    if (!target) return;
+    setTab(target.value);
+    setPage(0);
+    setSelected(new Set());
+  }
+
   const properties = useMemo(() => {
     const rows = data?.properties ?? [];
     const q = search.trim().toLowerCase();
@@ -172,13 +188,14 @@ function PropertiesBody() {
       </div>
 
       {/* Tabs de status */}
-      <div className="peg-tabs" role="tablist" aria-label="Filtrar por status">
+      <div className="peg-tabs" role="tablist" aria-label="Filtrar por status" onKeyDown={onTabsKeyDown}>
         {TABS.map((t) => (
           <button
             key={t.value}
             type="button"
             role="tab"
             aria-selected={tab === t.value}
+            tabIndex={tab === t.value ? 0 : -1}
             className={tab === t.value ? 'peg-tab peg-tab--active' : 'peg-tab'}
             onClick={() => {
               setTab(t.value);
@@ -193,20 +210,21 @@ function PropertiesBody() {
 
       {/* Busca + filtros aplicados */}
       <div className="peg-group" style={{ gap: 12, flexWrap: 'wrap' }}>
-        <label className="peg-input peg-input--md prop-search" aria-label="Buscar imóvel">
+        <div className="peg-input peg-input--md prop-search">
           <span className="peg-input__prefix"><Icon name="search" size={15} /></span>
           <input
             type="text"
             className="peg-input__control"
             placeholder="Buscar imóvel…"
+            aria-label="Buscar imóvel"
             value={search}
             onChange={(e) => { setSearch(e.target.value); }}
           />
-        </label>
+        </div>
         {tab !== 'ALL' ? (
-          <button type="button" className="peg-tag" onClick={() => { setTab('ALL'); setPage(0); }} aria-label="Remover filtro de status">
+          <button type="button" className="peg-tag" onClick={() => { setTab('ALL'); setPage(0); }} aria-label={`Remover filtro de status: ${TABS.find((t) => t.value === tab)?.label ?? ''}`}>
             Status: {TABS.find((t) => t.value === tab)?.label}
-            <span className="peg-tag__remove"><Icon name="x" size={12} /></span>
+            <span className="peg-tag__remove" aria-hidden="true"><Icon name="x" size={12} /></span>
           </button>
         ) : null}
       </div>

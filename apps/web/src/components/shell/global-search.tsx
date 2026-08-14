@@ -9,14 +9,16 @@ import { NAV_GROUPS, NAV_ROOT } from '@/lib/navigation';
 
 /**
  * Busca global no painel — filtra itens de navegação por permissão da sessão
- * e navega para o primeiro resultado. Comportamento real (navegação), sem fake.
+ * e navega para o resultado selecionado. Combobox APG (setas, Enter, Escape).
  */
 export function GlobalSearch({ session }: { session: Session }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const listboxId = 'global-search-listbox';
 
   // ⌘K / Ctrl+K foca a busca
   useEffect(() => {
@@ -60,11 +62,36 @@ export function GlobalSearch({ session }: { session: Session }) {
     return matches.slice(0, 8);
   }, [query, session]);
 
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [results.length, query]);
+
   function go(href: string) {
     setOpen(false);
     setQuery('');
     router.push(href);
   }
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+    if (results.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((i) => (i + 1) % results.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((i) => (i - 1 + results.length) % results.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const r = results[activeIndex] ?? results[0];
+      if (r) go(r.href);
+    }
+  }
+
+  const visible = open && results.length > 0;
 
   return (
     <div ref={rootRef} style={{ position: 'relative' }} className="app-topbar__search">
@@ -77,30 +104,36 @@ export function GlobalSearch({ session }: { session: Session }) {
           type="text"
           className="peg-input__control"
           placeholder="Buscar…"
+          role="combobox"
           aria-label="Busca global"
+          aria-expanded={visible}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={visible ? `${listboxId}-${String(activeIndex)}` : undefined}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);
           }}
           onFocus={() => { setOpen(true); }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && results.length > 0) { const first = results[0]; if (first) go(first.href); }
-            if (e.key === 'Escape') setOpen(false);
-          }}
+          onKeyDown={onKeyDown}
         />
         <span className="peg-input__suffix">
-          <kbd className="app-kbd">⌘K</kbd>
+          <kbd className="app-kbd" aria-hidden="true">⌘K</kbd>
         </span>
       </div>
-      {open && results.length > 0 ? (
-        <div role="listbox" className="peg-menu" style={{ left: 0, right: 0, top: 'calc(100% + 6px)' }}>
-          {results.map((r) => (
+      {visible ? (
+        <div id={listboxId} role="listbox" aria-label="Resultados da busca" className="peg-menu" style={{ left: 0, right: 0, top: 'calc(100% + 6px)' }}>
+          {results.map((r, i) => (
             <button
               key={r.href}
               type="button"
               role="option"
+              id={`${listboxId}-${String(i)}`}
+              aria-selected={i === activeIndex}
               className="peg-menu__item"
+              style={i === activeIndex ? { background: 'var(--peg-surface-subtle)' } : undefined}
+              onMouseEnter={() => { setActiveIndex(i); }}
               onClick={() => { go(r.href); }}
             >
               <span className="peg-menu__icon">

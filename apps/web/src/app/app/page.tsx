@@ -284,7 +284,7 @@ export default async function OverviewPage() {
               <h3 className="peg-card__title">Próximas ações · minha fila</h3>
               <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{queueRows.length} item(ns) exigem atenção</span>
             </div>
-            <Link href="/app/crm/tasks" style={{ fontSize: 12 }}>Ver tarefas</Link>
+            <Link href="/app/crm/tasks" style={{ fontSize: 12, minHeight: 24, display: 'inline-flex', alignItems: 'center' }}>Ver tarefas</Link>
           </header>
           <div className="peg-stack" style={{ gap: 0 }}>
             {queueRows.length === 0 ? (
@@ -334,7 +334,7 @@ export default async function OverviewPage() {
               <div className="peg-stack" style={{ gap: 0 }}>
                 <h3 className="peg-card__title">Atendimento</h3>
               </div>
-              <Link href="/app/inbox" style={{ fontSize: 12 }}>Inbox</Link>
+              <Link href="/app/inbox" style={{ fontSize: 12, minHeight: 24, display: 'inline-flex', alignItems: 'center' }}>Inbox</Link>
             </header>
             <div className="peg-stack" style={{ gap: 0, padding: '6px 16px 12px' }}>
               <MetricRow label="Conversas aguardando" value={convOpen.length} tone="neutral" />

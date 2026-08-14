@@ -107,7 +107,7 @@ function PropertyFormBody() {
           <Icon name="x" size={18} />
         </button>
         <div className="peg-stack" style={{ gap: 0, minWidth: 0 }}>
-          <span className="focus-header__title">Novo imóvel</span>
+          <h1 className="focus-header__title">Novo imóvel</h1>
           <span className="focus-header__hint">Revisão dos dados do cadastro</span>
         </div>
         <div className="peg-spacer" />
@@ -117,6 +117,7 @@ function PropertyFormBody() {
               <span
                 className={s.available ? 'focus-step focus-step--active' : 'focus-step'}
                 aria-current={s.available ? 'step' : undefined}
+                aria-disabled={!s.available || undefined}
               >
                 {s.available ? <Icon name="check" size={12} /> : String(i + 1)}
               </span>

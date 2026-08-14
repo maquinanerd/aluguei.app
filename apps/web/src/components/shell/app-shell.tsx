@@ -57,7 +57,22 @@ export function AppShell({ session, children }: { session: Session; children: Re
     );
     focusables[0]?.focus();
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setDrawerOpen(false);
+      if (e.key === 'Escape') {
+        setDrawerOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab' || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === drawer)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener('keydown', onKeyDown);
     return () => {
@@ -66,7 +81,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
     };
   }, [drawerOpen]);
 
-  const sidebar = (
+  const sidebar = (navId: string) => (
     <>
       <header className="app-sidebar__header">
         <Link href="/app" className="app-sidebar__brand" onClick={() => { setDrawerOpen(false); }} title="Aluguei.app">
@@ -84,7 +99,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
           </button>
         ) : null}
       </header>
-      <nav className="app-sidebar__body" aria-label="Navegação principal" id="mobile-nav">
+      <nav className="app-sidebar__body" aria-label="Navegação principal" id={navId}>
         {collapsed ? (
           <div className="app-sidebar__rail">
             {NAV_ROOT.filter((i) => !i.permission || can(session, i.permission)).map((item) => (
@@ -185,9 +200,12 @@ export function AppShell({ session, children }: { session: Session; children: Re
 
   return (
     <div className="app-shell">
+      <a href="#app-content" className="skip-link">Pular para o conteúdo</a>
       <div className="app-frame">
         {/* Sidebar desktop */}
-        <aside className={cx('app-sidebar', collapsed && 'app-sidebar--collapsed')}>{sidebar}</aside>
+        <aside className={cx('app-sidebar', collapsed && 'app-sidebar--collapsed')} aria-label="Menu lateral">
+          {sidebar('desktop-nav')}
+        </aside>
 
         <div className="app-main">
           <header className="app-topbar">
@@ -206,9 +224,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 const last = i === crumbs.length - 1;
                 return (
                   <span key={i} className="peg-group" style={{ gap: 8 }}>
-                    {i > 0 ? <span className="peg-breadcrumb__separator">/</span> : null}
+                    {i > 0 ? <span className="peg-breadcrumb__separator" aria-hidden="true">/</span> : null}
                     {last || !c.href ? (
-                      <span className={last ? 'peg-breadcrumb__current' : undefined}>{c.label}</span>
+                      <span className={last ? 'peg-breadcrumb__current' : undefined} aria-current={last ? 'page' : undefined}>{c.label}</span>
                     ) : (
                       <Link href={c.href} className="peg-breadcrumb__link">
                         {c.label}
@@ -218,7 +236,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 );
               })}
             </nav>
-            <span className="peg-breadcrumb__separator">·</span>
+            <span className="peg-breadcrumb__separator" aria-hidden="true">·</span>
             {activeOrg ? (
               <span className="peg-text-secondary" style={{ fontSize: 13 }}>{activeOrg.name}</span>
             ) : null}
@@ -237,7 +255,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
             ) : null}
             <AccountMenu session={session} />
           </header>
-          <main className="app-content">{children}</main>
+          <main id="app-content" className="app-content" tabIndex={-1}>{children}</main>
         </div>
       </div>
 
@@ -248,7 +266,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
       {drawerOpen ? (
         <aside ref={drawerRef} className="app-drawer-sidebar" role="dialog" aria-modal="true" aria-label="Menu de navegação">
           <GroupHeader onClose={() => { setDrawerOpen(false); }} />
-          {sidebar}
+          {sidebar('mobile-nav')}
         </aside>
       ) : null}
     </div>
@@ -256,7 +274,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
 }
 
 function isItemActive(item: { href: string; activePrefixes?: string[] }, pathname: string): boolean {
-  return pathname === item.href || item.activePrefixes?.some((p) => pathname.startsWith(p)) || false;
+  if (pathname === item.href) return true;
+  if (item.href === '/app') return false; // Visão Geral só quando exatamente /app
+  return item.activePrefixes?.some((p) => pathname.startsWith(p)) || false;
 }
 
 function RailLink({
@@ -278,6 +298,7 @@ function RailLink({
       href={href}
       className={cx('app-sidebar__rail-link', active && 'app-sidebar__rail-link--active')}
       aria-current={active ? 'page' : undefined}
+      aria-label={label}
       title={label}
       onClick={onNavigate}
     >
@@ -322,6 +343,7 @@ function Avatar({ name, size, brand }: { name: string; size: 'sm' | 'md'; brand?
 function ProfileMenu({ session }: { session: Session }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -330,6 +352,33 @@ function ProfileMenu({ session }: { session: Session }) {
     }
     document.addEventListener('pointerdown', onPointer);
     return () => { document.removeEventListener('pointerdown', onPointer); };
+  }, [open]);
+
+  // Teclado APG: Escape fecha; setas movem entre itens
+  useEffect(() => {
+    if (!open) return;
+    const menu = menuRef.current;
+    if (!menu) return;
+    const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    if (items.length > 0) items[0]?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setOpen(false);
+        ref.current?.querySelector<HTMLButtonElement>('button')?.focus();
+        return;
+      }
+      if (!['ArrowDown', 'ArrowUp'].includes(e.key) || items.length === 0) return;
+      e.preventDefault();
+      const idx = items.indexOf(document.activeElement as HTMLElement);
+      const next = e.key === 'ArrowDown'
+        ? (idx + 1) % items.length
+        : (idx - 1 + items.length) % items.length;
+      const target = items[next];
+      if (target) target.focus();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); };
   }, [open]);
 
   async function logout() {
@@ -353,17 +402,17 @@ function ProfileMenu({ session }: { session: Session }) {
         <Icon name="moreVertical" size={16} />
       </button>
       {open ? (
-        <div role="menu" className="peg-menu" style={{ left: 'auto', right: 0, bottom: 'calc(100% + 6px)', width: 200 }}>
+        <div ref={menuRef} role="menu" className="peg-menu" style={{ left: 'auto', right: 0, bottom: 'calc(100% + 6px)', width: 200 }}>
           <div className="peg-stack" style={{ gap: 2, padding: '8px 12px' }}>
             <strong style={{ fontSize: 13 }}>{session.user.name}</strong>
             <span style={{ fontSize: 12, color: 'var(--peg-text-tertiary)' }}>{session.user.email}</span>
           </div>
           <div className="peg-menu__separator" />
-          <Link href="/app/settings" className="peg-menu__item" role="menuitem" onClick={() => { setOpen(false); }}>
+          <Link href="/app/settings" className="peg-menu__item" role="menuitem" tabIndex={0} onClick={() => { setOpen(false); }}>
             <span className="peg-menu__icon"><Icon name="settings" size={14} /></span>
             Configurações
           </Link>
-          <button type="button" role="menuitem" className="peg-menu__item peg-menu__item--danger" onClick={() => { void logout(); }}>
+          <button type="button" role="menuitem" tabIndex={0} className="peg-menu__item peg-menu__item--danger" onClick={() => { void logout(); }}>
             <span className="peg-menu__icon"><Icon name="logOut" size={14} /></span>
             Sair
           </button>
