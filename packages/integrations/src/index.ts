@@ -41,6 +41,25 @@ export type {
   Severity,
   TranscribeResult,
 } from './inspection-ai/types.js';
+
+export { FakeScreeningProvider } from './screening/fake.js';
+export { getScreeningProvider } from './screening/registry.js';
+export type {
+  IScreeningProvider,
+  CreditScreeningInput,
+  ScreeningProviderResult,
+  RedFlag as ScreeningRedFlag,
+} from './screening/types.js';
+
+export { FakeSignatureProvider } from './signature/fake.js';
+export { getSignatureProvider } from './signature/registry.js';
+export type {
+  ISignatureProvider,
+  CreateEnvelopeInput,
+  CreateEnvelopeResult,
+  EnvelopeParty,
+  EnvelopeStatus,
+} from './signature/types.js';
 export type {
   WhatsAppMessenger,
   WebhookMessageEvent,

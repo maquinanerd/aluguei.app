@@ -4,4 +4,5 @@ export * from './properties.js';
 export * from './channels.js';
 export * from './whatsapp.js';
 export * from './inspections.js';
+export * from './contracts.js';
 export * from './app-metadata.js';

@@ -50,6 +50,23 @@ export const AUDIT_ACTIONS = {
   INSPECTION_OBSERVATION_CREATED: 'inspection.observation_created',
   INSPECTION_SUGGESTION_RESOLVED: 'inspection.suggestion_resolved',
   INSPECTION_COMPARISON_CREATED: 'inspection.comparison_created',
+  RENTAL_APPLICATION_CREATED: 'rental_application.created',
+  RENTAL_APPLICATION_SUBMITTED: 'rental_application.submitted',
+  RENTAL_APPLICATION_SCREENED: 'rental_application.screened',
+  RENTAL_APPLICATION_DECIDED: 'rental_application.decided',
+  SCREENING_REQUESTED: 'screening.requested',
+  SCREENING_COMPLETED: 'screening.completed',
+  CONSENT_GRANTED: 'consent.granted',
+  CONTRACT_TEMPLATE_CREATED: 'contract_template.created',
+  CONTRACT_TEMPLATE_APPROVED: 'contract_template.approved',
+  CONTRACT_TEMPLATE_VERSIONED: 'contract_template.versioned',
+  CONTRACT_CREATED: 'contract.created',
+  CONTRACT_GENERATED: 'contract.generated',
+  CONTRACT_SENT_FOR_SIGNATURE: 'contract.sent_for_signature',
+  CONTRACT_VOIDED: 'contract.voided',
+  CONTRACT_SIGNED: 'contract.signed',
+  SIGNATURE_WEBHOOK_RECEIVED: 'signature.webhook_received',
+  SIGNATURE_ENVELOPE_UPDATED: 'signature.envelope_updated',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

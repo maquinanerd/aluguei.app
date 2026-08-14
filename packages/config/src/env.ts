@@ -31,6 +31,14 @@ export const envSchema = z.object({
   WHATSAPP_ACCESS_TOKEN: z.string().optional(),
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().optional(),
+  SERASA_CLIENT_ID: z.string().optional(),
+  SERASA_CLIENT_SECRET: z.string().optional(),
+  SPC_CLIENT_ID: z.string().optional(),
+  SPC_CLIENT_SECRET: z.string().optional(),
+  CLICKSIGN_API_TOKEN: z.string().optional(),
+  D4SIGN_API_TOKEN: z.string().optional(),
+  SIGNATURE_WEBHOOK_TOKEN: z.string().optional(),
+  SCREENING_APPROVE_SCORE_MIN: z.coerce.number().int().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
 });
 

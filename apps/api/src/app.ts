@@ -6,7 +6,12 @@ import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
-import type { GeocodingService, WhatsAppMessenger, AiProvider } from '@aluguei/integrations';
+import type {
+  GeocodingService,
+  WhatsAppMessenger,
+  AiProvider,
+  ISignatureProvider,
+} from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { configPlugin } from './plugins/config.js';
 import type { AppConfig } from './plugins/config.js';
@@ -40,6 +45,11 @@ import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
 import { whatsappConnectionRoutes } from './routes/whatsapp-connections.js';
 import { inspectionRoutes } from './routes/inspections.js';
+import { rentalApplicationRoutes } from './routes/rental-applications.js';
+import { contractTemplateRoutes } from './routes/contract-templates.js';
+import { contractRoutes } from './routes/contracts.js';
+import { signaturePlugin } from './plugins/signature.js';
+import type { SignaturePluginOptions } from './plugins/signature.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
@@ -50,6 +60,7 @@ export interface BuildAppOptions extends FastifyServerOptions {
   channels?: { fake?: FakeChannel };
   whatsapp?: WhatsAppMessenger;
   ai?: AiProvider;
+  signature?: ISignatureProvider;
 }
 
 function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
@@ -170,6 +181,17 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(aiPlugin, aiOptions);
 
   app.decorate('channels', opts.channels ?? {});
+  const signatureOptions: SignaturePluginOptions = {};
+  if (opts.signature) {
+    signatureOptions.signature = opts.signature;
+  }
+  if (env.CLICKSIGN_API_TOKEN) {
+    signatureOptions.token = env.CLICKSIGN_API_TOKEN;
+  }
+  if (env.D4SIGN_API_TOKEN) {
+    signatureOptions.token = env.D4SIGN_API_TOKEN;
+  }
+  await app.register(signaturePlugin, signatureOptions);
 
   await app.register(healthRoutes);
   await app.register(authRoutes);
@@ -189,6 +211,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(conversationRoutes);
   await app.register(whatsappConnectionRoutes);
   await app.register(inspectionRoutes);
+  await app.register(rentalApplicationRoutes);
+  await app.register(contractTemplateRoutes);
+  await app.register(contractRoutes);
 
   return app;
 }

@@ -1,9 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { webhookInbox, whatsappConnections } from '@aluguei/db';
+import { webhookInbox, whatsappConnections, signatureEnvelopes } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
-import type { VerifyWebhookParams } from '@aluguei/integrations';
 import { writeAudit } from '../plugins/audit.js';
+import { signatureWebhookEventSchema } from '@aluguei/contracts';
+import type { VerifyWebhookParams } from '@aluguei/integrations';
 
 /**
  * Webhook do WhatsApp (público, sem sessão). Valida → deduplica → enfileira
@@ -91,6 +92,46 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         payload: { events: events.length },
       });
 
+      return reply.status(200).send({ status: 'queued' });
+    },
+  );
+
+  app.post(
+    '/webhooks/signature',
+    { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const input = signatureWebhookEventSchema.parse(request.body);
+      // Resolve envelope da org (não confia em org_id do payload).
+      const [envelope] = await db
+        .select()
+        .from(signatureEnvelopes)
+        .where(
+          and(
+            eq(signatureEnvelopes.provider, input.provider),
+            eq(signatureEnvelopes.providerEnvelopeId, input.providerEnvelopeId),
+          ),
+        )
+        .limit(1);
+      if (!envelope) {
+        // Envelope desconhecido: ignora (200) — não gera retry infinito do provider.
+        return reply.status(200).send({ status: 'ignored' });
+      }
+      // Dedup por UNIQUE(provider, provider_event_id).
+      await db
+        .insert(webhookInbox)
+        .values({
+          orgId: envelope.orgId,
+          provider: 'SIGNATURE',
+          providerEventId: `${input.provider}:${input.providerEventId}`,
+          payload: { envelopeId: envelope.id, ...input },
+        })
+        .onConflictDoNothing();
+      await writeAudit(db, {
+        action: AUDIT_ACTIONS.SIGNATURE_WEBHOOK_RECEIVED,
+        entityType: 'WEBHOOK',
+        entityId: 'signature',
+        payload: { envelopeId: envelope.id, eventType: input.eventType },
+      });
       return reply.status(200).send({ status: 'queued' });
     },
   );

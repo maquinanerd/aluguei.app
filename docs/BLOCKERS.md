@@ -28,3 +28,9 @@ O agente deve registrar aqui apenas dependências externas reais: credenciais, A
 
 - `MockInspectionAiProvider` (transcrição/sugestões determinísticas por regras) é o padrão; adapters reais de transcrição/visão (LLM) exigem chave e devem obedecer o contrato de payload com EVIDÊNCIA OBSERVÁVEL apenas (nunca causa/diagnóstico) — nota em docs/AI_STRATEGY.md. Sem credencial → mock, nunca LLM externo.
 - Assinatura de vistoria (SIGNED) reservada: transição existe na máquina, rota rejeita com 400 até a Fase 07. PDF de relatório adiado para a fase de relatórios (10) — endpoint de snapshot estruturado disponível.
+
+## Fase 07 — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- `IScreeningProvider` com `FakeScreeningProvider` determinístico; Serasa/SPC reais registrados SEM adapter (sem documentação/credencial acessível — job falha com "provider não configurado", nunca inventa endpoints).
+- `ISignatureProvider` com `FakeSignatureProvider`; Clicksign/D4Sign reais sem token/doc → 400 "assinatura não configurada" (produção NUNCA assina fake). Webhook de assinatura aceita payload mínimo (sem validação HMAC — `SIGNATURE_WEBHOOK_TOKEN` reservado para quando o provider real documentar).
+- Decisões de crédito são AUTOMÁTICAS por regras determinísticas (threshold `SCREENING_APPROVE_SCORE_MIN` default 700, rastreio em `decision_rules`); revisão humana obrigatória em casos inconclusivos (MANUAL_REVIEW com motivo).

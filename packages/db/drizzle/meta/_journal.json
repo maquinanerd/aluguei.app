@@ -50,6 +50,13 @@
       "when": 1786666247511,
       "tag": "0006_ambitious_ironclad",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786668969435,
+      "tag": "0007_parallel_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }

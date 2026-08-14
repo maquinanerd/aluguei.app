@@ -6,15 +6,20 @@ import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
 import {
   getAiProvider,
   getInspectionAiProvider,
+  getScreeningProvider,
   getWhatsAppMessenger,
 } from '@aluguei/integrations';
 import type {
   AiProvider,
   InspectionAiProvider,
+  IScreeningProvider,
+  ISignatureProvider,
   WhatsAppMessenger,
   WhatsAppRegistryOptions,
 } from '@aluguei/integrations';
 import { processInspectionJob } from './inspectionJobs.js';
+import { processScreeningJob } from './screeningJobs.js';
+import { processSignatureJob } from './signatureJobs.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
@@ -23,6 +28,9 @@ export interface RunInboxJobsOptions {
   ai?: AiProvider;
   messenger?: WhatsAppMessenger | null;
   inspectionAi?: InspectionAiProvider;
+  screening?: IScreeningProvider;
+  signature?: ISignatureProvider;
+  screeningApproveScoreMin?: number;
 }
 
 interface InboxJob {
@@ -87,6 +95,18 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
           return getWhatsAppMessenger(messengerOptions);
         })();
   const inspectionAi = opts.inspectionAi ?? getInspectionAiProvider({});
+  const screeningProvider =
+    opts.screening ??
+    getScreeningProvider({
+      provider:
+        process.env.SCREENING_PROVIDER ??
+        (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
+    });
+  const approveScoreMin =
+    opts.screeningApproveScoreMin ??
+    (process.env.SCREENING_APPROVE_SCORE_MIN
+      ? Number(process.env.SCREENING_APPROVE_SCORE_MIN)
+      : undefined);
 
   for (const job of jobs) {
     try {
@@ -94,6 +114,13 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         await processWhatsAppInboxJob(db, job, ai, messenger);
       } else if (job.provider === 'INSPECTION') {
         await processInspectionJob(db, job, inspectionAi);
+      } else if (job.provider === 'SCREENING') {
+        if (!screeningProvider) {
+          throw new Error('provider de screening não configurado');
+        }
+        await processScreeningJob(db, job, screeningProvider, approveScoreMin);
+      } else if (job.provider === 'SIGNATURE') {
+        await processSignatureJob(db, job);
       } else {
         throw new Error(`provider desconhecido: ${job.provider}`);
       }

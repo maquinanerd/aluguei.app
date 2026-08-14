@@ -84,6 +84,38 @@ export {
 export type { InspectionStatus, InspectionTransitionContext } from './inspection/stateMachine.js';
 
 export { computeInspectionDifferences } from './inspection/compare.js';
+
+export {
+  RENTAL_APPLICATION_STATUSES,
+  isRentalApplicationStatus,
+  canTransitionRentalApplication,
+  applicationTransitionIssues,
+  transitionRentalApplication,
+} from './rental/application.js';
+export type {
+  RentalApplicationStatus,
+  ApplicationTransitionContext,
+} from './rental/application.js';
+
+export { decideApplication } from './rental/screening.js';
+export type {
+  ScreeningDecision,
+  ScreeningDecisionInput,
+  ScreeningDecisionResult,
+  RedFlag,
+  RuleTrace,
+} from './rental/screening.js';
+
+export {
+  CONTRACT_STATUSES,
+  isContractStatus,
+  canTransitionContract,
+  transitionContract,
+  sha256Hex,
+} from './contract/contract.js';
+export type { ContractStatus, ContractTransitionContext } from './contract/contract.js';
+
+export { renderTemplate } from './contract/template.js';
 export type {
   ComparisonKind,
   DifferenceItem,
