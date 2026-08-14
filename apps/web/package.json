@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aluguei/contracts": "workspace:*",
+    "@aluguei/domain": "workspace:*",
     "@aluguei/ui": "workspace:*",
     "next": "16.3.0",
     "react": "19.2.3",

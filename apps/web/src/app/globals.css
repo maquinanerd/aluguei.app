@@ -9,3 +9,294 @@ body {
 body {
   font-family: var(--font-inter), var(--peg-font-family);
 }
+
+/* ============ App Shell ============ */
+
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--peg-canvas);
+}
+
+/* Sidebar desktop */
+.app-sidebar {
+  width: var(--peg-sidebar-width);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--peg-surface);
+  border-right: 1px solid var(--peg-border);
+  overflow: hidden;
+}
+
+.app-sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-2);
+  height: var(--peg-topbar-height);
+  padding: 0 var(--peg-space-4);
+  border-bottom: 1px solid var(--peg-border);
+  flex: none;
+}
+
+.app-sidebar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--peg-space-2);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--peg-text-primary);
+  text-decoration: none;
+}
+
+.app-sidebar__brand:hover {
+  text-decoration: none;
+}
+
+.app-sidebar__logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--aluguei-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex: none;
+}
+
+.app-sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--peg-space-3);
+}
+
+.app-sidebar__group {
+  margin-bottom: var(--peg-space-4);
+}
+
+.app-sidebar__group-title {
+  padding: var(--peg-space-1) var(--peg-space-2);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--peg-text-tertiary);
+  margin-bottom: var(--peg-space-1);
+}
+
+.app-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-2);
+  height: 32px;
+  padding: 0 var(--peg-space-2);
+  border-radius: var(--peg-radius-sm);
+  color: var(--peg-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--peg-duration-fast) var(--peg-ease), color var(--peg-duration-fast) var(--peg-ease);
+}
+
+.app-sidebar__link:hover {
+  background: var(--peg-surface-subtle);
+  color: var(--peg-text-primary);
+  text-decoration: none;
+}
+
+.app-sidebar__link--active {
+  background: var(--aluguei-brand-subtle);
+  color: var(--aluguei-brand-strong);
+}
+
+.app-sidebar__link .app-sidebar__icon {
+  display: inline-flex;
+  flex: none;
+  color: inherit;
+  opacity: 0.85;
+}
+
+.app-sidebar__footer {
+  flex: none;
+  border-top: 1px solid var(--peg-border);
+  padding: var(--peg-space-2) var(--peg-space-3);
+}
+
+/* Topbar */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-3);
+  height: var(--peg-topbar-height);
+  padding: 0 var(--peg-space-4);
+  border-bottom: 1px solid var(--peg-border);
+  background: var(--peg-canvas);
+  flex: none;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--peg-space-6);
+}
+
+.app-topbar__search {
+  width: 280px;
+}
+
+/* Hamburger só no mobile */
+.app-topbar__menu {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .app-topbar__menu {
+    display: inline-flex;
+  }
+}
+
+/* Mobile drawer */
+.app-drawer-overlay {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .app-sidebar {
+    display: none;
+  }
+  .app-drawer-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--peg-z-drawer);
+    background: rgba(24, 26, 22, 0.4);
+  }
+  .app-drawer-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--peg-z-drawer);
+    width: var(--peg-sidebar-width);
+    background: var(--peg-surface);
+    border-right: 1px solid var(--peg-border);
+    display: flex;
+    flex-direction: column;
+  }
+  .app-topbar__search {
+    display: none;
+  }
+  .app-content {
+    padding: var(--peg-space-4);
+  }
+}
+
+@media (max-width: 479px) {
+  .app-content {
+    padding: var(--peg-space-3);
+  }
+}
+
+/* Page header padrão */
+.app-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--peg-space-4);
+  max-width: var(--peg-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-page__title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.app-page__desc {
+  font-size: 13px;
+  color: var(--peg-text-secondary);
+}
+
+/* ============ Focus Mode (auth/marketing) ============ */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--peg-canvas);
+  padding: var(--peg-space-4);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--peg-surface);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-lg);
+  padding: var(--peg-space-6);
+  box-shadow: var(--peg-shadow-1);
+}
+
+.auth-card__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-2);
+  margin-bottom: var(--peg-space-5);
+  font-size: 16px;
+  color: var(--peg-text-primary);
+}
+
+.marketing-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.marketing-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-4);
+  height: var(--peg-topbar-height);
+  padding: 0 var(--peg-space-6);
+  border-bottom: 1px solid var(--peg-border);
+  background: var(--peg-surface);
+}
+
+.marketing-hero {
+  padding: var(--peg-space-16) var(--peg-space-6);
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.marketing-hero h1 {
+  font-size: 32px;
+  line-height: 40px;
+}
+
+@media (max-width: 479px) {
+  .marketing-hero {
+    padding: var(--peg-space-8) var(--peg-space-4);
+  }
+  .marketing-hero h1 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  .auth-card {
+    padding: var(--peg-space-5);
+  }
+}

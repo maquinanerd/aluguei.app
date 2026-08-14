@@ -3,8 +3,9 @@ import { describe, expect, it } from 'vitest';
 import HomePage from './page';
 
 describe('HomePage', () => {
-  it('renderiza o título principal', () => {
+  it('renderiza o título principal do marketing', () => {
     const html = renderToStaticMarkup(<HomePage />);
-    expect(html).toContain('<h1>Aluguei.app</h1>');
+    expect(html).toContain('O sistema operacional da locação imobiliária');
+    expect(html).toContain('Começar grátis');
   });
 });
