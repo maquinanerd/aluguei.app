@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 7
-current_phase_name: SCREENING_CONTRACTS
-last_completed_phase: 6
-last_commit: feat(web): complete inbox visits and proposals UI
+current_phase: 8
+current_phase_name: INSPECTIONS_LEASES
+last_completed_phase: 7
+last_commit: feat(web): complete screening and contract UI
 p0: 0
 p1: 0
 build: green
@@ -21,22 +21,26 @@ accessibility: PENDING
 - Phase 03 — Application Shell & Navigation.
 - Phase 04 — Dashboard & CRM.
 - Phase 05 — Properties, Media, Listings & Channels.
-- Phase 06 — Inbox, WhatsApp, Visits & Proposals:
-  - /app/inbox: shell 3 zonas (conversation list + active conversation + CRM
-    context panel), busca/filtro/status, thread de mensagens com direção, composer
-    (POST /conversations/:id/messages), handoff, intenções extraídas no contexto.
-  - /app/visits: lista com filtro por status, drawer de detalhe, agendamento.
-  - /app/proposals: lista com filtro, drawer de detalhe, criação (imóvel + aluguel
-    + condições + validade).
-  - Validado runtime: 3 rotas 200; create visit 201; create proposal 201.
+- Phase 06 — Inbox, WhatsApp, Visits & Proposals.
+- Phase 07 — Screening, Contracts & Signatures:
+  - /app/screening: lista de aplicações com filtro por status.
+  - /app/screening/[id]: 360 com resultado do screening (decisão/score/provedor),
+    consentimento LGPD, solicitar screening, aprovar com confirm. IA nunca autoridade
+    final: decisão vem do provedor/regras do backend.
+  - /app/contracts: lista com filtro, criação (aplicação aprovada + template aprovado).
+  - /app/contracts/[id]: 360 com partes, envelope de assinatura, gerar contrato,
+    enviar para assinatura, cancelar (VOID), visualizar conteúdo (hash verificado).
+  - /app/contract-templates: lista com busca/filtro, criação, aprovação.
+  - Validado runtime (fluxo real): party → application → consent LGPD →
+    SUBMITTED → SCREENING → screening request 202 → APPROVED → UI detail 200.
 
 ## In progress
-- Phase 07 — Screening, Contracts & Signatures (rental applications, screening
-  decision, contracts, templates, signature envelope).
+- Phase 08 — Inspections & Active Leases (vistorias desktop: agenda/detail/checklist/
+  rooms/media/áudio/transcrição/sugestões IA/confirmação humana/comparação/relatório;
+  Lease 360).
 
 ## Next
-- Phase 07 → 08 Inspections/Leases → 09 Finance → 10 Marketing/Reporting →
-  11 Admin/Integrations → 12 Final Audit.
+- Phase 08 → 09 Finance → 10 Marketing/Reporting → 11 Admin/Integrations → 12 Final Audit.
 
 ## Blockers
 - none known

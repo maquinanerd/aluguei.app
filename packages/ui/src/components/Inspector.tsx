@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
 export interface InspectorRow {
@@ -9,11 +9,17 @@ export interface InspectorRow {
 export function Inspector({
   children,
   className,
+  style,
 }: {
   children: ReactNode;
   className?: string;
+  style?: CSSProperties;
 }) {
-  return <aside className={cx('peg-inspector', className)}>{children}</aside>;
+  return (
+    <aside className={cx('peg-inspector', className)} style={style}>
+      {children}
+    </aside>
+  );
 }
 
 export function InspectorSection({
