@@ -1,10 +1,10 @@
 # Frontend Execution State
 
 status: IMPLEMENTING
-current_phase: 10
-current_phase_name: MARKETING_REPORTING
-last_completed_phase: 9
-last_commit: feat(web): complete finance operations UI
+current_phase: 11
+current_phase_name: ADMIN_INTEGRATIONS
+last_completed_phase: 10
+last_commit: feat(web): complete marketing and reporting UI
 p0: 0
 p1: 0
 build: green
@@ -24,27 +24,22 @@ accessibility: PENDING
 - Phase 06 — Inbox, WhatsApp, Visits & Proposals.
 - Phase 07 — Screening, Contracts & Signatures.
 - Phase 08 — Inspections & Active Leases.
-- Phase 09 — Finance:
-  - /app/finance: overview operacional (em aberto, recebido, cobrado, repasses
-    pendentes, locação ativa).
-  - /app/charges: lista com filtro, criação, drawer de detalhe com breakdown
-    (aluguel/condomínio/multa/juros/desconto), receber (Pix/boleto/cartão/manual —
-    sandbox fake), cancelar, estornar.
-  - /app/payments: lista com filtro, método/status/provedor.
-  - /app/payouts: lista de repasses com status.
-  - /app/reconciliation: lista + conciliar (POST /reconciliations).
-  - /app/ledger: partidas de dupla entrada com filtro por conta, débitos/créditos/
-    saldo, referência auditável.
-  - Validado runtime: 6 rotas 200; ledger/accounts + entries respondem (vazio real
-    sem transações processadas; fluxo completo coberto por testes de integração do repo).
+- Phase 09 — Finance.
+- Phase 10 — Marketing, Meta, Channels Analytics & Reporting:
+  - /app/marketing: visão geral (campanhas ativas, perfis, modo dry-run), campanhas
+    com publicar/pausar/retomar/arquivar (confirm + audit, Housing Special Ad Category),
+    sync insights, perfis de anúncio, conexão Meta (create FAKE dry-run).
+  - /app/reporting: funil de leads com barras, receita mensal, gasto Meta, exportação
+    CSV/JSON (report:export, maxRows 1000).
+  - Validado runtime: marketing/reporting 200; meta connect FAKE 201; funnel com
+    dados; export JSON 200.
 
 ## In progress
-- Phase 10 — Marketing, Meta, Channels Analytics & Reporting (conexão Meta, assets,
-  ad profiles, campanhas com create paused/publish/pause/resume/budget/schedule/
-  creative/archive/insights; reporting: funnel, receita mensal, meta spend, export).
+- Phase 11 — Administration, Audit & Integrations (members, roles, audit (gap),
+  integrations, settings, whatsapp connections).
 
 ## Next
-- Phase 10 → 11 Admin/Integrations → 12 Final Audit.
+- Phase 11 → 12 Responsive/A11y/Final Audit.
 
 ## Blockers
 - none known
