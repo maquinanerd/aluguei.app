@@ -411,6 +411,61 @@ body {
   color: var(--peg-text-secondary);
 }
 
+/* ============ Property list (mockup Imóveis) ============ */
+
+.prop-search {
+  width: 280px;
+}
+
+.prop-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-3);
+  min-width: 0;
+}
+
+.prop-thumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  border-radius: var(--peg-radius-xs);
+  background: var(--peg-surface-subtle);
+  color: var(--peg-text-tertiary);
+  flex: none;
+}
+
+.prop-title {
+  font-weight: 500;
+  color: var(--peg-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.prop-sub {
+  font-size: 12px;
+  color: var(--peg-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prop-code {
+  font-family: var(--peg-font-mono);
+  font-size: 11px;
+  color: var(--peg-text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.prop-menu-col {
+  width: 40px;
+  text-align: right;
+  white-space: nowrap;
+}
+
 /* ============ Dashboard operacional (mockup) ============ */
 
 .dashboard-page {
