@@ -80,7 +80,9 @@ function LeadsBody() {
     return `/leads?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<LeadsResponse>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<LeadsResponse>(queryPath, [
+    queryPath,
+  ]);
   const parties = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
 
   const partyName = useCallback(
@@ -94,7 +96,11 @@ function LeadsBody() {
     const filtered = q
       ? rows.filter((l) => {
           const name = partyName(l.partyId) ?? '';
-          return name.toLowerCase().includes(q) || (l.channel ?? '').toLowerCase().includes(q) || (l.source ?? '').toLowerCase().includes(q);
+          return (
+            name.toLowerCase().includes(q) ||
+            (l.channel ?? '').toLowerCase().includes(q) ||
+            (l.source ?? '').toLowerCase().includes(q)
+          );
         })
       : rows;
     const sorted = [...filtered].sort((a, b) => {
@@ -106,7 +112,12 @@ function LeadsBody() {
     return sorted;
   }, [data, search, sortKey, sortDir, partyName]);
 
-  async function createLead(input: { source?: string; channel?: string; budgetMinCents?: number; notes?: string }) {
+  async function createLead(input: {
+    source?: string;
+    channel?: string;
+    budgetMinCents?: number;
+    notes?: string;
+  }) {
     try {
       await apiClient('/leads', { method: 'POST', body: input });
       toast.success('Lead criado', 'Adicionado ao funil.');
@@ -120,8 +131,11 @@ function LeadsBody() {
   async function transitionStatus(leadId: string, next: string) {
     setTransiting(leadId);
     try {
-      const reason = next === 'LOST' ? window.prompt('Motivo do LOST:') ?? undefined : undefined;
-      await apiClient(`/leads/${leadId}/status`, { method: 'PATCH', body: { status: next, reason } });
+      const reason = next === 'LOST' ? (window.prompt('Motivo do LOST:') ?? undefined) : undefined;
+      await apiClient(`/leads/${leadId}/status`, {
+        method: 'PATCH',
+        body: { status: next, reason },
+      });
       toast.success('Status atualizado', label(FUNNEL_LABELS, next));
       reload();
     } catch (err) {
@@ -148,16 +162,14 @@ function LeadsBody() {
       key: 'status',
       header: 'Estágio',
       sortable: true,
-      render: (l) => <Badge tone={FUNNEL_TONES[l.status] ?? 'neutral'}>{label(FUNNEL_LABELS, l.status)}</Badge>,
+      render: (l) => (
+        <Badge tone={FUNNEL_TONES[l.status] ?? 'neutral'}>{label(FUNNEL_LABELS, l.status)}</Badge>
+      ),
     },
     {
       key: 'channel',
       header: 'Origem',
-      render: (l) => (
-        <span className="peg-text-secondary">
-          {l.channel ?? l.source ?? '—'}
-        </span>
-      ),
+      render: (l) => <span className="peg-text-secondary">{l.channel ?? l.source ?? '—'}</span>,
     },
     {
       key: 'budget',
@@ -165,7 +177,9 @@ function LeadsBody() {
       render: (l) => (
         <span>
           {l.budgetMinCents !== null ? formatBRL(l.budgetMinCents) : '—'}
-          {l.budgetMaxCents !== null && l.budgetMaxCents !== l.budgetMinCents ? ` – ${formatBRL(l.budgetMaxCents)}` : ''}
+          {l.budgetMaxCents !== null && l.budgetMaxCents !== l.budgetMinCents
+            ? ` – ${formatBRL(l.budgetMaxCents)}`
+            : ''}
         </span>
       ),
     },
@@ -198,7 +212,9 @@ function LeadsBody() {
                 key: 'open',
                 label: 'Abrir Lead 360',
                 icon: 'externalLink',
-                onSelect: () => { router.push(`/app/crm/leads/${l.id}`); },
+                onSelect: () => {
+                  router.push(`/app/crm/leads/${l.id}`);
+                },
               },
             ]}
           />
@@ -212,7 +228,11 @@ function LeadsBody() {
       <PageToolbar
         title="Leads"
         description="Funil de captação e qualificação."
-        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por contato ou origem…' }}
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: 'Buscar por contato ou origem…',
+        }}
         filters={
           <Select
             size="sm"
@@ -227,7 +247,14 @@ function LeadsBody() {
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Novo lead
           </Button>
         }
@@ -249,11 +276,15 @@ function LeadsBody() {
               setSortDir('asc');
             }
           }}
-          onRowClick={(l) => { router.push(`/app/crm/leads/${l.id}`); }}
+          onRowClick={(l) => {
+            router.push(`/app/crm/leads/${l.id}`);
+          }}
           emptyTitle="Nenhum lead"
           emptyBody="Crie um lead ou aguarde novos contatos pelos canais."
           emptyActionLabel="Criar lead"
-          onEmptyAction={() => { setCreateOpen(true); }}
+          onEmptyAction={() => {
+            setCreateOpen(true);
+          }}
         />
         <Pagination page={page} pageSize={50} total={data?.total ?? 0} onPageChange={setPage} />
       </Stack>
@@ -262,8 +293,12 @@ function LeadsBody() {
 
       <CreateLeadModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
-        onCreate={(input) => { void createLead(input); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
+        onCreate={(input) => {
+          void createLead(input);
+        }}
       />
     </div>
   );
@@ -276,7 +311,12 @@ function CreateLeadModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { source?: string; channel?: string; budgetMinCents?: number; notes?: string }) => void;
+  onCreate: (input: {
+    source?: string;
+    channel?: string;
+    budgetMinCents?: number;
+    notes?: string;
+  }) => void;
 }) {
   const [source, setSource] = useState('');
   const [channel, setChannel] = useState('');
@@ -287,7 +327,8 @@ function CreateLeadModal({
   function submit(e: SyntheticEvent) {
     e.preventDefault();
     setBusy(true);
-    const input: { source?: string; channel?: string; budgetMinCents?: number; notes?: string } = {};
+    const input: { source?: string; channel?: string; budgetMinCents?: number; notes?: string } =
+      {};
     if (source) input.source = source;
     if (channel) input.channel = channel;
     if (budget) {
@@ -310,16 +351,53 @@ function CreateLeadModal({
       title="Novo lead"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-lead-form" loading={busy}>Criar lead</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-lead-form" loading={busy}>
+            Criar lead
+          </Button>
         </>
       }
     >
       <form id="create-lead-form" className="peg-stack" style={{ gap: 16 }} onSubmit={submit}>
-        <Input label="Canal de origem" optional placeholder="WhatsApp, site, portal…" value={channel} onChange={(e) => { setChannel(e.target.value); }} />
-        <Input label="Fonte" optional placeholder="Campanha, indicação…" value={source} onChange={(e) => { setSource(e.target.value); }} />
-        <Input label="Orçamento mínimo (R$)" optional inputMode="decimal" placeholder="3.500" value={budget} onChange={(e) => { setBudget(e.target.value); }} />
-        <Textarea label="Observações" optional rows={3} value={notes} onChange={(e) => { setNotes(e.target.value); }} />
+        <Input
+          label="Canal de origem"
+          optional
+          placeholder="WhatsApp, site, portal…"
+          value={channel}
+          onChange={(e) => {
+            setChannel(e.target.value);
+          }}
+        />
+        <Input
+          label="Fonte"
+          optional
+          placeholder="Campanha, indicação…"
+          value={source}
+          onChange={(e) => {
+            setSource(e.target.value);
+          }}
+        />
+        <Input
+          label="Orçamento mínimo (R$)"
+          optional
+          inputMode="decimal"
+          placeholder="3.500"
+          value={budget}
+          onChange={(e) => {
+            setBudget(e.target.value);
+          }}
+        />
+        <Textarea
+          label="Observações"
+          optional
+          rows={3}
+          value={notes}
+          onChange={(e) => {
+            setNotes(e.target.value);
+          }}
+        />
       </form>
     </Modal>
   );

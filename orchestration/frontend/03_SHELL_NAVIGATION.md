@@ -1,6 +1,7 @@
 # Phase 03 — Application Shell & Navigation
 
 Implementar:
+
 - full sidebar;
 - nested groups;
 - active state;

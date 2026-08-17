@@ -136,7 +136,9 @@ body {
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
-  transition: background var(--peg-duration-fast) var(--peg-ease), color var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    background var(--peg-duration-fast) var(--peg-ease),
+    color var(--peg-duration-fast) var(--peg-ease);
 }
 
 .app-sidebar__link:hover {
@@ -753,7 +755,9 @@ body {
 .dash-summary {
   display: block;
   color: inherit;
-  transition: border-color var(--peg-duration-fast) var(--peg-ease), box-shadow var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    border-color var(--peg-duration-fast) var(--peg-ease),
+    box-shadow var(--peg-duration-fast) var(--peg-ease);
 }
 
 .dash-summary:hover {

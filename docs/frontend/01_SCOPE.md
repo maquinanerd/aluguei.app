@@ -1,19 +1,23 @@
 # 01 — Frontend Scope
 
 ## Superfície principal
+
 CRM / Backoffice do Aluguei.app.
 
 ## Módulos
 
 ### Visão Geral
+
 Central de trabalho operacional.
 
 ### Inbox
+
 - Conversas
 - WhatsApp
 - Pendentes
 
 ### CRM
+
 - Leads
 - Contatos
 - Pipeline
@@ -22,6 +26,7 @@ Central de trabalho operacional.
 - Oportunidades somente se capability atual suportar
 
 ### Imóveis
+
 - Todos
 - Disponíveis
 - Reservados
@@ -31,34 +36,40 @@ Central de trabalho operacional.
 - Anúncios
 
 ### Atendimento
+
 - Visitas
 - Propostas
 - Qualificação
 - Histórico
 
 ### Crédito
+
 - Análises
 - Pendências
 - Histórico
 
 ### Contratos
+
 - Contratos
 - Assinaturas
 - Documentos
 - Templates
 
 ### Vistorias
+
 - Agendadas
 - Em andamento
 - Concluídas
 - Relatórios
 
 ### Locações
+
 - Ativas
 - Renovações/encerramentos quando domínio suportar
 - Ocorrências quando capability existir
 
 ### Financeiro
+
 - Overview
 - Cobranças
 - Recebimentos
@@ -68,6 +79,7 @@ Central de trabalho operacional.
 - Ledger
 
 ### Marketing
+
 - Campanhas
 - Meta Ads
 - Criativos
@@ -75,6 +87,7 @@ Central de trabalho operacional.
 - Leads relacionados
 
 ### Canais
+
 - Site
 - Portais
 - Publicações
@@ -85,6 +98,7 @@ Central de trabalho operacional.
 ### Documentos
 
 ### Administração
+
 - Usuários
 - Equipes/memberships
 - Permissões

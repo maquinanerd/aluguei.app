@@ -6,30 +6,66 @@
   display: flex;
   flex-direction: column;
 }
-.peg-stack.gap-0 { gap: 0; }
-.peg-stack.gap-1 { gap: var(--peg-space-1); }
-.peg-stack.gap-2 { gap: var(--peg-space-2); }
-.peg-stack.gap-3 { gap: var(--peg-space-3); }
-.peg-stack.gap-4 { gap: var(--peg-space-4); }
-.peg-stack.gap-6 { gap: var(--peg-space-6); }
-.peg-stack.gap-8 { gap: var(--peg-space-8); }
+.peg-stack.gap-0 {
+  gap: 0;
+}
+.peg-stack.gap-1 {
+  gap: var(--peg-space-1);
+}
+.peg-stack.gap-2 {
+  gap: var(--peg-space-2);
+}
+.peg-stack.gap-3 {
+  gap: var(--peg-space-3);
+}
+.peg-stack.gap-4 {
+  gap: var(--peg-space-4);
+}
+.peg-stack.gap-6 {
+  gap: var(--peg-space-6);
+}
+.peg-stack.gap-8 {
+  gap: var(--peg-space-8);
+}
 
 .peg-group {
   display: flex;
   align-items: center;
   min-width: 0;
 }
-.peg-group.gap-0 { gap: 0; }
-.peg-group.gap-1 { gap: var(--peg-space-1); }
-.peg-group.gap-2 { gap: var(--peg-space-2); }
-.peg-group.gap-3 { gap: var(--peg-space-3); }
-.peg-group.gap-4 { gap: var(--peg-space-4); }
-.peg-group.gap-6 { gap: var(--peg-space-6); }
-.peg-group.wrap { flex-wrap: wrap; }
-.peg-group.between { justify-content: space-between; }
-.peg-group.end { justify-content: flex-end; }
-.peg-group.stretch { align-items: stretch; }
-.peg-group.start { align-items: flex-start; }
+.peg-group.gap-0 {
+  gap: 0;
+}
+.peg-group.gap-1 {
+  gap: var(--peg-space-1);
+}
+.peg-group.gap-2 {
+  gap: var(--peg-space-2);
+}
+.peg-group.gap-3 {
+  gap: var(--peg-space-3);
+}
+.peg-group.gap-4 {
+  gap: var(--peg-space-4);
+}
+.peg-group.gap-6 {
+  gap: var(--peg-space-6);
+}
+.peg-group.wrap {
+  flex-wrap: wrap;
+}
+.peg-group.between {
+  justify-content: space-between;
+}
+.peg-group.end {
+  justify-content: flex-end;
+}
+.peg-group.stretch {
+  align-items: stretch;
+}
+.peg-group.start {
+  align-items: flex-start;
+}
 
 .peg-spacer {
   flex: 1 1 auto;
@@ -44,17 +80,29 @@
   display: grid;
   gap: var(--peg-space-4);
 }
-.peg-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.peg-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.peg-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.peg-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.peg-grid.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.peg-grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 
 @media (max-width: 1023px) {
-  .peg-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .peg-grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 479px) {
   .peg-grid.cols-3,
-  .peg-grid.cols-4 { grid-template-columns: 1fr; }
-  .peg-grid.cols-2 { grid-template-columns: 1fr; }
+  .peg-grid.cols-4 {
+    grid-template-columns: 1fr;
+  }
+  .peg-grid.cols-2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============ Divider ============ */
@@ -202,7 +250,9 @@
   background: transparent;
   color: var(--peg-text-secondary);
   cursor: pointer;
-  transition: background var(--peg-duration-fast) var(--peg-ease), color var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    background var(--peg-duration-fast) var(--peg-ease),
+    color var(--peg-duration-fast) var(--peg-ease);
 }
 .peg-icon-btn:hover:not(:disabled) {
   background: var(--peg-surface-subtle);
@@ -278,7 +328,9 @@
   border: 1px solid var(--peg-border-strong);
   border-radius: var(--peg-radius-sm);
   color: var(--peg-text-primary);
-  transition: border-color var(--peg-duration-fast) var(--peg-ease), box-shadow var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    border-color var(--peg-duration-fast) var(--peg-ease),
+    box-shadow var(--peg-duration-fast) var(--peg-ease);
 }
 .peg-input:focus-within {
   border-color: var(--aluguei-brand);
@@ -294,10 +346,22 @@
 .peg-input--error:focus-within {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
-.peg-input--xs { height: var(--peg-control-xs); padding: 0 var(--peg-space-2); }
-.peg-input--sm { height: var(--peg-control-sm); padding: 0 var(--peg-space-2); }
-.peg-input--md { height: var(--peg-control-md); padding: 0 var(--peg-space-3); }
-.peg-input--lg { height: var(--peg-control-lg); padding: 0 var(--peg-space-3); }
+.peg-input--xs {
+  height: var(--peg-control-xs);
+  padding: 0 var(--peg-space-2);
+}
+.peg-input--sm {
+  height: var(--peg-control-sm);
+  padding: 0 var(--peg-space-2);
+}
+.peg-input--md {
+  height: var(--peg-control-md);
+  padding: 0 var(--peg-space-3);
+}
+.peg-input--lg {
+  height: var(--peg-control-lg);
+  padding: 0 var(--peg-space-3);
+}
 
 .peg-input__control {
   flex: 1;
@@ -319,9 +383,13 @@
   flex: none;
 }
 .peg-input--xs .peg-input__control,
-.peg-input--sm .peg-input__control { font-size: 13px; }
+.peg-input--sm .peg-input__control {
+  font-size: 13px;
+}
 .peg-input--md .peg-input__control,
-.peg-input--lg .peg-input__control { font-size: 14px; }
+.peg-input--lg .peg-input__control {
+  font-size: 14px;
+}
 
 .peg-textarea {
   display: block;
@@ -335,7 +403,9 @@
   font-size: 14px;
   line-height: 20px;
   resize: vertical;
-  transition: border-color var(--peg-duration-fast) var(--peg-ease), box-shadow var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    border-color var(--peg-duration-fast) var(--peg-ease),
+    box-shadow var(--peg-duration-fast) var(--peg-ease);
 }
 .peg-textarea:focus {
   outline: none;
@@ -375,7 +445,9 @@
   background: var(--peg-surface);
   color: transparent;
   flex: none;
-  transition: background var(--peg-duration-fast) var(--peg-ease), border-color var(--peg-duration-fast) var(--peg-ease);
+  transition:
+    background var(--peg-duration-fast) var(--peg-ease),
+    border-color var(--peg-duration-fast) var(--peg-ease);
 }
 .peg-choice--checkbox .peg-choice__box {
   border-radius: var(--peg-radius-xs);
@@ -474,12 +546,30 @@
   color: var(--peg-text-secondary);
   border: 1px solid transparent;
 }
-.peg-badge--success { background: var(--peg-success-bg); color: #0d7a38; }
-.peg-badge--warning { background: var(--peg-warning-bg); color: #a05c06; }
-.peg-badge--danger { background: var(--peg-danger-bg); color: #b91c1c; }
-.peg-badge--info { background: var(--peg-info-bg); color: #1d4ed8; }
-.peg-badge--brand { background: var(--aluguei-brand-subtle); color: var(--aluguei-brand-strong); }
-.peg-badge--neutral { background: var(--peg-surface-muted); color: var(--peg-text-secondary); }
+.peg-badge--success {
+  background: var(--peg-success-bg);
+  color: #0d7a38;
+}
+.peg-badge--warning {
+  background: var(--peg-warning-bg);
+  color: #a05c06;
+}
+.peg-badge--danger {
+  background: var(--peg-danger-bg);
+  color: #b91c1c;
+}
+.peg-badge--info {
+  background: var(--peg-info-bg);
+  color: #1d4ed8;
+}
+.peg-badge--brand {
+  background: var(--aluguei-brand-subtle);
+  color: var(--aluguei-brand-strong);
+}
+.peg-badge--neutral {
+  background: var(--peg-surface-muted);
+  color: var(--peg-text-secondary);
+}
 
 .peg-tag {
   display: inline-flex;
@@ -520,10 +610,26 @@
   user-select: none;
   overflow: hidden;
 }
-.peg-avatar--xs { width: 20px; height: 20px; font-size: 10px; }
-.peg-avatar--sm { width: 24px; height: 24px; font-size: 11px; }
-.peg-avatar--md { width: 32px; height: 32px; font-size: 13px; }
-.peg-avatar--lg { width: 40px; height: 40px; font-size: 15px; }
+.peg-avatar--xs {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+.peg-avatar--sm {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+.peg-avatar--md {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+}
+.peg-avatar--lg {
+  width: 40px;
+  height: 40px;
+  font-size: 15px;
+}
 .peg-avatar--brand {
   background: var(--aluguei-brand-subtle);
   color: var(--aluguei-brand-strong);
@@ -591,9 +697,15 @@
   font-weight: 500;
   margin-top: var(--peg-space-1);
 }
-.peg-kpi__delta--up { color: var(--peg-success); }
-.peg-kpi__delta--down { color: var(--peg-danger); }
-.peg-kpi__delta--neutral { color: var(--peg-text-tertiary); }
+.peg-kpi__delta--up {
+  color: var(--peg-success);
+}
+.peg-kpi__delta--down {
+  color: var(--peg-danger);
+}
+.peg-kpi__delta--neutral {
+  color: var(--peg-text-tertiary);
+}
 
 /* ============ DataTable ============ */
 .peg-table-wrap {
@@ -922,9 +1034,15 @@
   flex-direction: column;
   max-height: calc(100vh - var(--peg-space-16));
 }
-.peg-modal--sm { max-width: 400px; }
-.peg-modal--lg { max-width: 760px; }
-.peg-modal--xl { max-width: 960px; }
+.peg-modal--sm {
+  max-width: 400px;
+}
+.peg-modal--lg {
+  max-width: 760px;
+}
+.peg-modal--xl {
+  max-width: 960px;
+}
 .peg-modal__header {
   display: flex;
   align-items: center;
@@ -970,8 +1088,14 @@
   width: 380px;
   max-width: 92vw;
 }
-.peg-drawer--right { right: 0; }
-.peg-drawer--left { left: 0; border-left: none; border-right: 1px solid var(--peg-border); }
+.peg-drawer--right {
+  right: 0;
+}
+.peg-drawer--left {
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--peg-border);
+}
 .peg-drawer__header {
   display: flex;
   align-items: center;
@@ -1063,17 +1187,31 @@
   color: var(--peg-text-primary);
   animation: peg-toast-in var(--peg-duration-base) var(--peg-ease);
 }
-.peg-toast--success { border-left: 3px solid var(--peg-success); }
-.peg-toast--error { border-left: 3px solid var(--peg-danger); }
-.peg-toast--warning { border-left: 3px solid var(--peg-warning); }
-.peg-toast--info { border-left: 3px solid var(--peg-info); }
+.peg-toast--success {
+  border-left: 3px solid var(--peg-success);
+}
+.peg-toast--error {
+  border-left: 3px solid var(--peg-danger);
+}
+.peg-toast--warning {
+  border-left: 3px solid var(--peg-warning);
+}
+.peg-toast--info {
+  border-left: 3px solid var(--peg-info);
+}
 .peg-toast__icon {
   flex: none;
   margin-top: 1px;
 }
 @keyframes peg-toast-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============ State views ============ */
@@ -1132,7 +1270,9 @@
   animation: peg-shimmer 1.4s infinite;
 }
 @keyframes peg-shimmer {
-  100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ============ Spinner ============ */
@@ -1150,7 +1290,9 @@
   border-top-color: var(--aluguei-brand);
 }
 @keyframes peg-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============ MoneyValue ============ */

@@ -52,21 +52,35 @@ export default async function ImovelPage({ params }: PageProps) {
           <Stack gap={4} style={{ padding: 24 }}>
             <Group between wrap gap={3}>
               <h1 style={{ fontSize: 22 }}>{listing.title}</h1>
-              <span style={{ fontSize: 22, fontWeight: 700 }}>{formatBRL(listing.priceCents)}/mês</span>
+              <span style={{ fontSize: 22, fontWeight: 700 }}>
+                {formatBRL(listing.priceCents)}/mês
+              </span>
             </Group>
             <span className="peg-text-secondary" style={{ fontSize: 14 }}>
               {listing.publicAddress?.city ?? ''}
-              {listing.publicAddress?.neighborhood ? ` · ${listing.publicAddress.neighborhood}` : ''}
+              {listing.publicAddress?.neighborhood
+                ? ` · ${listing.publicAddress.neighborhood}`
+                : ''}
               {listing.publicAddress?.state ? ` · ${listing.publicAddress.state}` : ''}
             </span>
             <Group gap={2} wrap>
-              {listing.bedrooms !== null ? <Tag icon="home">{`${String(listing.bedrooms)} dorm.`}</Tag> : null}
-              {listing.bathrooms !== null ? <Tag icon="home">{`${String(listing.bathrooms)} ban.`}</Tag> : null}
-              {listing.parkingSpots !== null ? <Tag icon="home">{`${String(listing.parkingSpots)} vagas`}</Tag> : null}
-              {listing.totalAreaSqm !== null ? <Tag icon="mapPin">{formatArea(listing.totalAreaSqm)}</Tag> : null}
+              {listing.bedrooms !== null ? (
+                <Tag icon="home">{`${String(listing.bedrooms)} dorm.`}</Tag>
+              ) : null}
+              {listing.bathrooms !== null ? (
+                <Tag icon="home">{`${String(listing.bathrooms)} ban.`}</Tag>
+              ) : null}
+              {listing.parkingSpots !== null ? (
+                <Tag icon="home">{`${String(listing.parkingSpots)} vagas`}</Tag>
+              ) : null}
+              {listing.totalAreaSqm !== null ? (
+                <Tag icon="mapPin">{formatArea(listing.totalAreaSqm)}</Tag>
+              ) : null}
               {listing.furnished ? <Tag icon="check">Mobiliado</Tag> : null}
               {listing.petsAllowed !== null ? (
-                <Tag icon={listing.petsAllowed ? 'check' : 'x'}>{listing.petsAllowed ? 'Aceita pets' : 'Não aceita pets'}</Tag>
+                <Tag icon={listing.petsAllowed ? 'check' : 'x'}>
+                  {listing.petsAllowed ? 'Aceita pets' : 'Não aceita pets'}
+                </Tag>
               ) : null}
             </Group>
             <Badge tone="neutral">{label(PROPERTY_TYPE_LABELS, listing.propertyType)}</Badge>
@@ -75,7 +89,10 @@ export default async function ImovelPage({ params }: PageProps) {
             ) : null}
             {listing.features.length > 0 ? (
               <Stack gap={2}>
-                <span className="peg-text-tertiary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span
+                  className="peg-text-tertiary"
+                  style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                >
                   Características
                 </span>
                 <Group gap={2} wrap>

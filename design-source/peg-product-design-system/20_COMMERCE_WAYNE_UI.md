@@ -97,6 +97,7 @@ Desktop recomendado:
 ```
 
 Workspace:
+
 - identity;
 - timeline/activity;
 - notes;
@@ -106,6 +107,7 @@ Workspace:
 - documents.
 
 Rail:
+
 - stage;
 - owner;
 - score;
@@ -126,11 +128,13 @@ Rail:
 ## Conversations
 
 Três zonas desktop quando necessário:
+
 - inbox/conversation list;
 - thread;
 - contact/context rail.
 
 Mobile:
+
 - list → thread → detail, sem três colunas comprimidas.
 
 ## Automation

@@ -3,6 +3,7 @@
 Pacote de continuação do Aluguei.app dedicado à construção integral do **painel web / CRM / backoffice**.
 
 Ele parte do estado real do repositório e deve:
+
 - descobrir a implementação existente;
 - preservar o backend, domínio, banco e contracts;
 - reconstruir/refinar a camada visual com fidelidade ao Claude Design do Aluguei.app;
@@ -38,12 +39,14 @@ Não criar um novo design system.
 ## Identidade Aluguei.app
 
 Foundation neutra:
+
 - `#FCFCFC` canvas
 - `#F0F0F0` surface secundária
 - `#C7C7C7` border/disabled forte
 - `#2F332B` ink
 
 Accent:
+
 - `#41945D` Aluguei primary
 - `#417D55` Aluguei strong
 
@@ -60,6 +63,7 @@ Nunca:
 ## Escopo
 
 O pacote cobre o painel:
+
 - Visão Geral
 - Inbox/WhatsApp
 - CRM

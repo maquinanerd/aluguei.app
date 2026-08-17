@@ -1,13 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  Badge,
-  Card,
-  DataTable,
-  Select,
-  Stack,
-} from '@aluguei/ui';
+import { Badge, Card, DataTable, Select, Stack } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
@@ -52,8 +46,12 @@ function LedgerBody() {
 
   const balance = useMemo(() => {
     const entries = entriesQ.data?.entries ?? [];
-    const debits = entries.filter((e) => e.entryType === 'DEBIT').reduce((s, e) => s + e.amountCents, 0);
-    const credits = entries.filter((e) => e.entryType === 'CREDIT').reduce((s, e) => s + e.amountCents, 0);
+    const debits = entries
+      .filter((e) => e.entryType === 'DEBIT')
+      .reduce((s, e) => s + e.amountCents, 0);
+    const credits = entries
+      .filter((e) => e.entryType === 'CREDIT')
+      .reduce((s, e) => s + e.amountCents, 0);
     return { debits, credits, net: debits - credits };
   }, [entriesQ.data]);
 
@@ -66,7 +64,9 @@ function LedgerBody() {
         return (
           <Stack gap={0}>
             <span style={{ fontWeight: 500 }}>{acc?.name ?? '—'}</span>
-            <span className="peg-text-mono peg-text-tertiary" style={{ fontSize: 11 }}>{acc?.code ?? ''}</span>
+            <span className="peg-text-mono peg-text-tertiary" style={{ fontSize: 11 }}>
+              {acc?.code ?? ''}
+            </span>
           </Stack>
         );
       },
@@ -74,12 +74,23 @@ function LedgerBody() {
     {
       key: 'type',
       header: 'Tipo',
-      render: (e) => <Badge tone={e.entryType === 'DEBIT' ? 'danger' : 'success'}>{e.entryType}</Badge>,
+      render: (e) => (
+        <Badge tone={e.entryType === 'DEBIT' ? 'danger' : 'success'}>{e.entryType}</Badge>
+      ),
     },
     {
       key: 'amount',
       header: 'Valor',
-      render: (e) => <span style={{ fontWeight: 600, color: e.entryType === 'DEBIT' ? 'var(--peg-danger)' : 'var(--peg-success)' }}>{formatBRL(e.amountCents)}</span>,
+      render: (e) => (
+        <span
+          style={{
+            fontWeight: 600,
+            color: e.entryType === 'DEBIT' ? 'var(--peg-danger)' : 'var(--peg-success)',
+          }}
+        >
+          {formatBRL(e.amountCents)}
+        </span>
+      ),
     },
     {
       key: 'reference',
@@ -90,8 +101,16 @@ function LedgerBody() {
         </span>
       ),
     },
-    { key: 'desc', header: 'Descrição', render: (e) => <span className="peg-text-secondary">{e.description ?? '—'}</span> },
-    { key: 'when', header: 'Quando', render: (e) => <span className="peg-text-tertiary">{formatDateTime(e.createdAt)}</span> },
+    {
+      key: 'desc',
+      header: 'Descrição',
+      render: (e) => <span className="peg-text-secondary">{e.description ?? '—'}</span>,
+    },
+    {
+      key: 'when',
+      header: 'Quando',
+      render: (e) => <span className="peg-text-tertiary">{formatDateTime(e.createdAt)}</span>,
+    },
   ];
 
   return (
@@ -103,9 +122,14 @@ function LedgerBody() {
           <Select
             size="sm"
             value={accountId}
-            onChange={(e) => { setAccountId(e.target.value); }}
+            onChange={(e) => {
+              setAccountId(e.target.value);
+            }}
             placeholder="Todas as contas"
-            options={(accountsQ.data?.accounts ?? []).map((a) => ({ value: a.id, label: `${a.code} · ${a.name}` }))}
+            options={(accountsQ.data?.accounts ?? []).map((a) => ({
+              value: a.id,
+              label: `${a.code} · ${a.name}`,
+            }))}
             aria-label="Filtrar por conta"
           />
         }
@@ -113,10 +137,14 @@ function LedgerBody() {
 
       <div className="peg-grid cols-3">
         <Card title="Débitos" padless>
-          <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-danger)' }}>{formatBRL(balance.debits)}</div>
+          <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-danger)' }}>
+            {formatBRL(balance.debits)}
+          </div>
         </Card>
         <Card title="Créditos" padless>
-          <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}>{formatBRL(balance.credits)}</div>
+          <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}>
+            {formatBRL(balance.credits)}
+          </div>
         </Card>
         <Card title="Saldo (débito − crédito)" padless>
           <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>{formatBRL(balance.net)}</div>

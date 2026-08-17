@@ -29,7 +29,9 @@ export function GlobalSearch({ session }: { session: Session }) {
       }
     }
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
+    return () => {
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   useEffect(() => {
@@ -38,13 +40,20 @@ export function GlobalSearch({ session }: { session: Session }) {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('pointerdown', onPointer);
-    return () => { document.removeEventListener('pointerdown', onPointer); };
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+    };
   }, [open]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    const matches: Array<{ href: string; label: string; icon: Parameters<typeof Icon>[0]['name']; group: string }> = [];
+    const matches: Array<{
+      href: string;
+      label: string;
+      icon: Parameters<typeof Icon>[0]['name'];
+      group: string;
+    }> = [];
     for (const item of NAV_ROOT) {
       if (item.label.toLowerCase().includes(q)) {
         matches.push({ href: item.href, label: item.label, icon: item.icon, group: '' });
@@ -115,15 +124,25 @@ export function GlobalSearch({ session }: { session: Session }) {
             setQuery(e.target.value);
             setOpen(true);
           }}
-          onFocus={() => { setOpen(true); }}
+          onFocus={() => {
+            setOpen(true);
+          }}
           onKeyDown={onKeyDown}
         />
         <span className="peg-input__suffix">
-          <kbd className="app-kbd" aria-hidden="true">⌘K</kbd>
+          <kbd className="app-kbd" aria-hidden="true">
+            ⌘K
+          </kbd>
         </span>
       </div>
       {visible ? (
-        <div id={listboxId} role="listbox" aria-label="Resultados da busca" className="peg-menu" style={{ left: 0, right: 0, top: 'calc(100% + 6px)' }}>
+        <div
+          id={listboxId}
+          role="listbox"
+          aria-label="Resultados da busca"
+          className="peg-menu"
+          style={{ left: 0, right: 0, top: 'calc(100% + 6px)' }}
+        >
           {results.map((r, i) => (
             <button
               key={r.href}
@@ -133,14 +152,24 @@ export function GlobalSearch({ session }: { session: Session }) {
               aria-selected={i === activeIndex}
               className="peg-menu__item"
               style={i === activeIndex ? { background: 'var(--peg-surface-subtle)' } : undefined}
-              onMouseEnter={() => { setActiveIndex(i); }}
-              onClick={() => { go(r.href); }}
+              onMouseEnter={() => {
+                setActiveIndex(i);
+              }}
+              onClick={() => {
+                go(r.href);
+              }}
             >
               <span className="peg-menu__icon">
                 <Icon name={r.icon} size={14} />
               </span>
-              <span className="peg-grow" style={{ textAlign: 'left' }}>{r.label}</span>
-              {r.group ? <span className="peg-text-tertiary" style={{ fontSize: 11 }}>{r.group}</span> : null}
+              <span className="peg-grow" style={{ textAlign: 'left' }}>
+                {r.label}
+              </span>
+              {r.group ? (
+                <span className="peg-text-tertiary" style={{ fontSize: 11 }}>
+                  {r.group}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
+import type { AppEnv } from '@aluguei/config';
 import { webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
 import {
@@ -34,6 +35,8 @@ export interface RunInboxJobsOptions {
   db: AppDb;
   limit?: number;
   log?: (msg: string) => void;
+  /** Env tipado (loadEnv) — os valores de provider são lidos daqui quando presente. */
+  env?: AppEnv;
   ai?: AiProvider;
   messenger?: WhatsAppMessenger | null;
   inspectionAi?: InspectionAiProvider;
@@ -113,25 +116,32 @@ async function claimInboxJobs(db: AppDb, limit: number): Promise<InboxJob[]> {
 
 /** Executa um ciclo de processamento do inbox. */
 export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ processed: number }> {
-  const { db, limit = 10, log } = opts;
+  const { db, limit = 10, log, env } = opts;
   await enqueueSchedulerJobs(db, log);
   const jobs = await claimInboxJobs(db, limit);
-  const ai = opts.ai ?? getAiProvider({ provider: process.env.AI_PROVIDER ?? 'mock' });
+  const ai =
+    opts.ai ?? getAiProvider({ provider: env?.AI_PROVIDER ?? process.env.AI_PROVIDER ?? 'mock' });
   const messenger =
     opts.messenger !== undefined
       ? opts.messenger
       : (() => {
+          const mode = env?.META_MODE ?? (process.env.META_MODE as 'dry_run' | 'live' | undefined);
           const messengerOptions: WhatsAppRegistryOptions = {
-            mode: process.env.META_MODE === 'live' ? 'live' : 'dry_run',
+            mode: mode === 'live' ? 'live' : 'dry_run',
           };
-          if (process.env.WHATSAPP_ACCESS_TOKEN) {
-            messengerOptions.accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+          const accessToken = env?.WHATSAPP_ACCESS_TOKEN ?? process.env.WHATSAPP_ACCESS_TOKEN;
+          if (accessToken) {
+            messengerOptions.accessToken = accessToken;
           }
-          if (process.env.WHATSAPP_PHONE_NUMBER_ID) {
-            messengerOptions.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+          const phoneNumberId =
+            env?.WHATSAPP_PHONE_NUMBER_ID ?? process.env.WHATSAPP_PHONE_NUMBER_ID;
+          if (phoneNumberId) {
+            messengerOptions.phoneNumberId = phoneNumberId;
           }
-          if (process.env.META_WEBHOOK_VERIFY_TOKEN) {
-            messengerOptions.verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
+          const verifyToken =
+            env?.META_WEBHOOK_VERIFY_TOKEN ?? process.env.META_WEBHOOK_VERIFY_TOKEN;
+          if (verifyToken) {
+            messengerOptions.verifyToken = verifyToken;
           }
           return getWhatsAppMessenger(messengerOptions);
         })();
@@ -140,23 +150,25 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
     opts.screening ??
     getScreeningProvider({
       provider:
+        env?.SCREENING_PROVIDER ??
         process.env.SCREENING_PROVIDER ??
         (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
     });
   const approveScoreMin =
     opts.screeningApproveScoreMin ??
-    (process.env.SCREENING_APPROVE_SCORE_MIN
-      ? Number(process.env.SCREENING_APPROVE_SCORE_MIN)
+    ((env?.SCREENING_APPROVE_SCORE_MIN ?? process.env.SCREENING_APPROVE_SCORE_MIN)
+      ? Number(env?.SCREENING_APPROVE_SCORE_MIN ?? process.env.SCREENING_APPROVE_SCORE_MIN)
       : undefined);
   const paymentProvider =
     opts.payments !== undefined
       ? opts.payments
       : (() => {
           const paymentOptions: PaymentRegistryOptions = {
-            provider: process.env.PAYMENT_PROVIDER ?? 'FAKE',
+            provider: env?.PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'FAKE',
           };
-          if (process.env.ASAAS_API_KEY) {
-            paymentOptions.apiKey = process.env.ASAAS_API_KEY;
+          const apiKey = env?.ASAAS_API_KEY ?? process.env.ASAAS_API_KEY;
+          if (apiKey) {
+            paymentOptions.apiKey = apiKey;
           }
           return getPaymentProvider(paymentOptions);
         })();

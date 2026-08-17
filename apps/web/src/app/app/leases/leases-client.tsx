@@ -62,7 +62,10 @@ function LeasesBody() {
     return `/leases?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ leases: Lease[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    leases: Lease[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
   const contractsQ = useQuery<{ contracts: Contract[]; total: number }>('/contracts?limit=100', []);
@@ -85,12 +88,18 @@ function LeasesBody() {
     {
       key: 'property',
       header: 'Imóvel',
-      render: (l) => <span style={{ fontWeight: 500 }}>{propertyMap.get(l.propertyId)?.title ?? '—'}</span>,
+      render: (l) => (
+        <span style={{ fontWeight: 500 }}>{propertyMap.get(l.propertyId)?.title ?? '—'}</span>
+      ),
     },
     {
       key: 'tenant',
       header: 'Locatário',
-      render: (l) => <span className="peg-text-secondary">{l.tenantPartyId ? partyMap.get(l.tenantPartyId)?.name ?? '—' : '—'}</span>,
+      render: (l) => (
+        <span className="peg-text-secondary">
+          {l.tenantPartyId ? (partyMap.get(l.tenantPartyId)?.name ?? '—') : '—'}
+        </span>
+      ),
     },
     {
       key: 'rent',
@@ -100,14 +109,22 @@ function LeasesBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (l) => <Badge tone={LEASE_STATUS_TONES[l.status] ?? 'neutral'}>{label(LEASE_STATUS_LABELS, l.status)}</Badge>,
+      render: (l) => (
+        <Badge tone={LEASE_STATUS_TONES[l.status] ?? 'neutral'}>
+          {label(LEASE_STATUS_LABELS, l.status)}
+        </Badge>
+      ),
     },
     {
       key: 'start',
       header: 'Início',
       render: (l) => <span className="peg-text-tertiary">{formatDate(l.startDate)}</span>,
     },
-    { key: 'end', header: 'Término', render: (l) => <span className="peg-text-tertiary">{formatDate(l.endDate)}</span> },
+    {
+      key: 'end',
+      header: 'Término',
+      render: (l) => <span className="peg-text-tertiary">{formatDate(l.endDate)}</span>,
+    },
   ];
 
   return (
@@ -129,7 +146,14 @@ function LeasesBody() {
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Nova locação
           </Button>
         }
@@ -138,17 +162,23 @@ function LeasesBody() {
         columns={columns}
         rows={data?.leases ?? []}
         loading={loading}
-        onRowClick={(l) => { router.push(`/app/leases/${l.id}`); }}
+        onRowClick={(l) => {
+          router.push(`/app/leases/${l.id}`);
+        }}
         emptyTitle="Nenhuma locação"
         emptyBody="Crie uma locação a partir de um contrato assinado."
         emptyActionLabel="Nova locação"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <CreateLeaseModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         contracts={(contractsQ.data?.contracts ?? []).filter((c) => c.status === 'SIGNED')}
         onCreated={() => {
           toast.success('Locação criada');
@@ -197,17 +227,30 @@ function CreateLeaseModal({
       title="Nova locação"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-lease-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-lease-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-lease-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-lease-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Contrato assinado"
           required
           value={contractId}
-          onChange={(e) => { setContractId(e.target.value); }}
+          onChange={(e) => {
+            setContractId(e.target.value);
+          }}
           placeholder="Selecione o contrato…"
           options={contracts.map((c) => ({ value: c.id, label: c.id.slice(0, 8) }))}
         />

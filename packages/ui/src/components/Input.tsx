@@ -4,8 +4,7 @@ import { forwardRef, useId } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   size?: 'xs' | 'sm' | 'md' | 'lg';
   invalid?: boolean;
   prefix?: ReactNode;

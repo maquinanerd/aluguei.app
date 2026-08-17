@@ -11,15 +11,21 @@ export interface FieldProps {
   className?: string;
 }
 
-export function Field({ label, optional, helper, error, htmlFor, children, className }: FieldProps) {
+export function Field({
+  label,
+  optional,
+  helper,
+  error,
+  htmlFor,
+  children,
+  className,
+}: FieldProps) {
   return (
     <div className={cx('peg-field', className)}>
       {label ? (
         <label className="peg-field__label" htmlFor={htmlFor}>
           {label}
-          {optional ? (
-            <span className="peg-field__label--optional"> · opcional</span>
-          ) : null}
+          {optional ? <span className="peg-field__label--optional"> · opcional</span> : null}
         </label>
       ) : null}
       {children}

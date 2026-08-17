@@ -16,6 +16,7 @@ Se houver conflito entre preferência do agente e evidência visual, a referênc
 ## PEG UI
 
 O PEG Product Design System define:
+
 - foundation;
 - component library;
 - application shells;
@@ -28,12 +29,14 @@ Aluguei.app é uma variação de produto, não um design system novo.
 ## Product override Aluguei.app
 
 Neutros compartilhados:
+
 - `neutral.canvas = #FCFCFC`
 - `neutral.surface = #F0F0F0`
 - `neutral.mid = #C7C7C7`
 - `neutral.ink = #2F332B`
 
 Accent:
+
 - `aluguei.brand.primary = #41945D`
 - `aluguei.brand.strong = #417D55`
 
@@ -55,6 +58,7 @@ Accent:
 ## Calibration gate
 
 Antes de expandir telas:
+
 - comparar foundation;
 - sidebar;
 - topbar;

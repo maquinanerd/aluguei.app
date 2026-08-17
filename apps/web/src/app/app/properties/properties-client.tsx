@@ -55,14 +55,19 @@ function PropertiesBody() {
     return `/properties?${params.toString()}`;
   }, [page, tab]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ properties: Property[]; total: number }>(
-    queryPath,
-    [queryPath],
-  );
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    properties: Property[];
+    total: number;
+  }>(queryPath, [queryPath]);
 
   // Contagens reais para o header (mockup: "N imóveis · X disponíveis")
-  const allQuery = useQuery<{ properties: Property[]; total: number }>('/properties?limit=1', ['props-total']);
-  const activeQuery = useQuery<{ properties: Property[]; total: number }>('/properties?limit=1&status=ACTIVE', ['props-active']);
+  const allQuery = useQuery<{ properties: Property[]; total: number }>('/properties?limit=1', [
+    'props-total',
+  ]);
+  const activeQuery = useQuery<{ properties: Property[]; total: number }>(
+    '/properties?limit=1&status=ACTIVE',
+    ['props-active'],
+  );
   const totalCount = allQuery.data?.total ?? data?.total ?? 0;
   const activeCount = activeQuery.data?.total ?? null;
 
@@ -118,7 +123,9 @@ function PropertiesBody() {
       key: 'status',
       header: 'Status',
       render: (p) => (
-        <Badge tone={p.status === 'ACTIVE' ? 'success' : 'neutral'}>{label(PROPERTY_STATUS_LABELS, p.status)}</Badge>
+        <Badge tone={p.status === 'ACTIVE' ? 'success' : 'neutral'}>
+          {label(PROPERTY_STATUS_LABELS, p.status)}
+        </Badge>
       ),
     },
     {
@@ -181,14 +188,26 @@ function PropertiesBody() {
               { value: 'grid', label: 'Grade' },
             ]}
           />
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { router.push('/app/properties/new'); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              router.push('/app/properties/new');
+            }}
+          >
             Novo imóvel
           </Button>
         </Group>
       </div>
 
       {/* Tabs de status */}
-      <div className="peg-tabs" role="tablist" aria-label="Filtrar por status" onKeyDown={onTabsKeyDown}>
+      <div
+        className="peg-tabs"
+        role="tablist"
+        aria-label="Filtrar por status"
+        onKeyDown={onTabsKeyDown}
+      >
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -211,20 +230,34 @@ function PropertiesBody() {
       {/* Busca + filtros aplicados */}
       <div className="peg-group" style={{ gap: 12, flexWrap: 'wrap' }}>
         <div className="peg-input peg-input--md prop-search">
-          <span className="peg-input__prefix"><Icon name="search" size={15} /></span>
+          <span className="peg-input__prefix">
+            <Icon name="search" size={15} />
+          </span>
           <input
             type="text"
             className="peg-input__control"
             placeholder="Buscar imóvel…"
             aria-label="Buscar imóvel"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
           />
         </div>
         {tab !== 'ALL' ? (
-          <button type="button" className="peg-tag" onClick={() => { setTab('ALL'); setPage(0); }} aria-label={`Remover filtro de status: ${TABS.find((t) => t.value === tab)?.label ?? ''}`}>
+          <button
+            type="button"
+            className="peg-tag"
+            onClick={() => {
+              setTab('ALL');
+              setPage(0);
+            }}
+            aria-label={`Remover filtro de status: ${TABS.find((t) => t.value === tab)?.label ?? ''}`}
+          >
             Status: {TABS.find((t) => t.value === tab)?.label}
-            <span className="peg-tag__remove" aria-hidden="true"><Icon name="x" size={12} /></span>
+            <span className="peg-tag__remove" aria-hidden="true">
+              <Icon name="x" size={12} />
+            </span>
           </button>
         ) : null}
       </div>
@@ -238,11 +271,15 @@ function PropertiesBody() {
             dense
             selectedIds={selected}
             onSelectIds={setSelected}
-            onRowClick={(p) => { router.push(`/app/properties/${p.id}`); }}
+            onRowClick={(p) => {
+              router.push(`/app/properties/${p.id}`);
+            }}
             emptyTitle="Nenhum imóvel"
             emptyBody="Cadastre o primeiro imóvel do portfólio."
             emptyActionLabel="Novo imóvel"
-            onEmptyAction={() => { router.push('/app/properties/new'); }}
+            onEmptyAction={() => {
+              router.push('/app/properties/new');
+            }}
           />
           <Pagination page={page} pageSize={50} total={data?.total ?? 0} onPageChange={setPage} />
         </>
@@ -252,7 +289,9 @@ function PropertiesBody() {
             <button
               key={p.id}
               type="button"
-              onClick={() => { router.push(`/app/properties/${p.id}`); }}
+              onClick={() => {
+                router.push(`/app/properties/${p.id}`);
+              }}
               className="peg-card"
               style={{
                 padding: 16,
@@ -264,7 +303,9 @@ function PropertiesBody() {
               }}
             >
               <Group between>
-                <Badge tone={p.status === 'ACTIVE' ? 'success' : 'neutral'}>{label(PROPERTY_STATUS_LABELS, p.status)}</Badge>
+                <Badge tone={p.status === 'ACTIVE' ? 'success' : 'neutral'}>
+                  {label(PROPERTY_STATUS_LABELS, p.status)}
+                </Badge>
                 <span className="prop-code">{p.id.slice(0, 8).toUpperCase()}</span>
               </Group>
               <span style={{ fontSize: 14, fontWeight: 600 }}>{p.title}</span>

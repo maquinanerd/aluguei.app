@@ -35,11 +35,7 @@ export function ConfirmModal({
           <Button variant="tertiary" onClick={onClose} disabled={loading}>
             {cancelLabel}
           </Button>
-          <Button
-            variant={danger ? 'danger' : 'primary'}
-            onClick={onConfirm}
-            loading={loading}
-          >
+          <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm} loading={loading}>
             {confirmLabel}
           </Button>
         </>

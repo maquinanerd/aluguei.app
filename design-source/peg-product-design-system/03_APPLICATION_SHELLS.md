@@ -39,6 +39,7 @@ Uso: contextos com necessidade máxima de largura útil.
 Onboarding, assinatura, login, checkout, configuração inicial.
 
 Características:
+
 - navegação reduzida;
 - uma tarefa dominante;
 - progressive disclosure;
@@ -60,6 +61,7 @@ Uso: pagamento, confirmação, alteração sensível, quick edit.
 Não comprimir o desktop.
 
 Regras:
+
 - topbar enxuta;
 - hamburger/drawer;
 - actions secundárias em overflow;

@@ -1,9 +1,11 @@
 # Phase 04 — Dashboard & CRM
 
 ## Dashboard
+
 Central de trabalho, não executive vanity dashboard.
 
 Priorizar:
+
 - leads novos/sem atendimento/aguardando;
 - atividades atrasadas;
 - visitas;
@@ -15,6 +17,7 @@ Priorizar:
 - conversas abertas.
 
 ## CRM
+
 - Lead list
 - Lead 360
 - Pipeline table/board

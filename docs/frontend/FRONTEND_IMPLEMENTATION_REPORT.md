@@ -39,6 +39,7 @@ apps/web (Next.js 16 App Router, Turbopack, React 19, TS strict)
 ```
 
 ### Decisões técnicas relevantes
+
 - **Identidade**: PEG Product Design System + override Aluguei — `canvas #FCFCFC`, `surface #F0F0F0`, `mid #C7C7C7`, `ink #2F332B`; accent `#41945D`/`#417D55` controlado. Verde nunca cobre grandes superfícies; semantic (success/warning/danger/info) independentes.
 - **Next 16/Turbopack**: imports relativos extensionless em `packages/ui` (Turbopack não resolve `.js`→`.tsx` em workspace packages); `"use client"` em componentes interativos; fonte Inter via `next/font/google`.
 - **BFF**: proxy `/api/backend/[...path]` com `isSameOrigin` para mutações, forward de cookie, devolução de Set-Cookie; XFF do cliente **não** repassado (evita spoofing de rate-limit).
@@ -51,12 +52,15 @@ apps/web (Next.js 16 App Router, Turbopack, React 19, TS strict)
 ## 3. Design System (`packages/ui`)
 
 ### Tokens
+
 `canvas/surface/subtle/muted`, `border/border-strong`, `text-primary/secondary/tertiary/disabled`, brand Aluguei (primary/strong/subtle/faint/on/focus), semantic + backgrounds, typography Inter, radius 4/6/8/12/16, spacing 4…64, control heights 28/32/36/40, layout (sidebar 240 / rail 64 / topbar 52 / inspector 336 / table row 52/40), elevation 0–3, z-index, motion, dark mode surfaces próprias.
 
 ### Primitivas (~35)
+
 Button (6 variantes + loading), IconButton, Field, Input, SearchInput, Textarea, Select, Checkbox (indeterminate), Radio, Switch, Badge (6 tons), Tag, Avatar, Kpi/Metric, Card, DataTable (sort/select/skeleton/empty/pagination integrada), Pagination, Tabs, SegmentedControl, Breadcrumb, Dropdown, Tooltip, Modal (focus trap), ConfirmModal, Drawer (focus trap), Inspector (+Section/Rows), Toast (provider + contexto), StateViews (Empty/Error/PermissionDenied/Disconnected), Skeleton, Spinner, StatusBadge, Divider, Stack/Group, MoneyValue, Icon (80+ ícones stroke).
 
 ### Calibration Screen
+
 Rota dev `/dev/calibration` exercitando todos os primitives (KPIs, controles, tabela densa com sort/select, tabs/segmented, dropdown, modal, drawer/inspector, toasts) para comparação com as referências PEG.
 
 ---
@@ -74,75 +78,85 @@ Rota dev `/dev/calibration` exercitando todos os primitives (KPIs, controles, ta
 ## 5. Rotas implementadas (34) e módulos
 
 ### Visão Geral (`/app`)
+
 Server component com `Promise.allSettled` + guard por permissão: KPIs operacionais (leads abertos, visitas, imóveis ativos, cobranças), cards de leads recentes/tarefas/visitas/cobranças + quick links.
 
 ### CRM
-| Rota | Conteúdo |
-|---|---|
-| `/app/crm/leads` | lista com busca, filtro por estágio, sort, seleção, paginação, criação, transição de status (dropdown), row → Lead 360 |
+
+| Rota                  | Conteúdo                                                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/crm/leads`      | lista com busca, filtro por estágio, sort, seleção, paginação, criação, transição de status (dropdown), row → Lead 360                                                                |
 | `/app/crm/leads/[id]` | Lead 360: header + tabs (overview/conversas/atividades) + context rail (contato/origem/orçamento); conversas via `/leads/:id/conversations`; timeline via `/timeline?entityType=LEAD` |
-| `/app/crm/pipeline` | board kanban por estágio + visão tabela, avanço 1-clique |
-| `/app/crm/contacts` | parties com busca, criação com dedupe (`/parties` + `/parties/dedupe`), drawer de detalhe |
-| `/app/crm/tasks` | CRUD (criar/concluir/cancelar) com filtro |
-| `/app/crm/calendar` | agenda de visitas agrupada por dia + tarefas abertas |
+| `/app/crm/pipeline`   | board kanban por estágio + visão tabela, avanço 1-clique                                                                                                                              |
+| `/app/crm/contacts`   | parties com busca, criação com dedupe (`/parties` + `/parties/dedupe`), drawer de detalhe                                                                                             |
+| `/app/crm/tasks`      | CRUD (criar/concluir/cancelar) com filtro                                                                                                                                             |
+| `/app/crm/calendar`   | agenda de visitas agrupada por dia + tarefas abertas                                                                                                                                  |
 
 ### Imóveis / Distribuição
-| Rota | Conteúdo |
-|---|---|
-| `/app/properties` | table + grid, busca, filtro status |
-| `/app/properties/new` | formulário completo de criação (createPropertyRequest) |
+
+| Rota                   | Conteúdo                                                                                                                                            |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/properties`      | table + grid, busca, filtro status                                                                                                                  |
+| `/app/properties/new`  | formulário completo de criação (createPropertyRequest)                                                                                              |
 | `/app/properties/[id]` | Property 360: tabs dados/mídia/proprietário/financeiro/histórico + context rail; features add/remove; termos financeiros (PUT); remoção com confirm |
-| `/app/listings` | lista, criação, transição DRAFT→READY→PUBLISHED→PAUSED |
-| `/app/channels` | resumo por canal, publicações por anúncio, publish/remove/reconcile/import-leads com estados e retry |
+| `/app/listings`        | lista, criação, transição DRAFT→READY→PUBLISHED→PAUSED                                                                                              |
+| `/app/channels`        | resumo por canal, publicações por anúncio, publish/remove/reconcile/import-leads com estados e retry                                                |
 
 ### Atendimento
-| Rota | Conteúdo |
-|---|---|
-| `/app/inbox` | shell 3 zonas (conversation list + thread + CRM context panel); busca/filtro/status; mensagens com direção; composer; handoff; intenções extraídas; **colapsa para lista+drawer em tablet/mobile** |
-| `/app/visits` | lista com filtro, drawer de detalhe, agendamento |
-| `/app/proposals` | lista com filtro, drawer de detalhe, criação (imóvel + aluguel + condições + validade) |
+
+| Rota             | Conteúdo                                                                                                                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/inbox`     | shell 3 zonas (conversation list + thread + CRM context panel); busca/filtro/status; mensagens com direção; composer; handoff; intenções extraídas; **colapsa para lista+drawer em tablet/mobile** |
+| `/app/visits`    | lista com filtro, drawer de detalhe, agendamento                                                                                                                                                   |
+| `/app/proposals` | lista com filtro, drawer de detalhe, criação (imóvel + aluguel + condições + validade)                                                                                                             |
 
 ### Crédito / Contratos
-| Rota | Conteúdo |
-|---|---|
-| `/app/screening` | lista de aplicações com filtro |
-| `/app/screening/[id]` | 360 com resultado do screening (decisão/score/provedor), consentimento LGPD, solicitar screening, aprovar com confirm — **IA nunca autoridade final** |
-| `/app/contracts` | lista, criação (aplicação aprovada + template aprovado) |
-| `/app/contracts/[id]` | 360 com partes, envelope de assinatura, gerar, enviar para assinatura, cancelar (VOID), visualizar conteúdo |
-| `/app/contract-templates` | lista com busca/filtro, criação, aprovação |
+
+| Rota                      | Conteúdo                                                                                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/screening`          | lista de aplicações com filtro                                                                                                                        |
+| `/app/screening/[id]`     | 360 com resultado do screening (decisão/score/provedor), consentimento LGPD, solicitar screening, aprovar com confirm — **IA nunca autoridade final** |
+| `/app/contracts`          | lista, criação (aplicação aprovada + template aprovado)                                                                                               |
+| `/app/contracts/[id]`     | 360 com partes, envelope de assinatura, gerar, enviar para assinatura, cancelar (VOID), visualizar conteúdo                                           |
+| `/app/contract-templates` | lista com busca/filtro, criação, aprovação                                                                                                            |
 
 ### Vistorias / Locações
-| Rota | Conteúdo |
-|---|---|
-| `/app/inspections` | lista com filtros tipo/status + criação |
+
+| Rota                    | Conteúdo                                                                                                                                                                                                 |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/inspections`      | lista com filtros tipo/status + criação                                                                                                                                                                  |
 | `/app/inspections/[id]` | 360: resumo (mídia/progresso), ambientes (CRUD rooms), ocorrências (severidade/categoria/origem IA-humano), revisão IA (aceitar/rejeitar — confirmação humana), relatório, processar mídia, mudar status |
-| `/app/leases` | lista com filtro + criação (contrato assinado) |
-| `/app/leases/[id]` | Lease 360: partes, aluguel/condomínio, split (agency/landlord bps), cobranças com status e total em aberto, gerar cobrança, link contrato |
+| `/app/leases`           | lista com filtro + criação (contrato assinado)                                                                                                                                                           |
+| `/app/leases/[id]`      | Lease 360: partes, aluguel/condomínio, split (agency/landlord bps), cobranças com status e total em aberto, gerar cobrança, link contrato                                                                |
 
 ### Financeiro
-| Rota | Conteúdo |
-|---|---|
-| `/app/finance` | overview operacional (em aberto, recebido, cobrado, repasses pendentes, locações) |
-| `/app/charges` | lista com filtro, criação, drawer com breakdown (aluguel/condomínio/multa/juros/desconto), receber (Pix/boleto/cartão/manual — sandbox fake), cancelar, estornar |
-| `/app/payments` | lista com filtro, método/status/provedor |
-| `/app/payouts` | lista de repasses com status |
-| `/app/reconciliation` | lista + conciliar (POST /reconciliations) |
-| `/app/ledger` | partidas de dupla entrada com filtro por conta, débitos/créditos/saldo, referência auditável |
+
+| Rota                  | Conteúdo                                                                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/app/finance`        | overview operacional (em aberto, recebido, cobrado, repasses pendentes, locações)                                                                                |
+| `/app/charges`        | lista com filtro, criação, drawer com breakdown (aluguel/condomínio/multa/juros/desconto), receber (Pix/boleto/cartão/manual — sandbox fake), cancelar, estornar |
+| `/app/payments`       | lista com filtro, método/status/provedor                                                                                                                         |
+| `/app/payouts`        | lista de repasses com status                                                                                                                                     |
+| `/app/reconciliation` | lista + conciliar (POST /reconciliations)                                                                                                                        |
+| `/app/ledger`         | partidas de dupla entrada com filtro por conta, débitos/créditos/saldo, referência auditável                                                                     |
 
 ### Marketing / Relatórios
-| Rota | Conteúdo |
-|---|---|
+
+| Rota             | Conteúdo                                                                                                                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/app/marketing` | Meta Ads: visão geral, campanhas (publicar/pausar/retomar/arquivar com ConfirmModal — Housing Special Ad Category), sync insights, perfis de anúncio, conexão (FAKE dry-run) |
-| `/app/reporting` | funil de leads com barras, receita mensal, gasto Meta, exportação CSV/JSON (report:export) |
+| `/app/reporting` | funil de leads com barras, receita mensal, gasto Meta, exportação CSV/JSON (report:export)                                                                                   |
 
 ### Administração
-| Rota | Conteúdo |
-|---|---|
-| `/app/admin/members` | members da org (orgId via server page), troca de role, remoção, adicionar membro |
+
+| Rota                      | Conteúdo                                                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/app/admin/members`      | members da org (orgId via server page), troca de role, remoção, adicionar membro                                                                                               |
 | `/app/admin/integrations` | cards por integração (Meta, WhatsApp, Google Maps, crédito, assinatura, pagamentos) com status conectado/desconectado/mock-dry-run, reconnect de teste, secrets nunca exibidos |
-| `/app/settings` | organizações do usuário + roles |
+| `/app/settings`           | organizações do usuário + roles                                                                                                                                                |
 
 ### Superfícies públicas recapeadas
+
 `/` (marketing hero), `/login`, `/register` (Focus Mode), `/imoveis` + `/imoveis/[slug]` (site público com cards), `/inquilino` (portal locatário: extrato/cobranças), `/proprietario` (portal proprietário: repasses/imóveis).
 
 ---
@@ -173,10 +187,12 @@ Server component com `Promise.allSettled` + guard por permissão: KPIs operacion
 ## 8. Responsividade e Acessibilidade
 
 ### Responsive
+
 - Breakpoints comportamentais: 360–479 / 480–767 / 768–1023 / 1024–1439 / 1440+.
 - Shell: sidebar desktop → drawer mobile; inspector/sheet; grids cols-3/4 colapsam para 2 (<1024) e 1 (<480); tabelas com scroll-x no mobile; inbox 3-pane → lista + drawer.
 
 ### Acessibilidade (revisões aplicadas)
+
 - DataTable: ordenação em `<button>` (teclado), `aria-sort`, `aria-current` na paginação.
 - Modal/Drawer: focus trap, restore de foco, Escape, `aria-modal`, `aria-label`.
 - Drawer mobile do shell: foco inicial, Escape, `aria-expanded`/`aria-controls`, botão fechar.
@@ -188,19 +204,20 @@ Server component com `Promise.allSettled` + guard por permissão: KPIs operacion
 
 ## 9. Qualidade — gates finais
 
-| Gate | Resultado |
-|---|---|
-| lint (monorepo 26/26) | green |
-| typecheck (monorepo 26/26) | green |
-| unit/component (ui 6 + web 6) | green |
+| Gate                                                                                                                                                              | Resultado                   |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| lint (monorepo 26/26)                                                                                                                                             | green                       |
+| typecheck (monorepo 26/26)                                                                                                                                        | green                       |
+| unit/component (ui 6 + web 6)                                                                                                                                     | green                       |
 | testes de integração backend (journeys E2E: auth, CRM, properties, channels, screening/contracts, finance, meta, portal, inspections, hardening, RBAC, cross-org) | green — 16 files / 79 tests |
-| build (next build Turbopack) | green |
-| rotas painel autenticadas (29) | 200/200 |
-| rotas públicas (/ /login /register /imoveis) | 200 |
-| secret scan (`scripts/security-scan.mjs`) | OK |
-| P0 / P1 (visual + a11y + security reviews) | 0 / 0 |
+| build (next build Turbopack)                                                                                                                                      | green                       |
+| rotas painel autenticadas (29)                                                                                                                                    | 200/200                     |
+| rotas públicas (/ /login /register /imoveis)                                                                                                                      | 200                         |
+| secret scan (`scripts/security-scan.mjs`)                                                                                                                         | OK                          |
+| P0 / P1 (visual + a11y + security reviews)                                                                                                                        | 0 / 0                       |
 
 ### Revisões executadas com subagentes
+
 - accessibility-reviewer: 1 P0 (inbox mobile) + 5 P1 + 9 P2 — corrigidos P0/P1 e P2-chave.
 - visual-reviewer: identidade OK; 3 P1 (badges semânticos, inbox grid, grids KPI) + P2 — corrigidos.
 - security-auditor: sem P0; 1 P1 (XFF) + 5 P2 — corrigidos.
@@ -209,16 +226,16 @@ Server component com `Promise.allSettled` + guard por permissão: KPIs operacion
 
 ## 10. Rotas NOT_APPLICABLE_BACKEND_GAP (registradas com evidência)
 
-| Rota planejada | Evidência da lacuna |
-|---|---|
-| `/app/admin/audit` | Backend só escreve audit; sem endpoint de leitura/listagem. Timeline cobre LEAD/PARTY/PROPOSAL/VISIT/TASK. |
-| `/app/documents` | Sem endpoint de documentos além de mídia de imóvel e contrato content. |
-| `/app/admin/permissions` | RBAC estático role→permissions; sem tabela/endpoint de permissões. |
-| `/app/crm/companies` | parties com `type: COMPANY` cobrem. |
-| `/app/automation` | Sem capability de automação. |
-| `/app/occurrences` | Sem endpoint; timeline parcial. |
-| `/app/properties/owners` | `/parties` não filtra por role; owners no Property 360. |
-| Timeline de imóveis | `timelineEntityTypeSchema` limita a LEAD/PARTY/PROPOSAL/VISIT/TASK. |
+| Rota planejada           | Evidência da lacuna                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `/app/admin/audit`       | Backend só escreve audit; sem endpoint de leitura/listagem. Timeline cobre LEAD/PARTY/PROPOSAL/VISIT/TASK. |
+| `/app/documents`         | Sem endpoint de documentos além de mídia de imóvel e contrato content.                                     |
+| `/app/admin/permissions` | RBAC estático role→permissions; sem tabela/endpoint de permissões.                                         |
+| `/app/crm/companies`     | parties com `type: COMPANY` cobrem.                                                                        |
+| `/app/automation`        | Sem capability de automação.                                                                               |
+| `/app/occurrences`       | Sem endpoint; timeline parcial.                                                                            |
+| `/app/properties/owners` | `/parties` não filtra por role; owners no Property 360.                                                    |
+| Timeline de imóveis      | `timelineEntityTypeSchema` limita a LEAD/PARTY/PROPOSAL/VISIT/TASK.                                        |
 
 ---
 
@@ -275,4 +292,4 @@ Calibration screen (dev): `http://localhost:3000/dev/calibration`
 
 ---
 
-*Documento consolidado do frontend Aluguei.app — identidade PEG + override Aluguei, backend existente como autoridade funcional, todas as 12 fases de orquestração concluídas.*
+_Documento consolidado do frontend Aluguei.app — identidade PEG + override Aluguei, backend existente como autoridade funcional, todas as 12 fases de orquestração concluídas._

@@ -1,6 +1,7 @@
 # Phase 09 — Finance
 
 Implementar:
+
 - Finance overview;
 - Charges;
 - Receipts/Payments;

@@ -68,7 +68,11 @@ export function Drawer({
         role="dialog"
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}
-        className={cx('peg-drawer', side === 'left' ? 'peg-drawer--left' : 'peg-drawer--right', className)}
+        className={cx(
+          'peg-drawer',
+          side === 'left' ? 'peg-drawer--left' : 'peg-drawer--right',
+          className,
+        )}
       >
         <header className="peg-drawer__header">
           <h2 className="peg-drawer__title">{title}</h2>

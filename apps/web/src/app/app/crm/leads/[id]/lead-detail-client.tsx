@@ -83,11 +83,18 @@ function LeadBody() {
   const leadsQ = useQuery<{ leads: Lead[] }>('/leads?limit=100', [id]);
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
   const convQ = useQuery<{ conversations: Conversation[] }>(`/leads/${id}/conversations`, [id]);
-  const timelineQ = useQuery<{ events: TimelineEvent[] }>(`/timeline?entityType=LEAD&entityId=${id}`, [id]);
+  const timelineQ = useQuery<{ events: TimelineEvent[] }>(
+    `/timeline?entityType=LEAD&entityId=${id}`,
+    [id],
+  );
 
-  const lead = useMemo(() => leadsQ.data?.leads.find((l) => l.id === id) ?? null, [leadsQ.data, id]);
+  const lead = useMemo(
+    () => leadsQ.data?.leads.find((l) => l.id === id) ?? null,
+    [leadsQ.data, id],
+  );
   const party = useMemo(
-    () => (lead?.partyId ? partiesQ.data?.parties.find((p) => p.id === lead.partyId) ?? null : null),
+    () =>
+      lead?.partyId ? (partiesQ.data?.parties.find((p) => p.id === lead.partyId) ?? null) : null,
     [lead, partiesQ.data],
   );
 
@@ -107,7 +114,9 @@ function LeadBody() {
     if (!leadsQ.loading) {
       emptyProps.body = 'Verifique o endereço ou volte para a lista.';
       emptyProps.actionLabel = 'Voltar para leads';
-      emptyProps.onAction = () => { router.push('/app/crm/leads'); };
+      emptyProps.onAction = () => {
+        router.push('/app/crm/leads');
+      };
     }
     return <EmptyState {...emptyProps} />;
   }
@@ -117,7 +126,7 @@ function LeadBody() {
   async function transition(next: string) {
     setBusy(true);
     try {
-      const reason = next === 'LOST' ? window.prompt('Motivo do LOST:') ?? undefined : undefined;
+      const reason = next === 'LOST' ? (window.prompt('Motivo do LOST:') ?? undefined) : undefined;
       await apiClient(`/leads/${id}/status`, { method: 'PATCH', body: { status: next, reason } });
       toast.success('Status atualizado', label(FUNNEL_LABELS, next));
       leadsQ.reload();
@@ -148,7 +157,9 @@ function LeadBody() {
             <Stack gap={1}>
               <Group gap={2}>
                 <h1 style={{ fontSize: 20 }}>{party?.name ?? 'Sem contato vinculado'}</h1>
-                <Badge tone={FUNNEL_TONES[current.status] ?? 'neutral'}>{label(FUNNEL_LABELS, current.status)}</Badge>
+                <Badge tone={FUNNEL_TONES[current.status] ?? 'neutral'}>
+                  {label(FUNNEL_LABELS, current.status)}
+                </Badge>
               </Group>
               <span className="peg-text-secondary" style={{ fontSize: 13 }}>
                 Entrada em {formatDateOnly(current.createdAt)}
@@ -158,7 +169,13 @@ function LeadBody() {
           </Group>
           <Group gap={2}>
             {nextStatuses.map((s) => (
-              <Button key={s} size="sm" variant={s === 'LOST' ? 'danger-subtle' : 'brand'} loading={busy} onClick={() => void transition(s)}>
+              <Button
+                key={s}
+                size="sm"
+                variant={s === 'LOST' ? 'danger-subtle' : 'brand'}
+                loading={busy}
+                onClick={() => void transition(s)}
+              >
                 Mover para {label(FUNNEL_LABELS, s)}
               </Button>
             ))}
@@ -178,10 +195,15 @@ function LeadBody() {
                   <Info label="Fonte" value={current.source ?? '—'} />
                   <Info label="Canal" value={current.channel ?? '—'} />
                   <Info label="Orçamento" value={budgetRange(current)} />
-                  <Info label="Contato" value={party ? `${party.name} · ${identityLabel(party)}` : 'Não vinculado'} />
+                  <Info
+                    label="Contato"
+                    value={party ? `${party.name} · ${identityLabel(party)}` : 'Não vinculado'}
+                  />
                 </div>
                 <Stack gap={1}>
-                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>Observações</span>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    Observações
+                  </span>
                   <p style={{ fontSize: 14, lineHeight: '21px' }}>{current.notes ?? '—'}</p>
                 </Stack>
               </Stack>
@@ -195,7 +217,15 @@ function LeadBody() {
               ) : convQ.data && convQ.data.conversations.length > 0 ? (
                 <Stack gap={2}>
                   {convQ.data.conversations.map((c) => (
-                    <Group key={c.id} between style={{ padding: '10px 12px', borderRadius: 'var(--peg-radius-sm)', border: '1px solid var(--peg-border)' }}>
+                    <Group
+                      key={c.id}
+                      between
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: 'var(--peg-radius-sm)',
+                        border: '1px solid var(--peg-border)',
+                      }}
+                    >
                       <Group gap={2}>
                         <Icon name="messageCircle" size={16} />
                         <span style={{ fontSize: 13 }}>{c.channel}</span>
@@ -207,7 +237,11 @@ function LeadBody() {
                   ))}
                 </Stack>
               ) : (
-                <EmptyState title="Sem conversas" body="Este lead ainda não tem conversas registradas." icon="messageCircle" />
+                <EmptyState
+                  title="Sem conversas"
+                  body="Este lead ainda não tem conversas registradas."
+                  icon="messageCircle"
+                />
               )}
             </div>
           ) : null}
@@ -219,17 +253,29 @@ function LeadBody() {
               ) : timelineQ.data && timelineQ.data.events.length > 0 ? (
                 <Stack gap={2}>
                   {timelineQ.data.events.map((e) => (
-                    <Group key={e.id} gap={3} style={{ padding: '8px 0', borderBottom: '1px solid var(--peg-border)' }}>
+                    <Group
+                      key={e.id}
+                      gap={3}
+                      style={{ padding: '8px 0', borderBottom: '1px solid var(--peg-border)' }}
+                    >
                       <Icon name="history" size={14} />
                       <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>{eventLabel(e.eventType)}</span>
-                        <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{formatDateTime(e.occurredAt)}</span>
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>
+                          {eventLabel(e.eventType)}
+                        </span>
+                        <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                          {formatDateTime(e.occurredAt)}
+                        </span>
                       </Stack>
                     </Group>
                   ))}
                 </Stack>
               ) : (
-                <EmptyState title="Sem atividades" body="O histórico aparecerá conforme o lead avança." icon="history" />
+                <EmptyState
+                  title="Sem atividades"
+                  body="O histórico aparecerá conforme o lead avança."
+                  icon="history"
+                />
               )}
             </div>
           ) : null}
@@ -241,7 +287,14 @@ function LeadBody() {
             <InspectorRows
               rows={[
                 { label: 'Nome', value: party?.name ?? '—' },
-                { label: 'Tipo', value: party ? (party.type === 'COMPANY' ? 'Pessoa jurídica' : 'Pessoa física') : '—' },
+                {
+                  label: 'Tipo',
+                  value: party
+                    ? party.type === 'COMPANY'
+                      ? 'Pessoa jurídica'
+                      : 'Pessoa física'
+                    : '—',
+                },
                 { label: 'Documento', value: identityLabel(party) },
               ]}
             />
@@ -258,8 +311,14 @@ function LeadBody() {
           <InspectorSection title="Orçamento">
             <InspectorRows
               rows={[
-                { label: 'Mínimo', value: current.budgetMinCents !== null ? formatBRL(current.budgetMinCents) : '—' },
-                { label: 'Máximo', value: current.budgetMaxCents !== null ? formatBRL(current.budgetMaxCents) : '—' },
+                {
+                  label: 'Mínimo',
+                  value: current.budgetMinCents !== null ? formatBRL(current.budgetMinCents) : '—',
+                },
+                {
+                  label: 'Máximo',
+                  value: current.budgetMaxCents !== null ? formatBRL(current.budgetMaxCents) : '—',
+                },
               ]}
             />
           </InspectorSection>
@@ -274,7 +333,9 @@ function LeadBody() {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <Stack gap={1}>
-      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{label}</span>
+      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+        {label}
+      </span>
       <span style={{ fontSize: 14 }}>{value}</span>
     </Stack>
   );

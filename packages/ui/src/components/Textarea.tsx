@@ -29,7 +29,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       <textarea
         ref={ref}
         id={textareaId}
-        className={cx('peg-textarea', invalid || error ? 'peg-textarea--error' : undefined, className)}
+        className={cx(
+          'peg-textarea',
+          invalid || error ? 'peg-textarea--error' : undefined,
+          className,
+        )}
         aria-invalid={Boolean(invalid || error)}
         {...rest}
       />

@@ -60,19 +60,31 @@ export default async function ImoveisPage() {
                 <span style={{ fontSize: 15, fontWeight: 600 }}>{listing.title}</span>
                 <span className="peg-text-secondary" style={{ fontSize: 13 }}>
                   {listing.publicAddress?.city ?? ''}
-                  {listing.publicAddress?.neighborhood ? ` · ${listing.publicAddress.neighborhood}` : ''}
+                  {listing.publicAddress?.neighborhood
+                    ? ` · ${listing.publicAddress.neighborhood}`
+                    : ''}
                   {listing.publicAddress?.state ? ` · ${listing.publicAddress.state}` : ''}
                 </span>
                 <Stack gap={1}>
                   <Group gap={2} wrap>
-                    {listing.bedrooms !== null ? <Badge tone="neutral">{`${String(listing.bedrooms)} dorm.`}</Badge> : null}
-                    {listing.bathrooms !== null ? <Badge tone="neutral">{`${String(listing.bathrooms)} ban.`}</Badge> : null}
-                    {listing.parkingSpots !== null ? <Badge tone="neutral">{`${String(listing.parkingSpots)} vagas`}</Badge> : null}
-                    {listing.totalAreaSqm !== null ? <Badge tone="neutral">{formatArea(listing.totalAreaSqm)}</Badge> : null}
+                    {listing.bedrooms !== null ? (
+                      <Badge tone="neutral">{`${String(listing.bedrooms)} dorm.`}</Badge>
+                    ) : null}
+                    {listing.bathrooms !== null ? (
+                      <Badge tone="neutral">{`${String(listing.bathrooms)} ban.`}</Badge>
+                    ) : null}
+                    {listing.parkingSpots !== null ? (
+                      <Badge tone="neutral">{`${String(listing.parkingSpots)} vagas`}</Badge>
+                    ) : null}
+                    {listing.totalAreaSqm !== null ? (
+                      <Badge tone="neutral">{formatArea(listing.totalAreaSqm)}</Badge>
+                    ) : null}
                   </Group>
                   {listing.furnished ? <Badge tone="neutral">Mobiliado</Badge> : null}
                 </Stack>
-                <span style={{ fontSize: 18, fontWeight: 700 }}>{formatBRL(listing.priceCents)}/mês</span>
+                <span style={{ fontSize: 18, fontWeight: 700 }}>
+                  {formatBRL(listing.priceCents)}/mês
+                </span>
               </Link>
             ))}
           </div>

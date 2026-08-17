@@ -32,7 +32,16 @@ export interface GroupProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /** Linha horizontal com gap da escala PEG. */
-export function Group({ gap = 2, wrap, between, end, stretch, start, className, ...rest }: GroupProps) {
+export function Group({
+  gap = 2,
+  wrap,
+  between,
+  end,
+  stretch,
+  start,
+  className,
+  ...rest
+}: GroupProps) {
   return (
     <div
       className={cx(

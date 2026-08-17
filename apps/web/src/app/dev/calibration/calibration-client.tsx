@@ -41,7 +41,13 @@ interface Row {
 
 const ROWS: Row[] = [
   { id: '1', name: 'Ana Beatriz Rocha', email: 'ana@imob.com', role: 'Admin', status: 'ok' },
-  { id: '2', name: 'Carlos Eduardo Lima', email: 'carlos@imob.com', role: 'Agente', status: 'warn' },
+  {
+    id: '2',
+    name: 'Carlos Eduardo Lima',
+    email: 'carlos@imob.com',
+    role: 'Agente',
+    status: 'warn',
+  },
   { id: '3', name: 'Fernanda Souza', email: 'fe@imob.com', role: 'Financeiro', status: 'ok' },
   { id: '4', name: 'João Pedro Alves', email: 'joao@imob.com', role: 'Vistoria', status: 'danger' },
   { id: '5', name: 'Mariana Castro', email: 'mari@imob.com', role: 'Agente', status: 'ok' },
@@ -80,9 +86,7 @@ function DemoBody() {
       key: 'status',
       header: 'Status',
       render: (r: Row) => (
-        <Badge
-          tone={r.status === 'ok' ? 'success' : r.status === 'warn' ? 'warning' : 'danger'}
-        >
+        <Badge tone={r.status === 'ok' ? 'success' : r.status === 'warn' ? 'warning' : 'danger'}>
           {r.status === 'ok' ? 'Ativo' : r.status === 'warn' ? 'Pendente' : 'Bloqueado'}
         </Badge>
       ),
@@ -99,9 +103,31 @@ function DemoBody() {
             </IconButton>
           }
           items={[
-            { key: 'edit', label: 'Editar', icon: 'edit', onSelect: () => { toast.info('Editar', r.name); } },
-            { key: 'block', label: 'Bloquear', icon: 'lock', onSelect: () => { toast.warning('Bloqueado', r.name); } },
-            { key: 'del', label: 'Remover', icon: 'trash', danger: true, onSelect: () => { toast.error('Remover', r.name); } },
+            {
+              key: 'edit',
+              label: 'Editar',
+              icon: 'edit',
+              onSelect: () => {
+                toast.info('Editar', r.name);
+              },
+            },
+            {
+              key: 'block',
+              label: 'Bloquear',
+              icon: 'lock',
+              onSelect: () => {
+                toast.warning('Bloqueado', r.name);
+              },
+            },
+            {
+              key: 'del',
+              label: 'Remover',
+              icon: 'trash',
+              danger: true,
+              onSelect: () => {
+                toast.error('Remover', r.name);
+              },
+            },
           ]}
         />
       ),
@@ -119,14 +145,33 @@ function DemoBody() {
     <Stack gap={6}>
       <h1 style={{ fontSize: 24 }}>Aluguei.app — Calibração PEG</h1>
       <p style={{ color: 'var(--peg-text-secondary)' }}>
-        Laboratório visual da fundação. Comparar com design-source/peg-product-design-system/references.
+        Laboratório visual da fundação. Comparar com
+        design-source/peg-product-design-system/references.
       </p>
 
       {/* KPIs */}
       <div className="peg-grid cols-4">
-        <Kpi label="Leads novos" value="128" delta="+12% esta semana" deltaTone="up" icon="trendingUp" />
-        <Kpi label="Visitas agendadas" value="36" delta="-3 vs ontem" deltaTone="down" icon="calendar" />
-        <Kpi label="Repasses pendentes" value="R$ 18,4 mil" delta="2 conciliações" deltaTone="neutral" icon="receipt" />
+        <Kpi
+          label="Leads novos"
+          value="128"
+          delta="+12% esta semana"
+          deltaTone="up"
+          icon="trendingUp"
+        />
+        <Kpi
+          label="Visitas agendadas"
+          value="36"
+          delta="-3 vs ontem"
+          deltaTone="down"
+          icon="calendar"
+        />
+        <Kpi
+          label="Repasses pendentes"
+          value="R$ 18,4 mil"
+          delta="2 conciliações"
+          deltaTone="neutral"
+          icon="receipt"
+        />
         <Kpi label="Taxa de conversão" value="23,6%" delta="+1,4 pp" deltaTone="up" icon="target" />
       </div>
 
@@ -161,7 +206,9 @@ function DemoBody() {
               label="Tipo de imóvel"
               placeholder="Selecione…"
               value={sel}
-              onChange={(e) => { setSel(e.target.value); }}
+              onChange={(e) => {
+                setSel(e.target.value);
+              }}
               options={[
                 { value: 'APARTMENT', label: 'Apartamento' },
                 { value: 'HOUSE', label: 'Casa' },
@@ -172,11 +219,35 @@ function DemoBody() {
           </div>
 
           <Group gap={6} wrap>
-            <Checkbox checked={checked} onChange={() => { setChecked((v) => !v); }} label="Aceita pets" />
+            <Checkbox
+              checked={checked}
+              onChange={() => {
+                setChecked((v) => !v);
+              }}
+              label="Aceita pets"
+            />
             <Checkbox indeterminate label="Mobiliado (indeterminado)" />
-            <Radio checked={radio === 'a'} onChange={() => { setRadio('a'); }} label="Pessoa física" />
-            <Radio checked={radio === 'b'} onChange={() => { setRadio('b'); }} label="Pessoa jurídica" />
-            <Switch checked={checked} onChange={() => { setChecked((v) => !v); }} label="Publicado no portal" />
+            <Radio
+              checked={radio === 'a'}
+              onChange={() => {
+                setRadio('a');
+              }}
+              label="Pessoa física"
+            />
+            <Radio
+              checked={radio === 'b'}
+              onChange={() => {
+                setRadio('b');
+              }}
+              label="Pessoa jurídica"
+            />
+            <Switch
+              checked={checked}
+              onChange={() => {
+                setChecked((v) => !v);
+              }}
+              label="Publicado no portal"
+            />
           </Group>
 
           <Textarea label="Observações" placeholder="Anotações internas sobre o imóvel…" rows={3} />
@@ -235,7 +306,13 @@ function DemoBody() {
       <Group gap={2} wrap>
         <Tag icon="mapPin">Bela Vista, São Paulo</Tag>
         <Tag icon="home">2 dormitórios</Tag>
-        <Tag onRemove={() => { toast.info('Removida'); }}>Condomínio R$ 900</Tag>
+        <Tag
+          onRemove={() => {
+            toast.info('Removida');
+          }}
+        >
+          Condomínio R$ 900
+        </Tag>
         <Badge tone="brand">Novo</Badge>
         <Badge tone="info">Em análise</Badge>
         <Badge tone="success">Publicado</Badge>
@@ -245,27 +322,47 @@ function DemoBody() {
 
       {/* Modais / Drawers */}
       <Group gap={3}>
-        <Button variant="secondary" onClick={() => { setModalOpen(true); }}>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setModalOpen(true);
+          }}
+        >
           Abrir modal
         </Button>
-        <Button variant="secondary" onClick={() => { setDrawerOpen(true); }}>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setDrawerOpen(true);
+          }}
+        >
           Abrir drawer
         </Button>
       </Group>
 
       <Modal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); }}
+        onClose={() => {
+          setModalOpen(false);
+        }}
         title="Nova cobrança"
         footer={
           <>
-            <Button variant="tertiary" onClick={() => { setModalOpen(false); }}>
+            <Button
+              variant="tertiary"
+              onClick={() => {
+                setModalOpen(false);
+              }}
+            >
               Cancelar
             </Button>
-            <Button variant="primary" onClick={() => {
-              setModalOpen(false);
-              toast.success('Cobrança criada', 'Vence em 10/09/2026');
-            }}>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setModalOpen(false);
+                toast.success('Cobrança criada', 'Vence em 10/09/2026');
+              }}
+            >
               Criar cobrança
             </Button>
           </>
@@ -286,10 +383,17 @@ function DemoBody() {
 
       <Drawer
         open={drawerOpen}
-        onClose={() => { setDrawerOpen(false); }}
+        onClose={() => {
+          setDrawerOpen(false);
+        }}
         title="Inspector contextual"
         footer={
-          <Button variant="primary" onClick={() => { setDrawerOpen(false); }}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setDrawerOpen(false);
+            }}
+          >
             Aplicar
           </Button>
         }
@@ -303,10 +407,20 @@ function DemoBody() {
 
       {/* toasts */}
       <Group gap={3}>
-        <Button variant="secondary" onClick={() => { toast.success('Salvo', 'Alterações aplicadas.'); }}>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            toast.success('Salvo', 'Alterações aplicadas.');
+          }}
+        >
           Toast sucesso
         </Button>
-        <Button variant="secondary" onClick={() => { toast.error('Falha', 'Serviço indisponível.'); }}>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            toast.error('Falha', 'Serviço indisponível.');
+          }}
+        >
           Toast erro
         </Button>
       </Group>

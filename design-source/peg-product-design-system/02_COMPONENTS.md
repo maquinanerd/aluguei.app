@@ -7,7 +7,9 @@ Todos os produtos consomem a mesma biblioteca. Variantes de produto são permiti
 ## Actions
 
 ### Button
+
 Variantes:
+
 - Primary — fundo quase-preto / texto claro.
 - Secondary — surface + border.
 - Tertiary — sem container permanente.
@@ -22,11 +24,13 @@ Tamanhos:
 `xs / sm / md / lg`.
 
 ### Button group / segmented control
+
 Usar para views mutuamente exclusivas. Não usar pills individuais desconectadas quando um segmented control é semanticamente correto.
 
 ## Forms
 
 Componentes:
+
 - Text input
 - Search
 - Password
@@ -50,7 +54,9 @@ Todos devem suportar:
 ## Navigation
 
 ### Full sidebar
+
 Anatomia:
+
 - logo/workspace;
 - primary navigation;
 - nested groups;
@@ -59,24 +65,31 @@ Anatomia:
 - account row.
 
 ### Compact sidebar
+
 Icon rail com tooltips e active state inequívoco.
 
 ### Top navigation
+
 Marketing ou app contexts sem sidebar.
 
 ### Breadcrumb
+
 Baixo contraste; última posição enfatizada.
 
 ### Tabs
+
 Underline/subtle container. Evitar tab extremamente chamativa.
 
 ### Account/workspace switcher
+
 Popover ancorado, rows de conta, active indicator, utility actions.
 
 ## Data display
 
 ### Table/Data Grid
+
 Obrigatório:
+
 - checkbox selection;
 - sortable columns;
 - row hover;
@@ -89,15 +102,19 @@ Obrigatório:
 - responsive fallback.
 
 ### Card
+
 Card é surface delimitadora, não decoração. Usar border antes de shadow.
 
 ### KPI / Metric card
+
 Números com hierarchy forte; delta pequeno; gráficos só se suportarem decisão.
 
 ### Badge/Status/Tag
+
 Sem excesso de cores. Estado semântico é diferente de taxonomia.
 
 ### Profile card
+
 Foto, identidade, metadata, ações e opcional stats.
 
 ## Overlays
@@ -114,7 +131,9 @@ Foto, identidade, metadata, ações e opcional stats.
 - Inspector panel
 
 ### Modal
+
 Baseline observada:
+
 - largura compacta a média;
 - header/content/footer claros;
 - actions no footer;

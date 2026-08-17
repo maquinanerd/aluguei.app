@@ -30,7 +30,9 @@ export function SegmentedControl({
           style={size === 'sm' ? { height: 24, fontSize: 12, padding: '0 10px' } : undefined}
           aria-pressed={value === opt.value}
           disabled={opt.disabled}
-          onClick={() => { onChange(opt.value); }}
+          onClick={() => {
+            onChange(opt.value);
+          }}
         >
           {opt.label}
         </button>

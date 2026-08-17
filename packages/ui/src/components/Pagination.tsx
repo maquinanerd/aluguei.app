@@ -29,7 +29,14 @@ function pageWindow(page: number, pageCount: number): Array<number | '…'> {
   return out;
 }
 
-export function Pagination({ page, pageSize, total, onPageChange, className, disabled }: PaginationProps) {
+export function Pagination({
+  page,
+  pageSize,
+  total,
+  onPageChange,
+  className,
+  disabled,
+}: PaginationProps) {
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const from = total === 0 ? 0 : page * pageSize + 1;
   const to = Math.min(total, (page + 1) * pageSize);
@@ -43,7 +50,9 @@ export function Pagination({ page, pageSize, total, onPageChange, className, dis
         className="peg-pagination__btn"
         aria-label="Página anterior"
         disabled={disabled || page === 0}
-        onClick={() => { onPageChange(page - 1); }}
+        onClick={() => {
+          onPageChange(page - 1);
+        }}
       >
         <Icon name="chevronLeft" size={14} />
       </button>
@@ -60,7 +69,9 @@ export function Pagination({ page, pageSize, total, onPageChange, className, dis
             aria-current={p === page ? 'page' : undefined}
             aria-label={`Página ${String(p + 1)}`}
             disabled={disabled}
-            onClick={() => { onPageChange(p); }}
+            onClick={() => {
+              onPageChange(p);
+            }}
           >
             {p + 1}
           </button>
@@ -71,7 +82,9 @@ export function Pagination({ page, pageSize, total, onPageChange, className, dis
         className="peg-pagination__btn"
         aria-label="Próxima página"
         disabled={disabled || page >= pageCount - 1}
-        onClick={() => { onPageChange(page + 1); }}
+        onClick={() => {
+          onPageChange(page + 1);
+        }}
       >
         <Icon name="chevronRight" size={14} />
       </button>

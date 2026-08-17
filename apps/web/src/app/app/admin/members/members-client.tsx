@@ -47,12 +47,17 @@ function MembersBody({ orgId }: { orgId: string }) {
     const rows = orgMembers.data?.members ?? [];
     const q = search.trim().toLowerCase();
     if (!q) return rows;
-    return rows.filter((m) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q));
+    return rows.filter(
+      (m) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
+    );
   }, [orgMembers.data, search]);
 
   async function updateRole(member: Member, role: string) {
     try {
-      await apiClient(`/organizations/${orgId}/members/${member.userId}`, { method: 'PATCH', body: { role } });
+      await apiClient(`/organizations/${orgId}/members/${member.userId}`, {
+        method: 'PATCH',
+        body: { role },
+      });
       toast.success('Função atualizada', label(ROLE_LABELS, role));
       orgMembers.reload();
     } catch (err) {
@@ -79,7 +84,9 @@ function MembersBody({ orgId }: { orgId: string }) {
           <Avatar name={m.name} size="sm" />
           <Stack gap={0}>
             <span style={{ fontWeight: 500 }}>{m.name}</span>
-            <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{m.email}</span>
+            <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+              {m.email}
+            </span>
           </Stack>
         </Group>
       ),
@@ -87,7 +94,11 @@ function MembersBody({ orgId }: { orgId: string }) {
     {
       key: 'role',
       header: 'Função',
-      render: (m) => <Badge tone={m.role === 'owner' || m.role === 'admin' ? 'brand' : 'neutral'}>{label(ROLE_LABELS, m.role)}</Badge>,
+      render: (m) => (
+        <Badge tone={m.role === 'owner' || m.role === 'admin' ? 'brand' : 'neutral'}>
+          {label(ROLE_LABELS, m.role)}
+        </Badge>
+      ),
     },
     {
       key: 'actions',
@@ -106,9 +117,19 @@ function MembersBody({ orgId }: { orgId: string }) {
               .map((r) => ({
                 key: r,
                 label: `Tornar ${label(ROLE_LABELS, r)}`,
-                onSelect: () => { void updateRole(m, r); },
+                onSelect: () => {
+                  void updateRole(m, r);
+                },
               })),
-            { key: 'remove', label: 'Remover da equipe', icon: 'trash', danger: true, onSelect: () => { void remove(m); } },
+            {
+              key: 'remove',
+              label: 'Remover da equipe',
+              icon: 'trash',
+              danger: true,
+              onSelect: () => {
+                void remove(m);
+              },
+            },
           ]}
         />
       ),
@@ -122,7 +143,14 @@ function MembersBody({ orgId }: { orgId: string }) {
         description="Membros da organização e suas funções."
         search={{ value: search, onChange: setSearch, placeholder: 'Buscar membro…' }}
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Convidar membro
           </Button>
         }
@@ -134,13 +162,17 @@ function MembersBody({ orgId }: { orgId: string }) {
         emptyTitle="Nenhum membro"
         emptyBody="Adicione membros à equipe para trabalhar em conjunto."
         emptyActionLabel="Convidar membro"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {orgMembers.error ? <ErrorState body={orgMembers.error} onRetry={orgMembers.reload} /> : null}
 
       <InviteModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         orgId={orgId}
         onDone={() => {
           toast.success('Membro adicionado');
@@ -173,7 +205,10 @@ function InviteModal({
     if (!userId.trim()) return;
     setBusy(true);
     try {
-      await apiClient(`/organizations/${orgId}/members`, { method: 'POST', body: { userId: userId.trim(), role } });
+      await apiClient(`/organizations/${orgId}/members`, {
+        method: 'POST',
+        body: { userId: userId.trim(), role },
+      });
       setUserId('');
       setRole('agent');
       onDone();
@@ -191,17 +226,38 @@ function InviteModal({
       title="Adicionar membro"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="invite-form" loading={busy}>Adicionar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="invite-form" loading={busy}>
+            Adicionar
+          </Button>
         </>
       }
     >
-      <form id="invite-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
-        <Input label="ID do usuário" required value={userId} onChange={(e) => { setUserId(e.target.value); }} helper="Usuários são criados pelo registro; use o ID do usuário." />
+      <form
+        id="invite-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <Input
+          label="ID do usuário"
+          required
+          value={userId}
+          onChange={(e) => {
+            setUserId(e.target.value);
+          }}
+          helper="Usuários são criados pelo registro; use o ID do usuário."
+        />
         <Select
           label="Função"
           value={role}
-          onChange={(e) => { setRole(e.target.value); }}
+          onChange={(e) => {
+            setRole(e.target.value);
+          }}
           options={Object.entries(ROLE_LABELS).map(([v, l]) => ({ value: v, label: l }))}
         />
       </form>

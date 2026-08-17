@@ -8,32 +8,32 @@ A interface deve transmitir precisão, baixa fricção e densidade controlada. A
 
 ### Light — baseline
 
-| Token | Valor inicial | Uso |
-|---|---:|---|
-| `canvas` | `#FAFAFA` | fundo geral |
-| `surface` | `#FFFFFF` | painéis, cards, editor |
-| `surface-subtle` | `#F7F7F8` | áreas secundárias |
-| `surface-muted` | `#F2F2F3` | hover leve, menu selected |
-| `border` | `#E5E5E7` | divisor padrão |
-| `border-strong` | `#D5D5D8` | inputs/cards enfatizados |
-| `text-primary` | `#171719` | títulos e conteúdo principal |
-| `text-secondary` | `#5F6065` | metadata e descrições |
-| `text-tertiary` | `#8E8F94` | captions e hints |
-| `text-disabled` | `#B6B7BB` | disabled |
+| Token            | Valor inicial | Uso                          |
+| ---------------- | ------------: | ---------------------------- |
+| `canvas`         |     `#FAFAFA` | fundo geral                  |
+| `surface`        |     `#FFFFFF` | painéis, cards, editor       |
+| `surface-subtle` |     `#F7F7F8` | áreas secundárias            |
+| `surface-muted`  |     `#F2F2F3` | hover leve, menu selected    |
+| `border`         |     `#E5E5E7` | divisor padrão               |
+| `border-strong`  |     `#D5D5D8` | inputs/cards enfatizados     |
+| `text-primary`   |     `#171719` | títulos e conteúdo principal |
+| `text-secondary` |     `#5F6065` | metadata e descrições        |
+| `text-tertiary`  |     `#8E8F94` | captions e hints             |
+| `text-disabled`  |     `#B6B7BB` | disabled                     |
 
 ### Dark — baseline
 
-| Token | Valor inicial | Uso |
-|---|---:|---|
-| `canvas` | `#19191B` | fundo geral |
-| `surface` | `#202022` | surface principal |
-| `surface-subtle` | `#262629` | áreas secundárias |
-| `surface-muted` | `#2D2D30` | selected/hover |
-| `border` | `#353538` | divisor padrão |
-| `border-strong` | `#454549` | inputs e nested surfaces |
-| `text-primary` | `#F5F5F5` | principal |
-| `text-secondary` | `#B6B6BA` | metadata |
-| `text-tertiary` | `#8C8C91` | captions |
+| Token            | Valor inicial | Uso                      |
+| ---------------- | ------------: | ------------------------ |
+| `canvas`         |     `#19191B` | fundo geral              |
+| `surface`        |     `#202022` | surface principal        |
+| `surface-subtle` |     `#262629` | áreas secundárias        |
+| `surface-muted`  |     `#2D2D30` | selected/hover           |
+| `border`         |     `#353538` | divisor padrão           |
+| `border-strong`  |     `#454549` | inputs e nested surfaces |
+| `text-primary`   |     `#F5F5F5` | principal                |
+| `text-secondary` |     `#B6B6BA` | metadata                 |
+| `text-tertiary`  |     `#8C8C91` | captions                 |
 
 ### Semantic
 
@@ -47,19 +47,19 @@ A interface deve transmitir precisão, baixa fricção e densidade controlada. A
 
 Baseline recomendada: **Inter**. Se a implementação final usar Geist, deve preservar métricas visuais próximas e ser recalibrada.
 
-| Style | Size | Line-height | Weight |
-|---|---:|---:|---:|
-| Display | 48 | 56 | 500/600 |
-| H1 | 36 | 44 | 600 |
-| H2 | 30 | 38 | 600 |
-| H3 | 24 | 32 | 600 |
-| H4 | 18 | 26 | 600 |
-| Body lg | 16 | 24 | 400 |
-| Body | 14 | 21 | 400 |
-| Body sm | 13 | 19 | 400 |
-| Label | 13 | 18 | 500 |
-| Caption | 12 | 17 | 400/500 |
-| Micro | 11 | 16 | 500 |
+| Style   | Size | Line-height |  Weight |
+| ------- | ---: | ----------: | ------: |
+| Display |   48 |          56 | 500/600 |
+| H1      |   36 |          44 |     600 |
+| H2      |   30 |          38 |     600 |
+| H3      |   24 |          32 |     600 |
+| H4      |   18 |          26 |     600 |
+| Body lg |   16 |          24 |     400 |
+| Body    |   14 |          21 |     400 |
+| Body sm |   13 |          19 |     400 |
+| Label   |   13 |          18 |     500 |
+| Caption |   12 |          17 | 400/500 |
+| Micro   |   11 |          16 |     500 |
 
 Regras:
 

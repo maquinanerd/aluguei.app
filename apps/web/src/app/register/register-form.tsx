@@ -26,7 +26,10 @@ export function RegisterForm() {
       const data: unknown = await res.json().catch(() => ({}));
       if (!res.ok) {
         const message =
-          typeof data === 'object' && data !== null && 'message' in data && typeof data.message === 'string'
+          typeof data === 'object' &&
+          data !== null &&
+          'message' in data &&
+          typeof data.message === 'string'
             ? data.message
             : 'Falha no cadastro';
         setError(message);
@@ -40,17 +43,60 @@ export function RegisterForm() {
   }
 
   return (
-    <form className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { e.preventDefault(); void doRegister(new FormData(e.currentTarget)); }}>
+    <form
+      className="peg-stack"
+      style={{ gap: 16 }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void doRegister(new FormData(e.currentTarget));
+      }}
+    >
       <h1 style={{ fontSize: 20 }}>Criar conta</h1>
       {error ? (
-        <div className="peg-error" role="alert" style={{ padding: '8px 12px', background: 'var(--peg-danger-bg)', borderRadius: 'var(--peg-radius-sm)', flexDirection: 'row', gap: 8 }}>
+        <div
+          className="peg-error"
+          role="alert"
+          style={{
+            padding: '8px 12px',
+            background: 'var(--peg-danger-bg)',
+            borderRadius: 'var(--peg-radius-sm)',
+            flexDirection: 'row',
+            gap: 8,
+          }}
+        >
           <span style={{ fontSize: 13, color: 'var(--peg-danger)' }}>{error}</span>
         </div>
       ) : null}
-      <Input name="name" required autoComplete="name" label="Nome" placeholder="Seu nome completo" />
-      <Input name="email" type="email" required autoComplete="email" label="E-mail" placeholder="voce@imob.com.br" />
-      <Input name="password" type="password" minLength={8} required autoComplete="new-password" label="Senha" helper="Mínimo de 8 caracteres" />
-      <Input name="organizationName" required label="Nome da imobiliária" placeholder="Sua imobiliária" />
+      <Input
+        name="name"
+        required
+        autoComplete="name"
+        label="Nome"
+        placeholder="Seu nome completo"
+      />
+      <Input
+        name="email"
+        type="email"
+        required
+        autoComplete="email"
+        label="E-mail"
+        placeholder="voce@imob.com.br"
+      />
+      <Input
+        name="password"
+        type="password"
+        minLength={8}
+        required
+        autoComplete="new-password"
+        label="Senha"
+        helper="Mínimo de 8 caracteres"
+      />
+      <Input
+        name="organizationName"
+        required
+        label="Nome da imobiliária"
+        placeholder="Sua imobiliária"
+      />
       <Button type="submit" variant="primary" fullWidth loading={submitting}>
         Criar conta
       </Button>

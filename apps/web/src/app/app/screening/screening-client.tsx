@@ -2,12 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Badge,
-  DataTable,
-  Select,
-  ToastProvider,
-} from '@aluguei/ui';
+import { Badge, DataTable, Select, ToastProvider } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
@@ -48,7 +43,10 @@ function ScreeningBody() {
     return `/rental-applications?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ applications: Application[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    applications: Application[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
 
@@ -70,24 +68,36 @@ function ScreeningBody() {
     {
       key: 'party',
       header: 'Solicitante',
-      render: (a) => <span style={{ fontWeight: 500 }}>{partyMap.get(a.partyId)?.name ?? '—'}</span>,
+      render: (a) => (
+        <span style={{ fontWeight: 500 }}>{partyMap.get(a.partyId)?.name ?? '—'}</span>
+      ),
     },
     {
       key: 'property',
       header: 'Imóvel',
-      render: (a) => <span className="peg-text-secondary">{propertyMap.get(a.propertyId)?.title ?? '—'}</span>,
+      render: (a) => (
+        <span className="peg-text-secondary">{propertyMap.get(a.propertyId)?.title ?? '—'}</span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (a) => <Badge tone={APPLICATION_STATUS_TONES[a.status] ?? 'neutral'}>{label(APPLICATION_STATUS_LABELS, a.status)}</Badge>,
+      render: (a) => (
+        <Badge tone={APPLICATION_STATUS_TONES[a.status] ?? 'neutral'}>
+          {label(APPLICATION_STATUS_LABELS, a.status)}
+        </Badge>
+      ),
     },
     {
       key: 'submitted',
       header: 'Enviada em',
       render: (a) => <span className="peg-text-tertiary">{formatDate(a.submittedAt)}</span>,
     },
-    { key: 'created', header: 'Criada em', render: (a) => <span className="peg-text-tertiary">{formatDate(a.createdAt)}</span> },
+    {
+      key: 'created',
+      header: 'Criada em',
+      render: (a) => <span className="peg-text-tertiary">{formatDate(a.createdAt)}</span>,
+    },
   ];
 
   return (
@@ -104,7 +114,10 @@ function ScreeningBody() {
               setPage(0);
             }}
             placeholder="Todos os status"
-            options={Object.entries(APPLICATION_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(APPLICATION_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar análises"
           />
         }
@@ -113,7 +126,9 @@ function ScreeningBody() {
         columns={columns}
         rows={data?.applications ?? []}
         loading={loading}
-        onRowClick={(a) => { router.push(`/app/screening/${a.id}`); }}
+        onRowClick={(a) => {
+          router.push(`/app/screening/${a.id}`);
+        }}
         emptyTitle="Nenhuma análise"
         emptyBody="As análises de crédito aparecerão quando aplicações forem submetidas."
       />

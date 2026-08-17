@@ -54,10 +54,10 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
   }
   const fakeChannel = opts.fakeChannel ?? undefined;
   const metaAdsOptions: Parameters<typeof getMetaAdsProvider>[0] = {
-    mode: process.env.META_MODE === 'live' ? 'live' : 'dry_run',
+    mode: env.META_MODE === 'live' ? 'live' : 'dry_run',
   };
-  if (process.env.META_ACCESS_TOKEN) {
-    metaAdsOptions.accessToken = process.env.META_ACCESS_TOKEN;
+  if (env.META_ACCESS_TOKEN) {
+    metaAdsOptions.accessToken = env.META_ACCESS_TOKEN;
   }
   const metaAds = getMetaAdsProvider(metaAdsOptions);
 
@@ -69,7 +69,7 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
       limit: 10,
       log,
     }),
-    runInboxJobs({ db, limit: 10, log }),
+    runInboxJobs({ db, limit: 10, log, env }),
     runMetaJobs({ db, meta: metaAds, limit: 10, log }),
   ]);
   return { processed: channels.processed + inbox.processed + metaJobs.processed };

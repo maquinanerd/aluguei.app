@@ -54,7 +54,9 @@ export default async function InquilinoPage() {
 
   let totals: { billedCents: number; paidCents: number; openCents: number } | null = null;
   try {
-    const statement = await apiFetch<{ totals: { billedCents: number; paidCents: number; openCents: number } }>('/portal/tenant/statement');
+    const statement = await apiFetch<{
+      totals: { billedCents: number; paidCents: number; openCents: number };
+    }>('/portal/tenant/statement');
     totals = statement.totals;
   } catch {
     // sem extrato
@@ -68,8 +70,12 @@ export default async function InquilinoPage() {
           <strong style={{ fontSize: 15 }}>{me.orgName}</strong>
         </span>
         <span className="peg-spacer" />
-        <span className="peg-text-secondary" style={{ fontSize: 13 }}>{me.partyName}</span>
-        <Link href="/" style={{ fontSize: 13 }}>Sair</Link>
+        <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+          {me.partyName}
+        </span>
+        <Link href="/" style={{ fontSize: 13 }}>
+          Sair
+        </Link>
       </nav>
       <main className="app-page" style={{ padding: '32px 24px', maxWidth: 900 }}>
         <div>
@@ -80,13 +86,28 @@ export default async function InquilinoPage() {
         {totals ? (
           <div className="peg-grid cols-3">
             <Card title="Total cobrado" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>{formatBRL(totals.billedCents)}</div>
+              <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>
+                {formatBRL(totals.billedCents)}
+              </div>
             </Card>
             <Card title="Pago" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}>{formatBRL(totals.paidCents)}</div>
+              <div
+                style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}
+              >
+                {formatBRL(totals.paidCents)}
+              </div>
             </Card>
             <Card title="Em aberto" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: totals.openCents > 0 ? 'var(--peg-danger)' : 'inherit' }}>{formatBRL(totals.openCents)}</div>
+              <div
+                style={{
+                  padding: 16,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: totals.openCents > 0 ? 'var(--peg-danger)' : 'inherit',
+                }}
+              >
+                {formatBRL(totals.openCents)}
+              </div>
             </Card>
           </div>
         ) : null}
@@ -99,12 +120,28 @@ export default async function InquilinoPage() {
           ) : (
             <Stack gap={0}>
               {charges.map((c) => (
-                <Group key={c.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                <Group
+                  key={c.id}
+                  gap={3}
+                  style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{formatDate(c.periodStart)}</span>
-                  <Badge tone={c.status === 'PAID' ? 'success' : c.status === 'OVERDUE' ? 'danger' : c.status === 'OPEN' ? 'warning' : 'neutral'}>
+                  <Badge
+                    tone={
+                      c.status === 'PAID'
+                        ? 'success'
+                        : c.status === 'OVERDUE'
+                          ? 'danger'
+                          : c.status === 'OPEN'
+                            ? 'warning'
+                            : 'neutral'
+                    }
+                  >
                     {CHARGE_STATUS_LABELS[c.status] ?? c.status}
                   </Badge>
-                  <span className="peg-grow" style={{ fontSize: 13 }}>venc. {formatDate(c.dueDate)}</span>
+                  <span className="peg-grow" style={{ fontSize: 13 }}>
+                    venc. {formatDate(c.dueDate)}
+                  </span>
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(c.amountCents)}</span>
                 </Group>
               ))}

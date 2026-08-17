@@ -48,7 +48,9 @@ export default async function ProprietarioPage() {
   let statement: LandlordStatement | null = null;
   if (properties.length > 0) {
     try {
-      statement = await apiFetch<LandlordStatement>(`/portal/landlord/statement?propertyId=${properties[0]?.id ?? ''}`);
+      statement = await apiFetch<LandlordStatement>(
+        `/portal/landlord/statement?propertyId=${properties[0]?.id ?? ''}`,
+      );
     } catch {
       // sem extrato
     }
@@ -62,8 +64,12 @@ export default async function ProprietarioPage() {
           <strong style={{ fontSize: 15 }}>{me.orgName}</strong>
         </span>
         <span className="peg-spacer" />
-        <span className="peg-text-secondary" style={{ fontSize: 13 }}>{me.partyName}</span>
-        <Link href="/" style={{ fontSize: 13 }}>Sair</Link>
+        <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+          {me.partyName}
+        </span>
+        <Link href="/" style={{ fontSize: 13 }}>
+          Sair
+        </Link>
       </nav>
       <main className="app-page" style={{ padding: '32px 24px', maxWidth: 900 }}>
         <div>
@@ -74,13 +80,28 @@ export default async function ProprietarioPage() {
         {statement ? (
           <div className="peg-grid cols-3">
             <Card title="Alocado" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>{formatBRL(statement.totals.allocatedCents)}</div>
+              <div style={{ padding: 16, fontSize: 20, fontWeight: 700 }}>
+                {formatBRL(statement.totals.allocatedCents)}
+              </div>
             </Card>
             <Card title="Pago" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}>{formatBRL(statement.totals.paidOutCents)}</div>
+              <div
+                style={{ padding: 16, fontSize: 20, fontWeight: 700, color: 'var(--peg-success)' }}
+              >
+                {formatBRL(statement.totals.paidOutCents)}
+              </div>
             </Card>
             <Card title="Pendente" padless>
-              <div style={{ padding: 16, fontSize: 20, fontWeight: 700, color: statement.totals.pendingCents > 0 ? 'var(--peg-warning)' : 'inherit' }}>{formatBRL(statement.totals.pendingCents)}</div>
+              <div
+                style={{
+                  padding: 16,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: statement.totals.pendingCents > 0 ? 'var(--peg-warning)' : 'inherit',
+                }}
+              >
+                {formatBRL(statement.totals.pendingCents)}
+              </div>
             </Card>
           </div>
         ) : null}
@@ -93,7 +114,11 @@ export default async function ProprietarioPage() {
           ) : (
             <Stack gap={0}>
               {properties.map((p) => (
-                <Group key={p.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                <Group
+                  key={p.id}
+                  gap={3}
+                  style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</span>
                   <span className="peg-spacer" />
                   <Badge tone={p.status === 'ACTIVE' ? 'success' : 'neutral'}>{p.status}</Badge>

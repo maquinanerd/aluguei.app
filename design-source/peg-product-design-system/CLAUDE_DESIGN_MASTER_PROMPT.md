@@ -18,6 +18,7 @@ Os screenshots são o **visual source of truth**.
 Não trate as referências como moodboard. Não crie apenas "algo parecido". Extraia proporções, tokens, componentes, density e comportamento e recrie-os com fidelidade.
 
 Quando existir conflito entre:
+
 1. sua preferência estética;
 2. um padrão SaaS genérico;
 3. a referência visual;
@@ -35,6 +36,7 @@ Quando existir conflito entre:
 7. `VISUAL_QA.md`
 
 Depois, conforme o produto:
+
 - `10_KAL_EL_UI.md`
 - `20_COMMERCE_WAYNE_UI.md`
 
@@ -45,6 +47,7 @@ Depois, conforme o produto:
 Examine todas as imagens da pasta `references/`.
 
 Crie internamente a página `00 — Reference Audit` e registre:
+
 - screenshot;
 - tipo de tela;
 - shell;
@@ -59,6 +62,7 @@ Não avance sem revisar todo o corpus.
 # FASE 1 — FOUNDATIONS
 
 Crie `01 — Foundations` contendo:
+
 - Color/light;
 - Color/dark;
 - Semantic colors;
@@ -78,6 +82,7 @@ Preserve a estética predominantemente neutra.
 Crie `02 — Components`.
 
 Reconstrua componentes com variants e states:
+
 - buttons;
 - inputs;
 - textarea;
@@ -113,6 +118,7 @@ Não duplique visualmente o mesmo componente entre Kal El e Commerce Wayne.
 # FASE 3 — APPLICATION SHELLS
 
 Crie:
+
 - Sidebar + workspace;
 - Sidebar + workspace + inspector;
 - Compact rail + workspace;
@@ -125,6 +131,7 @@ Crie:
 Pare a expansão do projeto.
 
 Antes de criar as telas finais, produza uma **Calibration Screen** que reúna os principais tokens e componentes em:
+
 - desktop light;
 - desktop dark;
 - mobile light;
@@ -133,6 +140,7 @@ Antes de criar as telas finais, produza uma **Calibration Screen** que reúna os
 Compare com o corpus.
 
 Classifique divergências:
+
 - P0: identidade errada / uso quebrado;
 - P1: divergência perceptível;
 - P2: refinamento.
@@ -144,6 +152,7 @@ Corrija todos os P0 e P1 antes da próxima fase.
 Leia `10_KAL_EL_UI.md`.
 
 Primeiro crie e calibre:
+
 1. Article Editor;
 2. Articles Index;
 3. Media Library.
@@ -163,6 +172,7 @@ Não criar Gutenberg clone. Não transformar o canvas em coleção de cards.
 Leia `20_COMMERCE_WAYNE_UI.md`.
 
 Primeiro crie e calibre:
+
 1. Leads/CRM Index;
 2. Lead Detail;
 3. Conversations.
@@ -174,6 +184,7 @@ O CRM deve privilegiar alta densidade operacional, tabelas/listas, filtros, ativ
 # FASE 7 — RESPONSIVE
 
 Para os componentes e telas principais, produzir:
+
 - Desktop XL;
 - Desktop;
 - Tablet;
@@ -182,6 +193,7 @@ Para os componentes e telas principais, produzir:
 Mobile não é desktop reduzido.
 
 Transformações obrigatórias:
+
 - sidebar → drawer;
 - inspector → sheet/drawer;
 - table → responsive data pattern;
@@ -199,6 +211,7 @@ Nunca implementar por inversão automática de cores.
 Faça QA contra screenshots.
 
 Avalie:
+
 - typography;
 - font weight;
 - border;
@@ -219,6 +232,7 @@ Zero P0 e zero P1 relevante para concluir.
 # HARD CONSTRAINTS
 
 Não usar como linguagem dominante:
+
 - glassmorphism;
 - gradients decorativos;
 - sombras grandes;

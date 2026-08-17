@@ -68,7 +68,9 @@ export function Modal({
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}
         className={cx('peg-modal', size !== 'md' && `peg-modal--${size}`, className)}
-        onClick={(e) => { e.stopPropagation(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         <header className="peg-modal__header">
           <h2 className="peg-modal__title">{title}</h2>

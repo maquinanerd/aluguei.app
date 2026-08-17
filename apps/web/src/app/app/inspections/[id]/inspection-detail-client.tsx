@@ -150,7 +150,9 @@ function InspectionBody() {
       <EmptyState
         title="Vistoria não encontrada"
         actionLabel="Voltar"
-        onAction={() => { router.push('/app/inspections'); }}
+        onAction={() => {
+          router.push('/app/inspections');
+        }}
       />
     );
   }
@@ -161,7 +163,10 @@ function InspectionBody() {
     if (!roomName.trim()) return;
     setBusy(true);
     try {
-      await apiClient(`/inspections/${id}/rooms`, { method: 'POST', body: { name: roomName.trim() } });
+      await apiClient(`/inspections/${id}/rooms`, {
+        method: 'POST',
+        body: { name: roomName.trim() },
+      });
       setRoomName('');
       aggQ.reload();
     } catch (err) {
@@ -219,12 +224,25 @@ function InspectionBody() {
     }
   }
 
-  async function resolveSuggestion(suggestionId: string, action: 'ACCEPT' | 'REJECT' | 'EDIT', description?: string) {
+  async function resolveSuggestion(
+    suggestionId: string,
+    action: 'ACCEPT' | 'REJECT' | 'EDIT',
+    description?: string,
+  ) {
     try {
       const body: { action: string; description?: string } = { action };
       if (description) body.description = description;
-      await apiClient(`/inspections/${id}/ai-suggestions/${suggestionId}`, { method: 'PATCH', body });
-      toast.success(action === 'ACCEPT' ? 'Sugestão aceita' : action === 'REJECT' ? 'Sugestão rejeitada' : 'Sugestão editada');
+      await apiClient(`/inspections/${id}/ai-suggestions/${suggestionId}`, {
+        method: 'PATCH',
+        body,
+      });
+      toast.success(
+        action === 'ACCEPT'
+          ? 'Sugestão aceita'
+          : action === 'REJECT'
+            ? 'Sugestão rejeitada'
+            : 'Sugestão editada',
+      );
       aggQ.reload();
     } catch (err) {
       toast.error('Falha', err instanceof Error ? err.message : undefined);
@@ -241,7 +259,13 @@ function InspectionBody() {
 
   return (
     <Stack gap={4} style={{ width: '100%' }}>
-      <Breadcrumb items={[{ label: 'Painel', href: '/app' }, { label: 'Vistorias', href: '/app/inspections' }, { label: property?.title ?? 'Vistoria' }]} />
+      <Breadcrumb
+        items={[
+          { label: 'Painel', href: '/app' },
+          { label: 'Vistorias', href: '/app/inspections' },
+          { label: property?.title ?? 'Vistoria' },
+        ]}
+      />
 
       <div className="peg-card" style={{ padding: 20 }}>
         <Group between stretch gap={4} wrap>
@@ -249,20 +273,33 @@ function InspectionBody() {
             <Group gap={2}>
               <h1 style={{ fontSize: 20 }}>{property?.title ?? 'Vistoria'}</h1>
               <Badge tone="neutral">{TYPE_LABELS[inspection.type] ?? inspection.type}</Badge>
-              <Badge tone={INSPECTION_STATUS_TONES[inspection.status] ?? 'neutral'}>{label(INSPECTION_STATUS_LABELS, inspection.status)}</Badge>
+              <Badge tone={INSPECTION_STATUS_TONES[inspection.status] ?? 'neutral'}>
+                {label(INSPECTION_STATUS_LABELS, inspection.status)}
+              </Badge>
             </Group>
             <span className="peg-text-secondary" style={{ fontSize: 13 }}>
-              Agendada para {formatDate(inspection.scheduledAt)} · criada em {formatDate(inspection.createdAt)}
+              Agendada para {formatDate(inspection.scheduledAt)} · criada em{' '}
+              {formatDate(inspection.createdAt)}
             </span>
           </Stack>
           <Group gap={2}>
-            <Button size="sm" variant="secondary" icon={<Icon name="refresh" size={14} />} loading={busy} onClick={() => { void runProcess(); }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<Icon name="refresh" size={14} />}
+              loading={busy}
+              onClick={() => {
+                void runProcess();
+              }}
+            >
               Processar mídia
             </Button>
             <Select
               size="sm"
               value=""
-              onChange={(e) => { if (e.target.value) void changeStatus(e.target.value); }}
+              onChange={(e) => {
+                if (e.target.value) void changeStatus(e.target.value);
+              }}
               placeholder="Mudar status…"
               options={Object.entries(INSPECTION_STATUS_LABELS)
                 .filter(([v]) => v !== inspection.status)
@@ -280,9 +317,21 @@ function InspectionBody() {
           <Card title="Mídia" padless>
             <Stack gap={0}>
               <div className="peg-grid cols-3" style={{ padding: 16 }}>
-                <SummaryTile icon="image" label="Fotos" value={agg.media.filter((m) => m.kind === 'PHOTO').length} />
-                <SummaryTile icon="mic" label="Áudios" value={agg.media.filter((m) => m.kind === 'AUDIO').length} />
-                <SummaryTile icon="play" label="Vídeos" value={agg.media.filter((m) => m.kind === 'VIDEO').length} />
+                <SummaryTile
+                  icon="image"
+                  label="Fotos"
+                  value={agg.media.filter((m) => m.kind === 'PHOTO').length}
+                />
+                <SummaryTile
+                  icon="mic"
+                  label="Áudios"
+                  value={agg.media.filter((m) => m.kind === 'AUDIO').length}
+                />
+                <SummaryTile
+                  icon="play"
+                  label="Vídeos"
+                  value={agg.media.filter((m) => m.kind === 'VIDEO').length}
+                />
               </div>
             </Stack>
           </Card>
@@ -293,7 +342,10 @@ function InspectionBody() {
                   { label: 'Ambientes', value: String(agg.rooms.length) },
                   { label: 'Ocorrências', value: String(agg.observations.length) },
                   { label: 'Sugestões IA pendentes', value: String(pendingSuggestions.length) },
-                  { label: 'Mídia de evidência', value: String(agg.media.filter((m) => m.isEvidence).length) },
+                  {
+                    label: 'Mídia de evidência',
+                    value: String(agg.media.filter((m) => m.isEvidence).length),
+                  },
                 ]}
               />
             </Stack>
@@ -306,13 +358,34 @@ function InspectionBody() {
           <Stack gap={3} style={{ padding: 20 }}>
             <Group gap={2} wrap>
               {agg.rooms.map((r) => (
-                <Badge key={r.id} tone="neutral">{r.name}</Badge>
+                <Badge key={r.id} tone="neutral">
+                  {r.name}
+                </Badge>
               ))}
-              {agg.rooms.length === 0 ? <span className="peg-text-tertiary" style={{ fontSize: 13 }}>Nenhum ambiente criado.</span> : null}
+              {agg.rooms.length === 0 ? (
+                <span className="peg-text-tertiary" style={{ fontSize: 13 }}>
+                  Nenhum ambiente criado.
+                </span>
+              ) : null}
             </Group>
-            <form className="peg-group" style={{ gap: 8 }} onSubmit={(e) => { void addRoom(e); }}>
-              <Input size="sm" placeholder="Nome do ambiente (ex.: Sala)" value={roomName} onChange={(e) => { setRoomName(e.target.value); }} />
-              <Button size="sm" variant="secondary" loading={busy}>Adicionar</Button>
+            <form
+              className="peg-group"
+              style={{ gap: 8 }}
+              onSubmit={(e) => {
+                void addRoom(e);
+              }}
+            >
+              <Input
+                size="sm"
+                placeholder="Nome do ambiente (ex.: Sala)"
+                value={roomName}
+                onChange={(e) => {
+                  setRoomName(e.target.value);
+                }}
+              />
+              <Button size="sm" variant="secondary" loading={busy}>
+                Adicionar
+              </Button>
             </form>
           </Stack>
         </Card>
@@ -322,7 +395,14 @@ function InspectionBody() {
         <Card
           title="Ocorrências"
           actions={
-            <Button size="sm" variant="brand" icon={<Icon name="plus" size={14} />} onClick={() => { setObsOpen(true); }}>
+            <Button
+              size="sm"
+              variant="brand"
+              icon={<Icon name="plus" size={14} />}
+              onClick={() => {
+                setObsOpen(true);
+              }}
+            >
               Nova ocorrência
             </Button>
           }
@@ -335,16 +415,26 @@ function InspectionBody() {
           ) : (
             <Stack gap={0}>
               {agg.observations.map((o) => (
-                <Group key={o.id} gap={3} style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                  <Badge tone={SEVERITY_TONES[o.severity] ?? 'neutral'}>{SEVERITY_LABELS[o.severity] ?? o.severity}</Badge>
+                <Group
+                  key={o.id}
+                  gap={3}
+                  style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
+                  <Badge tone={SEVERITY_TONES[o.severity] ?? 'neutral'}>
+                    {SEVERITY_LABELS[o.severity] ?? o.severity}
+                  </Badge>
                   <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ fontSize: 13, fontWeight: 500 }}>
                       {CATEGORY_LABELS[o.category] ?? o.category}
                       {o.roomId ? ` · ${roomMap.get(o.roomId)?.name ?? '—'}` : ''}
                     </span>
-                    <span className="peg-text-secondary" style={{ fontSize: 12 }}>{o.description}</span>
+                    <span className="peg-text-secondary" style={{ fontSize: 12 }}>
+                      {o.description}
+                    </span>
                   </Stack>
-                  <Badge tone={o.source === 'AI' ? 'info' : 'neutral'}>{o.source === 'AI' ? 'IA' : 'Humano'}</Badge>
+                  <Badge tone={o.source === 'AI' ? 'info' : 'neutral'}>
+                    {o.source === 'AI' ? 'IA' : 'Humano'}
+                  </Badge>
                 </Group>
               ))}
             </Stack>
@@ -356,12 +446,18 @@ function InspectionBody() {
         <Card title="Sugestões da IA — confirmação humana" padless>
           {pendingSuggestions.length === 0 ? (
             <div className="peg-empty" style={{ padding: 24 }}>
-              <span className="peg-empty__body">Nenhuma sugestão pendente. Processe a mídia para gerar sugestões.</span>
+              <span className="peg-empty__body">
+                Nenhuma sugestão pendente. Processe a mídia para gerar sugestões.
+              </span>
             </div>
           ) : (
             <Stack gap={0}>
               {pendingSuggestions.map((s) => (
-                <Group key={s.id} gap={3} style={{ padding: '14px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                <Group
+                  key={s.id}
+                  gap={3}
+                  style={{ padding: '14px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
                   <Icon name={s.kind === 'VISUAL' ? 'eye' : 'mic'} size={16} />
                   <Stack gap={1} style={{ flex: 1, minWidth: 0 }}>
                     <Group gap={2}>
@@ -375,10 +471,22 @@ function InspectionBody() {
                     </span>
                   </Stack>
                   <Group gap={1}>
-                    <Button size="xs" variant="secondary" onClick={() => { void resolveSuggestion(s.id, 'ACCEPT'); }}>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      onClick={() => {
+                        void resolveSuggestion(s.id, 'ACCEPT');
+                      }}
+                    >
                       Aceitar
                     </Button>
-                    <Button size="xs" variant="tertiary" onClick={() => { void resolveSuggestion(s.id, 'REJECT'); }}>
+                    <Button
+                      size="xs"
+                      variant="tertiary"
+                      onClick={() => {
+                        void resolveSuggestion(s.id, 'REJECT');
+                      }}
+                    >
                       Rejeitar
                     </Button>
                   </Group>
@@ -394,7 +502,9 @@ function InspectionBody() {
           <Stack gap={3} style={{ padding: 20 }}>
             <Group gap={2}>
               <Badge tone="neutral">{TYPE_LABELS[inspection.type] ?? inspection.type}</Badge>
-              <Badge tone={INSPECTION_STATUS_TONES[inspection.status] ?? 'neutral'}>{label(INSPECTION_STATUS_LABELS, inspection.status)}</Badge>
+              <Badge tone={INSPECTION_STATUS_TONES[inspection.status] ?? 'neutral'}>
+                {label(INSPECTION_STATUS_LABELS, inspection.status)}
+              </Badge>
             </Group>
             <InspectorRows
               rows={[
@@ -408,7 +518,10 @@ function InspectionBody() {
               size="sm"
               variant="secondary"
               icon={<Icon name="fileText" size={14} />}
-              onClick={() => { router.push(`/app/inspections/${id}`); toast.info('Relatório completo na aba de revisão'); }}
+              onClick={() => {
+                router.push(`/app/inspections/${id}`);
+                toast.info('Relatório completo na aba de revisão');
+              }}
             >
               Relatório completo
             </Button>
@@ -416,7 +529,9 @@ function InspectionBody() {
         </Card>
       ) : null}
 
-      <Inspector style={{ width: '100%', borderLeft: 'none', borderTop: '1px solid var(--peg-border)' }}>
+      <Inspector
+        style={{ width: '100%', borderLeft: 'none', borderTop: '1px solid var(--peg-border)' }}
+      >
         <InspectorSection title="Vistoria">
           <InspectorRows
             rows={[
@@ -431,21 +546,41 @@ function InspectionBody() {
 
       <Modal
         open={obsOpen}
-        onClose={() => { setObsOpen(false); }}
+        onClose={() => {
+          setObsOpen(false);
+        }}
         title="Nova ocorrência"
         footer={
           <>
-            <Button variant="tertiary" onClick={() => { setObsOpen(false); }}>Cancelar</Button>
-            <Button variant="primary" type="submit" form="create-obs-form" loading={busy}>Registrar</Button>
+            <Button
+              variant="tertiary"
+              onClick={() => {
+                setObsOpen(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button variant="primary" type="submit" form="create-obs-form" loading={busy}>
+              Registrar
+            </Button>
           </>
         }
       >
-        <form id="create-obs-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void addObservation(e); }}>
+        <form
+          id="create-obs-form"
+          className="peg-stack"
+          style={{ gap: 16 }}
+          onSubmit={(e) => {
+            void addObservation(e);
+          }}
+        >
           <Select
             label="Ambiente"
             optional
             value={obsRoom}
-            onChange={(e) => { setObsRoom(e.target.value); }}
+            onChange={(e) => {
+              setObsRoom(e.target.value);
+            }}
             placeholder="Sem ambiente"
             options={agg.rooms.map((r) => ({ value: r.id, label: r.name }))}
           />
@@ -453,29 +588,60 @@ function InspectionBody() {
             <Select
               label="Categoria"
               value={obsCategory}
-              onChange={(e) => { setObsCategory(e.target.value); }}
+              onChange={(e) => {
+                setObsCategory(e.target.value);
+              }}
               options={Object.entries(CATEGORY_LABELS).map(([v, l]) => ({ value: v, label: l }))}
             />
             <Select
               label="Severidade"
               value={obsSeverity}
-              onChange={(e) => { setObsSeverity(e.target.value); }}
+              onChange={(e) => {
+                setObsSeverity(e.target.value);
+              }}
               options={Object.entries(SEVERITY_LABELS).map(([v, l]) => ({ value: v, label: l }))}
             />
           </div>
-          <Input label="Descrição" required value={obsDesc} onChange={(e) => { setObsDesc(e.target.value); }} placeholder="Descreva a ocorrência…" />
+          <Input
+            label="Descrição"
+            required
+            value={obsDesc}
+            onChange={(e) => {
+              setObsDesc(e.target.value);
+            }}
+            placeholder="Descreva a ocorrência…"
+          />
         </form>
       </Modal>
     </Stack>
   );
 }
 
-function SummaryTile({ icon, label, value }: { icon: 'image' | 'mic' | 'play'; label: string; value: number }) {
+function SummaryTile({
+  icon,
+  label,
+  value,
+}: {
+  icon: 'image' | 'mic' | 'play';
+  label: string;
+  value: number;
+}) {
   return (
-    <div className="peg-stack" style={{ gap: 4, alignItems: 'center', padding: '12px 8px', border: '1px solid var(--peg-border)', borderRadius: 'var(--peg-radius-md)' }}>
+    <div
+      className="peg-stack"
+      style={{
+        gap: 4,
+        alignItems: 'center',
+        padding: '12px 8px',
+        border: '1px solid var(--peg-border)',
+        borderRadius: 'var(--peg-radius-md)',
+      }}
+    >
       <Icon name={icon} size={18} />
       <span style={{ fontSize: 20, fontWeight: 600 }}>{String(value)}</span>
-      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{label}</span>
+      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+        {label}
+      </span>
     </div>
   );
 }

@@ -5,11 +5,13 @@ description: Auditar frontend atual contra Aluguei Claude Design e PEG UI sem im
 Audite o frontend atual.
 
 Leia:
+
 - docs/frontend/00_DESIGN_AUTHORITY.md
 - docs/frontend/08_VISUAL_QA.md
 - design-source/aluguei/30_ALUGUEI_APP_COMPLETE_DESIGN.md
 
 Inspecione:
+
 - tokens;
 - shell;
 - components;

@@ -13,22 +13,22 @@ Inventário mecânico do estado real do frontend em `apps/web` e `packages/ui`.
 
 ## Rotas existentes em apps/web
 
-| Rota | Tipo | Implementação |
-|---|---|---|
-| `/` | pública (marketing mínimo) | `page.tsx` — título estático |
-| `/login` | pública | `login-form.tsx` (client, fetch `/api/auth/login`) |
-| `/register` | pública | `register-form.tsx` (client) |
-| `/dashboard` | app legado | `dashboard/page.tsx` + `lead-status.tsx` — listagem simples de leads/canais, estilo antigo |
-| `/imoveis` | público | `imoveis/page.tsx` — lista pública (fetch `public-api.ts`) |
-| `/imoveis/[slug]` | público | `imoveis/[slug]/page.tsx` — detalhe público |
-| `/inquilino` | portal | `inquilino/page.tsx` — extrato/cobranças simples |
-| `/proprietario` | portal | `proprietario/page.tsx` — extrato/imóveis simples |
-| `/api/auth/login` | proxy | Route Handler → `apiProxy('/auth/login')` + isSameOrigin |
-| `/api/auth/register` | proxy | idem |
-| `/api/auth/logout` | proxy | idem |
-| `/api/leads/[id]/status` | proxy | PATCH → `/leads/:id/status` |
-| `/api/portal/auth/consume` | proxy | POST → `/portal/auth/consume` |
-| `/api/portal/auth/logout` | proxy | POST → `/portal/auth/logout` |
+| Rota                       | Tipo                       | Implementação                                                                              |
+| -------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| `/`                        | pública (marketing mínimo) | `page.tsx` — título estático                                                               |
+| `/login`                   | pública                    | `login-form.tsx` (client, fetch `/api/auth/login`)                                         |
+| `/register`                | pública                    | `register-form.tsx` (client)                                                               |
+| `/dashboard`               | app legado                 | `dashboard/page.tsx` + `lead-status.tsx` — listagem simples de leads/canais, estilo antigo |
+| `/imoveis`                 | público                    | `imoveis/page.tsx` — lista pública (fetch `public-api.ts`)                                 |
+| `/imoveis/[slug]`          | público                    | `imoveis/[slug]/page.tsx` — detalhe público                                                |
+| `/inquilino`               | portal                     | `inquilino/page.tsx` — extrato/cobranças simples                                           |
+| `/proprietario`            | portal                     | `proprietario/page.tsx` — extrato/imóveis simples                                          |
+| `/api/auth/login`          | proxy                      | Route Handler → `apiProxy('/auth/login')` + isSameOrigin                                   |
+| `/api/auth/register`       | proxy                      | idem                                                                                       |
+| `/api/auth/logout`         | proxy                      | idem                                                                                       |
+| `/api/leads/[id]/status`   | proxy                      | PATCH → `/leads/:id/status`                                                                |
+| `/api/portal/auth/consume` | proxy                      | POST → `/portal/auth/consume`                                                              |
+| `/api/portal/auth/logout`  | proxy                      | POST → `/portal/auth/logout`                                                               |
 
 ## Libs existentes
 

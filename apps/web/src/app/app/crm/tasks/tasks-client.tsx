@@ -49,7 +49,10 @@ function TasksBody() {
     return `/tasks?${params.toString()}`;
   }, [status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ tasks: Task[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    tasks: Task[];
+    total: number;
+  }>(queryPath, [queryPath]);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a tarefas" />;
 
@@ -75,7 +78,12 @@ function TasksBody() {
       header: '',
       render: (t) =>
         t.status === 'OPEN' ? (
-          <Checkbox checked={false} aria-label={`Concluir ${t.title}`} onChange={() => void setTaskStatus(t, 'DONE')} ref={undefined} />
+          <Checkbox
+            checked={false}
+            aria-label={`Concluir ${t.title}`}
+            onChange={() => void setTaskStatus(t, 'DONE')}
+            ref={undefined}
+          />
         ) : t.status === 'DONE' ? (
           <Icon name="checkCircle" size={16} />
         ) : null,
@@ -86,8 +94,19 @@ function TasksBody() {
       sortable: true,
       render: (t) => (
         <Stack gap={0}>
-          <span style={{ fontWeight: 500, textDecoration: t.status === 'DONE' ? 'line-through' : undefined }}>{t.title}</span>
-          {t.description ? <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{t.description}</span> : null}
+          <span
+            style={{
+              fontWeight: 500,
+              textDecoration: t.status === 'DONE' ? 'line-through' : undefined,
+            }}
+          >
+            {t.title}
+          </span>
+          {t.description ? (
+            <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+              {t.description}
+            </span>
+          ) : null}
         </Stack>
       ),
     },
@@ -95,12 +114,18 @@ function TasksBody() {
       key: 'status',
       header: 'Status',
       render: (t) => (
-        <Badge tone={t.status === 'DONE' ? 'success' : t.status === 'CANCELLED' ? 'neutral' : 'info'}>
+        <Badge
+          tone={t.status === 'DONE' ? 'success' : t.status === 'CANCELLED' ? 'neutral' : 'info'}
+        >
           {label(TASK_STATUS_LABELS, t.status)}
         </Badge>
       ),
     },
-    { key: 'due', header: 'Vencimento', render: (t) => <span className="peg-text-secondary">{formatDateTime(t.dueAt)}</span> },
+    {
+      key: 'due',
+      header: 'Vencimento',
+      render: (t) => <span className="peg-text-secondary">{formatDateTime(t.dueAt)}</span>,
+    },
     {
       key: 'actions',
       header: '',
@@ -131,14 +156,23 @@ function TasksBody() {
           <Select
             size="sm"
             value={status}
-            onChange={(e) => { setStatus(e.target.value); }}
+            onChange={(e) => {
+              setStatus(e.target.value);
+            }}
             placeholder="Todas"
             options={Object.entries(TASK_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
             aria-label="Filtrar por status"
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Nova tarefa
           </Button>
         }
@@ -150,13 +184,17 @@ function TasksBody() {
         emptyTitle="Nenhuma tarefa"
         emptyBody="Crie uma tarefa para acompanhar a equipe."
         emptyActionLabel="Nova tarefa"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <CreateTaskModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         onCreated={() => {
           toast.success('Tarefa criada');
           setCreateOpen(false);
@@ -209,15 +247,50 @@ function CreateTaskModal({
       title="Nova tarefa"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-task-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-task-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-task-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
-        <Input label="Título" required value={title} onChange={(e) => { setTitle(e.target.value); }} placeholder="Ex.: Ligar para o proprietário" />
-        <Textarea label="Descrição" optional rows={3} value={description} onChange={(e) => { setDescription(e.target.value); }} />
-        <Input label="Vencimento" type="datetime-local" optional value={dueAt} onChange={(e) => { setDueAt(e.target.value); }} />
+      <form
+        id="create-task-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <Input
+          label="Título"
+          required
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
+          placeholder="Ex.: Ligar para o proprietário"
+        />
+        <Textarea
+          label="Descrição"
+          optional
+          rows={3}
+          value={description}
+          onChange={(e) => {
+            setDescription(e.target.value);
+          }}
+        />
+        <Input
+          label="Vencimento"
+          type="datetime-local"
+          optional
+          value={dueAt}
+          onChange={(e) => {
+            setDueAt(e.target.value);
+          }}
+        />
       </form>
     </Modal>
   );

@@ -1,6 +1,7 @@
 # Phase 05 — Properties, Media, Listings & Channels
 
 Implementar:
+
 - property table;
 - operational grid;
 - filters/views;

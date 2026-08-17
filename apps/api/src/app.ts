@@ -79,6 +79,13 @@ export interface BuildAppOptions extends FastifyServerOptions {
   meta?: IMetaAdsProvider;
 }
 
+declare module 'fastify' {
+  interface FastifyInstance {
+    /** Env tipado (AppEnv validado por zod) — acessível em rotas e plugins. */
+    env: AppEnv;
+  }
+}
+
 /** Key de rate limit: IP quando não autenticado; userId quando autenticado. */
 function defaultKeyGenerator(request: { ip?: string; auth?: { userId: string } | null }): string {
   const userId = request.auth?.userId;
@@ -128,6 +135,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     trustProxy: 'loopback',
   });
   setErrorHandler(app);
+
+  // Env tipado (AppEnv validado por zod) disponível em rotas/plugins.
+  app.decorate('env', env);
 
   await app.register(helmet);
   await app.register(cookie);

@@ -37,7 +37,10 @@ export async function apiClient<T = unknown>(
   const data: unknown = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message =
-      typeof data === 'object' && data !== null && 'message' in data && typeof data.message === 'string'
+      typeof data === 'object' &&
+      data !== null &&
+      'message' in data &&
+      typeof data.message === 'string'
         ? data.message
         : `HTTP ${String(res.status)}`;
     const code =
