@@ -30,7 +30,12 @@ export class AppErrorBoundary extends Component<Props, State> {
           <Text style={styles.message}>
             Não foi possível carregar esta tela. Verifique sua conexão e tente novamente.
           </Text>
-          <Text style={styles.hint} onPress={() => this.setState({ error: null })}>
+          <Text
+            style={styles.hint}
+            onPress={() => {
+              this.setState({ error: null });
+            }}
+          >
             Toque para tentar novamente
           </Text>
         </View>
