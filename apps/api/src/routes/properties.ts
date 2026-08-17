@@ -377,6 +377,35 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       await apply(true);
       await apply(false);
 
+      // Consumidor do geocoding (Google Maps): enriquece lat/lng do endereço
+      // público em best-effort. NUNCA bloqueia o cadastro manual se o serviço
+      // estiver indisponível ou a chave ausente (fallback manual obrigatório).
+      const pa = input.publicAddress;
+      const geocodeCity = pa?.city;
+      if (app.geocoding && pa && geocodeCity) {
+        const geocodeInput: Parameters<typeof app.geocoding.geocode>[0] = {
+          city: geocodeCity,
+        };
+        if (pa.street) geocodeInput.street = pa.street;
+        if (pa.number) geocodeInput.number = pa.number;
+        if (pa.neighborhood) geocodeInput.neighborhood = pa.neighborhood;
+        if (pa.state) geocodeInput.state = pa.state;
+        if (pa.zipCode) geocodeInput.zipCode = pa.zipCode;
+        if (pa.country) geocodeInput.country = pa.country;
+        const geocode = await app.geocoding.geocode(geocodeInput).catch(() => null);
+        if (geocode) {
+          await db
+            .update(propertyAddresses)
+            .set({ lat: geocode.lat, lng: geocode.lng, updatedAt: new Date() })
+            .where(
+              and(
+                eq(propertyAddresses.propertyId, property.id),
+                eq(propertyAddresses.isPublic, true),
+              ),
+            );
+        }
+      }
+
       await writeAudit(db, {
         orgId: auth.orgId,
         actorUserId: auth.userId,

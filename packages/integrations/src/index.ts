@@ -21,17 +21,19 @@ export type {
 } from './channels/types.js';
 
 export { MockAiProvider } from './ai/mock.js';
+export { OpenAiAiProvider } from './ai/openai.js';
+export { GeminiAiProvider } from './ai/gemini.js';
+export { AiProviderError } from './ai/errors.js';
+export type { AiProviderErrorKind, AiProviderErrorOptions } from './ai/errors.js';
+export type { OpenAiAiProviderOptions } from './ai/openai.js';
+export type { GeminiAiProviderOptions } from './ai/gemini.js';
 export { getAiProvider } from './ai/registry.js';
 export type { AiRegistryOptions } from './ai/registry.js';
 export type { AiProvider, IntentExtraction, IntentKind } from './ai/types.js';
 
-export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
-export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
-export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
-export { getWhatsAppMessenger } from './whatsapp/registry.js';
-export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
-
 export { MockInspectionAiProvider } from './inspection-ai/mock.js';
+export { OpenAiInspectionAiProvider } from './inspection-ai/openai.js';
+export type { OpenAiInspectionAiProviderOptions } from './inspection-ai/openai.js';
 export { getInspectionAiProvider } from './inspection-ai/registry.js';
 export type {
   InspectionAiProvider,
@@ -41,6 +43,12 @@ export type {
   Severity,
   TranscribeResult,
 } from './inspection-ai/types.js';
+
+export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
+export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
+export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
+export { getWhatsAppMessenger } from './whatsapp/registry.js';
+export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
 
 export { FakePaymentProvider } from './payments/fake.js';
 export { AsaasPaymentProvider, mapAsaasPaymentWebhook } from './payments/asaas.js';

@@ -8,6 +8,7 @@ import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
+  PlacesService,
   WhatsAppMessenger,
   AiProvider,
   ISignatureProvider,
@@ -24,6 +25,8 @@ import { storagePlugin } from './plugins/storage.js';
 import type { StoragePluginOptions } from './plugins/storage.js';
 import { geocodingPlugin } from './plugins/geocoding.js';
 import type { GeocodingPluginOptions } from './plugins/geocoding.js';
+import { placesPlugin } from './plugins/places.js';
+import type { PlacesPluginOptions } from './plugins/places.js';
 import { whatsappPlugin } from './plugins/whatsapp.js';
 import type { WhatsAppPluginOptions } from './plugins/whatsapp.js';
 import { aiPlugin } from './plugins/ai.js';
@@ -40,6 +43,7 @@ import { visitRoutes } from './routes/visits.js';
 import { proposalRoutes } from './routes/proposals.js';
 import { timelineRoutes } from './routes/timeline.js';
 import { propertyRoutes } from './routes/properties.js';
+import { placesRoutes } from './routes/places.js';
 import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
 import { channelRoutes } from './routes/channels.js';
@@ -71,6 +75,7 @@ export interface BuildAppOptions extends FastifyServerOptions {
   config?: Partial<AppConfig>;
   storage?: StorageService;
   geocoding?: GeocodingService;
+  places?: PlacesService;
   channels?: { fake?: FakeChannel };
   whatsapp?: WhatsAppMessenger;
   ai?: AiProvider;
@@ -201,6 +206,15 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(geocodingPlugin, geocodingOptions);
 
+  const placesOptions: PlacesPluginOptions = { nodeEnv: env.NODE_ENV };
+  if (opts.places) {
+    placesOptions.places = opts.places;
+  }
+  if (env.GOOGLE_MAPS_API_KEY) {
+    placesOptions.apiKey = env.GOOGLE_MAPS_API_KEY;
+  }
+  await app.register(placesPlugin, placesOptions);
+
   const whatsappOptions: WhatsAppPluginOptions = {};
   if (opts.whatsapp) {
     whatsappOptions.messenger = opts.whatsapp;
@@ -296,6 +310,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(proposalRoutes);
   await app.register(timelineRoutes);
   await app.register(propertyRoutes);
+  await app.register(placesRoutes);
   await app.register(listingRoutes);
   await app.register(publicRoutes);
   await app.register(channelRoutes);

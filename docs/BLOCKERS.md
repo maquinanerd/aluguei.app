@@ -25,12 +25,12 @@ O agente deve registrar aqui apenas depend�ncias externas reais: credenciais, 
   envio de template (`sendTemplateMessage`), `testConnection` (GET metadata do número) e erro
   tipado `WhatsAppProviderError` (retryable p/ 429/5xx/throttling). Sem credencial real de
   homologação ? n�o validado contra a Meta live (`META_MODE=dry_run` usa FakeWhatsAppMessenger).
-- `AiProvider` com `MockAiProvider` (regras determin�sticas); adapters OpenAI/Gemini reais adiados (registry � o gancho; sem chave nunca chama LLM externo).
+- `AiProvider` com `MockAiProvider` (regras determin�sticas) como default; adapters reais `OpenAiAiProvider`/`GeminiAiProvider` implementados (Fase 16, `docs/integrations/AI_RUNTIME.md`) � sem chave (`OPENAI_API_KEY`/`GEMINI_API_KEY` ausentes) nunca chama LLM externo (registry cai para mock). Classifica��o: IMPLEMENTED_NOT_LIVE_VERIFIED.
 - Assinatura `X-Hub-Signature-256` validada quando `META_APP_SECRET` presente; sem secret, a seguran�a vem do verify token trocado na assinatura do webhook (documentado em INTEGRATIONS.md).
 
 ## Fase 06 � IMPLEMENTED_NOT_LIVE_VERIFIED
 
-- `MockInspectionAiProvider` (transcri��o/sugest�es determin�sticas por regras) � o padr�o; adapters reais de transcri��o/vis�o (LLM) exigem chave e devem obedecer o contrato de payload com EVID�NCIA OBSERV�VEL apenas (nunca causa/diagn�stico) � nota em docs/AI_STRATEGY.md. Sem credencial ? mock, nunca LLM externo.
+- `MockInspectionAiProvider` (transcri��o/sugest�es determin�sticas por regras) � o padr�o; adapter real `OpenAiInspectionAiProvider` implementado (Fase 16) � exige chave E `fetchMedia` (storage plugado pelo chamador); sem isso ? mock, nunca LLM externo. Contrato de payload com EVID�NCIA OBSERV�VEL apenas (nunca causa/diagn�stico) � nota em docs/AI_STRATEGY.md e docs/integrations/AI_RUNTIME.md.
 - Assinatura de vistoria (SIGNED) reservada: transi��o existe na m�quina, rota rejeita com 400 at� a Fase 07. PDF de relat�rio adiado para a fase de relat�rios (10) � endpoint de snapshot estruturado dispon�vel.
 
 ## Fase 07 � IMPLEMENTED_NOT_LIVE_VERIFIED

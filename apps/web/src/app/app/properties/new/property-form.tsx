@@ -17,6 +17,7 @@ import {
 } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { PROPERTY_TYPE_LABELS } from '@/lib/labels';
+import { AddressSearch, structuredAddressToFields } from './address-search';
 
 interface PropertyPayload {
   title: string;
@@ -54,11 +55,41 @@ function PropertyFormBody() {
   const [builtAreaSqm, setBuiltAreaSqm] = useState('');
   const [furnished, setFurnished] = useState(false);
   const [petsAllowed, setPetsAllowed] = useState(false);
+  const [street, setStreet] = useState('');
+  const [number, setNumber] = useState('');
+  const [neighborhood, setNeighborhood] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [country, setCountry] = useState('');
   const [busy, setBusy] = useState(false);
+  /**
+   * lat/lng detectados pelo Google Places ficam em estado local: o PUT de
+   * endereço não os envia — o backend geocodifica sozinho ao salvar.
+   */
+  const [, setCoords] = useState<{ lat: number | null; lng: number | null } | null>(null);
 
   function num(v: string): number | undefined {
     const n = parseFloat(v.replace(',', '.'));
     return Number.isFinite(n) && n > 0 ? n : undefined;
+  }
+
+  /** Monta o publicAddress apenas com campos preenchidos; null quando vazio. */
+  function addressPayload(): { publicAddress: Record<string, string> } | null {
+    const fields = {
+      street: street.trim(),
+      number: number.trim(),
+      neighborhood: neighborhood.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      zipCode: zipCode.trim(),
+      country: country.trim(),
+    };
+    const publicAddress: Record<string, string> = {};
+    for (const [key, value] of Object.entries(fields)) {
+      if (value.length > 0) publicAddress[key] = value;
+    }
+    return Object.keys(publicAddress).length > 0 ? { publicAddress } : null;
   }
 
   async function submit(e: React.SyntheticEvent) {
@@ -87,8 +118,21 @@ function PropertyFormBody() {
         method: 'POST',
         body: payload,
       });
+      const propertyId = res.property.id;
+      // Endereço é opcional e nunca bloqueia a criação: falha vira aviso, não erro.
+      const address = addressPayload();
+      if (address) {
+        try {
+          await apiClient(`/properties/${propertyId}/address`, {
+            method: 'PUT',
+            body: address,
+          });
+        } catch {
+          toast.warning('Imóvel criado — endereço não salvo', 'Edite o endereço depois');
+        }
+      }
       toast.success('Imóvel criado');
-      router.push(`/app/properties/${res.property.id}`);
+      router.push(`/app/properties/${propertyId}`);
       router.refresh();
     } catch (err) {
       toast.error('Falha ao criar', err instanceof Error ? err.message : undefined);
@@ -273,6 +317,89 @@ function PropertyFormBody() {
                     setDescription(e.target.value);
                   }}
                   placeholder="Descreva o imóvel para o anúncio…"
+                />
+              </Stack>
+            </Card>
+
+            <Card title="Endereço" padless>
+              <Stack gap={4} style={{ padding: 20 }}>
+                <AddressSearch
+                  onPick={(address) => {
+                    const fields = structuredAddressToFields(address);
+                    setStreet(fields.street);
+                    setNumber(fields.number);
+                    setNeighborhood(fields.neighborhood);
+                    setCity(fields.city);
+                    setState(fields.state);
+                    setZipCode(fields.zipCode);
+                    setCountry(fields.country);
+                    setCoords({ lat: address.lat, lng: address.lng });
+                  }}
+                />
+                <div className="peg-grid cols-3">
+                  <Input
+                    label="Rua"
+                    optional
+                    value={street}
+                    onChange={(e) => {
+                      setStreet(e.target.value);
+                    }}
+                    placeholder="Av. Paulista"
+                  />
+                  <Input
+                    label="Número"
+                    optional
+                    value={number}
+                    onChange={(e) => {
+                      setNumber(e.target.value);
+                    }}
+                  />
+                  <Input
+                    label="Bairro"
+                    optional
+                    value={neighborhood}
+                    onChange={(e) => {
+                      setNeighborhood(e.target.value);
+                    }}
+                  />
+                </div>
+                <div className="peg-grid cols-3">
+                  <Input
+                    label="Cidade"
+                    optional
+                    value={city}
+                    onChange={(e) => {
+                      setCity(e.target.value);
+                    }}
+                  />
+                  <Input
+                    label="Estado (UF)"
+                    optional
+                    value={state}
+                    onChange={(e) => {
+                      setState(e.target.value);
+                    }}
+                    maxLength={2}
+                    placeholder="SP"
+                  />
+                  <Input
+                    label="CEP"
+                    optional
+                    value={zipCode}
+                    onChange={(e) => {
+                      setZipCode(e.target.value);
+                    }}
+                    placeholder="00000-000"
+                  />
+                </div>
+                <Input
+                  label="País"
+                  optional
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                  }}
+                  placeholder="Brasil"
                 />
               </Stack>
             </Card>
