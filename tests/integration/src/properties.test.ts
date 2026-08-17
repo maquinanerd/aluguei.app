@@ -354,4 +354,54 @@ describe('Fase 03: Properties + Listings', () => {
     });
     expect(confirmBig.statusCode).toBe(400);
   });
+
+  it('owners após mídia não quebra a serialização do DTO (regression bug Date→string)', async () => {
+    // Bug 2026-08-17: POST /properties/:id/owners retornava 400
+    // "createdAt: Invalid input: expected string, received Date" quando o imóvel
+    // possuía mídia — Drizzle entrega Date no PG real e o DTO vazava o tipo.
+    const { cookie, propertyId } = await createOwnerAndProperty();
+
+    const uploadUrl = await app.inject({
+      method: 'POST',
+      url: `/properties/${propertyId}/media/upload-url`,
+      headers: { cookie },
+      payload: { kind: 'PHOTO', mimeType: 'image/jpeg', sizeBytes: 2048 },
+    });
+    expect(uploadUrl.statusCode).toBe(200);
+    const { key } = uploadUrl.json() as UploadUrlBody;
+    fakeStorage.markUploaded(key, 2048);
+    const confirm = await app.inject({
+      method: 'POST',
+      url: `/properties/${propertyId}/media/confirm`,
+      headers: { cookie },
+      payload: { key },
+    });
+    expect(confirm.statusCode).toBe(201);
+
+    const party = await app.inject({
+      method: 'POST',
+      url: '/parties',
+      headers: { cookie },
+      payload: {
+        type: 'PERSON',
+        name: 'Proprietária Regression',
+        identities: [{ kind: 'CPF', value: '39053344705' }],
+      },
+    });
+    const ownerId = (party.json() as { party: { id: string } }).party.id;
+
+    const owners = await app.inject({
+      method: 'POST',
+      url: `/properties/${propertyId}/owners`,
+      headers: { cookie },
+      payload: { partyId: ownerId },
+    });
+    expect(owners.statusCode).toBe(201);
+    const body = owners.json() as {
+      property: { media: Array<{ createdAt: string }>; createdAt: string };
+    };
+    expect(body.property.media).toHaveLength(1);
+    expect(typeof body.property.media[0]?.createdAt).toBe('string');
+    expect(typeof body.property.createdAt).toBe('string');
+  });
 });
