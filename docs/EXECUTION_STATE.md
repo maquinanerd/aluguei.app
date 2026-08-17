@@ -1,11 +1,11 @@
 ﻿# Estado da execução autônoma
 
-- current_phase: 17 (mobile field operation MVP)
-- status: GREEN (fases 01-16 + mobile field operation MVP concluídas)
-- last_completed_phase: 17 mobile field operation MVP (Expo) — cliente HTTP com sessão (Set-Cookie → Cookie+Bearer, ADR-036), router por estado no App.tsx (login/agenda/visit-detail/inspection/inspection-review), agenda = visitas SCHEDULED+CONFIRMED (schema visits não tem OPEN; status=OPEN daria 400), fluxo de vistoria (rooms, observações, CAPTURING→PROCESSING→COMPLETED com 409 da máquina de estado exposta, review com sugestões IA), tokens PEG/brand locais, a11y (roles/labels), estados loading/empty/error/permission/retry, teste vitest do api client (5). ADR-036.
-- last_commit: fase 13 (visual-fidelity-v3) — workspace com WIP de outros agentes (asaas/places/clicksign/serasa untracked)
-- blockers_external: 0 (12 IMPLEMENTED_NOT_LIVE_VERIFIED em docs/BLOCKERS.md + 2 high tooling Expo sem fix em docs/THREAT_MODEL.md + Playwright/screenshots de mockup ausentes — gap de tooling registrado em docs/frontend/generated/VISUAL_FIDELITY_AUDIT_V2.md; comparação V3 via Chrome headless + CDP com medição real)
-- tests: passing (integrations 154 — inclui ai/inspection-ai 38; typecheck/lint do pacote integrations verdes; integration 79 PGlite; WhatsApp 17; mobile 5)
+- current_phase: 18 (Production Readiness — estabilização + integrações reais + homologação)
+- status: GREEN (fases 01-17 + ciclo de production readiness concluídas — ver docs/production-readiness/FINAL_READINESS_REPORT.md)
+- last_completed_phase: 18 Production Readiness Autopilot — core estável (bug owners+mídia corrigido com controle negativo), gates verdes (format/lint/typecheck/test/build/secret-scan; `pnpm audit --prod` 2 high image-size NO_FIX_AVAILABLE documentado), webhooks com assinatura/token (HMAC WhatsApp/Meta, Bearer Signature, token Asaas, todos constant-time, prod exige secret), env tipado (PAYMENT_PROVIDER/SCREENING_PROVIDER/SIGNATURE_PROVIDER no zod), adapters reais implementados: Asaas (v3), Clicksign (v3), Meta Graph (v25.0), WhatsApp (v25.0), Serasa (esqueleto BLOCKED_PROVIDER_CONTRACT), Google Places+Geocoding (com consumidor no cadastro), Storage (presign GET+limits), IA OpenAI/Gemini (fallback determinístico); E2E Playwright 3/3; contract tests 10/10; mobile field-ops MVP; docs de homologação por provider em docs/integrations/; INTEGRATION_STATUS.md, OPS_RUNBOOKS.md, PILOT_PLAN.md e FINAL_READINESS_REPORT.md em docs/production-readiness/
+- last_commit: production readiness cycle (fases 0-18)
+- blockers_external: 0 (veredito HOMOLOGATION_READY — ativação real depende de credenciais/contratos externos; 2 high tooling Expo image-size NO_FIX_AVAILABLE)
+- tests: passing (turbo 23 tasks — domain 96, contracts 7+10 contract tests, integrations 154, storage 8, api 5, worker 9, meta-mcp 7, web 10, mobile 5, ui 6, observability 4, config 4; integration PGlite 93; E2E Playwright 3/3)
 - updated_at: 2026-08-17
 
 ## Fases
