@@ -8,7 +8,7 @@ import { requirePermission } from '../plugins/authz.js';
  * Nunca bloqueia o cadastro manual: se `app.places` for null (produÃ§Ã£o sem
  * chave), retorna 503 com cÃ³digo claro para a UI cair no modo manual.
  */
-export const placesRoutes: FastifyPluginAsync = async (app) => {
+export const placesRoutes: FastifyPluginAsync = (app) => {
   app.post(
     '/places/autocomplete',
     { onRequest: [requirePermission('property:write')] },
@@ -32,9 +32,11 @@ export const placesRoutes: FastifyPluginAsync = async (app) => {
       }
       const address = await app.places.placeDetails(placeId);
       if (!address) {
-        throw new DomainError('NOT_FOUND', 'EndereÃ§o nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Endereço não encontrado');
       }
       return { address };
     },
   );
+
+  return Promise.resolve();
 };

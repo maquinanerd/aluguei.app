@@ -12,6 +12,7 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/drizzle/**',
       '**/next-env.d.ts',
+      'tests/e2e/scripts/**',
     ],
   },
   js.configs.recommended,
