@@ -13,29 +13,29 @@
 
 ## Baseline dos gates (2026-08-17)
 
-| GATE | RESULTADO | OBSERVAÇÃO |
-|---|---|---|
-| FORMAT (`pnpm format:check`) | ❌ FAIL (147 arquivos) | Prettier não era executado desde o V3; inclui novos arquivos. Fix na Fase 2. |
-| LINT (`pnpm lint`) | ✅ PASS (26 tasks) | 0 erros |
-| TYPECHECK (`pnpm typecheck`) | ✅ PASS (26 tasks) | 0 erros |
-| TEST (turbo) | ✅ PASS | domain 96, contracts 7, integrations 21, storage 5, config 4, observability 4, ui 6, web 6, api 1, worker 9, meta-mcp 7, integration 79 |
-| INTEGRATION (fresca) | ✅ 79/79 | 16 arquivos (antes das correções desta sessão) |
-| BUILD (`pnpm build`) | ✅ PASS (12 tasks) | — |
-| SECRET SCAN | ✅ PASS | nenhum segredo |
-| SECURITY AUDIT (`pnpm audit --prod`) | ❌ FAIL — exit 1 | 2 high (`image-size`) |
+| GATE                                 | RESULTADO              | OBSERVAÇÃO                                                                                                                              |
+| ------------------------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| FORMAT (`pnpm format:check`)         | ❌ FAIL (147 arquivos) | Prettier não era executado desde o V3; inclui novos arquivos. Fix na Fase 2.                                                            |
+| LINT (`pnpm lint`)                   | ✅ PASS (26 tasks)     | 0 erros                                                                                                                                 |
+| TYPECHECK (`pnpm typecheck`)         | ✅ PASS (26 tasks)     | 0 erros                                                                                                                                 |
+| TEST (turbo)                         | ✅ PASS                | domain 96, contracts 7, integrations 21, storage 5, config 4, observability 4, ui 6, web 6, api 1, worker 9, meta-mcp 7, integration 79 |
+| INTEGRATION (fresca)                 | ✅ 79/79               | 16 arquivos (antes das correções desta sessão)                                                                                          |
+| BUILD (`pnpm build`)                 | ✅ PASS (12 tasks)     | —                                                                                                                                       |
+| SECRET SCAN                          | ✅ PASS                | nenhum segredo                                                                                                                          |
+| SECURITY AUDIT (`pnpm audit --prod`) | ❌ FAIL — exit 1       | 2 high (`image-size`)                                                                                                                   |
 
 ## Análise das 2 vulnerabilidades HIGH (Fase 2)
 
-| Atributo | Valor |
-|---|---|
-| Pacote | `image-size@1.2.1` (latest publicada: 2.0.2) |
-| Advisories | GHSA-w3rx-r6r6-pgpr (ICNS loop infinito), GHSA-5p2g-fcmc-qvqq (JXL/HEIF loop infinito) |
-| Vulnerável | `<=2.0.2` · Patched | `>=2.0.3` — **versão 2.0.3 NÃO existe no npm** (verificado via `npm view image-size versions`) |
-| DIRECT/TRANSITIVE | **TRANSITIVE** (via `metro@0.84.4` ← expo/react-native, exclusivamente em `apps/mobile`) |
-| DEV_ONLY | Sim — metro é o bundler do mobile (build/dev); não é servido em runtime (API/web/worker) |
+| Atributo             | Valor                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pacote               | `image-size@1.2.1` (latest publicada: 2.0.2)                                                                                                                                     |
+| Advisories           | GHSA-w3rx-r6r6-pgpr (ICNS loop infinito), GHSA-5p2g-fcmc-qvqq (JXL/HEIF loop infinito)                                                                                           |
+| Vulnerável           | `<=2.0.2` · Patched                                                                                                                                                              | `>=2.0.3` — **versão 2.0.3 NÃO existe no npm** (verificado via `npm view image-size versions`) |
+| DIRECT/TRANSITIVE    | **TRANSITIVE** (via `metro@0.84.4` ← expo/react-native, exclusivamente em `apps/mobile`)                                                                                         |
+| DEV_ONLY             | Sim — metro é o bundler do mobile (build/dev); não é servido em runtime (API/web/worker)                                                                                         |
 | PRODUCTION_REACHABLE | **Não** para superfícies de runtime do produto (API, web, worker). Apenas cenário de supply-chain/build local (imagem maliciosa processada pelo bundler durante um build mobile) |
-| FIX_AVAILABLE | **NO_FIX_AVAILABLE** — patched 2.0.3 não publicado; 2.0.2 ainda vulnerável; override para versão inexistente quebraria a instalação |
-| Ação | Documentar + aceitação temporária (monitorar lançamento de 2.0.3 e atualizar assim que existir) |
+| FIX_AVAILABLE        | **NO_FIX_AVAILABLE** — patched 2.0.3 não publicado; 2.0.2 ainda vulnerável; override para versão inexistente quebraria a instalação                                              |
+| Ação                 | Documentar + aceitação temporária (monitorar lançamento de 2.0.3 e atualizar assim que existir)                                                                                  |
 
 Decisão: **não** adicionar `auditConfig`/ignore sem justificativa — o risco fica registrado em `docs/production-readiness/` e monitorado. O gate `pnpm security:audit` permanecerá com exit 1 até o patch existir, com justificativa documentada.
 

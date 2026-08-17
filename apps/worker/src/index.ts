@@ -59,6 +59,9 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
   if (env.META_ACCESS_TOKEN) {
     metaAdsOptions.accessToken = env.META_ACCESS_TOKEN;
   }
+  if (env.META_AD_ACCOUNT_ID) {
+    metaAdsOptions.adAccountId = env.META_AD_ACCOUNT_ID;
+  }
   const metaAds = getMetaAdsProvider(metaAdsOptions);
 
   const [channels, inbox, metaJobs] = await Promise.all([

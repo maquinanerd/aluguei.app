@@ -43,6 +43,16 @@ export class FakeStorageService implements StorageService {
     });
   }
 
+  getPresignedDownloadUrl(input: {
+    key: string;
+    expiresInSeconds?: number;
+  }): Promise<{ url: string; expiresIn: number }> {
+    return Promise.resolve({
+      url: `https://fake-storage.example/${input.key}`,
+      expiresIn: input.expiresInSeconds ?? 300,
+    });
+  }
+
   /** Simula a conclusão do upload direto (size passa a existir para o headObject). */
   markUploaded(key: string, size: number): void {
     const object = this.objects.get(key);

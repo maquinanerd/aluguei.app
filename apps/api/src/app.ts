@@ -239,6 +239,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.signature) {
     signatureOptions.signature = opts.signature;
   }
+  if (env.SIGNATURE_PROVIDER) {
+    signatureOptions.provider = env.SIGNATURE_PROVIDER;
+  }
   if (env.CLICKSIGN_API_TOKEN) {
     signatureOptions.token = env.CLICKSIGN_API_TOKEN;
   }
@@ -250,8 +253,14 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.payments) {
     paymentsOptions.payments = opts.payments;
   }
+  if (env.PAYMENT_PROVIDER) {
+    paymentsOptions.provider = env.PAYMENT_PROVIDER;
+  }
   if (env.ASAAS_API_KEY) {
     paymentsOptions.apiKey = env.ASAAS_API_KEY;
+  }
+  if (env.ASAAS_ENV) {
+    paymentsOptions.env = env.ASAAS_ENV;
   }
   await app.register(paymentsPlugin, paymentsOptions);
 
@@ -264,6 +273,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   if (env.META_ACCESS_TOKEN) {
     metaOptions.accessToken = env.META_ACCESS_TOKEN;
+  }
+  if (env.META_AD_ACCOUNT_ID) {
+    metaOptions.adAccountId = env.META_AD_ACCOUNT_ID;
   }
   await app.register(metaPlugin, metaOptions);
 

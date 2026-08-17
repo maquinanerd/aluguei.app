@@ -11,6 +11,7 @@ declare module 'fastify' {
 export interface MetaPluginOptions {
   mode?: string; // dry_run | live
   accessToken?: string;
+  adAccountId?: string;
   meta?: IMetaAdsProvider;
 }
 
@@ -25,6 +26,9 @@ export const metaPlugin = fp<MetaPluginOptions>((app, opts) => {
   }
   if (opts.accessToken) {
     options.accessToken = opts.accessToken;
+  }
+  if (opts.adAccountId) {
+    options.adAccountId = opts.adAccountId;
   }
   app.decorate('metaAds', getMetaAdsProvider(options));
 });

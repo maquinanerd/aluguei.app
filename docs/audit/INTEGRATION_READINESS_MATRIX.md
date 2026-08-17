@@ -23,11 +23,11 @@
 
 ### WhatsApp
 
-- Interface `WhatsAppMessenger`; adapters: `MetaWhatsAppAdapter` (REST Graph v21.0, timeout 10s) e `FakeWhatsAppMessenger`.
+- Interface `WhatsAppMessenger`; adapters: `MetaWhatsAppAdapter` (REST Graph v25.0 — default atualizado na auditoria de 17/08/2026 —, timeout 10s, `sendTemplateMessage`, `testConnection`, erro tipado `WhatsAppProviderError`) e `FakeWhatsAppMessenger`.
 - Registry: live+creds → Meta; live sem creds → null (nunca fake em prod); dry_run → fake.
 - Webhook: GET verify token; POST X-Hub-Signature-256 (exigido **somente** com `META_APP_SECRET` — gap para prod).
 - HTTP provado: verify 403 inválido; POST 200 → worker → conversa (2 msgs), intenção, handoff.
-- Faltam: credenciais, templates, validação real do status de conexão.
+- Faltam: credenciais/WABA/número, templates aprovados, validação real do status de conexão (ver `docs/integrations/WHATSAPP_HOMOLOGATION.md`).
 
 ### Google Maps
 

@@ -11,10 +11,11 @@ declare module 'fastify' {
 export interface PaymentsPluginOptions {
   provider?: string;
   apiKey?: string;
+  env?: 'sandbox' | 'production';
   payments?: IPaymentProvider;
 }
 
-/** Registra `app.payments` (FAKE em dev/test; ASAAS sem chave → null). */
+/** Registra `app.payments` (FAKE em dev/test; ASAAS sem chave é null). */
 export const paymentsPlugin = fp<PaymentsPluginOptions>((app, opts) => {
   const options: Parameters<typeof getPaymentProvider>[0] = {};
   if (opts.payments) {
@@ -25,6 +26,9 @@ export const paymentsPlugin = fp<PaymentsPluginOptions>((app, opts) => {
   }
   if (opts.apiKey) {
     options.apiKey = opts.apiKey;
+  }
+  if (opts.env) {
+    options.env = opts.env;
   }
   app.decorate('payments', getPaymentProvider(options));
 });

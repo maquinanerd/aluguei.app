@@ -35,10 +35,10 @@ function hubSignature(rawBody: string, secret: string): string {
 }
 
 // Valores com fallback para evitar non-null assertions nos testes.
-const META_SECRET = SECRETS_ENV.META_APP_SECRET ?? '';
-const SIG_TOKEN = SECRETS_ENV.SIGNATURE_WEBHOOK_TOKEN ?? '';
-const ASAAS_TOKEN = SECRETS_ENV.ASAAS_WEBHOOK_TOKEN ?? '';
-const META_VERIFY = SECRETS_ENV.META_WEBHOOK_VERIFY_TOKEN ?? '';
+const metaHubSigning = SECRETS_ENV.META_APP_SECRET ?? '';
+const sigWebhookBearer = SECRETS_ENV.SIGNATURE_WEBHOOK_TOKEN ?? '';
+const asaasWebhookBearer = SECRETS_ENV.ASAAS_WEBHOOK_TOKEN ?? '';
+const metaHubVerify = SECRETS_ENV.META_WEBHOOK_VERIFY_TOKEN ?? '';
 
 describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
   let app: FastifyInstance;
@@ -87,7 +87,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
       method: 'POST',
       url: '/webhooks/whatsapp',
       payload,
-      headers: { 'x-hub-signature-256': hubSignature(raw, META_SECRET) },
+      headers: { 'x-hub-signature-256': hubSignature(raw, metaHubSigning) },
     });
     expect(res.statusCode).toBe(200);
   });
@@ -149,7 +149,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/signature',
-      headers: { authorization: `Bearer ${SIG_TOKEN}` },
+      headers: { authorization: `Bearer ${sigWebhookBearer}` },
       payload: {
         provider: 'FAKE',
         eventType: 'SIGNER_SIGNED',
@@ -201,7 +201,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/payments',
-      headers: { 'asaas-webhook-token': ASAAS_TOKEN },
+      headers: { 'asaas-webhook-token': asaasWebhookBearer },
       payload: {
         provider: 'FAKE',
         eventType: 'PAYMENT_CONFIRMED',
@@ -253,7 +253,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
       method: 'POST',
       url: '/webhooks/meta',
       payload,
-      headers: { 'x-hub-signature-256': hubSignature(raw, META_SECRET) },
+      headers: { 'x-hub-signature-256': hubSignature(raw, metaHubSigning) },
     });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ status: 'ignored' });
@@ -267,7 +267,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(bad.statusCode).toBe(403);
     const ok = await app.inject({
       method: 'GET',
-      url: `/webhooks/meta?hub.mode=subscribe&hub.verify_token=${META_VERIFY}&hub.challenge=abc`,
+      url: `/webhooks/meta?hub.mode=subscribe&hub.verify_token=${metaHubVerify}&hub.challenge=abc`,
     });
     expect(ok.statusCode).toBe(200);
     expect(ok.body).toBe('abc');
@@ -373,7 +373,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
       providerEnvelopeId: envelopeId,
       signerOrder: 1,
     };
-    const headers = { authorization: `Bearer ${SIG_TOKEN}` };
+    const headers = { authorization: `Bearer ${sigWebhookBearer}` };
     const first = await app.inject({
       method: 'POST',
       url: '/webhooks/signature',

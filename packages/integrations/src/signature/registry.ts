@@ -1,3 +1,4 @@
+import { ClicksignSignatureProvider } from './clicksign.js';
 import { FakeSignatureProvider } from './fake.js';
 import type { ISignatureProvider } from './types.js';
 
@@ -9,7 +10,10 @@ export interface SignatureRegistryOptions {
 
 /**
  * Seleciona o provider de assinatura: override injetado > FAKE (dev/test).
- * Produção sem token → null (nunca assinatura fake em prod — 400 "não configurado").
+ * CLICKSIGN com token → adapter real (IMPLEMENTED_NOT_LIVE_VERIFIED — requer
+ * conta sandbox/homologação para efeito real). Produção sem token é null
+ * (nunca assinatura fake em prod — 400 "não configurado").
+ * D4SIGN permanece registrado sem adapter até contrato/documentação.
  */
 export function getSignatureProvider(
   opts: SignatureRegistryOptions = {},
@@ -20,9 +24,8 @@ export function getSignatureProvider(
   if (opts.provider === 'FAKE') {
     return new FakeSignatureProvider();
   }
-  if ((opts.provider === 'CLICKSIGN' || opts.provider === 'D4SIGN') && opts.token) {
-    // Adapters reais exigem documentação/contrato — registrados sem adapter até lá.
-    return null;
+  if (opts.provider === 'CLICKSIGN' && opts.token) {
+    return new ClicksignSignatureProvider({ token: opts.token });
   }
   return null;
 }

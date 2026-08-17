@@ -1,4 +1,4 @@
-export { S3StorageAdapter } from './s3.adapter.js';
+export { S3StorageAdapter, StorageSizeLimitError } from './s3.adapter.js';
 export type { S3StorageAdapterOptions } from './s3.adapter.js';
 export type {
   StorageService,
@@ -7,4 +7,6 @@ export type {
   StorageObjectHead,
   PresignedPutOptions,
   PresignedPutResult,
+  PresignedGetOptions,
+  PresignedGetResult,
 } from './types.js';

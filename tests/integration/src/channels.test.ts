@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { AppDb } from '@aluguei/db';
-import { channelSyncJobs, listingChannelPublications } from '@aluguei/db';
-import { eq } from 'drizzle-orm';
+import { channelSyncJobs, listingChannelPublications, partyConsents } from '@aluguei/db';
+import { and, eq } from 'drizzle-orm';
 import { runChannelJobs } from '@aluguei/worker/channel-jobs';
 import { buildTestApp, fakeChannel, registerUser } from './helpers.js';
 
@@ -168,8 +168,15 @@ describe('Fase 04: Channel Distribution', () => {
     expect(rows[0]?.status).toBe('REMOVED');
   });
 
-  it('import-leads cria party+lead e re-import não duplica party', async () => {
-    const { cookie } = await registerUser(app);
+  it('import-leads cria party+consentimento LEAD_IMPORT e re-import não duplica', async () => {
+    const { cookie, body } = await registerUser(app);
+    const orgId = body.org.id;
+    const countConsents = async () =>
+      (app.db as AppDb)
+        .select()
+        .from(partyConsents)
+        .where(and(eq(partyConsents.orgId, orgId), eq(partyConsents.purpose, 'LEAD_IMPORT')));
+
     const trigger = await app.inject({
       method: 'POST',
       url: '/channels/fake/import-leads',
@@ -186,6 +193,14 @@ describe('Fase 04: Channel Distribution', () => {
     const leads = await app.inject({ method: 'GET', url: '/leads', headers: { cookie } });
     expect(leads.statusCode).toBe(200);
     expect((leads.json() as { leads: unknown[] }).leads.length).toBeGreaterThan(0);
+
+    // LGPD: cada party importada ganhou consentimento LEAD_IMPORT com grantedAt.
+    const consents = await countConsents();
+    expect(consents.length).toBeGreaterThan(0);
+    for (const consent of consents) {
+      expect(consent.revokedAt).toBeNull();
+      expect(consent.grantedAt.getTime()).toBeGreaterThan(0);
+    }
 
     // Re-import: mesmos referenceIds → mesma party (dedupe), leads podem crescer mas party não.
     await app.inject({
@@ -207,6 +222,9 @@ describe('Fase 04: Channel Distribution', () => {
       p.identities.filter((i) => i.kind === 'EMAIL').map((i) => i.value),
     );
     expect(new Set(emails).size).toBe(emails.length); // sem emails duplicados
+
+    // Consentimento não duplica no re-import (idempotente por party+purpose).
+    expect((await countConsents()).length).toBe(consents.length);
   });
 
   it('canal real sem adapter → 404 (nunca inventar endpoints)', async () => {

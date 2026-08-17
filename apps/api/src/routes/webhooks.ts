@@ -279,21 +279,23 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const input = paymentWebhookEventSchema.parse(request.body);
       // Autenticidade (P1): quando ASAAS_WEBHOOK_TOKEN está configurado, o
-      // provider real envia o token no header `asaas-webhook-token` (comparação
-      // em tempo constante). Em dev (provider FAKE sem token), a segurança vem
-      // da confirmação no provider feita pelo worker.
+      // provider real envia o token no header. A doc oficial vigente usa
+      // `asaas-access-token`; versões históricas do produto usavam
+      // `asaas-webhook-token` — ambos aceitos (comparação em tempo constante).
+      // Em dev (provider FAKE sem token), a segurança vem da confirmação no
+      // provider feita pelo worker.
       const expectedToken = app.env.ASAAS_WEBHOOK_TOKEN;
-      if (
-        expectedToken &&
-        !isValidSharedToken(
+      if (expectedToken) {
+        const header =
           typeof request.headers['asaas-webhook-token'] === 'string'
             ? (request.headers['asaas-webhook-token'] as string)
-            : undefined,
-          expectedToken,
-        )
-      ) {
-        app.log.warn('payments webhook: token inválido');
-        return reply.status(401).send({ error: 'Unauthorized' });
+            : typeof request.headers['asaas-access-token'] === 'string'
+              ? (request.headers['asaas-access-token'] as string)
+              : undefined;
+        if (!isValidSharedToken(header, expectedToken)) {
+          app.log.warn('payments webhook: token inválido');
+          return reply.status(401).send({ error: 'Unauthorized' });
+        }
       }
       // Resolve org por provider_charge_id (não confia em org_id do payload).
       const [charge] = await db

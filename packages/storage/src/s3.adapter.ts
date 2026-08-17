@@ -7,6 +7,8 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type {
+  PresignedGetOptions,
+  PresignedGetResult,
   PresignedPutOptions,
   PresignedPutResult,
   StorageObjectHead,
@@ -22,15 +24,32 @@ export interface S3StorageAdapterOptions {
   endpoint?: string;
   region?: string;
   credentials?: { accessKeyId: string; secretAccessKey: string };
+  /** Limite de bytes para `putObject` no servidor (upload direto presign NÃO passa por aqui). */
+  maxSizeBytes?: number;
+}
+
+/** Upload direto excede o limite configurado. */
+export class StorageSizeLimitError extends Error {
+  readonly size: number;
+  readonly limit: number;
+
+  constructor(size: number, limit: number) {
+    super(`objeto com ${String(size)} bytes excede o limite de ${String(limit)} bytes`);
+    this.name = 'StorageSizeLimitError';
+    this.size = size;
+    this.limit = limit;
+  }
 }
 
 /** Adapter S3-compatible (AWS S3, Cloudflare R2, MinIO, etc.). Credenciais nunca são hardcoded. */
 export class S3StorageAdapter implements StorageService {
   private readonly client: S3Client;
   private readonly bucket: string;
+  private readonly maxSizeBytes: number | undefined;
 
   constructor(opts: S3StorageAdapterOptions) {
     this.bucket = opts.bucket;
+    this.maxSizeBytes = opts.maxSizeBytes;
     if (opts.client) {
       this.client = opts.client;
       return;
@@ -50,6 +69,10 @@ export class S3StorageAdapter implements StorageService {
     body: Buffer | Uint8Array;
     contentType?: string;
   }): Promise<StoragePutResult> {
+    const size = input.body.byteLength;
+    if (this.maxSizeBytes !== undefined && size > this.maxSizeBytes) {
+      throw new StorageSizeLimitError(size, this.maxSizeBytes);
+    }
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
@@ -58,7 +81,7 @@ export class S3StorageAdapter implements StorageService {
         ContentType: input.contentType,
       }),
     );
-    return { key: input.key, size: input.body.byteLength };
+    return { key: input.key, size };
   }
 
   async getObject(key: string): Promise<Buffer | null> {
@@ -109,6 +132,14 @@ export class S3StorageAdapter implements StorageService {
       Key: input.key,
       ContentType: input.contentType,
     });
+    const url = await getSignedUrl(this.client, command, { expiresIn });
+    return { url, expiresIn };
+  }
+
+  /** URL pré-assinada GET (download direto) com expiração configurável. */
+  async getPresignedDownloadUrl(input: PresignedGetOptions): Promise<PresignedGetResult> {
+    const expiresIn = input.expiresInSeconds ?? 300;
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: input.key });
     const url = await getSignedUrl(this.client, command, { expiresIn });
     return { url, expiresIn };
   }

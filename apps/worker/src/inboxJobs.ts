@@ -148,12 +148,23 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
   const inspectionAi = opts.inspectionAi ?? getInspectionAiProvider({});
   const screeningProvider =
     opts.screening ??
-    getScreeningProvider({
-      provider:
-        env?.SCREENING_PROVIDER ??
-        process.env.SCREENING_PROVIDER ??
-        (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
-    });
+    (() => {
+      const options: Parameters<typeof getScreeningProvider>[0] = {
+        provider:
+          env?.SCREENING_PROVIDER ??
+          process.env.SCREENING_PROVIDER ??
+          (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
+      };
+      const clientId = env?.SERASA_CLIENT_ID ?? process.env.SERASA_CLIENT_ID;
+      const clientSecret = env?.SERASA_CLIENT_SECRET ?? process.env.SERASA_CLIENT_SECRET;
+      if (clientId) {
+        options.clientId = clientId;
+      }
+      if (clientSecret) {
+        options.clientSecret = clientSecret;
+      }
+      return getScreeningProvider(options);
+    })();
   const approveScoreMin =
     opts.screeningApproveScoreMin ??
     ((env?.SCREENING_APPROVE_SCORE_MIN ?? process.env.SCREENING_APPROVE_SCORE_MIN)

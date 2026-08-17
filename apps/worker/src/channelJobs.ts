@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import {
   channelSyncJobs,
@@ -7,6 +7,7 @@ import {
   listings,
   listingChannelPublications,
   parties,
+  partyConsents,
   partyIdentities,
   timelineEvents,
 } from '@aluguei/db';
@@ -151,6 +152,43 @@ async function markJobFailed(db: AppDb, jobId: string, error: string): Promise<v
   );
 }
 
+/**
+ * Consentimento LGPD no import de lead (finalidade LEAD_IMPORT).
+ * - purpose é texto livre no schema (packages/db/src/schema/crm.ts) — o único
+ *   purpose usado até então era CREDIT_SCREENING (contrato z.literal na rota);
+ *   aqui registramos LEAD_IMPORT sem alterar migrations.
+ * - consentido_em = grantedAt: usa lead.receivedAt (momento em que o titular
+ *   enviou os dados pelo canal), com fallback para agora se inválido.
+ * - origem (canal) não tem coluna própria em party_consents: fica registrada
+ *   na coluna channel do lead e no payload do timeline LEAD_CREATED.
+ * - Idempotente: não duplica consentimento ativo (party, purpose).
+ */
+async function ensureLeadImportConsent(
+  db: AppDb,
+  orgId: string,
+  partyId: string,
+  lead: ChannelLeadInput,
+): Promise<void> {
+  const [existing] = await db
+    .select({ id: partyConsents.id })
+    .from(partyConsents)
+    .where(
+      and(
+        eq(partyConsents.orgId, orgId),
+        eq(partyConsents.partyId, partyId),
+        eq(partyConsents.purpose, 'LEAD_IMPORT'),
+        isNull(partyConsents.revokedAt),
+      ),
+    )
+    .limit(1);
+  if (existing) {
+    return;
+  }
+  const receivedAt = new Date(lead.receivedAt);
+  const grantedAt = Number.isNaN(receivedAt.getTime()) ? new Date() : receivedAt;
+  await db.insert(partyConsents).values({ orgId, partyId, purpose: 'LEAD_IMPORT', grantedAt });
+}
+
 /** Importa leads do canal: dedupe party por identidade normalizada + cria lead. */
 async function importLead(
   db: AppDb,
@@ -207,6 +245,9 @@ async function importLead(
       })),
     );
   }
+
+  // LGPD: todo lead importado precisa de consentimento registrado (LEAD_IMPORT).
+  await ensureLeadImportConsent(db, orgId, partyId, lead);
 
   const [leadRow] = await db
     .insert(leads)
