@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
-import { visits } from '@aluguei/db';
+import { leads, parties, properties, visits } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import {
   createVisitRequestSchema,
@@ -11,7 +11,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 function toVisitDto(row: typeof visits.$inferSelect): unknown {
   return visitSchema.parse({
@@ -34,6 +34,11 @@ export const visitRoutes: FastifyPluginAsync = (app) => {
   app.post('/visits', { onRequest: [requirePermission('visit:write')] }, async (request, reply) => {
     const auth = requireAuth(request);
     const input = createVisitRequestSchema.parse(request.body);
+
+    // P0-05: lead/pessoa/imóvel precisam ser da própria organização.
+    await assertOwnedByOrg(db, leads, input.leadId, auth.orgId, 'Lead não encontrado');
+    await assertOwnedByOrg(db, parties, input.partyId, auth.orgId, 'Parte não encontrada');
+    await assertOwnedByOrg(db, properties, input.propertyId, auth.orgId, 'Imóvel não encontrado');
 
     const visit = first(
       await db

@@ -1,7 +1,8 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { tasks } from '@aluguei/db';
+import { leads, parties, properties, proposals, tasks, visits } from '@aluguei/db';
+import type { AppDb } from '@aluguei/db';
 import { AUDIT_ACTIONS, DomainError } from '@aluguei/domain';
 import {
   uuidSchema,
@@ -15,7 +16,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOrgMember, assertOwnedByOrg, first } from './helpers.js';
 
 function toTaskDto(row: typeof tasks.$inferSelect): unknown {
   return taskSchema.parse({
@@ -33,12 +34,71 @@ function toTaskDto(row: typeof tasks.$inferSelect): unknown {
   });
 }
 
+/** Entidades que uma tarefa pode referenciar (o id é sempre da própria org). */
+const TASK_RELATED_TABLES = {
+  LEAD: leads,
+  PARTY: parties,
+  PROPOSAL: proposals,
+  VISIT: visits,
+  PROPERTY: properties,
+} as const;
+
+type TaskRelatedType = keyof typeof TASK_RELATED_TABLES;
+
+function isTaskRelatedType(value: string): value is TaskRelatedType {
+  return Object.hasOwn(TASK_RELATED_TABLES, value);
+}
+
+/**
+ * P0-05: tipo e id andam juntos, o tipo precisa ser conhecido e o id precisa
+ * apontar para uma entidade da própria organização (id de outra org ou
+ * inexistente → mesmo 404).
+ */
+async function assertRelatedEntityOfOrg(
+  db: AppDb,
+  orgId: string,
+  relatedEntityType: string | undefined,
+  relatedEntityId: string | undefined,
+): Promise<void> {
+  if (relatedEntityType === undefined && relatedEntityId === undefined) {
+    return;
+  }
+  if (relatedEntityType === undefined || relatedEntityId === undefined) {
+    throw new DomainError(
+      'INVALID_INPUT',
+      'Informe relatedEntityType e relatedEntityId em conjunto',
+    );
+  }
+  if (!isTaskRelatedType(relatedEntityType)) {
+    throw new DomainError(
+      'INVALID_INPUT',
+      `Tipo de entidade relacionada inválido: ${relatedEntityType}`,
+    );
+  }
+  await assertOwnedByOrg(
+    db,
+    TASK_RELATED_TABLES[relatedEntityType],
+    relatedEntityId,
+    orgId,
+    'Entidade relacionada não encontrada',
+  );
+}
+
 export const taskRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
   app.post('/tasks', { onRequest: [requirePermission('task:write')] }, async (request, reply) => {
     const auth = requireAuth(request);
     const input = createTaskRequestSchema.parse(request.body);
+
+    // P0-05: responsável precisa ser membro da org; a entidade relacionada, da org.
+    await assertOrgMember(
+      db,
+      auth.orgId,
+      input.assigneeUserId,
+      'Usuário responsável não encontrado',
+    );
+    await assertRelatedEntityOfOrg(db, auth.orgId, input.relatedEntityType, input.relatedEntityId);
 
     const task = first(
       await db

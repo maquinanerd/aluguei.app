@@ -2,8 +2,11 @@ import { and, desc, eq, isNull } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
+  leads,
+  parties,
   partyConsents,
-  partyIdentities,
+  properties,
+  proposals,
   rentalApplications,
   screeningRequests,
   screeningResults,
@@ -34,7 +37,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 type AppRow = typeof rentalApplications.$inferSelect;
 
@@ -68,20 +71,13 @@ async function loadAggregate(db: AppDb, orgId: string, applicationId: string): P
   const [latestResult] = await db
     .select()
     .from(screeningResults)
-    .where(eq(screeningResults.applicationId, applicationId))
+    .where(
+      and(eq(screeningResults.applicationId, applicationId), eq(screeningResults.orgId, orgId)),
+    )
     .orderBy(desc(screeningResults.createdAt))
     .limit(1);
-  const [consent] = await db
-    .select()
-    .from(partyConsents)
-    .where(
-      and(
-        eq(partyConsents.partyId, application.partyId),
-        eq(partyConsents.purpose, 'CREDIT_SCREENING'),
-        isNull(partyConsents.revokedAt),
-      ),
-    )
-    .limit(1);
+  // P0-05: consentimento LGPD sempre filtrado pela org (nunca o de outra org).
+  const consent = await findActiveConsent(db, orgId, application.partyId);
   return rentalApplicationAggregateSchema.parse({
     application: toAppDto(application),
     latestScreeningResult: latestResult
@@ -132,6 +128,17 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createRentalApplicationRequestSchema.parse(request.body);
+      // P0-05: pessoa/imóvel/lead/proposta precisam ser da própria organização.
+      await assertOwnedByOrg(db, parties, input.partyId, auth.orgId, 'Parte não encontrada');
+      await assertOwnedByOrg(db, properties, input.propertyId, auth.orgId, 'Imóvel não encontrado');
+      await assertOwnedByOrg(db, leads, input.leadId, auth.orgId, 'Lead não encontrado');
+      await assertOwnedByOrg(
+        db,
+        proposals,
+        input.proposalId,
+        auth.orgId,
+        'Proposta não encontrada',
+      );
       const application = first(
         await db
           .insert(rentalApplications)
@@ -341,14 +348,7 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { partyId } = z.object({ partyId: uuidSchema }).parse(request.params);
       const input = createPartyConsentRequestSchema.parse(request.body);
-      const [party] = await db
-        .select()
-        .from(partyIdentities)
-        .where(and(eq(partyIdentities.partyId, partyId), eq(partyIdentities.orgId, auth.orgId)))
-        .limit(1);
-      if (!party) {
-        throw new DomainError('NOT_FOUND', 'Parte não encontrada');
-      }
+      await assertOwnedByOrg(db, parties, partyId, auth.orgId, 'Parte não encontrada');
       const existing = await findActiveConsent(db, auth.orgId, partyId);
       if (existing) {
         throw new DomainError('CONFLICT', 'Consentimento já ativo');
@@ -387,6 +387,8 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
     async (request) => {
       const auth = requireAuth(request);
       const { partyId } = z.object({ partyId: uuidSchema }).parse(request.params);
+      // P0-05: consentimento de pessoa de outra org nunca é listado (404).
+      await assertOwnedByOrg(db, parties, partyId, auth.orgId, 'Parte não encontrada');
       const rows = await db
         .select()
         .from(partyConsents)

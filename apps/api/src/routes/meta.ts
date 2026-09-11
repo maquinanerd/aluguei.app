@@ -47,7 +47,7 @@ import {
 import type { MetaAssetInfo } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertAllOwnedByOrg, assertOwnedByOrg, first } from './helpers.js';
 
 type ConnectionRow = typeof metaConnections.$inferSelect;
 
@@ -238,6 +238,34 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       if (!meta) {
         throw new DomainError('INVALID_INPUT', 'Meta Ads não configurado');
       }
+
+      // P0-05: conexão e ativos precisam ser da org (e o ativo, da mesma conexão).
+      await assertOwnedByOrg(
+        db,
+        metaConnections,
+        input.connectionId,
+        auth.orgId,
+        'Conexão não encontrada',
+      );
+      await assertOwnedByOrg(
+        db,
+        metaAssets,
+        input.pageAssetId,
+        auth.orgId,
+        'Página não encontrada',
+        and(eq(metaAssets.connectionId, input.connectionId), eq(metaAssets.kind, 'PAGE')),
+      );
+      await assertOwnedByOrg(
+        db,
+        metaAssets,
+        input.instagramAssetId,
+        auth.orgId,
+        'Conta do Instagram não encontrada',
+        and(
+          eq(metaAssets.connectionId, input.connectionId),
+          eq(metaAssets.kind, 'INSTAGRAM_ACCOUNT'),
+        ),
+      );
 
       const [property] = await db
         .select()
@@ -838,6 +866,25 @@ export const metaRoutes: FastifyPluginAsync = (app) => {
       if (!campaign) {
         throw new DomainError('NOT_FOUND', 'Campanha não encontrada');
       }
+      // P0-05: o criativo só referencia mídia pública do imóvel do próprio perfil.
+      const [profile] = await db
+        .select()
+        .from(metaAdProfiles)
+        .where(
+          and(eq(metaAdProfiles.id, campaign.adProfileId), eq(metaAdProfiles.orgId, auth.orgId)),
+        )
+        .limit(1);
+      if (!profile) {
+        throw new DomainError('NOT_FOUND', 'AdProfile não encontrado');
+      }
+      await assertAllOwnedByOrg(
+        db,
+        propertyMedia,
+        input.mediaSelection,
+        auth.orgId,
+        'Mídia não encontrada',
+        and(eq(propertyMedia.propertyId, profile.propertyId), eq(propertyMedia.isPublic, true)),
+      );
       const [adset] = await db
         .select()
         .from(metaAdsetLinks)
