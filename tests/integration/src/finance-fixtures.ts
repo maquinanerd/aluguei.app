@@ -89,7 +89,7 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       headers: opts.cookie ? { cookie: opts.cookie } : {},
       ...(opts.payload !== undefined ? { payload: opts.payload } : {}),
     });
-    let body: Json = {};
+    let body: Json;
     try {
       body = res.json() as Json;
     } catch {
