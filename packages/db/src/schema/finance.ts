@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import {
+  check,
   date,
   index,
   integer,
@@ -7,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -65,6 +68,8 @@ export const charges = pgTable(
     taxesCents: integer('taxes_cents').notNull().default(0),
     discountCents: integer('discount_cents').notNull().default(0),
     paidAt: timestamp('paid_at', { withTimezone: true }),
+    /** Tentativa que liquidou a cobrança (sem FK: payments já referencia charges). */
+    paidPaymentId: uuid('paid_payment_id'),
     providerChargeId: text('provider_charge_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -73,6 +78,14 @@ export const charges = pgTable(
     uniqueIndex('charges_lease_period_unique').on(t.leaseId, t.periodStart),
     index('charges_org_status_due_idx').on(t.orgId, t.status, t.dueDate),
     index('charges_org_provider_idx').on(t.orgId, t.providerChargeId),
+    // Um id de cobrança do provider aponta para uma única cobrança (P0-03).
+    uniqueIndex('charges_provider_charge_unique')
+      .on(t.providerChargeId)
+      .where(sql`${t.providerChargeId} is not null`),
+    check(
+      'charges_amounts_non_negative',
+      sql`${t.amountCents} >= 0 and ${t.rentCents} >= 0 and ${t.condoFeeCents} >= 0 and ${t.lateFeeCents} >= 0 and ${t.interestCents} >= 0 and ${t.taxesCents} >= 0 and ${t.discountCents} >= 0`,
+    ),
   ],
 );
 
@@ -88,14 +101,33 @@ export const payments = pgTable(
       .references(() => charges.id, { onDelete: 'cascade' }),
     amountCents: integer('amount_cents').notNull(),
     method: text('method').notNull(), // PIX | BOLETO | CREDIT_CARD | MANUAL
-    status: text('status').notNull().default('PENDING'), // PENDING | CONFIRMED | FAILED | REFUNDED
+    status: text('status').notNull().default('PENDING'), // PENDING | CONFIRMED | FAILED | CANCELLED | REFUNDED
+    provider: text('provider'), // FAKE | ASAAS — com provider_payment_id identifica a tentativa
     providerPaymentId: text('provider_payment_id'),
+    /** QR/boleto emitidos pelo provider: reemissão idempotente devolve os mesmos. */
+    pixQrCode: text('pix_qr_code'),
+    boletoUrl: text('boleto_url'),
     paidAt: timestamp('paid_at', { withTimezone: true }),
+    refundedAt: timestamp('refunded_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('payments_org_charge_idx').on(t.orgId, t.chargeId),
     index('payments_org_status_idx').on(t.orgId, t.status),
+    // O evento do provider resolve exatamente uma tentativa (P0-01/P0-02).
+    uniqueIndex('payments_provider_payment_unique')
+      .on(t.provider, t.providerPaymentId)
+      .where(sql`${t.providerPaymentId} is not null`),
+    // No máximo uma tentativa pendente por cobrança (P0-03: reemissão idempotente).
+    uniqueIndex('payments_charge_pending_unique')
+      .on(t.chargeId)
+      .where(sql`${t.status} = 'PENDING'`),
+    check('payments_amount_non_negative', sql`${t.amountCents} >= 0`),
+    check(
+      'payments_provider_required_with_id',
+      sql`${t.providerPaymentId} is null or ${t.provider} is not null`,
+    ),
   ],
 );
 
@@ -152,12 +184,17 @@ export const splitAllocations = pgTable(
     partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
     role: text('role').notNull(), // LANDLORD | AGENCY
     amountCents: integer('amount_cents').notNull(),
-    status: text('status').notNull().default('PENDING'), // PENDING | PAID | FAILED
+    status: text('status').notNull().default('PENDING'), // PENDING | PAID | FAILED | CANCELLED
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('split_allocations_org_payment_idx').on(t.orgId, t.paymentId),
     index('split_allocations_org_status_idx').on(t.orgId, t.status),
+    // Um split por pagamento/papel/parte — liquidação repetida não duplica (P0-01).
+    unique('split_allocations_payment_role_party_unique')
+      .on(t.paymentId, t.role, t.partyId)
+      .nullsNotDistinct(),
+    check('split_allocations_amount_non_negative', sql`${t.amountCents} >= 0`),
   ],
 );
 
@@ -169,8 +206,10 @@ export const payouts = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
+    /** Pagamento que originou o repasse (liquidação repetida não gera segundo repasse). */
+    paymentId: uuid('payment_id').references(() => payments.id, { onDelete: 'cascade' }),
     amountCents: integer('amount_cents').notNull(),
-    status: text('status').notNull().default('PENDING'), // PENDING | PAID | FAILED
+    status: text('status').notNull().default('PENDING'), // PENDING | PAID | FAILED | CANCELLED
     providerPayoutId: text('provider_payout_id'),
     paidAt: timestamp('paid_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -179,6 +218,11 @@ export const payouts = pgTable(
   (t) => [
     index('payouts_org_status_idx').on(t.orgId, t.status),
     index('payouts_org_party_idx').on(t.orgId, t.partyId),
+    // Um repasse por pagamento/parte (P0-01: duplo repasse).
+    uniqueIndex('payouts_payment_party_unique')
+      .on(t.paymentId, t.partyId)
+      .where(sql`${t.paymentId} is not null`),
+    check('payouts_amount_non_negative', sql`${t.amountCents} >= 0`),
   ],
 );
 
@@ -210,8 +254,10 @@ export const ledgerEntries = pgTable(
       .references(() => ledgerAccounts.id, { onDelete: 'cascade' }),
     amountCents: integer('amount_cents').notNull(), // DEBIT positivo / CREDIT negativo (soma por transaction_id = 0)
     entryType: text('entry_type').notNull(), // DEBIT | CREDIT
-    referenceType: text('reference_type').notNull(), // CHARGE | PAYMENT | PAYOUT | REFUND | RECONCILIATION
+    referenceType: text('reference_type').notNull(), // CHARGE | CHARGE_ADJUST | CHARGE_CANCEL | PAYMENT | PAYOUT | PAYOUT_REVERSAL | REFUND | RECONCILIATION
     referenceId: text('reference_id').notNull(),
+    /** Operação de negócio (ex.: PAYMENT:<id>): a mesma chave nunca lança duas vezes. */
+    businessKey: text('business_key'),
     description: text('description'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -219,6 +265,13 @@ export const ledgerEntries = pgTable(
     uniqueIndex('ledger_entries_transaction_account_unique').on(t.transactionId, t.accountId),
     index('ledger_entries_org_account_created_idx').on(t.orgId, t.accountId, t.createdAt),
     index('ledger_entries_org_reference_idx').on(t.orgId, t.referenceType, t.referenceId),
+    uniqueIndex('ledger_entries_org_business_key_account_unique')
+      .on(t.orgId, t.businessKey, t.accountId)
+      .where(sql`${t.businessKey} is not null`),
+    check(
+      'ledger_entries_sign_matches_type',
+      sql`(${t.entryType} = 'DEBIT' and ${t.amountCents} > 0) or (${t.entryType} = 'CREDIT' and ${t.amountCents} <= 0)`,
+    ),
   ],
 );
 
@@ -243,6 +296,21 @@ export const reconciliations = pgTable(
     index('reconciliations_org_provider_period_idx').on(t.orgId, t.provider, t.periodStart),
   ],
 );
+
+/**
+ * Estado do provider de pagamento FAKE (dev/E2E). API e worker são processos
+ * separados: com o estado em memória a stack integrada nunca liquidava um
+ * pagamento (auditoria 2026-09-10, P1-13). Nunca é usada com provider real.
+ */
+export const fakeProviderCharges = pgTable('fake_provider_charges', {
+  providerChargeId: text('provider_charge_id').primaryKey(),
+  amountCents: integer('amount_cents').notNull(),
+  dueDate: date('due_date', { mode: 'string' }).notNull(),
+  status: text('status').notNull().default('PENDING'), // PENDING | CONFIRMED | FAILED | REFUNDED
+  externalReference: text('external_reference'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const partyBankAccounts = pgTable(
   'party_bank_accounts',

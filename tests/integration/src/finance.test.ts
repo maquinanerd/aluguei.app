@@ -233,6 +233,10 @@ describe('Fase 08: Payments + Split + Ledger', () => {
     expect(paymentBody.payment.status).toBe('PENDING');
     expect(paymentBody.pixQrCode).toBeTruthy();
 
+    // O pagador quita a cobrança NO PROVIDER; o webhook só notifica — ele não
+    // confirma nada por si (auditoria 2026-09-10, P0-02).
+    await fakePayments.confirmCharge(paymentBody.providerChargeId);
+
     // Webhook PAYMENT_CONFIRMED
     await app.inject({
       method: 'POST',

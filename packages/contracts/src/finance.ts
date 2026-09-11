@@ -16,7 +16,13 @@ export const chargeStatusSchema = z.enum([
   'CANCELLED',
   'REFUNDED',
 ]);
-export const paymentStatusSchema = z.enum(['PENDING', 'CONFIRMED', 'FAILED', 'REFUNDED']);
+export const paymentStatusSchema = z.enum([
+  'PENDING',
+  'CONFIRMED',
+  'FAILED',
+  'CANCELLED',
+  'REFUNDED',
+]);
 export const paymentMethodSchema = z.enum(['PIX', 'BOLETO', 'CREDIT_CARD', 'MANUAL']);
 
 export const leaseSchema = z.object({
@@ -71,7 +77,7 @@ export const payoutSchema = z.object({
   orgId: uuidSchema,
   partyId: uuidSchema.nullable(),
   amountCents: z.number().int().nonnegative(),
-  status: z.enum(['PENDING', 'PAID', 'FAILED']),
+  status: z.enum(['PENDING', 'PAID', 'FAILED', 'CANCELLED']),
   providerPayoutId: z.string().nullable(),
   paidAt: z.string().nullable(),
   createdAt: z.string(),

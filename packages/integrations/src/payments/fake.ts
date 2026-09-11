@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import type {
   CreateChargeInput,
   CreateChargeResult,
@@ -6,47 +6,146 @@ import type {
   PaymentChargeStatus,
 } from './types.js';
 
-/** Provider mock de pagamento: chargeId determinístico por hash; status transicionável. */
-export class FakePaymentProvider implements IPaymentProvider {
-  private readonly statuses = new Map<string, PaymentChargeStatus>();
-  private readonly charges: Array<{ id: string; amountCents: number }> = [];
+export interface FakeChargeRecord {
+  providerChargeId: string;
+  amountCents: number;
+  dueDate: string;
+  status: PaymentChargeStatus;
+  externalReference: string | null;
+}
 
-  createCharge(input: CreateChargeInput): Promise<CreateChargeResult> {
-    const providerChargeId = `pc.fake.${createHash('sha256')
-      .update(`${String(input.amountCents)}:${input.dueDate}`)
-      .digest('hex')
-      .slice(0, 12)}`;
-    this.statuses.set(providerChargeId, 'PENDING');
-    this.charges.push({ id: providerChargeId, amountCents: input.amountCents });
-    return Promise.resolve({
+/**
+ * Estado do provider FAKE. Em memória por padrão (testes in-process); em
+ * dev/E2E a API e o worker são processos separados e usam a implementação em
+ * tabela (`createDbFakePaymentStore`, @aluguei/db) para enxergarem o mesmo
+ * estado (auditoria 2026-09-10, P1-13).
+ */
+export interface FakePaymentStore {
+  insert(record: FakeChargeRecord): Promise<void>;
+  get(providerChargeId: string): Promise<FakeChargeRecord | null>;
+  /** Troca de status condicional (compare-and-set): true se estava em `from`. */
+  transition(
+    providerChargeId: string,
+    from: readonly PaymentChargeStatus[],
+    to: PaymentChargeStatus,
+  ): Promise<boolean>;
+  list(): Promise<FakeChargeRecord[]>;
+}
+
+export class InMemoryFakePaymentStore implements FakePaymentStore {
+  private readonly records = new Map<string, FakeChargeRecord>();
+
+  insert(record: FakeChargeRecord): Promise<void> {
+    this.records.set(record.providerChargeId, { ...record });
+    return Promise.resolve();
+  }
+
+  get(providerChargeId: string): Promise<FakeChargeRecord | null> {
+    const record = this.records.get(providerChargeId);
+    return Promise.resolve(record ? { ...record } : null);
+  }
+
+  transition(
+    providerChargeId: string,
+    from: readonly PaymentChargeStatus[],
+    to: PaymentChargeStatus,
+  ): Promise<boolean> {
+    const record = this.records.get(providerChargeId);
+    if (!record || !from.includes(record.status)) {
+      return Promise.resolve(false);
+    }
+    record.status = to;
+    return Promise.resolve(true);
+  }
+
+  list(): Promise<FakeChargeRecord[]> {
+    return Promise.resolve([...this.records.values()].map((record) => ({ ...record })));
+  }
+}
+
+/**
+ * Provider mock de pagamento. O id é único por cobrança (o hash de
+ * valor+vencimento colidia entre cobranças e organizações) e as transições
+ * imitam um provider real: só se estorna o que foi pago, não se cancela o que
+ * já foi pago e o estado só muda por ação "do provider" — nenhum webhook
+ * confirma ou estorna nada por conta própria (auditoria 2026-09-10, P0-02).
+ */
+export class FakePaymentProvider implements IPaymentProvider {
+  readonly name = 'FAKE';
+
+  constructor(private readonly store: FakePaymentStore = new InMemoryFakePaymentStore()) {}
+
+  async createCharge(input: CreateChargeInput): Promise<CreateChargeResult> {
+    const providerChargeId = `pc.fake.${randomUUID()}`;
+    await this.store.insert({
+      providerChargeId,
+      amountCents: input.amountCents,
+      dueDate: input.dueDate,
+      status: 'PENDING',
+      externalReference: input.externalReference ?? null,
+    });
+    return {
       providerChargeId,
       pixQrCode: `00020126580014BR.GOV.BCB.PIX0136fake-${providerChargeId}5204000053039865802BR`,
       boletoUrl: `https://fake-bank.example/boleto/${providerChargeId}`,
-    });
+    };
   }
 
-  getChargeStatus(providerChargeId: string): Promise<PaymentChargeStatus> {
-    return Promise.resolve(this.statuses.get(providerChargeId) ?? 'PENDING');
+  async getChargeStatus(providerChargeId: string): Promise<PaymentChargeStatus> {
+    return (await this.store.get(providerChargeId))?.status ?? 'PENDING';
   }
 
-  /** Confirma a cobrança no provider (webhook FAKE) — o worker só credita se CONFIRMED. */
-  confirmCharge(providerChargeId: string): Promise<void> {
-    this.statuses.set(providerChargeId, 'CONFIRMED');
-    return Promise.resolve();
+  /**
+   * Simula o pagador quitando a cobrança. Aceita cobrança cancelada (FAILED):
+   * um QR/boleto antigo ainda pode ser pago e o sistema precisa registrar.
+   */
+  async confirmCharge(providerChargeId: string): Promise<void> {
+    if (await this.store.transition(providerChargeId, ['PENDING', 'FAILED'], 'CONFIRMED')) {
+      return;
+    }
+    const current = await this.store.get(providerChargeId);
+    if (current?.status === 'CONFIRMED') {
+      return;
+    }
+    throw new Error(
+      `FAKE: cobrança ${providerChargeId} não pode ser confirmada (${current?.status ?? 'inexistente'})`,
+    );
   }
 
-  cancelCharge(providerChargeId: string): Promise<void> {
-    this.statuses.set(providerChargeId, 'FAILED');
-    return Promise.resolve();
+  async cancelCharge(providerChargeId: string): Promise<void> {
+    if (await this.store.transition(providerChargeId, ['PENDING'], 'FAILED')) {
+      return;
+    }
+    const current = await this.store.get(providerChargeId);
+    if (!current || current.status === 'FAILED') {
+      return;
+    }
+    throw new Error(
+      `FAKE: cobrança ${providerChargeId} já ${current.status === 'CONFIRMED' ? 'paga' : 'estornada'} — não pode ser cancelada`,
+    );
   }
 
-  refundPayment(providerPaymentId: string): Promise<void> {
-    this.statuses.set(providerPaymentId, 'REFUNDED');
-    return Promise.resolve();
+  async refundPayment(providerPaymentId: string): Promise<void> {
+    if (await this.store.transition(providerPaymentId, ['CONFIRMED'], 'REFUNDED')) {
+      return;
+    }
+    const current = await this.store.get(providerPaymentId);
+    if (current?.status === 'REFUNDED') {
+      return;
+    }
+    throw new Error(
+      `FAKE: só é possível estornar cobrança paga (${current?.status ?? 'inexistente'})`,
+    );
   }
 
-  /** Para reconciliação: lista charges conhecidas do provider no período. */
-  getProviderCharges(): Array<{ id: string; amountCents: number }> {
-    return this.charges.map((c) => ({ ...c }));
+  /** Para a conciliação: cobranças conhecidas pelo provider. */
+  async getProviderCharges(): Promise<
+    Array<{ id: string; amountCents: number; status: PaymentChargeStatus }>
+  > {
+    return (await this.store.list()).map((record) => ({
+      id: record.providerChargeId,
+      amountCents: record.amountCents,
+      status: record.status,
+    }));
   }
 }

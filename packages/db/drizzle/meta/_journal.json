@@ -78,6 +78,13 @@
       "when": 1786680686001,
       "tag": "0011_mighty_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789164203747,
+      "tag": "0012_finance_integrity",
+      "breakpoints": true
     }
   ]
 }

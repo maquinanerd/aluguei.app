@@ -4,6 +4,7 @@ import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
+import { createDbFakePaymentStore } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
 import type {
@@ -57,6 +58,7 @@ import { contractRoutes } from './routes/contracts.js';
 import { leaseRoutes } from './routes/leases.js';
 import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
+import { devPaymentRoutes } from './routes/dev-payments.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
@@ -276,6 +278,11 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.ASAAS_ENV) {
     paymentsOptions.env = env.ASAAS_ENV;
   }
+  if (!opts.payments) {
+    // Provider FAKE guarda o estado em tabela: API e worker são processos
+    // separados e precisam ver a mesma cobrança (auditoria 2026-09-10, P1-13).
+    paymentsOptions.fakeStore = createDbFakePaymentStore(app.db);
+  }
   await app.register(paymentsPlugin, paymentsOptions);
 
   const metaOptions: MetaPluginOptions = {};
@@ -324,6 +331,10 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(leaseRoutes);
   await app.register(chargeRoutes);
   await app.register(paymentsRoutes);
+  if (env.NODE_ENV !== 'production') {
+    // Simulação do pagador com provider FAKE (dev/E2E) — nunca em produção.
+    await app.register(devPaymentRoutes);
+  }
   await app.register(metaRoutes);
   await app.register(portalRoutes);
   await app.register(reportingRoutes);

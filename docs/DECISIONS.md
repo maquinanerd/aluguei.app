@@ -152,3 +152,110 @@ Decisões:
 - **Testes focados**: `src/api.test.ts` (vitest) cobre captura/reenvio de sessão, erro tipado (409 → `ApiError` com code/message), falha de rede (status 0) e merge de visitas.
 
 Consequências: cookie em memória não sobrevive a restart do app (persistência offline fica para próxima iteração); no native, o header `Set-Cookie` pode ser filtrado pela stack de rede do SO (validar em device; o Bearer já é o padrão mobile do ADR-005 e o cliente envia ambos). Reversibilidade: alta.
+
+## ADR-037 — Liquidação financeira atômica e idempotente (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: a auditoria de 2026-09-10 provou (P0-01) que dois eventos do mesmo pagamento processados em paralelo creditavam duas vezes: a liquidação lia, decidia e escrevia sem transação, sem trava de linha, sem compare-and-set, sem unicidade em `split_allocations`/`payouts` e com `transaction_id` aleatório no ledger.
+
+Decisões:
+
+- **Uma transação por efeito monetário** (`apps/api/src/finance/settlement.ts`): trava a cobrança (`FOR UPDATE`), depois o pagamento, e só então escreve. A ordem das travas (cobrança → pagamento) é a mesma em liquidação, estorno, cancelamento e iniciação, para não haver deadlock.
+- **Compare-and-set de status**: o `UPDATE` traz o status esperado no `WHERE` e usa `RETURNING`; quem não altera linha desiste sem efeito (`ALREADY_APPLIED`).
+- **Chave de negócio no ledger**: `postLedgerTransaction` recebe `businessKey` (ex.: `PAYMENT:<id>`, `PAYOUT:<pagamento>:<parte>`, `REFUND:<id>`), deriva o `transaction_id` dela (UUID v8 determinístico) e o banco tem `UNIQUE (org_id, business_key, account_id)`. A mesma operação lógica, repetida ou concorrente, lança no máximo uma vez.
+- **Unicidade no banco como última defesa**: `split_allocations (payment_id, role, party_id)` NULLS NOT DISTINCT, `payouts (payment_id, party_id)` parcial, `charges (provider_charge_id)` parcial, `payments (provider, provider_payment_id)` parcial.
+- **Chamada ao provider nunca dentro de transação**; o status do provider é lido antes e a transação só registra o que ele confirmou.
+
+Consequências: PGlite serializa transações e não reproduz a corrida — por isso a suíte `finance-concurrency.pg.test.ts` roda em PostgreSQL real (ADR-043). Escritas financeiras passam a exigir `tx` na assinatura (usar `db` dentro da transação trava no PGlite e escreveria fora dela no PostgreSQL).
+
+## ADR-038 — O provider é a autoridade sobre o dinheiro (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P0-02 — `/webhooks/payments` não exigia segredo em produção, e um evento `PAYMENT_REFUNDED` forjado fazia o worker EXECUTAR o estorno no provider, sem idempotência e sem reverter split/repasse.
+
+Decisões:
+
+- O webhook **só enfileira**: autentica (token obrigatório em produção via `enforceProductionSecret`), resolve a organização pela tentativa de pagamento (`payments.provider_payment_id`) e grava no inbox. Não confirma, não estorna, não credita.
+- O worker **relê o estado no provider** (`getChargeStatus`) antes de qualquer efeito: crédito só com `CONFIRMED`, estorno só com `REFUNDED`, falha só com `FAILED`.
+- **Quem executa estorno é o backoffice** (`POST /charges/:id/refund`): chama o provider, confirma o novo estado e só então registra — cancelando as alocações, revertendo o repasse pendente (ou registrando clawback se já pago) e lançando `REFUND:<pagamento>`.
+- O provider FAKE deixou de ser confirmado pelo webhook; a simulação do pagador virou rota explícita (ADR-041).
+
+Consequências: um webhook forjado não tem efeito e o job termina em falha controlada (DEAD após as tentativas, com alerta). Estorno iniciado no painel do provider continua sendo registrado, pelo próprio webhook, quando o provider confirma.
+
+## ADR-039 — Recebimento não aplicado (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P0-03 — pagamento de cobrança `SCHEDULED` ou já cancelada ficava `FAILED` no inbox e o dinheiro não entrava em lugar nenhum.
+
+Decisões:
+
+- A máquina de cobrança aceita `SCHEDULED → PAID` e `OVERDUE → PAID`.
+- Pagamento confirmado para cobrança que não aceita liquidação (cancelada, estornada ou já paga por outra tentativa) vira **recebimento não aplicado**: `CASH` a débito e `UNAPPLIED_RECEIPTS` (passivo) a crédito, com audit `payment.unapplied`.
+- Estorno desse recebimento devolve o valor da mesma conta.
+- Conta nova `LANDLORD_CLAWBACK_RECEIVABLE` para estorno com repasse já pago.
+- A conciliação varre pagamentos pendentes que o provider já confirmou e os liquida (rede de segurança para webhook perdido).
+
+Consequências: o dinheiro sempre tem contrapartida contábil; o passivo de recebimentos não aplicados é a fila de trabalho para devolução ou aplicação manual (tela fica para fase posterior).
+
+## ADR-040 — Iniciação de pagamento idempotente (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P0-03(c) — cada iniciação criava um `payment` novo e sobrescrevia `charges.provider_charge_id`; pagar o QR anterior era ignorado. O portal ainda fabricava um QR (`000201-qr-…`) no caminho "idempotente".
+
+Decisões: `initiatePayment` (`apps/api/src/finance/initiation.ts`), usado pelo backoffice e pelo portal:
+
+1. no máximo **uma tentativa pendente por cobrança** (índice único parcial `payments (charge_id) WHERE status = 'PENDING'`);
+2. mesma cobrança, mesmo valor e método → devolve a tentativa existente com o QR/boleto **gravados** (200);
+3. reemissão com valor/método diferente só ocorre se o provider ainda não recebeu — a tentativa anterior é cancelada no provider e localmente;
+4. a chamada ao provider fica fora da transação; falha marca a tentativa como `FAILED`;
+5. `externalReference` = id da tentativa (conciliação e webhooks do provider real).
+
+Consequências: pagar um QR substituído continua sendo registrado (a tentativa cancelada aceita confirmação do provider); duas iniciações simultâneas resultam em uma tentativa (as demais recebem 409).
+
+## ADR-041 — Estado do provider FAKE em tabela e simulação do pagador (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P1-13 — com o FAKE em memória, API e worker (processos separados) tinham estados diferentes e a stack integrada nunca liquidava um pagamento.
+
+Decisões:
+
+- `FakePaymentProvider` recebe um `FakePaymentStore`; o padrão continua em memória (testes in-process) e a API/worker usam `createDbFakePaymentStore` (tabela `fake_provider_charges`).
+- Id do FAKE passa a ser único (`pc.fake.<uuid>`) — o hash de valor+vencimento colidia entre cobranças e organizações.
+- A simulação do pagador é uma rota explícita, `POST /dev/fake-payments/:providerChargeId/confirm`, registrada apenas fora de produção e ativa apenas com provider FAKE, exigindo `finance:write` e cobrança da própria organização.
+
+Consequências: a tabela existe em todos os ambientes, mas só é escrita com provider FAKE. O E2E prova a liquidação com API e worker em processos separados.
+
+## ADR-042 — Fila: tentativas por provider, DEAD letter e claim com marca (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P2-10 — o reaper devolvia jobs expirados para `PENDING` sem olhar tentativas (reciclagem infinita) e não havia estado terminal nem alerta.
+
+Decisões: `PAYMENT` tolera 8 tentativas (confirmação no provider pode demorar), os demais 3; job que esgota vira `DEAD` (terminal, com `onDeadLetter` → log estruturado `inbox.dead_letter`); o claim devolve `started_at` e só quem detém a marca conclui o job; o worker não sobrepõe ciclos (um por vez).
+
+## ADR-043 — Concorrência real em suíte própria (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: o PGlite serializa transações num mutex: um teste de corrida passaria mesmo sem transação, sem trava e sem CAS — falsa confiança.
+
+Decisão: `tests/integration/src/*.pg.test.ts` rodam em PostgreSQL real (`TEST_DATABASE_URL`), em banco criado e removido pela própria suíte, fora do `pnpm test` (que não exige servidor) e com gate próprio `pnpm test:pg` — local e no CI (serviço `postgres:17`). Sem servidor, a suíte falha explicitamente em vez de ser pulada.
+
+## ADR-044 — Isolamento multi-tenant por referência (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: P0-05 — a organização B criava lead, visita, proposta, candidatura, vistoria e ativos Meta apontando para pessoas, imóveis e usuários da organização A, e lia o consentimento LGPD da A.
+
+Decisões:
+
+- Helper canônico em `apps/api/src/routes/helpers.ts` (`assertOwnedByOrg`, `assertAllOwnedByOrg`, `assertOrgMember`) aplicado a **todo id vindo do corpo**, antes de qualquer escrita.
+- Resposta uniforme `404 NOT_FOUND` para id de outra organização e para id inexistente (sem oráculo de existência); id não-uuid também responde 404 (antes 500).
+- `first()` passa a lançar `NOT_FOUND` em vez de erro genérico.
+- Consentimento e resultados de screening lidos sempre com filtro de organização.
+- Ids polimórficos (`tasks.related_entity_id`, `timeline_events.entity_id`) só aceitam tipos conhecidos, com verificação de dono; tipo desconhecido com id → 400.

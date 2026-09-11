@@ -16,6 +16,10 @@
       "types": "./src/ledger.ts",
       "default": "./src/ledger.ts"
     },
+    "./finance": {
+      "types": "./src/finance/settlement.ts",
+      "default": "./src/finance/settlement.ts"
+    },
     "./audit": {
       "types": "./src/plugins/audit.ts",
       "default": "./src/plugins/audit.ts"

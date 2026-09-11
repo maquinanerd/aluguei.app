@@ -94,6 +94,9 @@ describe('máquinas de estado financeiras', () => {
     expect(canTransitionCharge('OPEN', 'PAID')).toBe(true);
     expect(canTransitionCharge('PAID', 'REFUNDED')).toBe(true);
     expect(canTransitionCharge('PAID', 'CANCELLED')).toBe(false);
+    // pagamento antes do vencimento (portal) e cobrança vencida paga (P0-03)
+    expect(canTransitionCharge('SCHEDULED', 'PAID')).toBe(true);
+    expect(canTransitionCharge('OVERDUE', 'PAID')).toBe(true);
   });
 
   it('lease: PENDING→ACTIVE→DELINQUENT→ACTIVE→TERMINATING→ENDED', () => {
@@ -104,10 +107,14 @@ describe('máquinas de estado financeiras', () => {
     expect(canTransitionLease('TERMINATING', 'ENDED')).toBe(true);
   });
 
-  it('payment: PENDING→CONFIRMED→REFUNDED', () => {
+  it('payment: PENDING→CONFIRMED→REFUNDED; tentativa abandonada aceita confirmação do provider', () => {
     expect(canTransitionPayment('PENDING', 'CONFIRMED')).toBe(true);
     expect(canTransitionPayment('CONFIRMED', 'REFUNDED')).toBe(true);
-    expect(canTransitionPayment('FAILED', 'CONFIRMED')).toBe(false);
+    expect(canTransitionPayment('PENDING', 'CANCELLED')).toBe(true);
+    // dinheiro que entra numa tentativa falha/substituída precisa ser registrado (P0-03)
+    expect(canTransitionPayment('FAILED', 'CONFIRMED')).toBe(true);
+    expect(canTransitionPayment('CANCELLED', 'CONFIRMED')).toBe(true);
+    expect(canTransitionPayment('REFUNDED', 'CONFIRMED')).toBe(false);
   });
 
   it('transição inválida lança', () => {

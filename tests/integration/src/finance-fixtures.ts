@@ -25,6 +25,8 @@ export interface Initiation {
   paymentId: string;
   pcid: string;
   amountCents: number;
+  /** Corpo da resposta — usado nas mensagens de falha. */
+  body: Json;
 }
 
 export interface MoneySnapshot {
@@ -254,6 +256,7 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       paymentId: payment?.id ?? '',
       pcid: (res.body.providerChargeId as string | undefined) ?? '',
       amountCents: payment?.amountCents ?? 0,
+      body: res.body,
     };
   }
 

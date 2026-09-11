@@ -1,29 +1,16 @@
-import { randomUUID } from 'node:crypto';
-import { and, eq, lt } from 'drizzle-orm';
+import { and, eq, isNotNull, lt } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import {
-  charges,
-  leases,
-  payouts,
-  payments,
-  splitAllocations,
-  splitRules,
-  reconciliations,
-} from '@aluguei/db';
-import {
-  AUDIT_ACTIONS,
-  DomainError,
-  isChargeStatus,
-  isLeaseStatus,
-  isPaymentStatus,
-  splitPayment,
-  transitionCharge,
-  transitionPayment,
-} from '@aluguei/domain';
-import type { ChargeStatus, PaymentStatus } from '@aluguei/domain';
+import { charges, leases, payments, reconciliations } from '@aluguei/db';
+import { AUDIT_ACTIONS, DomainError, isLeaseStatus } from '@aluguei/domain';
 import type { IPaymentProvider } from '@aluguei/integrations';
 import { writeAudit } from '@aluguei/api/audit';
-import { postLedgerTransaction } from '@aluguei/api/ledger';
+import {
+  applyProviderConfirmation,
+  applyProviderFailure,
+  applyProviderRefund,
+  findPaymentByProviderId,
+  markChargeOverdue,
+} from '@aluguei/api/finance';
 
 export interface PaymentJob {
   id: string;
@@ -31,158 +18,100 @@ export interface PaymentJob {
   payload: Record<string, unknown>;
 }
 
-/** Aplica PAID no pagamento + charge, ledger T2, split allocations e payout. */
+const EVENT_TYPES = [
+  'PAYMENT_CONFIRMED',
+  'PAYMENT_REFUNDED',
+  'PAYMENT_FAILED',
+  'PAYMENT_OVERDUE',
+] as const;
+
+type PaymentEventType = (typeof EVENT_TYPES)[number];
+
+interface PaymentEvent {
+  eventType: PaymentEventType;
+  provider: string;
+  providerChargeId: string;
+  paidAt: Date;
+}
+
+function parsePaymentEvent(payload: Record<string, unknown>): PaymentEvent | null {
+  const eventType = typeof payload['eventType'] === 'string' ? payload['eventType'] : '';
+  const providerChargeId =
+    typeof payload['providerChargeId'] === 'string' ? payload['providerChargeId'] : '';
+  if (!providerChargeId || !(EVENT_TYPES as readonly string[]).includes(eventType)) {
+    return null;
+  }
+  const paidAt = typeof payload['paidAt'] === 'string' ? new Date(payload['paidAt']) : new Date();
+  return {
+    eventType: eventType as PaymentEventType,
+    provider: typeof payload['provider'] === 'string' ? payload['provider'] : '',
+    providerChargeId,
+    paidAt: Number.isNaN(paidAt.getTime()) ? new Date() : paidAt,
+  };
+}
+
+/**
+ * Processa um evento de pagamento. O evento é apenas uma NOTIFICAÇÃO: o estado
+ * real é sempre relido no provider antes de qualquer efeito (auditoria
+ * 2026-09-10, P0-02 — webhook forjado não credita nem estorna). Os efeitos
+ * monetários ficam em @aluguei/api/finance, numa transação com trava na
+ * cobrança e compare-and-set de status (P0-01), e dinheiro recebido para uma
+ * cobrança que não aceita mais liquidação vira recebimento não aplicado (P0-03).
+ */
 export async function processPaymentJob(
   db: AppDb,
   job: PaymentJob,
   provider: IPaymentProvider,
 ): Promise<void> {
-  const eventType =
-    typeof job.payload['eventType'] === 'string' ? job.payload['eventType'] : 'PAYMENT_FAILED';
-  const providerChargeId =
-    typeof job.payload['providerChargeId'] === 'string' ? job.payload['providerChargeId'] : '';
-  const amountCents =
-    typeof job.payload['amountCents'] === 'number' ? job.payload['amountCents'] : 0;
-  const paidAt =
-    typeof job.payload['paidAt'] === 'string' ? job.payload['paidAt'] : new Date().toISOString();
-
-  const [charge] = await db
-    .select()
-    .from(charges)
-    .where(and(eq(charges.orgId, job.orgId), eq(charges.providerChargeId, providerChargeId)))
-    .limit(1);
-  if (!charge) {
-    return; // charge desconhecida — ignora
+  const event = parsePaymentEvent(job.payload);
+  if (!event) {
+    return; // payload desconhecido — ignora
   }
-  const [payment] = await db
-    .select()
-    .from(payments)
-    .where(eq(payments.chargeId, charge.id))
-    .orderBy(payments.createdAt)
-    .limit(1);
+  if (event.provider && event.provider !== provider.name) {
+    throw new DomainError(
+      'PROVIDER_ERROR',
+      `Evento do provider ${event.provider} com ${provider.name} configurado`,
+    );
+  }
+  const payment = await findPaymentByProviderId(
+    db,
+    provider.name,
+    event.providerChargeId,
+    job.orgId,
+  );
   if (!payment) {
-    return;
+    return; // pagamento desconhecido — ignora
   }
-  if (!isPaymentStatus(payment.status) || !isChargeStatus(charge.status)) {
-    throw new Error('status inválido');
-  }
+  const status = await provider.getChargeStatus(event.providerChargeId);
 
-  if (eventType === 'PAYMENT_CONFIRMED') {
-    if (payment.status === 'CONFIRMED') {
-      return; // idempotente
-    }
-    // P1 (auditoria final): NUNCA creditar sem confirmação no provider.
-    // Um webhook forjado com providerChargeId não confirma o pagamento real.
-    const providerStatus = await provider.getChargeStatus(charge.providerChargeId ?? '');
-    if (providerStatus !== 'CONFIRMED') {
+  if (event.eventType === 'PAYMENT_CONFIRMED') {
+    if (status !== 'CONFIRMED' && status !== 'REFUNDED') {
       throw new DomainError(
         'PROVIDER_ERROR',
-        `Pagamento não confirmado no provider (status ${providerStatus})`,
+        `Pagamento não confirmado no provider (status ${status})`,
       );
     }
-    transitionPayment(payment.status as PaymentStatus, 'CONFIRMED');
-    transitionCharge(charge.status as ChargeStatus, 'PAID');
-    await db
-      .update(payments)
-      .set({ status: 'CONFIRMED', paidAt: new Date(paidAt) })
-      .where(eq(payments.id, payment.id));
-    await db
-      .update(charges)
-      .set({ status: 'PAID', paidAt: new Date(paidAt), updatedAt: new Date() })
-      .where(eq(charges.id, charge.id));
-
-    // Ledger T2: CASH débito / AR_RECEIVABLE crédito.
-    const transactionId = randomUUID();
-    await postLedgerTransaction(db, job.orgId, transactionId, 'PAYMENT', payment.id, [
-      { code: 'CASH', amountCents: payment.amountCents },
-      { code: 'AR_RECEIVABLE', amountCents: -payment.amountCents },
-    ]);
-
-    // Split allocations (AGENCY/LANDLORD) + payout.
-    const [rule] = await db
-      .select()
-      .from(splitRules)
-      .where(eq(splitRules.leaseId, charge.leaseId))
-      .limit(1);
-    const allocations = splitPayment({
-      rentCents: charge.rentCents,
-      amountCents: payment.amountCents,
-      agencyShareBps: rule?.agencyShareBps ?? 1000,
-    });
-    for (const allocation of allocations) {
-      await db.insert(splitAllocations).values({
-        orgId: job.orgId,
-        paymentId: payment.id,
-        partyId: allocation.role === 'LANDLORD' ? (rule?.landlordPartyId ?? null) : null,
-        role: allocation.role,
-        amountCents: allocation.amountCents,
-        status: 'PENDING',
-      });
-    }
-    const landlordAllocation = allocations.find((a) => a.role === 'LANDLORD');
-    if (landlordAllocation && landlordAllocation.amountCents > 0 && rule?.landlordPartyId) {
-      await db.insert(payouts).values({
-        orgId: job.orgId,
-        partyId: rule.landlordPartyId,
-        amountCents: landlordAllocation.amountCents,
-        status: 'PENDING',
-      });
-      await postLedgerTransaction(db, job.orgId, randomUUID(), 'PAYOUT', payment.id, [
-        { code: 'LANDLORD_PAYABLE', amountCents: landlordAllocation.amountCents },
-        { code: 'CASH', amountCents: -landlordAllocation.amountCents },
-      ]);
-    }
-    await writeAudit(db, {
-      orgId: job.orgId,
-      action: AUDIT_ACTIONS.PAYMENT_CONFIRMED,
-      entityType: 'CHARGE',
-      entityId: charge.id,
-      payload: { paymentId: payment.id, amountCents: payment.amountCents },
-    });
-  } else if (eventType === 'PAYMENT_REFUNDED') {
-    // Confirma estorno no provider antes de marcar localmente (P2-6).
-    if (charge.providerChargeId) {
-      await provider.refundPayment(charge.providerChargeId);
-    }
-    transitionPayment(payment.status as PaymentStatus, 'REFUNDED');
-    transitionCharge(charge.status as ChargeStatus, 'REFUNDED');
-    await db.update(payments).set({ status: 'REFUNDED' }).where(eq(payments.id, payment.id));
-    await db
-      .update(charges)
-      .set({ status: 'REFUNDED', updatedAt: new Date() })
-      .where(eq(charges.id, charge.id));
-    // Reversão contábil do pagamento (T2'): AR_RECEIVABLE débito / CASH crédito.
-    await postLedgerTransaction(db, job.orgId, randomUUID(), 'REFUND', payment.id, [
-      { code: 'AR_RECEIVABLE', amountCents: payment.amountCents },
-      { code: 'CASH', amountCents: -payment.amountCents },
-    ]);
-    await writeAudit(db, {
-      orgId: job.orgId,
-      action: AUDIT_ACTIONS.PAYMENT_REFUNDED,
-      entityType: 'CHARGE',
-      entityId: charge.id,
-      payload: { paymentId: payment.id, amountCents: payment.amountCents },
-    });
-  } else if (eventType === 'PAYMENT_OVERDUE') {
-    if (isChargeStatus(charge.status) && charge.status === 'OPEN') {
-      transitionCharge('OPEN', 'OVERDUE');
-      await db
-        .update(charges)
-        .set({ status: 'OVERDUE', updatedAt: new Date() })
-        .where(eq(charges.id, charge.id));
-      await db
-        .update(leases)
-        .set({ status: 'DELINQUENT', updatedAt: new Date() })
-        .where(eq(leases.id, charge.leaseId));
-    }
-  } else {
-    if (payment.status === 'PENDING') {
-      transitionPayment('PENDING', 'FAILED');
-      await db.update(payments).set({ status: 'FAILED' }).where(eq(payments.id, payment.id));
-    }
+    await applyProviderConfirmation(db, job.orgId, payment.id, event.paidAt);
+    return;
   }
-  void amountCents;
-  void provider;
+  if (event.eventType === 'PAYMENT_REFUNDED') {
+    if (status !== 'REFUNDED') {
+      throw new DomainError(
+        'PROVIDER_ERROR',
+        `Estorno não confirmado no provider (status ${status})`,
+      );
+    }
+    await applyProviderRefund(db, job.orgId, payment.id);
+    return;
+  }
+  if (event.eventType === 'PAYMENT_FAILED') {
+    if (status !== 'FAILED') {
+      return; // evento sem respaldo no provider
+    }
+    await applyProviderFailure(db, job.orgId, payment.id);
+    return;
+  }
+  await markChargeOverdue(db, job.orgId, payment.chargeId);
 }
 
 /** Gera charges do mês corrente para leases ACTIVE/DELINQUENT (idempotente por UNIQUE lease+period). */
@@ -190,7 +119,7 @@ export async function processPaymentSchedulerJob(db: AppDb, job: PaymentJob): Pr
   const periodStart =
     typeof job.payload['periodStart'] === 'string'
       ? job.payload['periodStart']
-      : new Date().toISOString().slice(0, 8) + '01';
+      : `${new Date().toISOString().slice(0, 8)}01`;
   const activeLeases = await db
     .select()
     .from(leases)
@@ -216,7 +145,6 @@ export async function processPaymentSchedulerJob(db: AppDb, job: PaymentJob): Pr
       })
       .onConflictDoNothing();
   }
-  // Abre charges vencidas (SCHEDULED → OPEN quando due_date <= hoje).
   const today = new Date().toISOString().slice(0, 10);
   await db
     .update(charges)
@@ -230,7 +158,11 @@ export async function processPaymentSchedulerJob(db: AppDb, job: PaymentJob): Pr
     );
 }
 
-/** Reconciliação: compara saldo do provider com o local (independe de webhook). */
+/**
+ * Conciliação. Além do total, faz a varredura de segurança: pagamento pendente
+ * que o provider já confirmou é liquidado aqui — um webhook perdido não pode
+ * significar dinheiro recebido sem registro (auditoria 2026-09-10, P0-03).
+ */
 export async function processReconcileJob(
   db: AppDb,
   job: PaymentJob,
@@ -238,7 +170,29 @@ export async function processReconcileJob(
 ): Promise<void> {
   const periodStart =
     typeof job.payload['periodStart'] === 'string' ? job.payload['periodStart'] : '';
-  const providerCharges = provider ? providerChargesOf(provider) : [];
+  let recovered = 0;
+  if (provider) {
+    const pendingPayments = await db
+      .select()
+      .from(payments)
+      .where(
+        and(
+          eq(payments.orgId, job.orgId),
+          eq(payments.status, 'PENDING'),
+          isNotNull(payments.providerPaymentId),
+        ),
+      )
+      .limit(200);
+    for (const payment of pendingPayments) {
+      const status = await provider.getChargeStatus(payment.providerPaymentId ?? '');
+      if (status === 'CONFIRMED') {
+        await applyProviderConfirmation(db, job.orgId, payment.id, new Date());
+        recovered += 1;
+      }
+    }
+  }
+
+  const providerCharges = provider?.getProviderCharges ? await provider.getProviderCharges() : [];
   const providerTotal = providerCharges.reduce((sum, item) => sum + item.amountCents, 0);
   const localCharges = await db
     .select()
@@ -248,7 +202,7 @@ export async function processReconcileJob(
   const matched = providerTotal === localTotal;
   await db.insert(reconciliations).values({
     orgId: job.orgId,
-    provider: 'FAKE',
+    provider: provider?.name ?? 'NONE',
     periodStart,
     periodEnd: periodStart,
     status: matched ? 'MATCHED' : 'DISCREPANCY',
@@ -261,11 +215,6 @@ export async function processReconcileJob(
     action: AUDIT_ACTIONS.RECONCILIATION_COMPLETED,
     entityType: 'RECONCILIATION',
     entityId: periodStart,
-    payload: { matched, providerTotal, localTotal },
+    payload: { matched, providerTotal, localTotal, recovered },
   });
-}
-
-function providerChargesOf(provider: IPaymentProvider): Array<{ amountCents: number }> {
-  const fake = provider as { getProviderCharges?: () => Array<{ amountCents: number }> };
-  return fake.getProviderCharges?.() ?? [];
 }

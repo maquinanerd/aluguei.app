@@ -144,6 +144,9 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
       storage: new FakeStorageService(),
       signature,
       payments,
+      // Numa suíte de corrida, erro de servidor precisa aparecer: um 500
+      // silencioso esconderia justamente o que se quer provar.
+      logger: { level: 'error' },
     });
     fx = createFinanceFixtures(app, () => runWorker(db));
   });
@@ -216,10 +219,16 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
     const results = await Promise.all(
       Array.from({ length: 6 }, () => fx.initiate(lease, chargeId)),
     );
-    expect(results.filter((result) => result.status === 201)).toHaveLength(1);
+    const outcome = results
+      .map((result) => `${String(result.status)} ${JSON.stringify(result.body).slice(0, 120)}`)
+      .join(' | ');
+    expect(
+      results.filter((result) => result.status === 201),
+      outcome,
+    ).toHaveLength(1);
     expect(
       results.every((result) => [200, 201, 409].includes(result.status)),
-      JSON.stringify(results),
+      outcome,
     ).toBe(true);
     const [counts] = await fx.rows<{ total: number; pending: number }>(sql`
       select count(*)::int as total, count(*) filter (where status = 'PENDING')::int as pending

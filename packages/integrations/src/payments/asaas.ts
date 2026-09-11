@@ -213,6 +213,7 @@ function isRetryableStatus(status: number): boolean {
 // ---------------------------------------------------------------------------
 
 export class AsaasPaymentProvider implements IPaymentProvider {
+  readonly name = 'ASAAS';
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly billingType: AsaasBillingType;
@@ -254,6 +255,8 @@ export class AsaasPaymentProvider implements IPaymentProvider {
       value: centsToReais(input.amountCents),
       dueDate: input.dueDate,
       description: input.description,
+      // Referência do pagamento no Aluguei: volta nos webhooks e na conciliação.
+      ...(input.externalReference ? { externalReference: input.externalReference } : {}),
     });
 
     const result: CreateChargeResult = { providerChargeId: payment.id };

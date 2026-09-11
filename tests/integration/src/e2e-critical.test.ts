@@ -247,7 +247,9 @@ describe('Fase 12: E2E crítico (journey completo)', () => {
     expect(paymentBody.payment.status).toBe('PENDING');
     expect(paymentBody.pixQrCode).toBeTruthy();
 
-    // 6. Confirmação via webhook → charge PAID
+    // 6. Pagador quita no provider + notificação do provider → worker credita
+    // (o webhook não confirma nada por si — auditoria 2026-09-10, P0-02)
+    await fakePayments.confirmCharge(paymentBody.providerChargeId);
     await app.inject({
       method: 'POST',
       url: '/webhooks/payments',

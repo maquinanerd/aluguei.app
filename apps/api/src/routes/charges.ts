@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
@@ -9,11 +8,8 @@ import {
   DomainError,
   calculateChargeBreakdown,
   isChargeStatus,
-  isPaymentStatus,
   transitionCharge,
-  transitionPayment,
 } from '@aluguei/domain';
-import type { ChargeStatus, PaymentStatus } from '@aluguei/domain';
 import {
   chargeSchema,
   createChargeRequestSchema,
@@ -24,12 +20,19 @@ import {
   refundResponseSchema,
   uuidSchema,
 } from '@aluguei/contracts';
-import { postLedgerTransaction } from '../ledger.js';
+import { initiatePayment } from '../finance/initiation.js';
+import {
+  applyProviderRefund,
+  postChargeCancellation,
+  postChargeIssuance,
+  splitRuleFor,
+} from '../finance/settlement.js';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
 
 type ChargeRow = typeof charges.$inferSelect;
+type PaymentRow = typeof payments.$inferSelect;
 
 export function toChargeDto(row: ChargeRow): unknown {
   return chargeSchema.parse({
@@ -52,6 +55,25 @@ export function toChargeDto(row: ChargeRow): unknown {
   });
 }
 
+function toPaymentDto(row: PaymentRow): unknown {
+  return {
+    id: row.id,
+    orgId: row.orgId,
+    chargeId: row.chargeId,
+    amountCents: row.amountCents,
+    method: row.method,
+    status: row.status,
+    providerPaymentId: row.providerPaymentId,
+    paidAt: row.paidAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+/** A cobrança é mensal: o período sempre começa no dia 1 (uma por locação/mês). */
+function monthStart(value: string): string {
+  return `${value.slice(0, 7)}-01`;
+}
+
 export const chargeRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
@@ -69,7 +91,7 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
       if (!lease) {
         throw new DomainError('NOT_FOUND', 'Locação não encontrada');
       }
-      const periodStart = input.periodStart ?? new Date().toISOString().slice(0, 8) + '01';
+      const periodStart = monthStart(input.periodStart ?? new Date().toISOString().slice(0, 10));
       const dueDate =
         input.dueDate ??
         new Date(new Date(`${periodStart}T00:00:00.000Z`).getTime() + 10 * 86_400_000)
@@ -81,43 +103,39 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
         dueDate,
         paidOn: dueDate,
       });
-      const charge = first(
-        await db
-          .insert(charges)
-          .values({
-            orgId: auth.orgId,
-            leaseId: lease.id,
-            periodStart,
-            dueDate,
-            status: 'SCHEDULED',
-            amountCents: breakdown.amountCents,
-            rentCents: breakdown.rentCents,
-            condoFeeCents: breakdown.condoFeeCents,
-            lateFeeCents: breakdown.lateFeeCents,
-            interestCents: breakdown.interestCents,
-            taxesCents: breakdown.taxesCents,
-            discountCents: breakdown.discountCents,
-          })
-          .returning(),
-      );
-      await postLedgerTransaction(db, auth.orgId, randomUUID(), 'CHARGE', charge.id, [
-        { code: 'AR_RECEIVABLE', amountCents: charge.amountCents },
-        {
-          code: 'AGENCY_FEE_REVENUE',
-          amountCents: -Math.floor((charge.rentCents * 1000) / 10_000),
-        },
-        {
-          code: 'LANDLORD_PAYABLE',
-          amountCents: -(charge.amountCents - Math.floor((charge.rentCents * 1000) / 10_000)),
-        },
-      ]);
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.CHARGE_CREATED,
-        entityType: 'CHARGE',
-        entityId: charge.id,
-        payload: { amountCents: charge.amountCents },
+
+      // Emissão e reconhecimento contábil na mesma transação (P0-01).
+      const charge = await db.transaction(async (tx) => {
+        const created = first(
+          await tx
+            .insert(charges)
+            .values({
+              orgId: auth.orgId,
+              leaseId: lease.id,
+              periodStart,
+              dueDate,
+              status: 'SCHEDULED',
+              amountCents: breakdown.amountCents,
+              rentCents: breakdown.rentCents,
+              condoFeeCents: breakdown.condoFeeCents,
+              lateFeeCents: breakdown.lateFeeCents,
+              interestCents: breakdown.interestCents,
+              taxesCents: breakdown.taxesCents,
+              discountCents: breakdown.discountCents,
+            })
+            .returning(),
+        );
+        const { agencyShareBps } = await splitRuleFor(tx, lease.id);
+        await postChargeIssuance(tx, created, agencyShareBps);
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CHARGE_CREATED,
+          entityType: 'CHARGE',
+          entityId: created.id,
+          payload: { amountCents: created.amountCents, periodStart },
+        });
+        return created;
       });
       return reply.status(201).send({ charge: toChargeDto(charge) });
     },
@@ -168,103 +186,21 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
       if (!app.payments) {
         throw new DomainError('INVALID_INPUT', 'Pagamento não configurado');
       }
-      const [charge] = await db
-        .select()
-        .from(charges)
-        .where(and(eq(charges.id, id), eq(charges.orgId, auth.orgId)))
-        .limit(1);
-      if (!charge) {
-        throw new DomainError('NOT_FOUND', 'Cobrança não encontrada');
-      }
-      if (!isChargeStatus(charge.status)) {
-        throw new Error('charge status inválido');
-      }
-      const currentStatus = charge.status as ChargeStatus;
-      if (
-        currentStatus !== 'OPEN' &&
-        currentStatus !== 'OVERDUE' &&
-        currentStatus !== 'SCHEDULED'
-      ) {
-        throw new DomainError('INVALID_TRANSITION', `Cobrança ${currentStatus} não pode ser paga`);
-      }
-      transitionCharge(
-        currentStatus === 'SCHEDULED'
-          ? 'SCHEDULED'
-          : currentStatus === 'OVERDUE'
-            ? 'OVERDUE'
-            : 'OPEN',
-        'OPEN',
-      );
-      // Abre a charge (recálculo de multa/juros no momento do pagamento)
-      const today = new Date().toISOString().slice(0, 10);
-      const breakdown = calculateChargeBreakdown({
-        rentCents: charge.rentCents,
-        condoFeeCents: charge.condoFeeCents,
-        taxesCents: charge.taxesCents,
-        discountCents: charge.discountCents,
-        dueDate: charge.dueDate,
-        paidOn: today,
-      });
-      const [openCharge] = await db
-        .update(charges)
-        .set({
-          status: 'OPEN',
-          amountCents: breakdown.amountCents,
-          lateFeeCents: breakdown.lateFeeCents,
-          interestCents: breakdown.interestCents,
-          updatedAt: new Date(),
-        })
-        .where(eq(charges.id, charge.id))
-        .returning();
-      if (!openCharge) {
-        throw new Error('charge open failed');
-      }
-
-      const payment = first(
-        await db
-          .insert(payments)
-          .values({
-            orgId: auth.orgId,
-            chargeId: charge.id,
-            amountCents: breakdown.amountCents,
-            method: input.method,
-            status: 'PENDING',
-          })
-          .returning(),
-      );
-      const providerResult = await app.payments.createCharge({
-        amountCents: breakdown.amountCents,
-        description: `Aluguel ${charge.periodStart}`,
-        dueDate: charge.dueDate,
-      });
-      await db
-        .update(charges)
-        .set({ providerChargeId: providerResult.providerChargeId, updatedAt: new Date() })
-        .where(eq(charges.id, charge.id));
-      await writeAudit(db, {
+      // Iniciação idempotente: reaproveita a tentativa pendente (P0-03).
+      const result = await initiatePayment(db, app.payments, {
         orgId: auth.orgId,
+        chargeId: id,
+        method: input.method,
         actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.PAYMENT_INITIATED,
-        entityType: 'CHARGE',
-        entityId: charge.id,
-        payload: { paymentId: payment.id, amountCents: breakdown.amountCents },
+        recalculate: true,
+        via: 'backoffice',
       });
-      return reply.status(201).send(
+      return reply.status(result.reused ? 200 : 201).send(
         paymentInitiationResponseSchema.parse({
-          payment: {
-            id: payment.id,
-            orgId: payment.orgId,
-            chargeId: payment.chargeId,
-            amountCents: payment.amountCents,
-            method: payment.method,
-            status: payment.status,
-            providerPaymentId: payment.providerPaymentId,
-            paidAt: payment.paidAt?.toISOString() ?? null,
-            createdAt: payment.createdAt.toISOString(),
-          },
-          pixQrCode: providerResult.pixQrCode ?? null,
-          boletoUrl: providerResult.boletoUrl ?? null,
-          providerChargeId: providerResult.providerChargeId,
+          payment: toPaymentDto(result.payment),
+          pixQrCode: result.pixQrCode,
+          boletoUrl: result.boletoUrl,
+          providerChargeId: result.providerChargeId,
         }),
       );
     },
@@ -285,23 +221,71 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
         throw new DomainError('NOT_FOUND', 'Cobrança não encontrada');
       }
       if (!isChargeStatus(charge.status)) {
-        throw new Error('charge status inválido');
+        throw new Error(`status de cobrança inválido: ${charge.status}`);
       }
-      transitionCharge(charge.status as ChargeStatus, 'CANCELLED');
-      const [cancelled] = await db
-        .update(charges)
-        .set({ status: 'CANCELLED', updatedAt: new Date() })
-        .where(eq(charges.id, charge.id))
-        .returning();
-      if (!cancelled) {
-        throw new Error('charge cancel failed');
+      transitionCharge(charge.status, 'CANCELLED');
+
+      // Cancela as tentativas NO PROVIDER antes: cobrança já recebida não se
+      // cancela — o dinheiro está a caminho e precisa ser registrado (P0-03).
+      const pendingPayments = await db
+        .select()
+        .from(payments)
+        .where(and(eq(payments.chargeId, charge.id), eq(payments.status, 'PENDING')));
+      const provider = app.payments;
+      if (provider) {
+        for (const payment of pendingPayments) {
+          if (!payment.providerPaymentId) {
+            continue;
+          }
+          const status = await provider.getChargeStatus(payment.providerPaymentId);
+          if (status === 'CONFIRMED' || status === 'REFUNDED') {
+            throw new DomainError(
+              'CONFLICT',
+              'Cobrança já recebida no provider; aguarde a confirmação do pagamento',
+            );
+          }
+          try {
+            await provider.cancelCharge(payment.providerPaymentId);
+          } catch (err) {
+            throw new DomainError(
+              'PROVIDER_ERROR',
+              `Falha ao cancelar a cobrança no provider: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+            );
+          }
+        }
       }
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.CHARGE_CANCELLED,
-        entityType: 'CHARGE',
-        entityId: charge.id,
+
+      const cancelled = await db.transaction(async (tx) => {
+        const [locked] = await tx
+          .select()
+          .from(charges)
+          .where(eq(charges.id, charge.id))
+          .for('update');
+        if (!locked || !isChargeStatus(locked.status)) {
+          throw new DomainError('NOT_FOUND', 'Cobrança não encontrada');
+        }
+        transitionCharge(locked.status, 'CANCELLED');
+        const [updated] = await tx
+          .update(charges)
+          .set({ status: 'CANCELLED', updatedAt: new Date() })
+          .where(and(eq(charges.id, locked.id), eq(charges.status, locked.status)))
+          .returning();
+        if (!updated) {
+          throw new DomainError('CONFLICT', 'A cobrança mudou de estado durante o cancelamento');
+        }
+        await tx
+          .update(payments)
+          .set({ status: 'CANCELLED', updatedAt: new Date() })
+          .where(and(eq(payments.chargeId, updated.id), eq(payments.status, 'PENDING')));
+        await postChargeCancellation(tx, updated);
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CHARGE_CANCELLED,
+          entityType: 'CHARGE',
+          entityId: updated.id,
+        });
+        return updated;
       });
       return { charge: toChargeDto(cancelled) };
     },
@@ -310,7 +294,7 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
   app.post(
     '/charges/:id/refund',
     { onRequest: [requirePermission('finance:write')] },
-    async (request) => {
+    async (request, reply) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const [charge] = await db
@@ -321,52 +305,73 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
       if (!charge) {
         throw new DomainError('NOT_FOUND', 'Cobrança não encontrada');
       }
+      if (charge.status !== 'PAID' || !charge.paidPaymentId) {
+        throw new DomainError('INVALID_TRANSITION', 'Nenhum pagamento confirmado para estornar');
+      }
       const [payment] = await db
         .select()
         .from(payments)
-        .where(eq(payments.chargeId, charge.id))
-        .orderBy(desc(payments.createdAt))
+        .where(and(eq(payments.id, charge.paidPaymentId), eq(payments.orgId, auth.orgId)))
         .limit(1);
-      if (!payment || !isPaymentStatus(payment.status)) {
+      if (!payment || payment.status !== 'CONFIRMED') {
         throw new DomainError('INVALID_TRANSITION', 'Nenhum pagamento confirmado para estornar');
       }
-      transitionPayment(payment.status as PaymentStatus, 'REFUNDED');
-      transitionCharge(charge.status as ChargeStatus, 'REFUNDED');
-      const [refundedPayment] = await db
-        .update(payments)
-        .set({ status: 'REFUNDED', paidAt: new Date() })
-        .where(eq(payments.id, payment.id))
-        .returning();
-      const [refundedCharge] = await db
-        .update(charges)
-        .set({ status: 'REFUNDED', updatedAt: new Date() })
-        .where(eq(charges.id, charge.id))
-        .returning();
-      if (!refundedPayment || !refundedCharge) {
-        throw new Error('refund failed');
+      const provider = app.payments;
+      if (!provider) {
+        throw new DomainError('INVALID_INPUT', 'Pagamento não configurado');
       }
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.PAYMENT_REFUNDED,
-        entityType: 'CHARGE',
-        entityId: charge.id,
-        payload: { paymentId: payment.id },
-      });
-      return refundResponseSchema.parse({
-        payment: {
-          id: refundedPayment.id,
-          orgId: refundedPayment.orgId,
-          chargeId: refundedPayment.chargeId,
-          amountCents: refundedPayment.amountCents,
-          method: refundedPayment.method,
-          status: refundedPayment.status,
-          providerPaymentId: refundedPayment.providerPaymentId,
-          paidAt: refundedPayment.paidAt?.toISOString() ?? null,
-          createdAt: refundedPayment.createdAt.toISOString(),
-        },
-        charge: toChargeDto(refundedCharge),
-      });
+      if (!payment.providerPaymentId) {
+        throw new DomainError('INVALID_INPUT', 'Pagamento sem identificação no provider');
+      }
+
+      // Quem estorna é o provider; o sistema só registra o estorno confirmado
+      // por ele (auditoria 2026-09-10, P0-02).
+      try {
+        await provider.refundPayment(payment.providerPaymentId);
+      } catch (err) {
+        throw new DomainError(
+          'PROVIDER_ERROR',
+          `Falha ao estornar no provider: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+        );
+      }
+      const status = await provider.getChargeStatus(payment.providerPaymentId);
+      if (status !== 'REFUNDED') {
+        await writeAudit(db, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.PAYMENT_REFUNDED,
+          entityType: 'CHARGE',
+          entityId: charge.id,
+          payload: { paymentId: payment.id, providerStatus: status, applied: false },
+        });
+        return reply.status(202).send(
+          refundResponseSchema.parse({
+            payment: toPaymentDto(payment),
+            charge: toChargeDto(charge),
+          }),
+        );
+      }
+
+      await applyProviderRefund(db, auth.orgId, payment.id);
+      const [refundedPayment] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.id, payment.id))
+        .limit(1);
+      const [refundedCharge] = await db
+        .select()
+        .from(charges)
+        .where(eq(charges.id, charge.id))
+        .limit(1);
+      if (!refundedPayment || !refundedCharge) {
+        throw new Error('estorno aplicado sem registro correspondente');
+      }
+      return reply.status(200).send(
+        refundResponseSchema.parse({
+          payment: toPaymentDto(refundedPayment),
+          charge: toChargeDto(refundedCharge),
+        }),
+      );
     },
   );
 

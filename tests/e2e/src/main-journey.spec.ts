@@ -123,6 +123,22 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     });
     expect(addr.status).toBe(200);
 
+    // Proprietário do imóvel: sem dono não há regra de split nem repasse.
+    const owner = await api<{ party: IdBody }>('POST', '/parties', {
+      cookie,
+      json: {
+        type: 'PERSON',
+        name: 'Proprietário E2E',
+        identities: [{ kind: 'CPF', value: '11144477735' }],
+      },
+    });
+    expect(owner.status).toBe(201);
+    const ownerLink = await api('POST', `/properties/${propertyId}/owners`, {
+      cookie,
+      json: { partyId: owner.body.party.id },
+    });
+    expect(ownerLink.status).toBeLessThan(300);
+
     const listing = await api<{ listing: IdBody }>('POST', '/listings', {
       cookie,
       json: { propertyId, title: 'Apartamento E2E Playwright', description: '2qts' },
@@ -272,6 +288,15 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     expect(payment.body.pixQrCode).toBeTruthy();
     expect(payment.body.providerChargeId).toBeTruthy();
 
+    // O pagador quita a cobrança NO PROVIDER (simulação do FAKE); o webhook só
+    // notifica — quem credita é o worker, que roda em outro processo.
+    const confirm = await api(
+      'POST',
+      `/dev/fake-payments/${encodeURIComponent(payment.body.providerChargeId)}/confirm`,
+      { cookie, json: {} },
+    );
+    expect(confirm.status).toBe(200);
+
     const wh = await api('POST', '/webhooks/payments', {
       json: {
         provider: 'FAKE',
@@ -283,6 +308,27 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
       },
     });
     expect(wh.status).toBe(200);
+
+    let paid = false;
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const current = await api<{ charge: { status: string } }>('GET', `/charges/${chargeId}`, {
+        cookie,
+      });
+      if (current.body.charge.status === 'PAID') {
+        paid = true;
+        break;
+      }
+    }
+    expect(paid, 'worker em processo separado deve liquidar a cobrança (PAID)').toBe(true);
+
+    const payouts = await api<{ payouts: Array<{ amountCents: number; status: string }> }>(
+      'GET',
+      '/payouts',
+      { cookie },
+    );
+    expect(payouts.body.payouts.length, 'liquidação deve gerar repasse ao proprietário').toBe(1);
+    expect(payouts.body.payouts[0]?.amountCents).toBe(225000);
 
     const access = await api<{ oneTimeToken: string }>('POST', '/portal/access', {
       cookie,
@@ -303,8 +349,11 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     const statement = await fetch(`${API}/portal/tenant/statement`, {
       headers: { cookie: portalCookie },
     });
-    const statementBody = (await statement.json()) as { totals: { billedCents: number } };
+    const statementBody = (await statement.json()) as {
+      totals: { billedCents: number; paidCents: number };
+    };
     expect(statementBody.totals.billedCents).toBe(250000);
+    expect(statementBody.totals.paidCents).toBe(250000);
   });
 
   test('3. telas do painel refletem os dados criados', async ({ page }) => {

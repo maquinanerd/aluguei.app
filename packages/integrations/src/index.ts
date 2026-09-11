@@ -50,7 +50,8 @@ export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
 export { getWhatsAppMessenger } from './whatsapp/registry.js';
 export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
 
-export { FakePaymentProvider } from './payments/fake.js';
+export { FakePaymentProvider, InMemoryFakePaymentStore } from './payments/fake.js';
+export type { FakeChargeRecord, FakePaymentStore } from './payments/fake.js';
 export { AsaasPaymentProvider, mapAsaasPaymentWebhook } from './payments/asaas.js';
 export type {
   AsaasPaymentProviderOptions,

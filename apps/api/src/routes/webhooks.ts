@@ -11,6 +11,7 @@ import {
   metaWebhookEvents,
 } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
+import { findPaymentByProviderId } from '../finance/settlement.js';
 import { writeAudit } from '../plugins/audit.js';
 import {
   metaWebhookEventSchema,
@@ -277,14 +278,22 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     '/webhooks/payments',
     { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
     async (request, reply) => {
-      const input = paymentWebhookEventSchema.parse(request.body);
-      // Autenticidade (P1): quando ASAAS_WEBHOOK_TOKEN está configurado, o
-      // provider real envia o token no header. A doc oficial vigente usa
-      // `asaas-access-token`; versões históricas do produto usavam
-      // `asaas-webhook-token` — ambos aceitos (comparação em tempo constante).
-      // Em dev (provider FAKE sem token), a segurança vem da confirmação no
-      // provider feita pelo worker.
+      // Autenticidade (P0-02): em produção o token do provider é OBRIGATÓRIO —
+      // sem ele o endpoint recusa, em vez de aceitar evento de qualquer origem.
+      // A doc oficial vigente usa `asaas-access-token`; versões históricas do
+      // produto usavam `asaas-webhook-token` — ambos aceitos (tempo constante).
       const expectedToken = app.env.ASAAS_WEBHOOK_TOKEN;
+      if (
+        enforceProductionSecret(
+          request,
+          reply,
+          app.env,
+          Boolean(expectedToken),
+          'ASAAS_WEBHOOK_TOKEN',
+        )
+      ) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
       if (expectedToken) {
         const header =
           typeof request.headers['asaas-webhook-token'] === 'string'
@@ -297,27 +306,20 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
           return reply.status(401).send({ error: 'Unauthorized' });
         }
       }
-      // Resolve org por provider_charge_id (não confia em org_id do payload).
-      const [charge] = await db
-        .select({ orgId: charges.orgId, providerChargeId: charges.providerChargeId })
-        .from(charges)
-        .where(eq(charges.providerChargeId, input.providerChargeId))
-        .limit(1);
-      if (!charge) {
+      const input = paymentWebhookEventSchema.parse(request.body);
+      // Resolve a org pela tentativa de pagamento (não confia no payload). O
+      // webhook NÃO muda nada no provider nem no sistema: apenas enfileira —
+      // o worker relê o status no provider antes de qualquer efeito (P0-02).
+      const payment = await findPaymentByProviderId(db, input.provider, input.providerChargeId);
+      if (!payment) {
         return reply.status(200).send({ status: 'ignored' });
-      }
-      // Em modo FAKE, o webhook confirma a cobrança no provider para que o
-      // worker (que SEMPRE confirma via getChargeStatus) possa creditar.
-      const provider = app.payments;
-      if (provider?.confirmCharge && charge.providerChargeId) {
-        await provider.confirmCharge(charge.providerChargeId);
       }
       await db
         .insert(webhookInbox)
         .values({
-          orgId: charge.orgId,
+          orgId: payment.orgId,
           provider: 'PAYMENT',
-          providerEventId: `PAY:${input.providerEventId}`,
+          providerEventId: `PAY:${input.provider}:${input.providerEventId}`,
           payload: { ...input } as unknown as Record<string, unknown>,
         })
         .onConflictDoNothing();
