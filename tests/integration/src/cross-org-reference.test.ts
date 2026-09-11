@@ -560,7 +560,107 @@ describe('P0-05: referência entre organizações é bloqueada', () => {
     expect(contract.status).toBe(404);
   });
 
+  it('defesa no banco: FK composta recusa referência a outra org (23503)', async () => {
+    // Sem passar pela API: INSERT direto com id da org A gravando na org B.
+    // Se uma rota futura esquecer a checagem de dono, é aqui que para.
+    const id = (): string => randomUUID();
+    const cases: Array<[string, ReturnType<typeof sql>]> = [
+      [
+        'leads.party_id',
+        sql`insert into leads (id, org_id, status, party_id)
+            values (${id()}, ${B.orgId}, 'NEW', ${A.partyId})`,
+      ],
+      [
+        'lead_property_interests.property_id',
+        sql`insert into lead_property_interests (id, org_id, lead_id, property_id)
+            values (${id()}, ${B.orgId}, ${B.leadId}, ${A.propertyId})`,
+      ],
+      [
+        'visits.party_id',
+        sql`insert into visits (id, org_id, party_id, scheduled_at, status)
+            values (${id()}, ${B.orgId}, ${A.partyId}, now(), 'SCHEDULED')`,
+      ],
+      [
+        'proposals.property_id',
+        sql`insert into proposals (id, org_id, property_id, monthly_rent_cents, status)
+            values (${id()}, ${B.orgId}, ${A.propertyId}, 250000, 'DRAFT')`,
+      ],
+      [
+        'rental_applications.party_id',
+        sql`insert into rental_applications (id, org_id, party_id, property_id, status)
+            values (${id()}, ${B.orgId}, ${A.partyId}, ${B.propertyId}, 'DRAFT')`,
+      ],
+      [
+        'rental_applications.proposal_id',
+        sql`insert into rental_applications (id, org_id, party_id, property_id, proposal_id, status)
+            values (${id()}, ${B.orgId}, ${B.partyId}, ${B.propertyId}, ${A.proposalId}, 'DRAFT')`,
+      ],
+      [
+        'inspections.property_id',
+        sql`insert into inspections (id, org_id, property_id, type, status)
+            values (${id()}, ${B.orgId}, ${A.propertyId}, 'CHECKIN', 'DRAFT')`,
+      ],
+      [
+        'inspection_media.room_id',
+        sql`insert into inspection_media (id, org_id, inspection_id, room_id, kind, storage_key)
+            values (${id()}, ${B.orgId}, ${B.inspectionId}, ${A.roomId}, 'PHOTO', ${`k-${uniq()}`})`,
+      ],
+      [
+        'inspection_observations.media_id',
+        sql`insert into inspection_observations
+              (id, org_id, inspection_id, media_id, category, severity, description, source, status)
+            values (${id()}, ${B.orgId}, ${B.inspectionId}, ${A.inspectionMediaId},
+                    'DAMAGE', 'LOW', 'risco na parede', 'HUMAN', 'CONFIRMED')`,
+      ],
+      [
+        'meta_ad_profiles.page_asset_id',
+        sql`insert into meta_ad_profiles
+              (id, org_id, connection_id, property_id, page_asset_id, name, objective,
+               landing_url, copy_primary, status)
+            values (${id()}, ${B.orgId}, ${B.connectionId}, ${B.propertyId}, ${A.pageAssetId},
+                    'Campanha', 'OUTCOME_TRAFFIC', 'https://aluguei.app/x', 'copy', 'DRAFT')`,
+      ],
+    ];
+
+    for (const [label, statement] of cases) {
+      let code: string | undefined;
+      try {
+        await app.db.execute(statement);
+      } catch (error) {
+        code = sqlState(error);
+      }
+      // 23503 = foreign_key_violation. Outro código (ou nenhum) significa que o
+      // insert passou ou falhou por outro motivo — nos dois casos o teste falha.
+      expect(code, `${label}: o banco deveria recusar com 23503`).toBe('23503');
+    }
+
+    expect(await findCrossOrgReferences(app.db)).toEqual([]);
+  });
+
+  it('controle positivo: a mesma referência dentro da própria org é aceita', async () => {
+    const leadId = randomUUID();
+    await app.db.execute(
+      sql`insert into leads (id, org_id, status, party_id)
+          values (${leadId}, ${B.orgId}, 'NEW', ${B.partyId})`,
+    );
+    const row = await app.db.execute(
+      sql`select count(*)::int as n from leads where id = ${leadId} and party_id = ${B.partyId}`,
+    );
+    expect((row.rows[0] as { n: number }).n).toBe(1);
+  });
+
   it('verificação SQL: zero referências entre organizações', async () => {
     expect(await findCrossOrgReferences(app.db)).toEqual([]);
   });
 });
+
+/** SQLSTATE do erro: o driver aninha o erro original na cadeia de causas. */
+function sqlState(error: unknown): string | undefined {
+  let current: unknown = error;
+  for (let depth = 0; depth < 5 && current; depth += 1) {
+    const code = (current as { code?: unknown }).code;
+    if (typeof code === 'string' && /^[0-9A-Z]{5}$/.test(code)) return code;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return undefined;
+}

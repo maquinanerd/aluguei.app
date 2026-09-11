@@ -259,3 +259,19 @@ Decisões:
 - `first()` passa a lançar `NOT_FOUND` em vez de erro genérico.
 - Consentimento e resultados de screening lidos sempre com filtro de organização.
 - Ids polimórficos (`tasks.related_entity_id`, `timeline_events.entity_id`) só aceitam tipos conhecidos, com verificação de dono; tipo desconhecido com id → 400.
+
+## ADR-045 — Defesa no banco: UNIQUE (org_id, id) e FKs compostas (Gate G1, 2026-09-11)
+
+Status: Aceito.
+
+Contexto: o ADR-044 fecha P0-05 na aplicação, mas a checagem vive em cada rota. Uma rota nova que esqueça `assertOwnedByOrg` volta a gravar o vínculo entre organizações e o banco aceita: a FK de coluna única só exige que o id exista, não que ele pertença à mesma organização.
+
+Decisões:
+
+- Nove tabelas ganham `UNIQUE (org_id, id)` e viram alvo referenciável por organização: `parties`, `properties`, `leads`, `proposals`, `inspections`, `inspection_rooms`, `inspection_media`, `meta_connections`, `meta_assets`.
+- 22 referências passam a FK composta `(org_id, ref_id) → alvo (org_id, id)`: `leads.party_id`; `lead_property_interests.lead_id/property_id`; `visits.lead_id/party_id/property_id`; `proposals.lead_id/party_id/property_id`; `rental_applications.party_id/property_id/lead_id/proposal_id`; `inspections.property_id`; `inspection_media.room_id`; `inspection_observations.room_id/media_id`; `meta_assets.connection_id`; `meta_ad_profiles.connection_id/property_id/page_asset_id/instagram_asset_id`.
+- `ON DELETE SET NULL` lista a coluna (`ON DELETE SET NULL ("party_id")`): `org_id` é NOT NULL e não pode ser anulada junto (PostgreSQL 15+). O drizzle-kit não gera essa forma — a `0013_tenant_composite_fks.sql` é editada à mão, como a 0012, com as UNIQUE antes das FKs.
+- A migration tem pré-voo: se o banco já tiver referência entre organizações, ela para com `RAISE EXCEPTION` listando relação, contagem e exemplo, em vez de falhar no meio do `ALTER TABLE`.
+- MATCH SIMPLE (padrão do Postgres): referência nula continua permitida — a FK só age quando há vínculo.
+
+Consequências: a aplicação continua respondendo `404 NOT_FOUND` (sem oráculo de existência) — a FK é segunda linha, não a mensagem de erro do usuário. Se ela disparar, é defeito de programação (a rota deixou de checar o dono): sobe como falha de servidor com `pgCode` no log estruturado. Cobertura residual, que continua só na aplicação e na query permanente `CROSS_ORG_VERIFY_SQL`: ids polimórficos (`tasks.related_entity_id`, `timeline_events.entity_id`), ids dentro de jsonb (`meta_ad_profiles.media_selection`, `meta_creative_links.media_refs`, `meta_sync_jobs.payload.mediaRefs`) e referências cujo alvo não ganhou `UNIQUE (org_id, id)` (`listings`, `property_media`, `party_consents`, `contract_templates`). Evidência: `fase2-db-red.log` (sem a 0013, o insert direto de `leads.party_id` com id de outra organização é aceito) e `fase2-db-green.log` (10 inserts recusados com 23503).

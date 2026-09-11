@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -39,6 +40,8 @@ export const properties = pgTable(
     index('properties_org_idx').on(t.orgId),
     index('properties_org_status_idx').on(t.orgId, t.status),
     uniqueIndex('properties_org_code_unique').on(t.orgId, t.code),
+    // Alvo de FK composta: a referência passa a carregar a organização (P0-05).
+    unique('properties_org_id_unique').on(t.orgId, t.id),
   ],
 );
 

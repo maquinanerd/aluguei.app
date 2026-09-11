@@ -3,12 +3,14 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   doublePrecision,
+  foreignKey,
   index,
   integer,
   jsonb,
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -22,9 +24,7 @@ export const inspections = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    propertyId: uuid('property_id')
-      .notNull()
-      .references(() => properties.id, { onDelete: 'cascade' }),
+    propertyId: uuid('property_id').notNull(),
     type: text('type').notNull(), // CHECKIN | CHECKOUT | INTERMEDIATE
     status: text('status').notNull().default('DRAFT'), // DRAFT | CAPTURING | PROCESSING | REVIEW | COMPLETED | SIGNED
     startedBy: uuid('started_by').references(() => users.id, { onDelete: 'set null' }),
@@ -38,6 +38,13 @@ export const inspections = pgTable(
     index('inspections_org_created_idx').on(t.orgId, t.createdAt),
     index('inspections_org_status_idx').on(t.orgId, t.status),
     index('inspections_property_idx').on(t.propertyId),
+    unique('inspections_org_id_unique').on(t.orgId, t.id),
+    // Vistoria só de imóvel da própria organização (auditoria 2026-09-10, P0-05).
+    foreignKey({
+      name: 'inspections_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('cascade'),
   ],
 );
 
@@ -58,6 +65,7 @@ export const inspectionRooms = pgTable(
   (t) => [
     index('inspection_rooms_inspection_order_idx').on(t.inspectionId, t.orderIndex),
     index('inspection_rooms_org_idx').on(t.orgId),
+    unique('inspection_rooms_org_id_unique').on(t.orgId, t.id),
   ],
 );
 
@@ -72,7 +80,7 @@ export const inspectionMedia = pgTable(
     inspectionId: uuid('inspection_id')
       .notNull()
       .references(() => inspections.id, { onDelete: 'cascade' }),
-    roomId: uuid('room_id').references(() => inspectionRooms.id, { onDelete: 'set null' }),
+    roomId: uuid('room_id'),
     kind: text('kind').notNull(), // PHOTO | AUDIO | VIDEO
     storageKey: text('storage_key').notNull().unique(),
     mimeType: text('mime_type'),
@@ -85,6 +93,12 @@ export const inspectionMedia = pgTable(
   (t) => [
     index('inspection_media_inspection_idx').on(t.inspectionId),
     index('inspection_media_org_idx').on(t.orgId),
+    unique('inspection_media_org_id_unique').on(t.orgId, t.id),
+    foreignKey({
+      name: 'inspection_media_room_org_fk',
+      columns: [t.orgId, t.roomId],
+      foreignColumns: [inspectionRooms.orgId, inspectionRooms.id],
+    }).onDelete('set null'),
   ],
 );
 
@@ -154,8 +168,8 @@ export const inspectionObservations = pgTable(
     inspectionId: uuid('inspection_id')
       .notNull()
       .references(() => inspections.id, { onDelete: 'cascade' }),
-    roomId: uuid('room_id').references(() => inspectionRooms.id, { onDelete: 'set null' }),
-    mediaId: uuid('media_id').references(() => inspectionMedia.id, { onDelete: 'set null' }),
+    roomId: uuid('room_id'),
+    mediaId: uuid('media_id'),
     category: text('category').notNull(), // DAMAGE | CONDITION | CLEANLINESS | FURNITURE | INSTALLATION | OTHER
     severity: text('severity').notNull(), // NONE | LOW | MEDIUM | HIGH
     description: text('description').notNull(),
@@ -174,6 +188,16 @@ export const inspectionObservations = pgTable(
       .where(sql`ai_suggestion_id IS NOT NULL`),
     index('inspection_observations_inspection_room_idx').on(t.inspectionId, t.roomId),
     index('inspection_observations_inspection_status_idx').on(t.inspectionId, t.status),
+    foreignKey({
+      name: 'inspection_observations_room_org_fk',
+      columns: [t.orgId, t.roomId],
+      foreignColumns: [inspectionRooms.orgId, inspectionRooms.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'inspection_observations_media_org_fk',
+      columns: [t.orgId, t.mediaId],
+      foreignColumns: [inspectionMedia.orgId, inspectionMedia.id],
+    }).onDelete('set null'),
   ],
 );
 
