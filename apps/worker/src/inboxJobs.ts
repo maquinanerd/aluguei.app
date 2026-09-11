@@ -1,5 +1,4 @@
 import { sql } from 'drizzle-orm';
-import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import { createDbFakePaymentStore, webhookInbox } from '@aluguei/db';
@@ -295,7 +294,10 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
         RETURNING status
       `);
-      const status = String(failed.rows[0]?.status ?? 'FAILED');
+      // `rows` vem como Record<string, unknown>: sem tipar, o status cairia em
+      // "[object Object]" no log em vez de FAILED/DEAD.
+      const [outcome] = failed.rows as Array<{ status?: string } | undefined>;
+      const status = outcome?.status ?? 'FAILED';
       log?.(`inbox ${job.id} (${job.provider}) ${status}: ${safe}`);
       if (status === 'DEAD') {
         onDeadLetter?.({
