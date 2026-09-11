@@ -1,0 +1,5 @@
+lint exit=0 dur=120s
+typecheck exit=0 dur=82s
+test exit=0 dur=322s
+build exit=0 dur=145s
+ALL_DONE

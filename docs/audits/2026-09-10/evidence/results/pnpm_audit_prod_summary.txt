@@ -1,0 +1,45 @@
+pnpm audit --prod (2026-09-10) metadata: {"info":0,"low":0,"moderate":11,"high":31,"critical":2}
+critical next >=16.0.0 <16.3.3 -> >=16.3.3 | Next.js: Unauthenticated Remote Code Execution on windows-hosted servers | roots: apps__web
+critical next >=16.0.0 <16.3.3 -> >=16.3.3 | Next.js: Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used | roots: apps__web
+high image-size <=2.0.2 -> >=2.0.3 | image-size: ICNS parser allows denial of service through an infinite loop | roots: apps__mobile
+high image-size <=2.0.2 -> >=2.0.3 | image-size: JXL and HEIF parsers allow denial of service through infinite loops | roots: apps__mobile
+high fast-uri >=4.0.1 <4.1.3 -> >=4.1.3 | fast-uri vulnerable to host confusion via skipped IDN canonicalization on scheme-relative references | roots: apps__api
+high fast-uri >=3.1.3 <3.1.6 -> >=3.1.6 | fast-uri vulnerable to host confusion via skipped IDN canonicalization on scheme-relative references | roots: apps__api,apps__meta-mcp
+high fast-uri >=4.0.0 <4.1.3 -> >=4.1.3 | fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization | roots: apps__api
+high fast-uri >=3.0.0 <3.1.6 -> >=3.1.6 | fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization | roots: apps__api,apps__meta-mcp
+high fast-uri >=4.0.0 <4.1.3 -> >=4.1.3 | fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding | roots: apps__api
+high fast-uri >=3.1.2 <3.1.6 -> >=3.1.6 | fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding | roots: apps__api,apps__meta-mcp
+high fast-uri >=4.0.0 <4.1.3 -> >=4.1.3 | fast-uri vulnerable to host confusion via percent-encoded scheme normalization | roots: apps__api
+high fast-uri >=3.0.0 <3.1.6 -> >=3.1.6 | fast-uri vulnerable to host confusion via percent-encoded scheme normalization | roots: apps__api,apps__meta-mcp
+high @xmldom/xmldom >=0.9.0-beta.1 <=0.9.11 -> >=0.9.12 | xmldom: HTML raw-text closing-tag case mismatch causes output amplification | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0-beta.9 <=0.9.10 -> >=0.9.11 | xmldom PI grammar regex ReDoS: quadratic backtracking on unterminated processing instructions | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.13 -> >=0.8.14 | xmldom: Element name injection via createElement() bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.10 -> >=0.9.11 | xmldom: Element name injection via createElement() bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.13 -> >=0.8.14 | xmldom: Attribute name injection via setAttribute() bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.10 -> >=0.9.11 | xmldom: Attribute name injection via setAttribute() bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Processing Instruction Target Injection Bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: Processing Instruction Target Injection Bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: DocType `name` Injection Bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: DocType `name` Injection Bypasses requireWellFormed | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Creation-time XML Name/QName validation is bypassable via an embedded line terminator, allowing injection on the default serialization path | roots: apps__mobile
+high @xmldom/xmldom >=0.9.10 <=0.9.11 -> >=0.9.12 | xmldom: requireWellFormed DocType publicId/systemId validation is bypassable via an embedded line terminator | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Quadratic-time attribute deduplication | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: Quadratic-time attribute deduplication | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: End-tag Whitespace-Trim Regex ReDoS — quadratic backtracking in the 0.8.x end-tag parser | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Quadratic-memory consumption | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: Quadratic-memory consumption | roots: apps__mobile
+high @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Quadratic-time parsing via the malformed-input recovery path — `parseElementStartPart` re-scan and `normalize()` adjacent-text merge | roots: apps__mobile
+high @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: Quadratic-time parsing via the malformed-input recovery path — `parseElementStartPart` re-scan and `normalize()` adjacent-text merge | roots: apps__mobile
+high sharp <0.35.4 -> >=0.35.4 | sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545 | roots: apps__web
+high js-yaml >=4.0.0 <4.3.2 -> >=4.3.2 | js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources | roots: apps__mobile
+moderate qs >=6.14.2 <=6.15.3 -> >=6.15.4 | qs array-limit bypass via bracket-key comma parsing | roots: apps__meta-mcp
+moderate qs >=2.2.5 <6.16.0 -> >=6.16.0 | qs: Denial of Service via Attacker Controlled isBuffer | roots: apps__meta-mcp
+moderate fastify <5.12.1 -> >=5.12.1 | fastify vulnerable to schema validation bypass via root primitive coercion mismatch | roots: apps__api
+moderate @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization | roots: apps__mobile
+moderate @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization | roots: apps__mobile
+moderate fastify >=5.8.3 <5.12.1 -> >=5.12.1 | fastify vulnerable to X-Forwarded-* spoofing under trustProxy hop-count | roots: apps__api
+moderate @xmldom/xmldom >=0.9.0 <=0.9.11 -> >=0.9.12 | xmldom: Parser silently accepts a not-well-formed end tag whose name is followed by a line break and trailing content | roots: apps__mobile
+moderate @xmldom/xmldom >=0.7.0 <=0.8.14 -> >=0.8.15 | xmldom: Parser silently accepts a not-well-formed end tag whose name is followed by a line break and trailing content | roots: apps__mobile
+moderate hono <4.13.5 -> >=4.13.5 | Hono: Incomplete fix for CVE-2026-39408: `toSSG()` still writes files outside the output directory | roots: apps__meta-mcp
+moderate hono <4.13.5 -> >=4.13.5 | Hono: Unbounded dot-notation nesting in `parseBody()` can cause memory exhaustion | roots: apps__meta-mcp
+moderate hono <4.13.5 -> >=4.13.5 | Hono: Query parser reads parameters after the URL fragment, causing cache-key and proxy interpretation differentials | roots: apps__meta-mcp
