@@ -77,8 +77,6 @@ function ContractsBody() {
   );
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a contratos" />;
-
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
     for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
@@ -96,6 +94,8 @@ function ContractsBody() {
     for (const t of templatesQ.data?.templates ?? []) m.set(t.id, t);
     return m;
   }, [templatesQ.data]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a contratos" />;
 
   const columns: Column<Contract>[] = [
     {

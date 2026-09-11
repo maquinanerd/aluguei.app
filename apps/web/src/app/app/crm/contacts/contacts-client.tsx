@@ -53,8 +53,6 @@ function ContactsBody() {
     total: number;
   }>('/parties?limit=100', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a contatos" />;
-
   const parties = useMemo(() => {
     const rows = data?.parties ?? [];
     const q = search.trim().toLowerCase();
@@ -65,6 +63,8 @@ function ContactsBody() {
         p.identities.some((i) => i.value.toLowerCase().includes(q)),
     );
   }, [data, search]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a contatos" />;
 
   const detail = detailId ? (data?.parties.find((p) => p.id === detailId) ?? null) : null;
 

@@ -61,8 +61,6 @@ function ListingsBody() {
   }>(queryPath, [queryPath]);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a listings" />;
-
   const propertyTitle = useMemo(() => {
     const m = new Map<string, string>();
     for (const p of propsQ.data?.properties ?? []) m.set(p.id, p.title);
@@ -75,6 +73,8 @@ function ListingsBody() {
     if (!q) return rows;
     return rows.filter((l) => l.title.toLowerCase().includes(q));
   }, [data, search]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a listings" />;
 
   async function changeStatus(listing: Listing, next: string) {
     setBusy(listing.id);

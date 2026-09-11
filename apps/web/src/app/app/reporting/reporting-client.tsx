@@ -58,8 +58,6 @@ function ReportingBody() {
   const revenueQ = useQuery<{ months: RevenueMonth[] }>('/reporting/revenue-monthly', []);
   const spendQ = useQuery<MetaSpend>('/reporting/meta-spend', []);
 
-  if (funnelQ.permissionDenied) return <PermissionDenied title="Sem acesso a relatórios" />;
-
   const funnel = useMemo(() => {
     const points = funnelQ.data?.points ?? [];
     const totals = new Map<string, number>();
@@ -68,6 +66,8 @@ function ReportingBody() {
     }
     return [...totals.entries()].sort((a, b) => b[1] - a[1]);
   }, [funnelQ.data]);
+
+  if (funnelQ.permissionDenied) return <PermissionDenied title="Sem acesso a relatórios" />;
 
   const maxCount = funnel.reduce((m, [, c]) => Math.max(m, c), 1);
 

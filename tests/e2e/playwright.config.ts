@@ -5,29 +5,33 @@ import { defineConfig } from '@playwright/test';
  * providers FAKE via env (PAYMENT_PROVIDER/SIGNATURE_PROVIDER/SCREENING_PROVIDER
  * = FAKE, META_MODE=dry_run, AI_PROVIDER=mock). Nenhum efeito externo real.
  *
- * Pré-requisito: binários do PostgreSQL local. O boot é feito pelo script
- * scripts/boot-stack.mjs (executado via webServer) que sobe o cluster em porta
- * isolada (5433) e aplica migrations. Se a stack já estiver no ar
- * (reuseExistingServer), o boot não é refeito.
+ * O webServer (scripts/boot-stack.mjs → scripts/stack.mjs) sobe a stack do
+ * zero a cada execução — cluster PostgreSQL descartável (binários locais em
+ * PG_BIN) ou o banco de E2E_DATABASE_URL (CI) — e o globalTeardown a derruba.
+ * E2E_REUSE_STACK=1 reutiliza uma stack já no ar (boot-stack.mjs manual).
  */
+const WEB_PORT = process.env.WEB_PORT ?? '3000';
+
 export default defineConfig({
   testDir: './src',
+  globalTeardown: './scripts/global-teardown.ts',
   timeout: 120_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${WEB_PORT}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'node scripts/boot-stack.mjs',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 240_000,
-    stdout: 'ignore',
+    url: `http://localhost:${WEB_PORT}`,
+    reuseExistingServer: process.env.E2E_REUSE_STACK === '1',
+    timeout: 300_000,
+    env: { E2E_STACK_MODE: 'playwright' },
+    stdout: 'pipe',
     stderr: 'pipe',
   },
 });

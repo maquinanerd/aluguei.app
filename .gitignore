@@ -44,3 +44,7 @@ planejamento-plataforma-inteligencia-imobiliaria-v2.pdf
 test-results/
 playwright-report/
 
+# pacotes/snapshots de outros produtos ou de sessões antigas não são código-fonte
+# (auditoria 2026-09-10, P1-23)
+*.zip
+

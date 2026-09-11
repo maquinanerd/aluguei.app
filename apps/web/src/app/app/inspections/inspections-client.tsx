@@ -64,13 +64,13 @@ function InspectionsBody() {
   }>(queryPath, [queryPath]);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a vistorias" />;
-
   const propertyMap = useMemo(() => {
     const m = new Map<string, Property>();
     for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
     return m;
   }, [propsQ.data]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a vistorias" />;
 
   const columns: Column<Inspection>[] = [
     {

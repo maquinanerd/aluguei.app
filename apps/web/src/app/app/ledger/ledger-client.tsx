@@ -36,8 +36,6 @@ function LedgerBody() {
     [accountId],
   );
 
-  if (entriesQ.permissionDenied) return <PermissionDenied title="Sem acesso ao ledger" />;
-
   const accountMap = useMemo(() => {
     const m = new Map<string, LedgerAccount>();
     for (const a of accountsQ.data?.accounts ?? []) m.set(a.id, a);
@@ -54,6 +52,8 @@ function LedgerBody() {
       .reduce((s, e) => s + e.amountCents, 0);
     return { debits, credits, net: debits - credits };
   }, [entriesQ.data]);
+
+  if (entriesQ.permissionDenied) return <PermissionDenied title="Sem acesso ao ledger" />;
 
   const columns: Column<LedgerEntry>[] = [
     {

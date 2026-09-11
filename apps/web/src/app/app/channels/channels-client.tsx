@@ -40,8 +40,6 @@ function ChannelsBody() {
     [],
   );
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a canais" />;
-
   const channelStats = useMemo(() => {
     const map = new Map<
       string,
@@ -58,6 +56,8 @@ function ChannelsBody() {
     }
     return map;
   }, [data]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a canais" />;
 
   async function action(
     kind: 'publish' | 'remove' | 'reconcile' | 'importLeads',

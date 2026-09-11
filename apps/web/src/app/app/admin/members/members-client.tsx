@@ -39,10 +39,6 @@ function MembersBody({ orgId }: { orgId: string }) {
   const membersPath = `/organizations/${orgId}/members`;
   const orgMembers = useQuery<{ members: Member[] }>(membersPath, [orgId]);
 
-  if (orgMembers.permissionDenied) {
-    return <PermissionDenied title="Sem acesso à equipe" />;
-  }
-
   const members = useMemo(() => {
     const rows = orgMembers.data?.members ?? [];
     const q = search.trim().toLowerCase();
@@ -51,6 +47,10 @@ function MembersBody({ orgId }: { orgId: string }) {
       (m) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
     );
   }, [orgMembers.data, search]);
+
+  if (orgMembers.permissionDenied) {
+    return <PermissionDenied title="Sem acesso à equipe" />;
+  }
 
   async function updateRole(member: Member, role: string) {
     try {

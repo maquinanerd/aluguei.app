@@ -143,6 +143,12 @@ function InspectionBody() {
     [propsQ.data, inspection],
   );
 
+  const roomMap = useMemo(() => {
+    const m = new Map<string, Room>();
+    for (const r of agg?.rooms ?? []) m.set(r.id, r);
+    return m;
+  }, [agg?.rooms]);
+
   if (aggQ.permissionDenied) return <PermissionDenied title="Sem acesso à vistoria" />;
 
   if (!inspection && !aggQ.loading) {
@@ -248,12 +254,6 @@ function InspectionBody() {
       toast.error('Falha', err instanceof Error ? err.message : undefined);
     }
   }
-
-  const roomMap = useMemo(() => {
-    const m = new Map<string, Room>();
-    for (const r of agg.rooms) m.set(r.id, r);
-    return m;
-  }, [agg.rooms]);
 
   const pendingSuggestions = agg.aiSuggestions.filter((s) => s.status === 'PENDING');
 

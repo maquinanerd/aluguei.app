@@ -50,8 +50,6 @@ function ScreeningBody() {
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a análises de crédito" />;
-
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
     for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
@@ -63,6 +61,8 @@ function ScreeningBody() {
     for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
     return m;
   }, [propsQ.data]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a análises de crédito" />;
 
   const columns: Column<Application>[] = [
     {

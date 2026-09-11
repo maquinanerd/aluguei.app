@@ -54,13 +54,13 @@ function TasksBody() {
     total: number;
   }>(queryPath, [queryPath]);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a tarefas" />;
-
   const tasks = useMemo(() => {
     const rows = data?.tasks ?? [];
     const q = search.trim().toLowerCase();
     return q ? rows.filter((t) => t.title.toLowerCase().includes(q)) : rows;
   }, [data, search]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a tarefas" />;
 
   async function setTaskStatus(task: Task, next: string) {
     try {

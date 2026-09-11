@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  * jornada até o estado que o ambiente local produz de forma honesta.
  */
 
-const API = 'http://127.0.0.1:4000';
+const API = `http://127.0.0.1:${process.env.API_PORT ?? '4000'}`;
 const uniq = Date.now().toString(36);
 const email = `e2e-${uniq}@teste.com`;
 const password = 'e2e-password-123';

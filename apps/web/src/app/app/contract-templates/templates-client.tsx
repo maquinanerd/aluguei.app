@@ -60,13 +60,13 @@ function TemplatesBody() {
     total: number;
   }>(queryPath, [queryPath]);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a templates" />;
-
   const templates = useMemo(() => {
     const rows = data?.templates ?? [];
     const q = search.trim().toLowerCase();
     return q ? rows.filter((t) => t.name.toLowerCase().includes(q)) : rows;
   }, [data, search]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a templates" />;
 
   async function approve(t: Template) {
     try {

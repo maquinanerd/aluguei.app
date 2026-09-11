@@ -102,8 +102,6 @@ function InboxBody() {
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const leadsQ = useQuery<{ leads: Lead[] }>('/leads?limit=100', []);
 
-  if (convQ.permissionDenied) return <PermissionDenied title="Sem acesso ao inbox" />;
-
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
     for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
@@ -126,17 +124,19 @@ function InboxBody() {
     });
   }, [convQ.data, search, partyMap]);
 
-  const selected = selectedId
-    ? (convQ.data?.conversations.find((c) => c.id === selectedId) ?? null)
-    : null;
-  const selectedParty = selected?.partyId ? (partyMap.get(selected.partyId) ?? null) : null;
-  const selectedLead = selected?.leadId ? (leadMap.get(selected.leadId) ?? null) : null;
-
   useEffect(() => {
     if (threadRef.current) {
       threadRef.current.scrollTop = threadRef.current.scrollHeight;
     }
   }, [msgQ.data]);
+
+  if (convQ.permissionDenied) return <PermissionDenied title="Sem acesso ao inbox" />;
+
+  const selected = selectedId
+    ? (convQ.data?.conversations.find((c) => c.id === selectedId) ?? null)
+    : null;
+  const selectedParty = selected?.partyId ? (partyMap.get(selected.partyId) ?? null) : null;
+  const selectedLead = selected?.leadId ? (leadMap.get(selected.leadId) ?? null) : null;
 
   async function sendMessage(e: React.SyntheticEvent) {
     e.preventDefault();

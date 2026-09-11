@@ -71,6 +71,13 @@ function PropertiesBody() {
   const totalCount = allQuery.data?.total ?? data?.total ?? 0;
   const activeCount = activeQuery.data?.total ?? null;
 
+  const properties = useMemo(() => {
+    const rows = data?.properties ?? [];
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((p) => p.title.toLowerCase().includes(q));
+  }, [data, search]);
+
   if (permissionDenied) return <PermissionDenied title="Sem acesso a imóveis" />;
 
   function onTabsKeyDown(e: React.KeyboardEvent) {
@@ -88,13 +95,6 @@ function PropertiesBody() {
     setPage(0);
     setSelected(new Set());
   }
-
-  const properties = useMemo(() => {
-    const rows = data?.properties ?? [];
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((p) => p.title.toLowerCase().includes(q));
-  }, [data, search]);
 
   const columns: Column<Property>[] = [
     {

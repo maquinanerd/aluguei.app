@@ -118,12 +118,6 @@ function MarketingBody() {
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
   const listingsQ = useQuery<{ listings: Listing[]; total: number }>('/listings?limit=200', []);
 
-  if (connQ.permissionDenied) return <PermissionDenied title="Sem acesso ao marketing" />;
-
-  const connection = connQ.data?.connections[0] ?? null;
-  const profiles = profilesQ.data?.adProfiles ?? [];
-  const campaigns = campaignsQ.data?.campaigns ?? [];
-
   const propertyMap = useMemo(() => {
     const m = new Map<string, Property>();
     for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
@@ -135,6 +129,12 @@ function MarketingBody() {
     for (const l of listingsQ.data?.listings ?? []) m.set(l.id, l);
     return m;
   }, [listingsQ.data]);
+
+  if (connQ.permissionDenied) return <PermissionDenied title="Sem acesso ao marketing" />;
+
+  const connection = connQ.data?.connections[0] ?? null;
+  const profiles = profilesQ.data?.adProfiles ?? [];
+  const campaigns = campaignsQ.data?.campaigns ?? [];
 
   async function connectFake() {
     setBusyKey('connect');

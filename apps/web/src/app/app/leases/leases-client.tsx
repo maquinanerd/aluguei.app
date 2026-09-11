@@ -70,8 +70,6 @@ function LeasesBody() {
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
   const contractsQ = useQuery<{ contracts: Contract[]; total: number }>('/contracts?limit=100', []);
 
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a locações" />;
-
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
     for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
@@ -83,6 +81,8 @@ function LeasesBody() {
     for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
     return m;
   }, [propsQ.data]);
+
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a locações" />;
 
   const columns: Column<Lease>[] = [
     {

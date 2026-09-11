@@ -76,13 +76,13 @@ function CalendarBody() {
   const tasksQ = useQuery<{ tasks: Task[]; total: number }>('/tasks?limit=50&status=OPEN', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=100', []);
 
-  if (visitsQ.permissionDenied) return <PermissionDenied title="Sem acesso à agenda" />;
-
   const propertyTitle = useMemo(() => {
     const map = new Map<string, string>();
     for (const p of propsQ.data?.properties ?? []) map.set(p.id, p.title);
     return map;
   }, [propsQ.data]);
+
+  if (visitsQ.permissionDenied) return <PermissionDenied title="Sem acesso à agenda" />;
 
   const days = groupByDay(visitsQ.data?.visits ?? []);
   const openTasks = (tasksQ.data?.tasks ?? []).filter((t) => t.status === 'OPEN');
