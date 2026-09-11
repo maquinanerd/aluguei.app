@@ -1,0 +1,11 @@
+commit=ebea513 date=2026-09-11T13:19:48Z
+format exit=0 dur=13s
+lint exit=0 dur=166s
+typecheck exit=0 dur=81s
+test exit=0 dur=167s
+build exit=0 dur=86s
+secscan exit=0 dur=2s
+audit-critical exit=0 dur=2s
+dbgen exit=0 dur=3s
+db-drift=NO
+e2e exit=0
