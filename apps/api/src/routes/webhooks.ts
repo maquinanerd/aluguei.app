@@ -3,7 +3,6 @@ import { Readable } from 'node:stream';
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
 import {
-  charges,
   webhookInbox,
   whatsappConnections,
   signatureEnvelopes,
