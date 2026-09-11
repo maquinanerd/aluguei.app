@@ -6,7 +6,8 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
-    "test": "vitest run src"
+    "test": "vitest run src",
+    "test:pg": "vitest run --config vitest.pg.config.ts"
   },
   "dependencies": {
     "@aluguei/api": "workspace:*",
