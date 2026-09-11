@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
-import { proposals } from '@aluguei/db';
+import { leads, parties, properties, proposals } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import {
   createProposalRequestSchema,
@@ -11,7 +11,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 function toProposalDto(row: typeof proposals.$inferSelect): unknown {
   return proposalSchema.parse({
@@ -38,6 +38,11 @@ export const proposalRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createProposalRequestSchema.parse(request.body);
+
+      // P0-05: lead/pessoa/imóvel precisam ser da própria organização.
+      await assertOwnedByOrg(db, leads, input.leadId, auth.orgId, 'Lead não encontrado');
+      await assertOwnedByOrg(db, parties, input.partyId, auth.orgId, 'Parte não encontrada');
+      await assertOwnedByOrg(db, properties, input.propertyId, auth.orgId, 'Imóvel não encontrado');
 
       const proposal = first(
         await db

@@ -1,7 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { leads, leadPropertyInterests, timelineEvents } from '@aluguei/db';
+import { leads, leadPropertyInterests, parties, properties, timelineEvents } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
@@ -21,7 +21,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertAllOwnedByOrg, assertOwnedByOrg, first } from './helpers.js';
 
 function toLeadDto(row: typeof leads.$inferSelect): unknown {
   return leadSchema.parse({
@@ -46,6 +46,16 @@ export const leadRoutes: FastifyPluginAsync = (app) => {
   app.post('/leads', { onRequest: [requirePermission('lead:write')] }, async (request, reply) => {
     const auth = requireAuth(request);
     const input = createLeadRequestSchema.parse(request.body);
+
+    // P0-05: referências do corpo são validadas na org antes de qualquer escrita.
+    await assertOwnedByOrg(db, parties, input.partyId, auth.orgId, 'Parte não encontrada');
+    await assertAllOwnedByOrg(
+      db,
+      properties,
+      input.interestedPropertyIds,
+      auth.orgId,
+      'Imóvel não encontrado',
+    );
 
     const lead = first(
       await db
