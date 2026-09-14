@@ -1,0 +1,164 @@
+# item: P1-06 — RED integração (teste permanente corrigido, árvore SEM correção)
+# árvore: commit 33edb95 (teste com a leitura do id corrigida; arquivos da correção restaurados desse commit)
+# diretório: tests/integration
+# comando: pnpm exec vitest run src/credit-decision.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/tests/integration
+
+(node:19012) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/credit-decision.test.ts (8 tests | 7 failed) 13814ms
+     × PATCH SUBMITTED → SCREENING sem pedir screening → 409 454ms
+     × screening em andamento: PATCH para APPROVED, REJECTED ou MANUAL_REVIEW → 409, mesmo com motivo 227ms
+     × aprovação ou rejeição sem motivo → 400, sem gravar decisão 383ms
+     × decisão manual em MANUAL_REVIEW grava motivo, responsável, data e origem MANUAL 747ms
+     × decisão automática registra origem AUTOMATIC, a regra aplicada e o resultado do screening 596ms
+     × criar o contrato leva a candidatura a CONTRACTING; segundo contrato → 409 609ms
+     × contrato cancelado devolve a candidatura para APPROVED e permite um novo contrato 803ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > PATCH SUBMITTED → SCREENING sem pedir screening → 409
+AssertionError: {"application":{"id":"5035fa07-15b2-4a81-bce3-f7a5f4d58d98","orgId":"def4177a-0339-41bb-b576-0b44aa495a7c","leadId":null,"partyId":"a21a1e49-4946-4fb6-a702-8426aacefad9","propertyId":"cc9b9920-518d-4e15-8232-9fe24b62896c","proposalId":null,"status":"SCREENING","decisionReason":null,"submittedAt":"2026-09-14T19:04:42.627Z","decidedBy":null,"decidedAt":null,"createdAt":"2026-09-14T19:04:42.606Z","updatedAt":"2026-09-14T19:04:42.648Z"},"latestScreeningResult":null,"consent":{"id":"926867bb-56d0-4dd9-a1d7-755c3322ef86","partyId":"a21a1e49-4946-4fb6-a702-8426aacefad9","purpose":"CREDIT_SCREENING","grantedAt":"2026-09-14T19:04:42.587Z","revokedAt":null}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ src/credit-decision.test.ts:145:50
+    143|     const application = await submitted();
+    144|     const res = await patchStatus(application, { status: 'SCREENING' }…
+    145|     expect(res.status, JSON.stringify(res.body)).toBe(409);
+       |                                                  ^
+    146|     expect((await aggregateOf(application)).application.status).toBe('…
+    147|     const [requests] = await fx.rows<{ n: number }>(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > screening em andamento: PATCH para APPROVED, REJECTED ou MANUAL_REVIEW → 409, mesmo com motivo
+AssertionError: APPROVED: {"application":{"id":"e361376e-c064-46a3-84f1-f30ccf7e7d69","orgId":"96df11bf-961b-4747-a6a2-42abda65c8fa","leadId":null,"partyId":"e16018a0-b0cb-4caa-b5f1-acb2969fd844","propertyId":"47dd24b4-cf94-4637-ac1c-964bbf5f4602","proposalId":null,"status":"APPROVED","decisionReason":"Renda comprovada e fiador aprovado pela equipe","submittedAt":"2026-09-14T19:04:42.790Z","decidedBy":"e2c11929-1424-40ca-846e-bf94c0324fd7","decidedAt":"2026-09-14T19:04:42.885Z","createdAt":"2026-09-14T19:04:42.775Z","updatedAt":"2026-09-14T19:04:42.885Z"},"latestScreeningResult":null,"consent":{"id":"47dee13a-373d-403f-9036-8a2eb0f1f1ee","partyId":"e16018a0-b0cb-4caa-b5f1-acb2969fd844","purpose":"CREDIT_SCREENING","grantedAt":"2026-09-14T19:04:42.762Z","revokedAt":null}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ src/credit-decision.test.ts:157:68
+    155|     for (const status of ['APPROVED', 'REJECTED', 'MANUAL_REVIEW']) {
+    156|       const res = await patchStatus(application, { status, decisionRea…
+    157|       expect(res.status, `${status}: ${JSON.stringify(res.body)}`).toB…
+       |                                                                    ^
+    158|     }
+    159|     expect((await aggregateOf(application)).application).toMatchObject…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > aprovação ou rejeição sem motivo → 400, sem gravar decisão
+AssertionError: {"status":"APPROVED"}: {"error":"DomainError","code":"INVALID_TRANSITION","message":"Transição inválida (Decisão manual exige motivo)"}: expected 409 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 409
+
+ ❯ src/credit-decision.test.ts:173:85
+    171|     ]) {
+    172|       const res = await patchStatus(application, payload);
+    173|       expect(res.status, `${JSON.stringify(payload)}: ${JSON.stringify…
+       |                                                                                     ^
+    174|     }
+    175|     expect((await aggregateOf(application)).application).toMatchObject…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > decisão manual em MANUAL_REVIEW grava motivo, responsável, data e origem MANUAL
+AssertionError: expected { …(13) } to match object { status: 'APPROVED', …(3) }
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "decidedBy": "d5fe7fa6-e0bf-45b4-b1f2-be85a4fd2c76",
+    "decisionReason": "Renda comprovada e fiador aprovado pela equipe",
+-   "decisionSource": "MANUAL",
+    "status": "APPROVED",
+  }
+
+ ❯ src/credit-decision.test.ts:189:21
+    187|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+    188|     const decided = (await aggregateOf(application)).application;
+    189|     expect(decided).toMatchObject({
+       |                     ^
+    190|       status: 'APPROVED',
+    191|       decisionReason: HUMAN_REASON,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > decisão automática registra origem AUTOMATIC, a regra aplicada e o resultado do screening
+AssertionError: expected { …(13) } to match object { status: 'APPROVED', …(2) }
+(11 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "decidedBy": null,
+-   "decisionSource": "AUTOMATIC",
+    "status": "APPROVED",
+  }
+
+ ❯ src/credit-decision.test.ts:210:35
+    208|     await worker();
+    209|     const aggregate = await aggregateOf(application);
+    210|     expect(aggregate.application).toMatchObject({
+       |                                   ^
+    211|       status: 'APPROVED',
+    212|       decidedBy: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > criar o contrato leva a candidatura a CONTRACTING; segundo contrato → 409
+AssertionError: expected 'APPROVED' to be 'CONTRACTING' // Object.is equality
+
+Expected: "CONTRACTING"
+Received: "APPROVED"
+
+ ❯ src/credit-decision.test.ts:252:65
+    250|     const first = await fx.call('POST', '/contracts', { cookie: applic…
+    251|     expect(first.status, JSON.stringify(first.body)).toBe(201);
+    252|     expect((await aggregateOf(application)).application.status).toBe('…
+       |                                                                 ^
+    253|
+    254|     const second = await fx.call('POST', '/contracts', { cookie: appli…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/credit-decision.test.ts > P1-06: decisão de crédito só com análise, motivo e origem auditável > contrato cancelado devolve a candidatura para APPROVED e permite um novo contrato
+AssertionError: expected 'APPROVED' to be 'CONTRACTING' // Object.is equality
+
+Expected: "CONTRACTING"
+Received: "APPROVED"
+
+ ❯ src/credit-decision.test.ts:270:65
+    268|     // POST /contracts devolve o agregado: `contract` é o próprio cont…
+    269|     const contractId = (created.body.contract as { id: string }).id;
+    270|     expect((await aggregateOf(application)).application.status).toBe('…
+       |                                                                 ^
+    271|
+    272|     await fx.call('POST', `/contracts/${contractId}/generate`, {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+   Start at  16:03:53
+   Duration  53.16s (transform 31.15s, setup 0ms, import 37.36s, tests 13.81s, environment 0ms)
+
+# exit=1
