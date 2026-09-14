@@ -216,7 +216,9 @@ describe('contract state machine + template', () => {
     const rendered = renderTemplate('Locatário: {{tenantName}}', { tenantName: 'Ana' });
     expect(rendered).toBe('Locatário: Ana');
     expect(() => renderTemplate('X {{missing}}', {})).toThrow(DomainError);
-    expect(() => renderTemplate('X', { unused: 1 })).toThrow(DomainError);
+    // P2-08: variável oferecida e não usada deixou de ser erro (o template não é
+    // obrigado a usar todas); placeholder desconhecido continua falhando acima.
+    expect(renderTemplate('X {{a}}', { a: 1, unused: 2 })).toBe('X 1');
   });
 
   it('sha256Hex gera hash determinístico', () => {
