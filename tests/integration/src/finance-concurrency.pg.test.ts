@@ -18,6 +18,7 @@ import { runInboxJobs } from '@aluguei/worker';
 import { FakeStorageService } from './fakes.js';
 import { createFinanceFixtures } from './finance-fixtures.js';
 import { testEnv } from './helpers.js';
+import { futurePeriod } from './test-dates.js';
 
 /**
  * Concorrência REAL — PostgreSQL, conexões e processos distintos (auditoria
@@ -161,7 +162,7 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
   it('P0-01: dois workers (conexões distintas) com eventos distintos do mesmo pagamento → um crédito, um split, um repasse', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
     await runWorker(db, 100); // drena scheduler/conciliação antes da corrida
-    const { chargeId } = await fx.issueCharge(lease, '2026-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     expect(payment.status).toBe(201);
     await payments.confirmCharge(payment.pcid);
@@ -215,7 +216,7 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
 
   it('P0-03: iniciações simultâneas da mesma cobrança → uma única tentativa pendente', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId } = await fx.issueCharge(lease, '2027-01-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const results = await Promise.all(
       Array.from({ length: 6 }, () => fx.initiate(lease, chargeId)),
     );
@@ -251,7 +252,7 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
         runInboxJobs({ db, limit: 20, screening, signature }),
       );
       const lease = await apiFx.setupLease({ rentCents: 120_000, landlord: true });
-      const { chargeId } = await apiFx.issueCharge(lease, '2026-12-01');
+      const { chargeId } = await apiFx.issueCharge(lease, futurePeriod());
       const payment = await apiFx.initiate(lease, chargeId);
       expect(payment.status).toBe(201);
 

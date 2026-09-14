@@ -6,12 +6,10 @@ import { test, expect } from '@playwright/test';
  *   proposta → candidatura → screening FAKE → contrato → assinatura FAKE →
  *   locação → cobrança → pagamento PIX (FAKE) → portal.
  *
- * Nota de limitação documentada: com provider FAKE por-processo (API e worker
- * são processos separados), o crédito PAID exige confirmação no provider — o
- * worker usa sua própria instância do fake e rejeita creditar (anti-forjamento).
- * O caminho completo até PAID+ledger+payout é provado in-process pela suíte de
- * integração (tests/integration/e2e-critical.test.ts). Aqui o teste cobre a
- * jornada até o estado que o ambiente local produz de forma honesta.
+ * API e worker rodam em processos separados e compartilham o estado do provider
+ * FAKE pelo banco (tabela fake_provider_charges): o pagador é simulado pela rota
+ * de desenvolvimento e a jornada chega a PAID, com repasse e extrato
+ * (auditoria 2026-09-10, P1-13).
  */
 
 const API = `http://127.0.0.1:${process.env.API_PORT ?? '4000'}`;
@@ -19,6 +17,18 @@ const uniq = Date.now().toString(36);
 const email = `e2e-${uniq}@teste.com`;
 const password = 'e2e-password-123';
 const orgName = `Imob E2E ${uniq}`;
+
+/**
+ * O backoffice recalcula multa/juros com o relógio real ao iniciar o pagamento e
+ * o vencimento é o período + 10 dias: um mês fixo no calendário vira
+ * bomba-relógio. O mês seguinte nunca está vencido.
+ */
+function nextMonthStart(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+    .toISOString()
+    .slice(0, 10);
+}
 
 interface ApiResult<T> {
   status: number;
@@ -273,7 +283,7 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     const leaseId = lease.body.lease.id;
     const charge = await api<{ charge: IdBody & { rentCents: number } }>('POST', '/charges', {
       cookie,
-      json: { leaseId, periodStart: '2026-11-01' },
+      json: { leaseId, periodStart: nextMonthStart() },
     });
     expect(charge.status).toBe(201);
     const chargeId = charge.body.charge.id;

@@ -5,6 +5,7 @@ import { ledgerEntries, splitAllocations } from '@aluguei/db';
 import { FakeScreeningProvider } from '@aluguei/integrations';
 import { runInboxJobs } from '@aluguei/worker';
 import { buildTestApp, fakePayments, fakeSignature, registerUser } from './helpers.js';
+import { futurePeriod } from './test-dates.js';
 
 interface PropertyBody {
   property: { id: string };
@@ -211,7 +212,7 @@ describe('Fase 08: Payments + Split + Ledger', () => {
       method: 'POST',
       url: '/charges',
       headers: { cookie },
-      payload: { leaseId, periodStart: '2026-09-01' },
+      payload: { leaseId, periodStart: futurePeriod() },
     });
     expect(charge.statusCode).toBe(201);
     const chargeId = (charge.json() as ChargeBody).charge.id;

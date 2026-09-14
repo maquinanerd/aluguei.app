@@ -9,6 +9,7 @@ import { processPaymentJob, runInboxJobs } from '@aluguei/worker';
 import { FakeStorageService } from './fakes.js';
 import { createFinanceFixtures } from './finance-fixtures.js';
 import { buildTestApp, fakePayments, fakeSignature, testEnv } from './helpers.js';
+import { futurePeriod } from './test-dates.js';
 
 /**
  * Integridade financeira — auditoria 2026-09-10 (P0-01, P0-02, P0-03, S5 e
@@ -43,7 +44,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-01: dois processamentos simultâneos do mesmo pagamento → um crédito, um split, um repasse', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
-    const { chargeId } = await fx.issueCharge(lease, '2026-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     expect(payment.status).toBe(201);
     await fakePayments.confirmCharge(payment.pcid);
@@ -81,7 +82,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
   it('P0-01: ciclos do worker em paralelo com eventos distintos do mesmo pagamento → efeito único', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
     await worker(100); // drena jobs pendentes (scheduler/conciliação) antes da corrida
-    const { chargeId } = await fx.issueCharge(lease, '2026-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     await fakePayments.confirmCharge(payment.pcid);
     expect(await fx.paymentWebhook('PAYMENT_CONFIRMED', payment.pcid, payment.amountCents)).toBe(
@@ -107,7 +108,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-02: webhook de estorno forjado não executa estorno nem mexe no dinheiro', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
-    const { chargeId } = await fx.issueCharge(lease, '2026-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     await fakePayments.confirmCharge(payment.pcid);
     await fx.paymentWebhook('PAYMENT_CONFIRMED', payment.pcid, payment.amountCents);
@@ -136,7 +137,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-02: estorno confirmado pelo provider + webhooks repetidos → um único registro e razão zerada', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
-    const { chargeId } = await fx.issueCharge(lease, '2026-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     await fakePayments.confirmCharge(payment.pcid);
     await fx.paymentWebhook('PAYMENT_CONFIRMED', payment.pcid, payment.amountCents);
@@ -173,7 +174,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: cobrança SCHEDULED paga pelo portal → PAID e creditada', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId, amountCents } = await fx.issueCharge(lease, '2027-06-01');
+    const { chargeId, amountCents } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.portalPay(lease, chargeId);
     expect(payment.status, 'iniciação pelo portal').toBe(201);
     await fakePayments.confirmCharge(payment.pcid);
@@ -190,7 +191,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: cobrança OVERDUE paga → PAID', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId, amountCents } = await fx.issueCharge(lease, '2027-07-01');
+    const { chargeId, amountCents } = await fx.issueCharge(lease, futurePeriod());
     await app.db.execute(sql`update charges set status = 'OVERDUE' where id = ${chargeId}`);
     const payment = await fx.portalPay(lease, chargeId);
     await fakePayments.confirmCharge(payment.pcid);
@@ -206,7 +207,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: dinheiro recebido depois do cancelamento é registrado (recebimento não aplicado)', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId } = await fx.issueCharge(lease, '2027-08-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     const cancel = await fx.call('POST', `/charges/${chargeId}/cancel`, {
       cookie: lease.cookie,
@@ -239,7 +240,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: cancelar cobrança já paga no provider → 409 e o pagamento é liquidado', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId } = await fx.issueCharge(lease, '2027-10-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     await fakePayments.confirmCharge(payment.pcid);
 
@@ -259,7 +260,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: PAYMENT_FAILED sem respaldo no provider não impede a liquidação posterior', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: false });
-    const { chargeId } = await fx.issueCharge(lease, '2027-11-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const payment = await fx.initiate(lease, chargeId);
     await fx.paymentWebhook('PAYMENT_FAILED', payment.pcid, payment.amountCents);
     await worker();
@@ -276,7 +277,7 @@ describe('integridade financeira (P0-01/P0-02/P0-03)', () => {
 
   it('P0-03: reemissão reaproveita a tentativa pendente e o QR substituído, se pago, não se perde', async () => {
     const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
-    const { chargeId } = await fx.issueCharge(lease, '2027-09-01');
+    const { chargeId } = await fx.issueCharge(lease, futurePeriod());
     const first = await fx.initiate(lease, chargeId, 'PIX');
     expect(first.status).toBe(201);
     const again = await fx.initiate(lease, chargeId, 'PIX');

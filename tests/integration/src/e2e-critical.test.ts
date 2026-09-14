@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { FakeScreeningProvider, FakeSignatureProvider } from '@aluguei/integrations';
 import { runInboxJobs } from '@aluguei/worker';
 import { buildTestApp, fakePayments, fakeStorage, registerUser } from './helpers.js';
+import { futurePeriod } from './test-dates.js';
 
 /**
  * E2E crítico (Fase 12): journey completo ponta-a-ponta via API pública:
@@ -230,7 +231,7 @@ describe('Fase 12: E2E crítico (journey completo)', () => {
       method: 'POST',
       url: '/charges',
       headers: { cookie },
-      payload: { leaseId, periodStart: '2026-11-01' },
+      payload: { leaseId, periodStart: futurePeriod() },
     });
     const chargeId = (charge.json() as { charge: { id: string } }).charge.id;
     const payment = await app.inject({
