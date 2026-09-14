@@ -17,11 +17,21 @@ const connectionString =
   process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/aluguei';
 const migrationsFolder = fileURLToPath(new URL('../drizzle', import.meta.url));
 
+/** Host, porta e banco — nunca usuário e senha: este log vai para o deploy. */
+function describeTarget(url) {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.hostname}:${parsed.port || '5432'}${parsed.pathname}`;
+  } catch {
+    return '(DATABASE_URL inválida)';
+  }
+}
+
 const pool = new Pool({ connectionString });
 const db = drizzle(pool);
 try {
   await migrate(db, { migrationsFolder });
-  console.log('Migrations aplicadas em', connectionString);
+  console.log('Migrations aplicadas em', describeTarget(connectionString));
 } finally {
   await pool.end();
 }
