@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import { idListQuerySchema, paginationQuerySchema, uuidSchema } from './common.js';
 import { propertyMediaSchema, propertySummarySchema } from './property.js';
 
 export const listingStatusSchema = z.enum(['DRAFT', 'READY', 'PUBLISHED', 'PAUSED', 'ARCHIVED']);
@@ -43,6 +43,8 @@ export const createListingResponseSchema = z.object({ listing: listingDetailSche
 
 export const listListingsQuerySchema = paginationQuerySchema.extend({
   status: listingStatusSchema.optional(),
+  /** Ids a resolver para as linhas de uma página. */
+  ids: idListQuerySchema.optional(),
 });
 
 export const listListingsResponseSchema = z.object({

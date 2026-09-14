@@ -62,6 +62,7 @@ import { devPaymentRoutes } from './routes/dev-payments.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
+import { dashboardRoutes } from './routes/dashboard.js';
 import { paymentsPlugin } from './plugins/payments.js';
 import { signaturePlugin } from './plugins/signature.js';
 import { metaPlugin } from './plugins/meta.js';
@@ -338,6 +339,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(metaRoutes);
   await app.register(portalRoutes);
   await app.register(reportingRoutes);
+  await app.register(dashboardRoutes);
 
   return app;
 }

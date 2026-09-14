@@ -1,4 +1,4 @@
-﻿import { and, desc, eq, inArray } from 'drizzle-orm';
+﻿import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
@@ -194,6 +194,11 @@ export function toMediaDto(media: Record<string, unknown>): Record<string, unkno
   return result;
 }
 
+/** `%`, `_` e `\` do texto de busca viram literais no ILIKE (o escape padrão do PostgreSQL é `\`). */
+function escapeLikePattern(text: string): string {
+  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
 export const propertyRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
@@ -246,6 +251,8 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
     const where = and(
       eq(properties.orgId, auth.orgId),
       query.status ? eq(properties.status, query.status) : undefined,
+      query.q ? ilike(properties.title, `%${escapeLikePattern(query.q)}%`) : undefined,
+      query.ids ? inArray(properties.id, query.ids) : undefined,
     );
     const rows = await db
       .select()

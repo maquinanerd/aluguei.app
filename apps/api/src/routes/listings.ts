@@ -227,6 +227,7 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
     const where = and(
       eq(listings.orgId, auth.orgId),
       query.status ? eq(listings.status, query.status) : undefined,
+      query.ids ? inArray(listings.id, query.ids) : undefined,
     );
     const rows = await db
       .select()
