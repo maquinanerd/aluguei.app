@@ -9,7 +9,9 @@ import {
 import { decideApplication } from './screening.js';
 import {
   CONTRACT_STATUSES,
+  assertContractContentWritable,
   canTransitionContract,
+  canWriteContractContent,
   isContractStatus,
   sha256Hex,
 } from '../contract/contract.js';
@@ -113,6 +115,20 @@ describe('contract state machine + template', () => {
       }),
     ).toBe(true);
     expect(canTransitionContract('GENERATED', 'VOID')).toBe(true);
+  });
+
+  it('conteúdo só é gravável antes do envio para assinatura (P0-04)', () => {
+    expect(canWriteContractContent('DRAFT')).toBe(true);
+    expect(canWriteContractContent('GENERATED')).toBe(true);
+    for (const status of ['SENT_FOR_SIGNATURE', 'PARTIALLY_SIGNED', 'SIGNED', 'VOID'] as const) {
+      expect(canWriteContractContent(status)).toBe(false);
+      expect(() => {
+        assertContractContentWritable(status);
+      }).toThrow(DomainError);
+    }
+    // SIGNED e VOID são terminais: nem GENERATED nem DRAFT voltam a valer.
+    expect(canTransitionContract('SIGNED', 'GENERATED')).toBe(false);
+    expect(canTransitionContract('VOID', 'GENERATED')).toBe(false);
   });
 
   it('SIGNED exige todas as partes assinadas', () => {

@@ -92,6 +92,13 @@
       "when": 1789165996368,
       "tag": "0013_tenant_composite_fks",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789396926673,
+      "tag": "0014_contract_versions",
+      "breakpoints": true
     }
   ]
 }

@@ -115,8 +115,11 @@ export type {
 
 export {
   CONTRACT_STATUSES,
+  CONTRACT_CONTENT_WRITABLE_STATUSES,
   isContractStatus,
   canTransitionContract,
+  canWriteContractContent,
+  assertContractContentWritable,
   transitionContract,
   sha256Hex,
 } from './contract/contract.js';

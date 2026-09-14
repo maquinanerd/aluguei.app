@@ -1,10 +1,11 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
   contractParties,
   contracts,
   contractTemplates,
+  contractVersions,
   parties,
   propertyFinancialTerms,
   propertyOwners,
@@ -16,6 +17,7 @@ import type { AppDb } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  assertContractContentWritable,
   isContractStatus,
   renderTemplate,
   sha256Hex,
@@ -26,7 +28,10 @@ import {
   contractAggregateSchema,
   contractPartySchema,
   contractSchema,
+  contractVersionSchema,
   createContractRequestSchema,
+  generateContractRequestSchema,
+  listContractVersionsResponseSchema,
   listContractsQuerySchema,
   sendForSignatureResponseSchema,
   signatureEnvelopeSchema,
@@ -39,6 +44,8 @@ import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
 
 type ContractRow = typeof contracts.$inferSelect;
+type EnvelopeRow = typeof signatureEnvelopes.$inferSelect;
+type VersionRow = typeof contractVersions.$inferSelect;
 
 function toContractDto(row: ContractRow): unknown {
   return contractSchema.parse({
@@ -49,10 +56,45 @@ function toContractDto(row: ContractRow): unknown {
     status: row.status,
     content: row.content,
     contentHash: row.contentHash,
+    currentVersion: row.currentVersion,
     signedAt: row.signedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   });
+}
+
+function toEnvelopeDto(row: EnvelopeRow): unknown {
+  return signatureEnvelopeSchema.parse({
+    id: row.id,
+    contractId: row.contractId,
+    provider: row.provider,
+    providerEnvelopeId: row.providerEnvelopeId,
+    contractVersion: row.contractVersion,
+    status: row.status,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  });
+}
+
+function toVersionDto(row: VersionRow): unknown {
+  return contractVersionSchema.parse({
+    id: row.id,
+    contractId: row.contractId,
+    version: row.version,
+    content: row.content,
+    contentHash: row.contentHash,
+    templateId: row.templateId,
+    templateVersion: row.templateVersion,
+    createdBy: row.createdBy,
+    createdAt: row.createdAt.toISOString(),
+  });
+}
+
+function contractStatusOf(row: ContractRow): ContractStatus {
+  if (!isContractStatus(row.status)) {
+    throw new Error(`status de contrato inválido: ${row.status}`);
+  }
+  return row.status;
 }
 
 async function loadContractAggregate(
@@ -88,17 +130,7 @@ async function loadContractAggregate(
         signedAt: row.signedAt?.toISOString() ?? null,
       }),
     ),
-    envelope: envelopeRows[0]
-      ? signatureEnvelopeSchema.parse({
-          id: envelopeRows[0].id,
-          contractId: envelopeRows[0].contractId,
-          provider: envelopeRows[0].provider,
-          providerEnvelopeId: envelopeRows[0].providerEnvelopeId,
-          status: envelopeRows[0].status,
-          createdAt: envelopeRows[0].createdAt.toISOString(),
-          updatedAt: envelopeRows[0].updatedAt.toISOString(),
-        })
-      : null,
+    envelope: envelopeRows[0] ? toEnvelopeDto(envelopeRows[0]) : null,
   });
 }
 
@@ -287,12 +319,38 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
     },
   );
 
+  app.get(
+    '/contracts/:id/versions',
+    { onRequest: [requirePermission('contract:read')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const { id } = z.object({ id: uuidSchema }).parse(request.params);
+      const [contract] = await db
+        .select({ id: contracts.id })
+        .from(contracts)
+        .where(and(eq(contracts.id, id), eq(contracts.orgId, auth.orgId)))
+        .limit(1);
+      if (!contract) {
+        throw new DomainError('NOT_FOUND', 'Contrato não encontrado');
+      }
+      const rows = await db
+        .select()
+        .from(contractVersions)
+        .where(and(eq(contractVersions.contractId, id), eq(contractVersions.orgId, auth.orgId)))
+        .orderBy(asc(contractVersions.version));
+      return listContractVersionsResponseSchema.parse({
+        versions: rows.map((row) => toVersionDto(row)),
+      });
+    },
+  );
+
   app.post(
     '/contracts/:id/generate',
     { onRequest: [requirePermission('contract:write')] },
     async (request) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
+      const input = generateContractRequestSchema.parse(request.body ?? {});
       const [contract] = await db
         .select()
         .from(contracts)
@@ -301,7 +359,12 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
       if (!contract) {
         throw new DomainError('NOT_FOUND', 'Contrato não encontrado');
       }
-      if (contract.status === 'GENERATED') {
+      const status = contractStatusOf(contract);
+      // P0-04: a partir do envio para assinatura o texto é imutável — nenhuma
+      // escrita, com ou sem pedido explícito de regeneração.
+      assertContractContentWritable(status);
+      if (status === 'GENERATED' && input.regenerate !== true) {
+        // Repetir a geração é idempotente: devolve a versão vigente.
         return { contract: await loadContractAggregate(db, auth.orgId, id) };
       }
       const [template] = contract.templateId
@@ -324,27 +387,76 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         : {};
       const content = renderTemplate(template.body, variables);
       const contentHash = sha256Hex(content);
-      transitionContract('DRAFT', 'GENERATED', {
+      transitionContract(status, 'GENERATED', {
         hasContentAndHash: true,
         hasEnvelope: false,
         allPartiesSigned: false,
       });
-      const updated = first(
-        await db
+      await db.transaction(async (tx) => {
+        // Trava e revalida: um envio ou outra geração concorrente pode ter
+        // mudado o contrato entre a leitura acima e esta escrita.
+        const [locked] = await tx
+          .select()
+          .from(contracts)
+          .where(and(eq(contracts.id, id), eq(contracts.orgId, auth.orgId)))
+          .for('update');
+        if (!locked) {
+          throw new DomainError('NOT_FOUND', 'Contrato não encontrado');
+        }
+        assertContractContentWritable(contractStatusOf(locked));
+        if (
+          locked.status !== contract.status ||
+          locked.currentVersion !== contract.currentVersion
+        ) {
+          throw new DomainError('CONFLICT', 'Contrato alterado durante a geração; tente novamente');
+        }
+        if (locked.status === 'GENERATED') {
+          const [envelope] = await tx
+            .select({ id: signatureEnvelopes.id })
+            .from(signatureEnvelopes)
+            .where(eq(signatureEnvelopes.contractId, locked.id))
+            .limit(1);
+          if (envelope) {
+            throw new DomainError(
+              'INVALID_TRANSITION',
+              'Contrato já enviado ao provider de assinatura: o conteúdo não pode ser gerado novamente',
+            );
+          }
+          if (locked.contentHash === contentHash) {
+            return; // mesmo texto: nenhuma versão nova
+          }
+        }
+        const version = (locked.currentVersion ?? 0) + 1;
+        await tx.insert(contractVersions).values({
+          orgId: auth.orgId,
+          contractId: locked.id,
+          version,
+          content,
+          contentHash,
+          templateId: template.id,
+          templateVersion: template.version,
+          createdBy: auth.userId,
+        });
+        await tx
           .update(contracts)
-          .set({ status: 'GENERATED', content, contentHash, updatedAt: new Date() })
-          .where(eq(contracts.id, contract.id))
-          .returning(),
-      );
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.CONTRACT_GENERATED,
-        entityType: 'CONTRACT',
-        entityId: contract.id,
-        payload: { contentHash },
+          .set({
+            status: 'GENERATED',
+            content,
+            contentHash,
+            currentVersion: version,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(contracts.id, locked.id), eq(contracts.status, locked.status)));
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CONTRACT_GENERATED,
+          entityType: 'CONTRACT',
+          entityId: locked.id,
+          payload: { contentHash, version, regenerated: locked.status === 'GENERATED' },
+        });
       });
-      return { contract: await loadContractAggregate(db, auth.orgId, updated.id) };
+      return { contract: await loadContractAggregate(db, auth.orgId, id) };
     },
   );
 
@@ -377,19 +489,11 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         .where(eq(signatureEnvelopes.contractId, contract.id))
         .limit(1);
       if (existingEnvelope) {
-        return reply.status(200).send(
-          sendForSignatureResponseSchema.parse({
-            envelope: {
-              id: existingEnvelope.id,
-              contractId: existingEnvelope.contractId,
-              provider: existingEnvelope.provider,
-              providerEnvelopeId: existingEnvelope.providerEnvelopeId,
-              status: existingEnvelope.status,
-              createdAt: existingEnvelope.createdAt.toISOString(),
-              updatedAt: existingEnvelope.updatedAt.toISOString(),
-            },
-          }),
-        );
+        return reply
+          .status(200)
+          .send(
+            sendForSignatureResponseSchema.parse({ envelope: toEnvelopeDto(existingEnvelope) }),
+          );
       }
       const partiesRows = await db
         .select()
@@ -404,47 +508,60 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         })),
         documentRef: contract.contentHash ?? contract.id,
       });
-      const envelope = first(
-        await db
-          .insert(signatureEnvelopes)
-          .values({
-            orgId: auth.orgId,
-            contractId: contract.id,
-            provider: 'FAKE',
-            providerEnvelopeId: envelopeResult.providerEnvelopeId,
-            status: 'SENT',
-          })
-          .returning(),
-      );
-      transitionContract('GENERATED', 'SENT_FOR_SIGNATURE', {
-        hasContentAndHash: true,
-        hasEnvelope: true,
-        allPartiesSigned: false,
+      const envelope = await db.transaction(async (tx) => {
+        // O texto enviado ao provider é o da versão lida acima: se outra
+        // requisição regenerou o contrato durante a chamada, nada é gravado.
+        const [locked] = await tx
+          .select()
+          .from(contracts)
+          .where(and(eq(contracts.id, contract.id), eq(contracts.orgId, auth.orgId)))
+          .for('update');
+        if (
+          !locked ||
+          locked.status !== 'GENERATED' ||
+          locked.currentVersion !== contract.currentVersion ||
+          locked.contentHash !== contract.contentHash
+        ) {
+          throw new DomainError(
+            'CONFLICT',
+            'Contrato alterado durante o envio para assinatura; envie novamente',
+          );
+        }
+        transitionContract('GENERATED', 'SENT_FOR_SIGNATURE', {
+          hasContentAndHash: true,
+          hasEnvelope: true,
+          allPartiesSigned: false,
+        });
+        const created = first(
+          await tx
+            .insert(signatureEnvelopes)
+            .values({
+              orgId: auth.orgId,
+              contractId: locked.id,
+              provider: 'FAKE',
+              providerEnvelopeId: envelopeResult.providerEnvelopeId,
+              contractVersion: locked.currentVersion,
+              status: 'SENT',
+            })
+            .returning(),
+        );
+        await tx
+          .update(contracts)
+          .set({ status: 'SENT_FOR_SIGNATURE', updatedAt: new Date() })
+          .where(and(eq(contracts.id, locked.id), eq(contracts.status, 'GENERATED')));
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CONTRACT_SENT_FOR_SIGNATURE,
+          entityType: 'CONTRACT',
+          entityId: locked.id,
+          payload: { version: locked.currentVersion, contentHash: locked.contentHash },
+        });
+        return created;
       });
-      await db
-        .update(contracts)
-        .set({ status: 'SENT_FOR_SIGNATURE', updatedAt: new Date() })
-        .where(eq(contracts.id, contract.id));
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.CONTRACT_SENT_FOR_SIGNATURE,
-        entityType: 'CONTRACT',
-        entityId: contract.id,
-      });
-      return reply.status(201).send(
-        sendForSignatureResponseSchema.parse({
-          envelope: {
-            id: envelope.id,
-            contractId: envelope.contractId,
-            provider: envelope.provider,
-            providerEnvelopeId: envelope.providerEnvelopeId,
-            status: envelope.status,
-            createdAt: envelope.createdAt.toISOString(),
-            updatedAt: envelope.updatedAt.toISOString(),
-          },
-        }),
-      );
+      return reply
+        .status(201)
+        .send(sendForSignatureResponseSchema.parse({ envelope: toEnvelopeDto(envelope) }));
     },
   );
 
