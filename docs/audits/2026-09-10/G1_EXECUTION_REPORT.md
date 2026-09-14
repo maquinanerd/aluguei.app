@@ -294,3 +294,71 @@ GitHub deve rodar para substituir a execução local registrada.
 | `247c7eb` | test: stabilize worker PGlite suite and fix lint in finance fixtures     |
 
 ADRs registrados nesta execução: **ADR-037 … ADR-045** (`docs/DECISIONS.md`).
+
+## 15. Adendo pós-publicação (2026-09-14)
+
+Acrescentado depois da execução do gate, quando o usuário autorizou publicar e implantar. As
+seções 1–14 ficam como estavam; este adendo corrige o que elas afirmaram sem ter sido executado
+de verdade.
+
+### 15.1 O que a primeira execução real do CI encontrou
+
+A §2 aceitou "execução local equivalente" no lugar do CI do GitHub. A equivalência tinha dois
+furos: os gates locais não executam o arquivo do workflow, e um teste que depende do relógio
+passa no dia em que é rodado. O primeiro CI de verdade (PR #1) encontrou três defeitos
+introduzidos nesta execução:
+
+| Execução no GitHub | Falha                                                                 | Causa                                                                                                                                                                                                                                                                                                                       | Correção                                                                                                                                          |
+| ------------------ | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| run 34850837092    | nenhum job rodou (0 s)                                                | `${{ runner.temp }}` no `env` do job `e2e`: o contexto `runner` só existe nos steps, e o GitHub recusou o `ci.yml` inteiro (Fase 0, `5def4aa`)                                                                                                                                                                              | `d0a3a75`                                                                                                                                         |
+| run 34851830770    | `check` → Test: `finance.test.ts` esperava `100000`, recebeu `105000` | período fixo (`2026-09-01`) e recálculo de multa (2%) e juros (1% ao dia) com o relógio real ao iniciar o pagamento pelo backoffice: passou em 11/09, dia do vencimento, e quebrou em 14/09. Outros 15 pontos em 5 arquivos — 13 deles nas suítes criadas na Fase 1 — explodiriam entre novembro de 2026 e novembro de 2027 | `eef2cac`: períodos relativos à data da execução (`futurePeriod()`), asserções inalteradas                                                        |
+| run 34854256406    | `check` → Secret scan; Test e Build pulados                           | o compose de produção (`84fa550`) monta `postgresql://aluguei:${SERVICE_PASSWORD_64_POSTGRES}@…`, e o scanner tratava a referência como credencial                                                                                                                                                                          | `b9a668f`: exceção só para senha inteira `${VAR}`, autoteste a cada execução e controle negativo com credencial literal em arquivo real (acusada) |
+
+Depois das correções, o CI completo passou no commit `0585fc6` (run **34856007498**: `check` e
+`e2e` com sucesso — format, lint, typecheck, secret scan, audit crítico, testes, `test:pg` em
+PostgreSQL real, drift de migrations, build e Playwright). O critério "CI verde" do G1 agora está
+cumprido no GitHub, não só por equivalência local. **O veredito G1: PASSED se mantém**, com esta
+correção registrada.
+
+### 15.2 Publicação
+
+- PR #1 mergeado pelo usuário em 2026-09-14 às 18:57 UTC: merge commit `2bd5b85`, histórico
+  RED/GREEN preservado. Levou também os 11 commits do `main` local que nunca tinham sido
+  publicados (fases 15–18).
+- O merge foi feito pelo usuário porque a ferramenta de permissões bloqueou o merge a partir desta
+  sessão.
+
+### 15.3 Homologação implantada
+
+Coolify (`vps.cinerie.com`), build pack Docker Compose, providers FAKE/dry-run/mock — ver
+`docs/DEPLOY_COOLIFY.md`.
+
+| Serviço | URL                                           | Verificação                        |
+| ------- | --------------------------------------------- | ---------------------------------- |
+| Web     | `https://aluguei.62.171.164.224.sslip.io`     | `/login` 200 com TLS válido        |
+| API     | `https://api.aluguei.62.171.164.224.sslip.io` | `/health/ready` 200 com TLS válido |
+
+Smoke test sem criar conta (`evidence/deploy/smoke-2026-09-14.txt`): web → BFF → API por HTTPS
+devolve o 401 da própria API, e a rota de simulação de pagamento responde 404 em produção.
+
+### 15.4 Outros achados da publicação
+
+| Achado                                                                                                             | Tratamento                                                   |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `apply-migrations.mjs` imprimia a `DATABASE_URL` com usuário e senha; no deploy, isso iria para os logs do Coolify | corrigido em `9611df1` (o log mostra só host, porta e banco) |
+| Os scripts da raiz (`scripts/*.mjs`) ficam fora do gate de lint: `pnpm lint` roda por pacote, em `src/`            | lacuna preexistente — Fase 6                                 |
+| Web sem `Strict-Transport-Security`; CSP com `'unsafe-inline'` e `'unsafe-eval'`                                   | Fase 6                                                       |
+| `/dev/calibration` público no ambiente implantado (P3 da auditoria)                                                | G2, trilha B1                                                |
+| Minutos depois do deploy, varreduras externas chamaram Server Actions com IDs inválidos                            | recusadas pelo Next 16.3.4 (P0-06); sem efeito               |
+
+### 15.5 Commits depois da publicação
+
+| Commit    | Assunto                                                                       |
+| --------- | ----------------------------------------------------------------------------- |
+| `d0a3a75` | fix(ci): move runner.temp to step env so GitHub accepts the workflow          |
+| `eef2cac` | test: remove calendar time bombs from backoffice payment tests                |
+| `9611df1` | fix(db): stop logging DATABASE_URL credentials when applying migrations       |
+| `84fa550` | feat(deploy): production images and Coolify compose for homologation          |
+| `b9a668f` | fix(security): treat ${VAR} passwords in connection strings as env references |
+| `0585fc6` | feat(deploy): route Coolify proxy to container ports and add deploy runbook   |
+| `2bd5b85` | Merge pull request #1 (feito pelo usuário)                                    |
