@@ -1,0 +1,45 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/money-parsing-guard.test.ts
+# base: 0585fc6 + teste novo, sem correção (RED)
+# data (UTC): 2026-09-14T18:54:02Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+ ❯ src/lib/money-parsing-guard.test.ts (1 test | 1 failed) 82ms
+     × nenhum arquivo usa parseFloat/Number sobre replace(",", ".") 80ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/money-parsing-guard.test.ts > P0-07: o web não converte dinheiro com parsing local > nenhum arquivo usa parseFloat/Number sobre replace(",", ".")
+AssertionError: expected [ …(4) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/app/crm/leads/leads-client.tsx:335",
++   "app/app/properties/new/property-form.tsx:73",
++   "app/app/properties/[id]/property-detail-client.tsx:630",
++   "app/app/proposals/proposals-client.tsx:293",
++ ]
+
+ ❯ src/lib/money-parsing-guard.test.ts:47:23
+     45|         });
+     46|     }
+     47|     expect(offenders).toEqual([]);
+       |                       ^
+     48|   });
+     49| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  15:54:09
+   Duration  1.44s (transform 49ms, setup 0ms, import 85ms, tests 82ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/money-parsing-guard.test.ts
+# exit=1

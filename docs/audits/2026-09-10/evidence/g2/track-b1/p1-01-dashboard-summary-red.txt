@@ -1,0 +1,102 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/dashboard-summary.test.ts
+# base: 0585fc6 + testes novos, sem correção (RED)
+# data (UTC): 2026-09-14T18:54:11Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/tests/integration
+
+(node:28456) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/dashboard-summary.test.ts (4 tests | 4 failed) 10146ms
+     × exige sessão 30ms
+     × cada número bate com a contagem SQL independente da organização 21ms
+     × dados de outra organização não entram nos números 17ms
+     × RBAC: seção sem permissão vem null, as demais seguem iguais às do dono 134ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dashboard-summary.test.ts > P1-01: GET /dashboard/summary — números iguais ao banco > exige sessão
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ src/dashboard-summary.test.ts:551:28
+    549|   it('exige sessão', async () => {
+    550|     const res = await app.inject({ method: 'GET', url: '/dashboard/sum…
+    551|     expect(res.statusCode).toBe(401);
+       |                            ^
+    552|   });
+    553|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/dashboard-summary.test.ts > P1-01: GET /dashboard/summary — números iguais ao banco > cada número bate com a contagem SQL independente da organização
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/dashboard-summary.test.ts:556:24
+    554|   it('cada número bate com a contagem SQL independente da organização'…
+    555|     const res = await summaryOf(A.cookie);
+    556|     expect(res.status).toBe(200);
+       |                        ^
+    557|     const now = new Date(res.body.generatedAt);
+    558|     assertSeededDay(now);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/dashboard-summary.test.ts > P1-01: GET /dashboard/summary — números iguais ao banco > dados de outra organização não entram nos números
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/dashboard-summary.test.ts:584:22
+    582|     const a = await summaryOf(A.cookie);
+    583|     const b = await summaryOf(B.cookie);
+    584|     expect(a.status).toBe(200);
+       |                      ^
+    585|     expect(b.status).toBe(200);
+    586|     const aNow = new Date(a.body.generatedAt);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/dashboard-summary.test.ts > P1-01: GET /dashboard/summary — números iguais ao banco > RBAC: seção sem permissão vem null, as demais seguem iguais às do dono
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/dashboard-summary.test.ts:622:24
+    620|     const owner = await summaryOf(A.cookie);
+    621|     const res = await summaryOf(viewer.cookie);
+    622|     expect(res.status).toBe(200);
+       |                        ^
+    623|     expect(res.body.finance).toBeNull();
+    624|     expect(res.body.screening).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  15:54:16
+   Duration  19.40s (transform 4.87s, setup 0ms, import 8.45s, tests 10.15s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/dashboard-summary.test.ts
+# exit=1

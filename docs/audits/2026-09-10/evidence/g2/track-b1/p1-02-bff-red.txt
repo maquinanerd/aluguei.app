@@ -1,0 +1,150 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/api-server.test.ts route.test.ts
+# base: 0585fc6 + testes novos, sem correção (RED)
+# data (UTC): 2026-09-14T18:54:14Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+ ❯ src/app/api/backend/[...path]/route.test.ts (6 tests | 3 failed) 47ms
+     × DELETE sem corpo (remover característica) chega à API sem content-type 28ms
+     × POST sem corpo (gerar contrato) chega à API sem content-type 3ms
+     × export CSV chega ao navegador como CSV, com nome de arquivo 6ms
+ ❯ src/lib/api-server.test.ts (10 tests | 4 failed) 103ms
+     × mutação sem corpo chega à API sem content-type 56ms
+     × resposta CSV chega intacta, com content-type e content-disposition 14ms
+     × 204 sem corpo é repassado sem quebrar o proxy 6ms
+     × GET sem corpo não envia content-type e leva o cookie da sessão 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/api-server.test.ts > apiProxy (route handlers do BFF) > mutação sem corpo chega à API sem content-type
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/api-server.test.ts:56:52
+     54|     expect(res.status).toBe(200);
+     55|     expect(calls[0]?.[0]).toBe('http://api.test/auth/logout');
+     56|     expect(sentHeaders(calls).has('content-type')).toBe(false);
+       |                                                    ^
+     57|     expect(calls[0]?.[1]?.body ?? null).toBeNull();
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/lib/api-server.test.ts > apiProxy (route handlers do BFF) > resposta CSV chega intacta, com content-type e content-disposition
+AssertionError: expected 'application/json' to be 'text/csv; charset=utf-8' // Object.is equality
+
+Expected: "text/csv; charset=utf-8"
+Received: "application/json"
+
+ ❯ src/lib/api-server.test.ts:96:45
+     94|     );
+     95|     expect(res.status).toBe(200);
+     96|     expect(res.headers.get('content-type')).toBe('text/csv; charset=ut…
+       |                                             ^
+     97|     expect(res.headers.get('content-disposition')).toBe('attachment; f…
+     98|     expect(await res.text()).toBe(CSV);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/lib/api-server.test.ts > apiProxy (route handlers do BFF) > 204 sem corpo é repassado sem quebrar o proxy
+TypeError: Response constructor: Invalid response status code 204
+ ❯ json ../../node_modules/.pnpm/next@16.3.4_@babel+core@7.2_0e72a99021834041b74cb4679dce2073/node_modules/next/src/server/web/spec-extension/response.ts:113:40
+ ❯ Module.apiProxy src/lib/api-server.ts:101:32
+     99|   });
+    100|   const data: unknown = await res.json().catch(() => ({}));
+    101|   const nextRes = NextResponse.json(data, { status: res.status });
+       |                                ^
+    102|   for (const setCookie of res.headers.getSetCookie()) {
+    103|     nextRes.headers.append('set-cookie', setCookie);
+ ❯ src/lib/api-server.test.ts:111:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/lib/api-server.test.ts > apiFetch (Server Components) > GET sem corpo não envia content-type e leva o cookie da sessão
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/api-server.test.ts:135:52
+    133|     const calls = stubFetch(() => Response.json({ user: { id: 'u-1' } …
+    134|     await expect(apiFetch('/auth/me')).resolves.toEqual({ user: { id: …
+    135|     expect(sentHeaders(calls).has('content-type')).toBe(false);
+       |                                                    ^
+    136|     expect(sentHeaders(calls).get('cookie')).toBe('aluguei_session=abc…
+    137|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/app/api/backend/[...path]/route.test.ts > /api/backend/[...path] > DELETE sem corpo (remover característica) chega à API sem content-type
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/app/api/backend/[...path]/route.test.ts:62:69
+     60|     expect(calls[0]?.[0]).toBe('http://api.test/properties/p-1/feature…
+     61|     expect(calls[0]?.[1]?.method).toBe('DELETE');
+     62|     expect(new Headers(calls[0]?.[1]?.headers).has('content-type')).to…
+       |                                                                     ^
+     63|   });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/app/api/backend/[...path]/route.test.ts > /api/backend/[...path] > POST sem corpo (gerar contrato) chega à API sem content-type
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/app/api/backend/[...path]/route.test.ts:69:69
+     67|     const res = await POST(request('/contracts/c-1/generate', { method…
+     68|     expect(res.status).toBe(200);
+     69|     expect(new Headers(calls[0]?.[1]?.headers).has('content-type')).to…
+       |                                                                     ^
+     70|     expect(calls[0]?.[1]?.body ?? null).toBeNull();
+     71|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/app/api/backend/[...path]/route.test.ts > /api/backend/[...path] > export CSV chega ao navegador como CSV, com nome de arquivo
+AssertionError: expected 'application/json' to be 'text/csv; charset=utf-8' // Object.is equality
+
+Expected: "text/csv; charset=utf-8"
+Received: "application/json"
+
+ ❯ src/app/api/backend/[...path]/route.test.ts:109:45
+    107|     const res = await GET(request('/reporting/export/leads?format=csv'…
+    108|     expect(res.status).toBe(200);
+    109|     expect(res.headers.get('content-type')).toBe('text/csv; charset=ut…
+       |                                             ^
+    110|     expect(res.headers.get('content-disposition')).toBe('attachment; f…
+    111|     expect(await res.text()).toBe(csv);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 9 passed (16)
+   Start at  15:54:21
+   Duration  1.75s (transform 207ms, setup 0ms, import 915ms, tests 150ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/api-server.test.ts route.test.ts
+# exit=1
