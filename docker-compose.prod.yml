@@ -2,9 +2,12 @@
 #
 # - Segredos: variáveis mágicas do Coolify (SERVICE_PASSWORD_*, SERVICE_HEX_*),
 #   geradas e guardadas pelo próprio Coolify. Nenhum valor fica no repositório.
-# - APP_BASE_URL e API_BASE_URL: definidas nas variáveis do recurso no Coolify,
-#   iguais aos domínios HTTPS dos serviços web e api. O web recusa API_BASE_URL
-#   sem https (auditoria P1-15), então ele fala com a API pelo domínio público.
+# - Domínios: configurados no recurso do Coolify. O sufixo numérico de
+#   SERVICE_URL_<SERVIÇO>_<PORTA> diz ao proxy para qual porta do container
+#   rotear — o Coolify descarta porta escrita no próprio domínio.
+# - APP_BASE_URL e API_BASE_URL: definidas nas variáveis do recurso, iguais aos
+#   domínios HTTPS dos serviços web e api. O web recusa API_BASE_URL sem https
+#   (auditoria P1-15), então ele fala com a API pelo domínio público.
 # - Providers em FAKE / dry-run / mock: nenhuma cobrança, assinatura, consulta de
 #   crédito, mensagem ou publicação real.
 # - Sem REDIS_URL: com ela preenchida a API cai no boot (auditoria P1-14).
@@ -48,6 +51,7 @@ services:
       target: server
     command: ['node', '--import', 'tsx', 'apps/api/src/index.ts']
     environment:
+      SERVICE_URL_API_4000: ''
       NODE_ENV: production
       LOG_LEVEL: info
       API_HOST: 0.0.0.0
@@ -109,6 +113,7 @@ services:
       dockerfile: Dockerfile
       target: web
     environment:
+      SERVICE_URL_WEB_3000: ''
       NODE_ENV: production
       APP_BASE_URL: ${APP_BASE_URL}
       API_BASE_URL: ${API_BASE_URL}
