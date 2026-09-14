@@ -15,7 +15,8 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
-import { formatDate } from '@aluguei/ui';import { apiClient } from '@/lib/api-client';
+import { formatDate } from '@aluguei/ui';
+import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { label, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
@@ -75,13 +76,13 @@ function CalendarBody() {
   const tasksQ = useQuery<{ tasks: Task[]; total: number }>('/tasks?limit=50&status=OPEN', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=100', []);
 
-  if (visitsQ.permissionDenied) return <PermissionDenied title="Sem acesso à agenda" />;
-
   const propertyTitle = useMemo(() => {
     const map = new Map<string, string>();
     for (const p of propsQ.data?.properties ?? []) map.set(p.id, p.title);
     return map;
   }, [propsQ.data]);
+
+  if (visitsQ.permissionDenied) return <PermissionDenied title="Sem acesso à agenda" />;
 
   const days = groupByDay(visitsQ.data?.visits ?? []);
   const openTasks = (tasksQ.data?.tasks ?? []).filter((t) => t.status === 'OPEN');
@@ -95,14 +96,23 @@ function CalendarBody() {
           <Select
             size="sm"
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); }}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+            }}
             placeholder="Todos os status"
             options={Object.entries(VISIT_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
             aria-label="Filtrar visitas"
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Agendar visita
           </Button>
         }
@@ -113,7 +123,10 @@ function CalendarBody() {
           {visitsQ.loading ? (
             <EmptyState title="Carregando agenda…" icon="calendar" />
           ) : days.length === 0 ? (
-            <EmptyState title="Nenhuma visita" body="Agende visitas para os interessados nos imóveis." />
+            <EmptyState
+              title="Nenhuma visita"
+              body="Agende visitas para os interessados nos imóveis."
+            />
           ) : (
             days.map((day) => (
               <Card key={day.day} padless>
@@ -123,14 +136,20 @@ function CalendarBody() {
                 </header>
                 <Stack gap={0}>
                   {day.items.map((v) => (
-                    <Group key={v.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                    <Group
+                      key={v.id}
+                      gap={3}
+                      style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                    >
                       <span style={{ fontSize: 13, fontWeight: 600, minWidth: 48 }}>
                         {formatTime(v.scheduledAt)}
                       </span>
                       <span className="peg-grow peg-truncate" style={{ fontSize: 13 }}>
                         {propertyTitle.get(v.propertyId ?? '') ?? 'Imóvel não informado'}
                       </span>
-                      <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>{label(VISIT_STATUS_LABELS, v.status)}</Badge>
+                      <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>
+                        {label(VISIT_STATUS_LABELS, v.status)}
+                      </Badge>
                     </Group>
                   ))}
                 </Stack>
@@ -151,10 +170,18 @@ function CalendarBody() {
             ) : (
               <Stack gap={0}>
                 {openTasks.map((t) => (
-                  <Group key={t.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+                  <Group
+                    key={t.id}
+                    gap={3}
+                    style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                  >
                     <Icon name="clipboardList" size={14} />
-                    <span className="peg-grow peg-truncate" style={{ fontSize: 13 }}>{t.title}</span>
-                    <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{formatDate(t.dueAt)}</span>
+                    <span className="peg-grow peg-truncate" style={{ fontSize: 13 }}>
+                      {t.title}
+                    </span>
+                    <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                      {formatDate(t.dueAt)}
+                    </span>
                   </Group>
                 ))}
               </Stack>
@@ -165,7 +192,9 @@ function CalendarBody() {
 
       <CreateVisitModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         onCreated={() => {
           toast.success('Visita agendada');
           setCreateOpen(false);
@@ -195,7 +224,9 @@ function CreateVisitModal({
     if (!scheduledAt) return;
     setBusy(true);
     try {
-      const body: { scheduledAt: string; note?: string } = { scheduledAt: new Date(scheduledAt).toISOString() };
+      const body: { scheduledAt: string; note?: string } = {
+        scheduledAt: new Date(scheduledAt).toISOString(),
+      };
       if (note.trim()) body.note = note.trim();
       await apiClient('/visits', { method: 'POST', body });
       setScheduledAt('');
@@ -215,14 +246,41 @@ function CreateVisitModal({
       title="Agendar visita"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-visit-form" loading={busy}>Agendar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-visit-form" loading={busy}>
+            Agendar
+          </Button>
         </>
       }
     >
-      <form id="create-visit-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
-        <Input label="Data e hora" type="datetime-local" required value={scheduledAt} onChange={(e) => { setScheduledAt(e.target.value); }} />
-        <Input label="Observação" optional placeholder="Ex.: Confirmar antes com o interessado" value={note} onChange={(e) => { setNote(e.target.value); }} />
+      <form
+        id="create-visit-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <Input
+          label="Data e hora"
+          type="datetime-local"
+          required
+          value={scheduledAt}
+          onChange={(e) => {
+            setScheduledAt(e.target.value);
+          }}
+        />
+        <Input
+          label="Observação"
+          optional
+          placeholder="Ex.: Confirmar antes com o interessado"
+          value={note}
+          onChange={(e) => {
+            setNote(e.target.value);
+          }}
+        />
         <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
           Para vincular a um lead, imóvel ou contato, abra o Lead 360 correspondente.
         </p>
@@ -234,7 +292,11 @@ function CreateVisitModal({
 function formatDayLabel(isoDay: string): string {
   const d = new Date(`${isoDay}T12:00:00`);
   const today = new Date();
-  const label = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const label = d.toLocaleDateString('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+  });
   if (isoDay === today.toISOString().slice(0, 10)) return `Hoje · ${label}`;
   return label;
 }

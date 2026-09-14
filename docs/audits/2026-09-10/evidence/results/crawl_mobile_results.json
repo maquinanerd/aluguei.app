@@ -1,0 +1,317 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "final": "/",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/login",
+    "status": 200,
+    "final": "/login",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": false,
+    "pageErrors": []
+  },
+  {
+    "route": "/imoveis",
+    "status": 200,
+    "final": "/imoveis",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/imoveis/apto-audit-mtw5tfdx",
+    "status": 200,
+    "final": "/imoveis/apto-audit-mtw5tfdx",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app",
+    "status": 200,
+    "final": "/app",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/crm/leads",
+    "status": 200,
+    "final": "/app/crm/leads",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/crm/contacts",
+    "status": 200,
+    "final": "/app/crm/contacts",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/crm/pipeline",
+    "status": 200,
+    "final": "/app/crm/pipeline",
+    "overflowPx": 0,
+    "offenders": ["section", "div.peg-group", "div.peg-stack"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/crm/tasks",
+    "status": 200,
+    "final": "/app/crm/tasks",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/crm/calendar",
+    "status": 200,
+    "final": "/app/crm/calendar",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/properties",
+    "status": 200,
+    "final": "/app/properties",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/properties/6d573a1d-6da7-4c71-a0fe-ec0aa75e1c7b",
+    "status": 200,
+    "final": "/app/properties/6d573a1d-6da7-4c71-a0fe-ec0aa75e1c7b",
+    "overflowPx": 0,
+    "offenders": ["button.peg-tab", "button.peg-tab"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/properties/new",
+    "status": 200,
+    "final": "/app/properties/new",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/listings",
+    "status": 200,
+    "final": "/app/listings",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/channels",
+    "status": 200,
+    "final": "/app/channels",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/inbox",
+    "status": 200,
+    "final": "/app/inbox",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/visits",
+    "status": 200,
+    "final": "/app/visits",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/proposals",
+    "status": 200,
+    "final": "/app/proposals",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/screening",
+    "status": 200,
+    "final": "/app/screening",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/contracts",
+    "status": 200,
+    "final": "/app/contracts",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/contracts/d2925349-73c4-4fa0-b2d3-d16149ad9d46",
+    "status": 200,
+    "final": "/app/contracts/d2925349-73c4-4fa0-b2d3-d16149ad9d46",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/inspections",
+    "status": 200,
+    "final": "/app/inspections",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/leases",
+    "status": 200,
+    "final": "/app/leases",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/leases/07907ea3-40a6-4f89-8730-210debc722dd",
+    "status": 200,
+    "final": "/app/leases/07907ea3-40a6-4f89-8730-210debc722dd",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/finance",
+    "status": 200,
+    "final": "/app/finance",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/charges",
+    "status": 200,
+    "final": "/app/charges",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/payments",
+    "status": 200,
+    "final": "/app/payments",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group", "table.peg-table"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/payouts",
+    "status": 200,
+    "final": "/app/payouts",
+    "overflowPx": 0,
+    "offenders": [],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/reconciliation",
+    "status": 200,
+    "final": "/app/reconciliation",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/ledger",
+    "status": 200,
+    "final": "/app/ledger",
+    "overflowPx": 0,
+    "offenders": ["table.peg-table", "thead", "tr"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/marketing",
+    "status": 200,
+    "final": "/app/marketing",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group", "button.peg-tab"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/reporting",
+    "status": 200,
+    "final": "/app/reporting",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/admin/members",
+    "status": 200,
+    "final": "/app/admin/members",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group", "table.peg-table"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/admin/integrations",
+    "status": 200,
+    "final": "/app/admin/integrations",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group"],
+    "hasNav": true,
+    "pageErrors": []
+  },
+  {
+    "route": "/app/settings",
+    "status": 200,
+    "final": "/app/settings",
+    "overflowPx": 0,
+    "offenders": ["div", "button.peg-group"],
+    "hasNav": true,
+    "pageErrors": []
+  }
+]

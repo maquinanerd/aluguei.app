@@ -76,7 +76,17 @@ export function Dropdown({
 
   return (
     <div ref={rootRef} className={cx('peg-dropdown', className)}>
-      <span role="button" tabIndex={0} aria-haspopup="menu" aria-expanded={open} aria-label={ariaLabel} onKeyDown={onKeyDown} onClick={() => { setOpen((v) => !v); }}>
+      <span
+        role="button"
+        tabIndex={0}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        onKeyDown={onKeyDown}
+        onClick={() => {
+          setOpen((v) => !v);
+        }}
+      >
         {trigger}
       </span>
       {open ? (
@@ -96,7 +106,9 @@ export function Dropdown({
                 setOpen(false);
                 item.onSelect?.();
               }}
-              onMouseEnter={() => { setFocusedIndex(i); }}
+              onMouseEnter={() => {
+                setFocusedIndex(i);
+              }}
               style={focusedIndex === i ? { background: 'var(--peg-surface-subtle)' } : undefined}
             >
               {item.icon ? (

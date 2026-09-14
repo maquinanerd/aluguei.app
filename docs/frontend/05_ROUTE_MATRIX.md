@@ -44,7 +44,9 @@ Sugestão canônica:
 - `/app/settings`
 
 ## Regra
+
 Mapear cada rota para:
+
 - endpoint(s);
 - contract(s);
 - permission(s);

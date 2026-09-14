@@ -4,10 +4,12 @@ import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
+import { createDbFakePaymentStore } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
+  PlacesService,
   WhatsAppMessenger,
   AiProvider,
   ISignatureProvider,
@@ -24,6 +26,8 @@ import { storagePlugin } from './plugins/storage.js';
 import type { StoragePluginOptions } from './plugins/storage.js';
 import { geocodingPlugin } from './plugins/geocoding.js';
 import type { GeocodingPluginOptions } from './plugins/geocoding.js';
+import { placesPlugin } from './plugins/places.js';
+import type { PlacesPluginOptions } from './plugins/places.js';
 import { whatsappPlugin } from './plugins/whatsapp.js';
 import type { WhatsAppPluginOptions } from './plugins/whatsapp.js';
 import { aiPlugin } from './plugins/ai.js';
@@ -40,6 +44,7 @@ import { visitRoutes } from './routes/visits.js';
 import { proposalRoutes } from './routes/proposals.js';
 import { timelineRoutes } from './routes/timeline.js';
 import { propertyRoutes } from './routes/properties.js';
+import { placesRoutes } from './routes/places.js';
 import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
 import { channelRoutes } from './routes/channels.js';
@@ -53,6 +58,7 @@ import { contractRoutes } from './routes/contracts.js';
 import { leaseRoutes } from './routes/leases.js';
 import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
+import { devPaymentRoutes } from './routes/dev-payments.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
@@ -71,12 +77,20 @@ export interface BuildAppOptions extends FastifyServerOptions {
   config?: Partial<AppConfig>;
   storage?: StorageService;
   geocoding?: GeocodingService;
+  places?: PlacesService;
   channels?: { fake?: FakeChannel };
   whatsapp?: WhatsAppMessenger;
   ai?: AiProvider;
   signature?: ISignatureProvider;
   payments?: IPaymentProvider;
   meta?: IMetaAdsProvider;
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    /** Env tipado (AppEnv validado por zod) — acessível em rotas e plugins. */
+    env: AppEnv;
+  }
 }
 
 /** Key de rate limit: IP quando não autenticado; userId quando autenticado. */
@@ -128,6 +142,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     trustProxy: 'loopback',
   });
   setErrorHandler(app);
+
+  // Env tipado (AppEnv validado por zod) disponível em rotas/plugins.
+  app.decorate('env', env);
 
   await app.register(helmet);
   await app.register(cookie);
@@ -191,6 +208,15 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(geocodingPlugin, geocodingOptions);
 
+  const placesOptions: PlacesPluginOptions = { nodeEnv: env.NODE_ENV };
+  if (opts.places) {
+    placesOptions.places = opts.places;
+  }
+  if (env.GOOGLE_MAPS_API_KEY) {
+    placesOptions.apiKey = env.GOOGLE_MAPS_API_KEY;
+  }
+  await app.register(placesPlugin, placesOptions);
+
   const whatsappOptions: WhatsAppPluginOptions = {};
   if (opts.whatsapp) {
     whatsappOptions.messenger = opts.whatsapp;
@@ -229,6 +255,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.signature) {
     signatureOptions.signature = opts.signature;
   }
+  if (env.SIGNATURE_PROVIDER) {
+    signatureOptions.provider = env.SIGNATURE_PROVIDER;
+  }
   if (env.CLICKSIGN_API_TOKEN) {
     signatureOptions.token = env.CLICKSIGN_API_TOKEN;
   }
@@ -240,8 +269,19 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.payments) {
     paymentsOptions.payments = opts.payments;
   }
+  if (env.PAYMENT_PROVIDER) {
+    paymentsOptions.provider = env.PAYMENT_PROVIDER;
+  }
   if (env.ASAAS_API_KEY) {
     paymentsOptions.apiKey = env.ASAAS_API_KEY;
+  }
+  if (env.ASAAS_ENV) {
+    paymentsOptions.env = env.ASAAS_ENV;
+  }
+  if (!opts.payments) {
+    // Provider FAKE guarda o estado em tabela: API e worker são processos
+    // separados e precisam ver a mesma cobrança (auditoria 2026-09-10, P1-13).
+    paymentsOptions.fakeStore = createDbFakePaymentStore(app.db);
   }
   await app.register(paymentsPlugin, paymentsOptions);
 
@@ -254,6 +294,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   if (env.META_ACCESS_TOKEN) {
     metaOptions.accessToken = env.META_ACCESS_TOKEN;
+  }
+  if (env.META_AD_ACCOUNT_ID) {
+    metaOptions.adAccountId = env.META_AD_ACCOUNT_ID;
   }
   await app.register(metaPlugin, metaOptions);
 
@@ -274,6 +317,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(proposalRoutes);
   await app.register(timelineRoutes);
   await app.register(propertyRoutes);
+  await app.register(placesRoutes);
   await app.register(listingRoutes);
   await app.register(publicRoutes);
   await app.register(channelRoutes);
@@ -287,6 +331,10 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(leaseRoutes);
   await app.register(chargeRoutes);
   await app.register(paymentsRoutes);
+  if (env.NODE_ENV !== 'production') {
+    // Simulação do pagador com provider FAKE (dev/E2E) — nunca em produção.
+    await app.register(devPaymentRoutes);
+  }
   await app.register(metaRoutes);
   await app.register(portalRoutes);
   await app.register(reportingRoutes);

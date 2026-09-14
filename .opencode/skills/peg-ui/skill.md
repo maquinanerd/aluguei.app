@@ -2,6 +2,7 @@
 name: peg-ui
 description: Carrega foundations/components/shells/patterns PEG somente quando necessário.
 ---
+
 Leia sob demanda:
 design-source/peg-product-design-system/01_FOUNDATIONS.md
 02_COMPONENTS.md

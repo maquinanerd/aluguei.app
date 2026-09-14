@@ -51,12 +51,12 @@ Evite:
 
 Estas cores são comuns aos três produtos e devem permanecer consistentes:
 
-| Token | HEX | Uso |
-|---|---:|---|
-| `neutral.canvas` | `#FCFCFC` | canvas/background principal |
-| `neutral.surface` | `#F0F0F0` | surface secundária, hover leve, blocos suaves |
-| `neutral.mid` | `#C7C7C7` | borders fortes, disabled, divisores |
-| `neutral.ink` | `#2F332B` | texto forte, ação principal escura, ícones principais |
+| Token             |       HEX | Uso                                                   |
+| ----------------- | --------: | ----------------------------------------------------- |
+| `neutral.canvas`  | `#FCFCFC` | canvas/background principal                           |
+| `neutral.surface` | `#F0F0F0` | surface secundária, hover leve, blocos suaves         |
+| `neutral.mid`     | `#C7C7C7` | borders fortes, disabled, divisores                   |
+| `neutral.ink`     | `#2F332B` | texto forte, ação principal escura, ícones principais |
 
 A identidade não deve virar uma interface colorida. A cor de produto é **accent**, não substituto dos neutros.
 
@@ -91,15 +91,14 @@ Para cada domínio/tela relevante:
    - `P2`: refinamento;
 5. corrigir todos os P0 e P1 antes de considerar concluído.
 
-
 # PALETA DO ALUGUEI.APP
 
 O ALUGUEI.APP usa a fundação neutra compartilhada e acrescenta dois verdes de marca:
 
-| Token | HEX | Papel |
-|---|---:|---|
-| `aluguei.brand.primary` | `#41945D` | accent principal |
-| `aluguei.brand.strong` | `#417D55` | accent forte, hover/pressed, estados selecionados |
+| Token                   |       HEX | Papel                                             |
+| ----------------------- | --------: | ------------------------------------------------- |
+| `aluguei.brand.primary` | `#41945D` | accent principal                                  |
+| `aluguei.brand.strong`  | `#417D55` | accent forte, hover/pressed, estados selecionados |
 
 ## Regras de uso da paleta
 
@@ -356,6 +355,7 @@ O dashboard é central de trabalho, não apresentação executiva.
 Mostrar prioritariamente:
 
 ### CRM
+
 - novos leads;
 - leads sem atendimento;
 - leads aguardando resposta;
@@ -366,6 +366,7 @@ Mostrar prioritariamente:
 - propostas.
 
 ### Imóveis
+
 - disponíveis;
 - reservados;
 - alugados;
@@ -374,6 +375,7 @@ Mostrar prioritariamente:
 - maior procura.
 
 ### Operação
+
 - crédito pendente;
 - contratos aguardando ação;
 - assinaturas pendentes;
@@ -381,6 +383,7 @@ Mostrar prioritariamente:
 - ocorrências abertas.
 
 ### Financeiro
+
 - cobranças previstas;
 - vencidas;
 - recebidas;
@@ -388,6 +391,7 @@ Mostrar prioritariamente:
 - conciliações pendentes.
 
 ### Atendimento
+
 - conversas abertas;
 - sem responsável;
 - aguardando resposta.

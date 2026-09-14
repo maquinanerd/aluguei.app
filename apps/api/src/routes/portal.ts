@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import type { AppDb } from '@aluguei/db';
 import {
@@ -26,6 +26,7 @@ import {
   buildLandlordStatement,
   buildTenantStatement,
 } from '@aluguei/domain';
+import { initiatePayment } from '../finance/initiation.js';
 import {
   consumePortalTokenRequestSchema,
   createPortalAccessRequestSchema,
@@ -484,60 +485,25 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
       if (!charge) {
         throw new DomainError('NOT_FOUND', 'Cobrança não encontrada');
       }
-      if (charge.status === 'PAID' || charge.status === 'CANCELLED') {
-        throw new DomainError('INVALID_TRANSITION', `Cobrança ${charge.status} não pode ser paga`);
-      }
       const paymentProvider = app.payments;
       if (!paymentProvider) {
         throw new DomainError('INVALID_INPUT', 'Pagamento não configurado');
       }
-      // Idempotente: payment PENDING existente para a charge é reutilizado.
-      const [existingPayment] = await db
-        .select()
-        .from(payments)
-        .where(eq(payments.chargeId, charge.id))
-        .limit(1);
-      if (existingPayment && existingPayment.status === 'PENDING') {
-        return reply.status(200).send({
-          payment: toPaymentDto(existingPayment),
-          pixQrCode: charge.providerChargeId ? `000201-qr-${charge.providerChargeId}` : null,
-          boletoUrl: null,
-          providerChargeId: charge.providerChargeId,
-        });
-      }
-      const created = await paymentProvider.createCharge({
-        amountCents: charge.amountCents,
-        description: `Aluguel ${charge.periodStart}`,
-        dueDate: charge.dueDate,
-      });
-      const payment = first(
-        await db
-          .insert(payments)
-          .values({
-            orgId: portal.orgId,
-            chargeId: charge.id,
-            amountCents: charge.amountCents,
-            method: 'PIX',
-            status: 'PENDING',
-          })
-          .returning(),
-      );
-      await db
-        .update(charges)
-        .set({ providerChargeId: created.providerChargeId, updatedAt: new Date() })
-        .where(eq(charges.id, charge.id));
-      await writeAudit(db, {
+      // Mesma iniciação do backoffice (idempotente, sem recálculo de multa/juros):
+      // o QR devolvido é o emitido pelo provider, não um texto fabricado (P0-03).
+      const result = await initiatePayment(db, paymentProvider, {
         orgId: portal.orgId,
-        action: AUDIT_ACTIONS.PAYMENT_INITIATED,
-        entityType: 'CHARGE',
-        entityId: charge.id,
-        payload: { paymentId: payment.id, via: 'portal' },
+        chargeId: charge.id,
+        method: 'PIX',
+        actorUserId: null,
+        recalculate: false,
+        via: 'portal',
       });
-      return reply.status(201).send({
-        payment: toPaymentDto(payment),
-        pixQrCode: created.pixQrCode ?? null,
-        boletoUrl: created.boletoUrl ?? null,
-        providerChargeId: created.providerChargeId,
+      return reply.status(result.reused ? 200 : 201).send({
+        payment: toPaymentDto(result.payment),
+        pixQrCode: result.pixQrCode,
+        boletoUrl: result.boletoUrl,
+        providerChargeId: result.providerChargeId,
       });
     },
   );
@@ -642,6 +608,8 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
                   eq(splitAllocations.partyId, portal.partyId),
                   eq(splitAllocations.role, 'LANDLORD'),
                   inArray(splitAllocations.paymentId, paymentIds),
+                  // alocação cancelada (pagamento estornado) não é renda do proprietário
+                  ne(splitAllocations.status, 'CANCELLED'),
                 ),
               )
           : [];

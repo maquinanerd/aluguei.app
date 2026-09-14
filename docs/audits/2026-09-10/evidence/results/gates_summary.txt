@@ -1,0 +1,11 @@
+format exit=1 dur=10s cmd=pnpm format:check
+lint exit=0 dur=8s cmd=pnpm lint --continue
+typecheck exit=0 dur=2s cmd=pnpm typecheck --continue
+test exit=0 dur=2s cmd=pnpm test --continue
+build exit=0 dur=11s cmd=pnpm build --continue
+secscan exit=0 dur=2s cmd=pnpm security:scan
+audit_prod exit=1 dur=3s cmd=pnpm security:audit
+audit_crit exit=1 dur=3s cmd=pnpm security:audit --audit-level=critical
+dbgen exit=0 dur=4s cmd=pnpm db:generate
+drift_lines=0
+ALL_DONE

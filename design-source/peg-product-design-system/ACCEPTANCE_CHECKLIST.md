@@ -1,6 +1,7 @@
 # Acceptance Checklist
 
 ## Reference audit
+
 - [ ] Todos os screenshots catalogados.
 - [ ] Componentes recorrentes identificados.
 - [ ] Desktop/mobile diferenciados.
@@ -8,6 +9,7 @@
 - [ ] Elementos inferidos marcados como `INFERRED`.
 
 ## Foundations
+
 - [ ] Colors definidos.
 - [ ] Type scale calibrada.
 - [ ] Spacing scale definida.
@@ -18,6 +20,7 @@
 - [ ] Sidebar/topbar/inspector metrics definidos.
 
 ## Components
+
 - [ ] Buttons e states.
 - [ ] Form controls e states.
 - [ ] Sidebar full/compact/mobile.
@@ -28,6 +31,7 @@
 - [ ] Feedback states.
 
 ## Calibration
+
 - [ ] Calibration screen desktop light aprovada.
 - [ ] Desktop dark aprovada.
 - [ ] Mobile light aprovada.
@@ -36,6 +40,7 @@
 - [ ] Zero P1 relevante.
 
 ## Kal El
+
 - [ ] Article editor aprovado antes das demais telas.
 - [ ] Articles index.
 - [ ] Media library.
@@ -45,6 +50,7 @@
 - [ ] Settings.
 
 ## Commerce Wayne
+
 - [ ] CRM list aprovado antes das demais telas.
 - [ ] Lead detail.
 - [ ] Pipeline.
@@ -55,6 +61,7 @@
 - [ ] Settings.
 
 ## Final
+
 - [ ] Responsividade validada.
 - [ ] Dark mode validado.
 - [ ] Tokens sincronizados.

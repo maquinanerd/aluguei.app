@@ -74,7 +74,8 @@ function toAddressDto(address: Record<string, unknown>): Record<string, unknown>
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(address)) {
     if (value !== null) {
-      result[key] = value;
+      // Normalização de boundary: Date → ISO 8601 (ver toDtoValue em properties.ts).
+      result[key] = value instanceof Date ? value.toISOString() : value;
     }
   }
   return result;

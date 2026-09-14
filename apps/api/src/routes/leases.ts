@@ -114,11 +114,17 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
       if (contract.status !== 'SIGNED') {
         throw new DomainError('INVALID_TRANSITION', 'Locação exige contrato assinado');
       }
+      // P0-05 (defesa em profundidade): toda leitura derivada é filtrada pela org.
       const [application] = contract.applicationId
         ? await db
             .select()
             .from(rentalApplications)
-            .where(eq(rentalApplications.id, contract.applicationId))
+            .where(
+              and(
+                eq(rentalApplications.id, contract.applicationId),
+                eq(rentalApplications.orgId, auth.orgId),
+              ),
+            )
             .limit(1)
         : [undefined];
       const propertyId = application?.propertyId ?? '';
@@ -126,17 +132,26 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
         throw new DomainError('INVALID_INPUT', 'Contrato sem imóvel associado');
       }
       const [tenant] = application
-        ? await db.select().from(parties).where(eq(parties.id, application.partyId)).limit(1)
+        ? await db
+            .select()
+            .from(parties)
+            .where(and(eq(parties.id, application.partyId), eq(parties.orgId, auth.orgId)))
+            .limit(1)
         : [undefined];
       const [landlordOwner] = await db
         .select()
         .from(propertyOwners)
-        .where(eq(propertyOwners.propertyId, propertyId))
+        .where(and(eq(propertyOwners.propertyId, propertyId), eq(propertyOwners.orgId, auth.orgId)))
         .limit(1);
       const [terms] = await db
         .select()
         .from(propertyFinancialTerms)
-        .where(eq(propertyFinancialTerms.propertyId, propertyId))
+        .where(
+          and(
+            eq(propertyFinancialTerms.propertyId, propertyId),
+            eq(propertyFinancialTerms.orgId, auth.orgId),
+          ),
+        )
         .limit(1);
 
       const lease = first(

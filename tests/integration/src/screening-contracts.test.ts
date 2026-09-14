@@ -76,6 +76,57 @@ describe('Fase 07: Screening + Contracts + Signature', () => {
     });
   }
 
+  async function setupContractAndEnvelope(
+    cookie: string,
+    applicationId: string,
+  ): Promise<{ contractId: string; providerEnvelopeId: string }> {
+    const template = await app.inject({
+      method: 'POST',
+      url: '/contract-templates',
+      headers: { cookie },
+      payload: {
+        name: 'Contrato Locação',
+        body: 'PROPRIETARIO: {{landlordName}}\nLOCATARIO: {{tenantName}}\nIMOVEL: {{propertyTitle}}\nALUGUEL: {{monthlyRentCents}}',
+      },
+    });
+    expect(template.statusCode).toBe(201);
+    const templateId = (template.json() as { template: { id: string } }).template.id;
+    const approve = await app.inject({
+      method: 'PATCH',
+      url: `/contract-templates/${templateId}/approve`,
+      headers: { cookie },
+      payload: {},
+    });
+    expect(approve.statusCode).toBe(200);
+
+    const contract = await app.inject({
+      method: 'POST',
+      url: '/contracts',
+      headers: { cookie },
+      payload: { applicationId, templateId },
+    });
+    expect(contract.statusCode).toBe(201);
+    const contractId = (contract.json() as { contract: { id: string } }).contract.id;
+
+    const generate = await app.inject({
+      method: 'POST',
+      url: `/contracts/${contractId}/generate`,
+      headers: { cookie },
+      payload: {},
+    });
+    expect(generate.statusCode).toBe(200);
+
+    const send = await app.inject({
+      method: 'POST',
+      url: `/contracts/${contractId}/send-for-signature`,
+      headers: { cookie },
+      payload: {},
+    });
+    expect(send.statusCode).toBe(201);
+    const envelope = send.json() as { envelope: { providerEnvelopeId: string } };
+    return { contractId, providerEnvelopeId: envelope.envelope.providerEnvelopeId };
+  }
+
   it('fluxo completo: consent → submit → screening APPROVE → contract → generate → SIGNED', async () => {
     const { cookie, partyId, applicationId } = await setupPartyAndApplication(OK_CPF);
 
@@ -218,6 +269,87 @@ describe('Fase 07: Screening + Contracts + Signature', () => {
     expect((finalContract.json() as { contract: { status: string } }).contract.status).toBe(
       'SIGNED',
     );
+  });
+
+  it('eventos fora de ordem: COMPLETED antes dos SIGNER_SIGNED converge para SIGNED', async () => {
+    const { cookie, partyId, applicationId } = await setupPartyAndApplication(OK_CPF);
+    await app.inject({
+      method: 'POST',
+      url: `/parties/${partyId}/consents`,
+      headers: { cookie },
+      payload: { purpose: 'CREDIT_SCREENING' },
+    });
+    await app.inject({
+      method: 'PATCH',
+      url: `/rental-applications/${applicationId}/status`,
+      headers: { cookie },
+      payload: { status: 'SUBMITTED' },
+    });
+    await app.inject({
+      method: 'POST',
+      url: `/rental-applications/${applicationId}/screening`,
+      headers: { cookie },
+      payload: { provider: 'FAKE' },
+    });
+    await runWorker();
+
+    const { contractId, providerEnvelopeId } = await setupContractAndEnvelope(
+      cookie,
+      applicationId,
+    );
+
+    // COMPLETED chega PRIMEIRO (fora de ordem) — nenhum signatário assinou ainda.
+    const completed = await app.inject({
+      method: 'POST',
+      url: '/webhooks/signature',
+      payload: {
+        provider: 'FAKE',
+        eventType: 'COMPLETED',
+        providerEventId: `evt-early-complete-${String(Math.random())}`,
+        providerEnvelopeId,
+      },
+    });
+    expect(completed.statusCode).toBe(200);
+    await runWorker();
+
+    // Verifica que o contrato NÃO foi finalizado prematuramente.
+    const before = await app.inject({
+      method: 'GET',
+      url: `/contracts/${contractId}`,
+      headers: { cookie },
+    });
+    expect((before.json() as { contract: { status: string } }).contract.status).toBe(
+      'SENT_FOR_SIGNATURE',
+    );
+
+    // SIGNER_SIGNED chegam DEPOIS do COMPLETED, na ordem de assinatura.
+    for (const order of [1, 2]) {
+      await app.inject({
+        method: 'POST',
+        url: '/webhooks/signature',
+        payload: {
+          provider: 'FAKE',
+          eventType: 'SIGNER_SIGNED',
+          providerEventId: `evt-late-${String(order)}-${String(Math.random())}`,
+          providerEnvelopeId,
+          signerOrder: order,
+        },
+      });
+      await runWorker();
+    }
+
+    // Último signatário → envelope efetivamente completo → convergência SIGNED.
+    const finalContract = await app.inject({
+      method: 'GET',
+      url: `/contracts/${contractId}`,
+      headers: { cookie },
+    });
+    const body = finalContract.json() as {
+      contract: { status: string };
+      envelope: { status: string } | null;
+    };
+    expect(body.contract.status).toBe('SIGNED');
+    expect(body.envelope?.status).toBe('SIGNED');
   });
 
   it('red flag HIGH → REJECTED + lead LOST', async () => {

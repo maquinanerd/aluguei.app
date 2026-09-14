@@ -5,8 +5,10 @@ import type { InputHTMLAttributes } from 'react';
 import { cx } from '../lib/cx';
 import { Icon } from './icons';
 
-export interface SearchInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
+export interface SearchInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type'
+> {
   size?: 'sm' | 'md' | 'lg';
   /** placeholder padrão em pt-BR. */
 }

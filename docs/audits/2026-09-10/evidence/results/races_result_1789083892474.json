@@ -1,0 +1,103 @@
+{
+  "S1c_concurrent_with_landlord": {
+    "lease": 201,
+    "settled": ["fulfilled", "fulfilled"],
+    "payoutsByParty": [
+      {
+        "party_id": "c9eb4446-227d-48ae-999b-7bfbef12b8aa",
+        "amount_cents": 90000,
+        "status": "PENDING"
+      },
+      {
+        "party_id": "c9eb4446-227d-48ae-999b-7bfbef12b8aa",
+        "amount_cents": 90000,
+        "status": "PENDING"
+      }
+    ],
+    "chargeStatus": "PAID",
+    "payments": {
+      "total": 1,
+      "confirmed": 1
+    },
+    "splitAllocations": {
+      "n": 4,
+      "sum": 200000
+    },
+    "payouts": {
+      "n": 2,
+      "sum": 180000,
+      "parties": 1
+    },
+    "paymentTx": 2,
+    "payoutTx": 2,
+    "refundTx": 0,
+    "cashBalance": 20000,
+    "unbalancedTx": 0
+  },
+  "S2_sequential_and_coowners": {
+    "owners": ["94555a81-5618-4892-b39f-280252322d9d", "b95ce52d-fc97-411b-b025-0de48ead060f"],
+    "splitRule": [
+      {
+        "agency_share_bps": 1000,
+        "landlord_share_bps": 9000,
+        "landlord_party_id": "94555a81-5618-4892-b39f-280252322d9d"
+      }
+    ],
+    "payoutsByParty": [],
+    "chargeStatus": "OPEN",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 0,
+      "sum": 0
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 0,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 0,
+    "unbalancedTx": 0
+  },
+  "S3_forged_refund_twice": {
+    "refundProviderCalls": 2,
+    "inbox": [
+      {
+        "provider_event_id": "PAY:refund-1",
+        "status": "SUCCESS",
+        "attempts": 1,
+        "err": ""
+      },
+      {
+        "provider_event_id": "PAY:refund-2",
+        "status": "FAILED",
+        "attempts": 1,
+        "err": "Transição inválida: PENDING → REFUNDED"
+      }
+    ],
+    "chargeStatus": "OPEN",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 0,
+      "sum": 0
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 0,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 0,
+    "unbalancedTx": 0
+  }
+}

@@ -4,23 +4,23 @@ Comparação entre a identidade exigida (PEG + Aluguei override) e o estado real
 
 ## Fundamentos
 
-| Item | Exigido (design source) | Estado atual | Gap |
-|---|---|---|---|
-| Canvas | `#FCFCFC` (Aluguei) | `#f6f7f9` | P0 — cor errada |
-| Surface | `#F0F0F0` / `#FFFFFF` | `#ffffff` | P1 — falta hierarchy |
-| Border | famíla `#C7C7C7`/`#E5E5E7` | `#e2e6ec` | P1 |
-| Ink/texto | `#2F332B` | `#1a2233` | P0 — identidade |
-| Accent | `#41945D`/`#417D55` | `#0f5fd0` (azul) | P0 — accent errado |
-| Semantic | success/warning/danger/info independentes | `#067647/#92400e/#b42318/#0f5fd0` | P1 |
-| Tipografia | Inter, escala PEG (11–48px) | system-ui, sem escala | P0 |
-| Spacing | escala 4/8/12/16/20/24/32/40/48/64 | ad-hoc | P0 |
-| Radius | 4/6/8/12/16 | 10px único | P1 |
-| Control height | 28/32/36/40 | padding fixo 10px | P1 |
-| Sidebar | 232–248px full / 60–64 rail | inexistente | P0 |
-| Topbar | 48–56px | ~45px ad-hoc | P1 |
-| Tabela row | 48–56px | ~41px ad-hoc | P1 |
-| Elevation | 0–3 discretas | sem | P1 |
-| Dark mode | surfaces próprias | sem | P3 (não bloqueante) |
+| Item           | Exigido (design source)                   | Estado atual                      | Gap                  |
+| -------------- | ----------------------------------------- | --------------------------------- | -------------------- |
+| Canvas         | `#FCFCFC` (Aluguei)                       | `#f6f7f9`                         | P0 — cor errada      |
+| Surface        | `#F0F0F0` / `#FFFFFF`                     | `#ffffff`                         | P1 — falta hierarchy |
+| Border         | famíla `#C7C7C7`/`#E5E5E7`                | `#e2e6ec`                         | P1                   |
+| Ink/texto      | `#2F332B`                                 | `#1a2233`                         | P0 — identidade      |
+| Accent         | `#41945D`/`#417D55`                       | `#0f5fd0` (azul)                  | P0 — accent errado   |
+| Semantic       | success/warning/danger/info independentes | `#067647/#92400e/#b42318/#0f5fd0` | P1                   |
+| Tipografia     | Inter, escala PEG (11–48px)               | system-ui, sem escala             | P0                   |
+| Spacing        | escala 4/8/12/16/20/24/32/40/48/64        | ad-hoc                            | P0                   |
+| Radius         | 4/6/8/12/16                               | 10px único                        | P1                   |
+| Control height | 28/32/36/40                               | padding fixo 10px                 | P1                   |
+| Sidebar        | 232–248px full / 60–64 rail               | inexistente                       | P0                   |
+| Topbar         | 48–56px                                   | ~45px ad-hoc                      | P1                   |
+| Tabela row     | 48–56px                                   | ~41px ad-hoc                      | P1                   |
+| Elevation      | 0–3 discretas                             | sem                               | P1                   |
+| Dark mode      | surfaces próprias                         | sem                               | P3 (não bloqueante)  |
 
 ## Componentes (PEG → semantic → domain)
 

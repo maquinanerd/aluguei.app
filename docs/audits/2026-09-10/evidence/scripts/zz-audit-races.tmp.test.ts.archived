@@ -1,0 +1,232 @@
+/**
+ * TEMPORARY AUDIT HARNESS — auditoria 2026-09-10.
+ * Não faz parte da suíte: é executado uma vez e removido (ver docs/audits/2026-09-10/09_TEST_AUDIT.md).
+ * Objetivo: provar/refutar riscos financeiros apontados na leitura de código, in-process
+ * (PGlite) com provider FAKE compartilhado entre API e worker.
+ */
+import { afterAll, beforeAll, describe, it } from 'vitest';
+import type { FastifyInstance } from 'fastify';
+import { sql } from 'drizzle-orm';
+import { FakeScreeningProvider, FakeSignatureProvider } from '@aluguei/integrations';
+import { calculateChargeBreakdown } from '@aluguei/domain';
+import { runInboxJobs } from '@aluguei/worker';
+import { processPaymentJob } from '../../../apps/worker/src/paymentJobs.js';
+import { buildTestApp, fakePayments, registerUser } from './helpers.js';
+
+type Res = { status: number; body: any };
+
+describe('AUDIT financial races (temporary)', () => {
+  let app: FastifyInstance;
+  const screening = new FakeScreeningProvider();
+  const signature = new FakeSignatureProvider();
+  const out: Record<string, unknown> = {};
+  let refundCalls = 0;
+
+  beforeAll(async () => {
+    app = await buildTestApp();
+    const orig = fakePayments.refundPayment.bind(fakePayments);
+    fakePayments.refundPayment = async (id: string) => {
+      refundCalls += 1;
+      return orig(id);
+    };
+  });
+  afterAll(async () => {
+    const { writeFileSync } = await import('node:fs');
+    writeFileSync(
+      'C:/Users/pablo/AppData/Local/Temp/claude/C--Users-pablo-Documents-OpenCode-Aluguei-app--claude-worktrees-aluguei-technical-audit-6cea11/57b60008-7a72-4aed-be9f-ad6fb81a7cff/scratchpad/races_result_' +
+        String(Date.now()) +
+        '.json',
+      JSON.stringify(out, null, 2),
+    );
+    console.log(`AUDIT_RESULT ${JSON.stringify(out, null, 2)}`);
+    await app.close();
+  });
+
+  const worker = (limit = 20) =>
+    runInboxJobs({ db: app.db, limit, screening, signature, payments: fakePayments });
+  async function q(text: string): Promise<any[]> {
+    const r: any = await app.db.execute(sql.raw(text));
+    return r.rows ?? r;
+  }
+  async function inj(method: string, url: string, cookie?: string, payload?: unknown): Promise<Res> {
+    const r = await app.inject({
+      method: method as 'GET',
+      url,
+      headers: cookie ? { cookie } : {},
+      ...(payload !== undefined ? { payload: payload as object } : {}),
+    });
+    let body: any = null;
+    try {
+      body = r.json();
+    } catch {
+      body = r.body;
+    }
+    return { status: r.statusCode, body };
+  }
+  let seq = 0;
+  async function setupLease(opts: { rentCents: number; owners?: number[] }) {
+    seq += 1;
+    const { cookie, body } = await registerUser(app);
+    const orgId = body.org.id;
+    const prop = await inj('POST', '/properties', cookie, { title: `Race ${seq}`, propertyType: 'APARTMENT' });
+    const propertyId = prop.body.property.id;
+    await inj('PUT', `/properties/${propertyId}/financial-terms`, cookie, { monthlyRentCents: opts.rentCents });
+    await inj('PUT', `/properties/${propertyId}/address`, cookie, { publicAddress: { city: 'São Paulo', state: 'SP' } });
+    const ownerIds: string[] = [];
+    for (const [i, pct] of (opts.owners ?? []).entries()) {
+      const cpfs = ['11144477735', '39053344705', '15350946056'];
+      const o = await inj('POST', '/parties', cookie, { type: 'PERSON', name: `Dono ${i}`, roles: ['OWNER'], identities: [{ kind: 'CPF', value: cpfs[i] }] });
+      ownerIds.push(o.body.party.id);
+      await inj('POST', `/properties/${propertyId}/owners`, cookie, { partyId: o.body.party.id, ownershipSharePct: pct });
+    }
+    const t = await inj('POST', '/parties', cookie, { type: 'PERSON', name: 'Locatária Race', identities: [{ kind: 'CPF', value: '52998224725' }] });
+    const tenantId = t.body.party.id;
+    await inj('POST', `/parties/${tenantId}/consents`, cookie, { purpose: 'CREDIT_SCREENING' });
+    const a = await inj('POST', '/rental-applications', cookie, { partyId: tenantId, propertyId });
+    const applicationId = a.body.application.id;
+    await inj('PATCH', `/rental-applications/${applicationId}/status`, cookie, { status: 'SUBMITTED' });
+    await inj('POST', `/rental-applications/${applicationId}/screening`, cookie, { provider: 'FAKE' });
+    await worker();
+    let appl = await inj('GET', `/rental-applications/${applicationId}`, cookie);
+    if (appl.body.application.status === 'MANUAL_REVIEW') {
+      await inj('PATCH', `/rental-applications/${applicationId}/status`, cookie, { status: 'APPROVED', decisionReason: 'audit' });
+      appl = await inj('GET', `/rental-applications/${applicationId}`, cookie);
+    }
+    const tpl = await inj('POST', '/contract-templates', cookie, { name: `T${seq}`, body: 'L {{landlordName}} T {{tenantName}} I {{propertyTitle}} A {{monthlyRentCents}}' });
+    await inj('PATCH', `/contract-templates/${tpl.body.template.id}/approve`, cookie, {});
+    const c = await inj('POST', '/contracts', cookie, { applicationId, templateId: tpl.body.template.id });
+    const contractId = c.body.contract.id;
+    await inj('POST', `/contracts/${contractId}/generate`, cookie, {});
+    const gen = await inj('POST', `/contracts/${contractId}/generate`, cookie, {});
+    const snd = await inj('POST', `/contracts/${contractId}/send-for-signature`, cookie, {});
+    if (!snd.body?.envelope) {
+      throw new Error(
+        `SETUP_FAIL ${JSON.stringify({ appStatus: appl.body.application.status, contract: [c.status, c.body], generate: [gen.status, gen.body], send: [snd.status, snd.body] }).slice(0, 1500)}`,
+      );
+    }
+    const env = snd.body.envelope.providerEnvelopeId;
+    for (const order of [1, 2, 3, 4]) {
+      await inj('POST', '/webhooks/signature', undefined, { provider: 'FAKE', eventType: 'SIGNER_SIGNED', providerEventId: `s${seq}-${order}`, providerEnvelopeId: env, signerOrder: order });
+      await worker();
+    }
+    await inj('POST', '/webhooks/signature', undefined, { provider: 'FAKE', eventType: 'COMPLETED', providerEventId: `s${seq}-c`, providerEnvelopeId: env });
+    await worker();
+    const l = await inj('POST', '/leases', cookie, { contractId });
+    return { cookie, orgId, propertyId, tenantId, ownerIds, leaseId: l.body?.lease?.id as string, leaseStatus: l.status, appStatus: appl.body.application.status };
+  }
+  async function chargeAndPay(cookie: string, leaseId: string, periodStart: string) {
+    const ch = await inj('POST', '/charges', cookie, { leaseId, periodStart });
+    const chargeId = ch.body.charge.id as string;
+    const pay = await inj('POST', `/charges/${chargeId}/payment`, cookie, { method: 'PIX' });
+    return { chargeId, pcid: pay.body.providerChargeId as string, amountCents: pay.body.payment?.amountCents as number, payStatus: pay.status };
+  }
+  const webhook = (eventType: string, id: string, pcid: string, amountCents: number) =>
+    inj('POST', '/webhooks/payments', undefined, { provider: 'FAKE', eventType, providerEventId: id, providerChargeId: pcid, amountCents, paidAt: '2026-11-05T00:00:00.000Z' });
+  async function money(orgId: string, chargeId: string) {
+    const [pays] = await q(`select count(*)::int total, count(*) filter (where status='CONFIRMED')::int confirmed from payments where charge_id='${chargeId}'`);
+    const [alloc] = await q(`select count(*)::int n, coalesce(sum(amount_cents),0)::int sum from split_allocations where payment_id in (select id from payments where charge_id='${chargeId}')`);
+    const [pout] = await q(`select count(*)::int n, coalesce(sum(amount_cents),0)::int sum, count(distinct party_id)::int parties from payouts where org_id='${orgId}'`);
+    const [ptx] = await q(`select count(distinct transaction_id)::int n from ledger_entries where org_id='${orgId}' and reference_type='PAYMENT'`);
+    const [otx] = await q(`select count(distinct transaction_id)::int n from ledger_entries where org_id='${orgId}' and reference_type='PAYOUT'`);
+    const [rtx] = await q(`select count(distinct transaction_id)::int n from ledger_entries where org_id='${orgId}' and reference_type='REFUND'`);
+    const [cash] = await q(`select coalesce(sum(e.amount_cents),0)::int bal from ledger_entries e join ledger_accounts a on a.id=e.account_id where e.org_id='${orgId}' and a.code='CASH'`);
+    const [chg] = await q(`select status from charges where id='${chargeId}'`);
+    const [unb] = await q(`select count(*)::int n from (select transaction_id from ledger_entries where org_id='${orgId}' group by 1 having sum(amount_cents)<>0) t`);
+    return { chargeStatus: chg?.status, payments: pays, splitAllocations: alloc, payouts: pout, paymentTx: ptx.n, payoutTx: otx.n, refundTx: rtx.n, cashBalance: cash.bal, unbalancedTx: unb.n };
+  }
+
+  it('S1 — two PAYMENT_CONFIRMED events for the same payment processed concurrently (two workers)', async () => {
+    const L = await setupLease({ rentCents: 100_000 });
+    const P = await chargeAndPay(L.cookie, L.leaseId, '2026-11-01');
+    await webhook('PAYMENT_CONFIRMED', 'race-a', P.pcid, P.amountCents);
+    await webhook('PAYMENT_CONFIRMED', 'race-b', P.pcid, P.amountCents);
+    const job = (id: string) => ({ id, orgId: L.orgId, payload: { eventType: 'PAYMENT_CONFIRMED', providerChargeId: P.pcid, amountCents: P.amountCents, paidAt: '2026-11-05T00:00:00.000Z' } });
+    const settled = await Promise.allSettled([
+      processPaymentJob(app.db, job('a'), fakePayments),
+      processPaymentJob(app.db, job('b'), fakePayments),
+    ]);
+    out.S1_concurrent_handlers = { setup: { lease: L.leaseStatus, app: L.appStatus, pay: P.payStatus, amount: P.amountCents }, settled: settled.map((s) => s.status), ...(await money(L.orgId, P.chargeId)) };
+  });
+
+  it('S1c — concurrent handlers WITH a landlord (payout duplication)', async () => {
+    const L = await setupLease({ rentCents: 100_000, owners: [100] });
+    const P = await chargeAndPay(L.cookie, L.leaseId, '2026-11-01');
+    await webhook('PAYMENT_CONFIRMED', 'race-c1', P.pcid, P.amountCents);
+    await webhook('PAYMENT_CONFIRMED', 'race-c2', P.pcid, P.amountCents);
+    const job = (id: string) => ({ id, orgId: L.orgId, payload: { eventType: 'PAYMENT_CONFIRMED', providerChargeId: P.pcid, amountCents: P.amountCents, paidAt: '2026-11-05T00:00:00.000Z' } });
+    const settled = await Promise.allSettled([
+      processPaymentJob(app.db, job('c1'), fakePayments),
+      processPaymentJob(app.db, job('c2'), fakePayments),
+    ]);
+    const payoutsByParty = await q(`select party_id, amount_cents, status from payouts where org_id='${L.orgId}'`);
+    out.S1c_concurrent_with_landlord = { lease: L.leaseStatus, settled: settled.map((s) => s.status), payoutsByParty, ...(await money(L.orgId, P.chargeId)) };
+  });
+
+  it('S1b — same scenario through runInboxJobs with two concurrent worker loops', async () => {
+    const L = await setupLease({ rentCents: 100_000 });
+    await worker(50); // drain scheduler/reconcile jobs
+    const P = await chargeAndPay(L.cookie, L.leaseId, '2026-11-01');
+    await webhook('PAYMENT_CONFIRMED', 'loop-a', P.pcid, P.amountCents);
+    await webhook('PAYMENT_CONFIRMED', 'loop-b', P.pcid, P.amountCents);
+    const settled = await Promise.allSettled([worker(1), worker(1), worker(1), worker(1)]);
+    out.S1b_concurrent_loops = { settled: settled.map((s) => s.status), ...(await money(L.orgId, P.chargeId)) };
+  });
+
+  it('S2 — control: two events processed sequentially + co-owners 60/40', async () => {
+    const L = await setupLease({ rentCents: 123_457, owners: [60, 40] });
+    const P = await chargeAndPay(L.cookie, L.leaseId, '2028-03-01');
+    await webhook('PAYMENT_CONFIRMED', 'seq-a', P.pcid, P.amountCents);
+    await worker();
+    await webhook('PAYMENT_CONFIRMED', 'seq-b', P.pcid, P.amountCents);
+    await worker();
+    const payoutsByParty = await q(`select party_id, amount_cents from payouts where org_id='${L.orgId}'`);
+    const splitRule = await q(`select agency_share_bps, landlord_share_bps, landlord_party_id from split_rules where lease_id='${L.leaseId}'`);
+    out.S2_sequential_and_coowners = { owners: L.ownerIds, splitRule, payoutsByParty, ...(await money(L.orgId, P.chargeId)) };
+
+    // S3 — forged PAYMENT_REFUNDED twice (no token configured) on the PAID charge
+    const before = refundCalls;
+    await webhook('PAYMENT_REFUNDED', 'refund-1', P.pcid, P.amountCents);
+    await worker();
+    await webhook('PAYMENT_REFUNDED', 'refund-2', P.pcid, P.amountCents);
+    await worker();
+    const inbox = await q(`select provider_event_id, status, attempts, left(coalesce(last_error,''),120) err from webhook_inbox where provider_event_id like 'PAY:refund-%'`);
+    out.S3_forged_refund_twice = { refundProviderCalls: refundCalls - before, inbox, ...(await money(L.orgId, P.chargeId)) };
+  });
+
+  it('S4 — portal payment on a SCHEDULED charge; S5 — two charges in the same month; S9 — cancel then pay', async () => {
+    const L = await setupLease({ rentCents: 100_000 });
+    const ch = await inj('POST', '/charges', L.cookie, { leaseId: L.leaseId, periodStart: '2027-06-01' });
+    const acc = await inj('POST', '/portal/access', L.cookie, { partyId: L.tenantId, kind: 'TENANT' });
+    const cons = await app.inject({ method: 'POST', url: '/portal/auth/consume', payload: { token: acc.body.oneTimeToken } });
+    const portalCookie = String(cons.headers['set-cookie'] ?? '').split(';')[0];
+    const pp = await inj('POST', `/portal/tenant/charges/${ch.body.charge.id}/payment`, portalCookie, { method: 'PIX' });
+    const pcid = pp.body?.providerChargeId ?? (await q(`select provider_charge_id from charges where id='${ch.body.charge.id}'`))[0]?.provider_charge_id;
+    await webhook('PAYMENT_CONFIRMED', 'portal-a', pcid, ch.body.charge.amountCents);
+    await worker();
+    const inbox = await q(`select status, attempts, left(coalesce(last_error,''),140) err from webhook_inbox where provider_event_id='PAY:portal-a'`);
+    out.S4_portal_payment_scheduled = { chargeStatusAtCreation: ch.body.charge.status, portalPay: pp.status, inbox, ...(await money(L.orgId, ch.body.charge.id)) };
+
+    const a = await inj('POST', '/charges', L.cookie, { leaseId: L.leaseId, periodStart: '2027-07-01' });
+    const b = await inj('POST', '/charges', L.cookie, { leaseId: L.leaseId, periodStart: '2027-07-15' });
+    out.S5_two_charges_same_month = { first: a.status, second: b.status };
+
+    const P = await chargeAndPay(L.cookie, L.leaseId, '2027-08-01');
+    const cancel = await inj('POST', `/charges/${P.chargeId}/cancel`, L.cookie, {});
+    await webhook('PAYMENT_CONFIRMED', 'after-cancel', P.pcid, P.amountCents);
+    await worker();
+    const inbox2 = await q(`select status, attempts, left(coalesce(last_error,''),140) err from webhook_inbox where provider_event_id='PAY:after-cancel'`);
+    const chargeLedger = await q(`select count(distinct transaction_id)::int n from ledger_entries where reference_type='CHARGE' and reference_id='${P.chargeId}'`);
+    out.S9_cancel_then_customer_pays = { cancel: cancel.status, inbox: inbox2, chargeCreationTxStillPosted: chargeLedger[0]?.n, ...(await money(L.orgId, P.chargeId)) };
+  });
+
+  it('S6 — interest rule (domain): 100 days late on R$1.000,00', () => {
+    out.S6_interest_100_days = calculateChargeBreakdown({ rentCents: 100_000, dueDate: '2026-01-10', paidOn: '2026-04-20' });
+    out.S6_interest_30_days = calculateChargeBreakdown({ rentCents: 100_000, dueDate: '2026-01-10', paidOn: '2026-02-09' });
+  });
+
+  it('S8 — global ledger balance after all scenarios', async () => {
+    const [g] = await q(`select coalesce(sum(amount_cents),0)::int s, count(*)::int n from ledger_entries`);
+    const [u] = await q(`select count(*)::int n from (select transaction_id from ledger_entries group by 1 having sum(amount_cents)<>0) t`);
+    out.S8_ledger = { globalSum: g.s, entries: g.n, unbalancedTx: u.n };
+  });
+});

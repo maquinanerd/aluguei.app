@@ -9,6 +9,7 @@ import {
   inspectionAiSuggestions,
   inspectionObservations,
   inspectionComparisons,
+  properties,
   webhookInbox,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
@@ -47,7 +48,7 @@ import {
   buildInspectionStorageKey,
   inferInspectionKindFromKey,
 } from '../media-rules.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 type InspectionRow = typeof inspections.$inferSelect;
 
@@ -151,6 +152,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createInspectionRequestSchema.parse(request.body);
+      // P0-05: o imóvel precisa ser da própria organização.
+      await assertOwnedByOrg(db, properties, input.propertyId, auth.orgId, 'Imóvel não encontrado');
       const inspection = first(
         await db
           .insert(inspections)
@@ -445,6 +448,23 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // P0-05: ambiente e mídia precisam ser DESTA vistoria (e da própria org).
+      await assertOwnedByOrg(
+        db,
+        inspectionRooms,
+        input.roomId,
+        auth.orgId,
+        'Ambiente não encontrado',
+        eq(inspectionRooms.inspectionId, inspection.id),
+      );
+      await assertOwnedByOrg(
+        db,
+        inspectionMedia,
+        input.mediaId,
+        auth.orgId,
+        'Mídia não encontrada',
+        eq(inspectionMedia.inspectionId, inspection.id),
+      );
       const observation = first(
         await db
           .insert(inspectionObservations)
@@ -697,12 +717,11 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .from(inspectionObservations)
           .where(eq(inspectionObservations.inspectionId, checkout.id)),
       ]);
-      const [rooms, checkinRooms, checkoutRooms] = await Promise.all([
-        db.select().from(inspectionRooms),
+      // P0-05: apenas os ambientes das duas vistorias (nunca um select global).
+      const [checkinRooms, checkoutRooms] = await Promise.all([
         db.select().from(inspectionRooms).where(eq(inspectionRooms.inspectionId, checkin.id)),
         db.select().from(inspectionRooms).where(eq(inspectionRooms.inspectionId, checkout.id)),
       ]);
-      void rooms;
       const roomName = new Map(
         [...checkinRooms, ...checkoutRooms].map((room) => [room.id, room.name]),
       );

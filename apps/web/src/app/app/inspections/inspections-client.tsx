@@ -58,10 +58,11 @@ function InspectionsBody() {
     return `/inspections?${params.toString()}`;
   }, [page, status, type]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ inspections: Inspection[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    inspections: Inspection[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a vistorias" />;
 
   const propertyMap = useMemo(() => {
     const m = new Map<string, Property>();
@@ -69,11 +70,15 @@ function InspectionsBody() {
     return m;
   }, [propsQ.data]);
 
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a vistorias" />;
+
   const columns: Column<Inspection>[] = [
     {
       key: 'property',
       header: 'Imóvel',
-      render: (i) => <span style={{ fontWeight: 500 }}>{propertyMap.get(i.propertyId)?.title ?? '—'}</span>,
+      render: (i) => (
+        <span style={{ fontWeight: 500 }}>{propertyMap.get(i.propertyId)?.title ?? '—'}</span>
+      ),
     },
     {
       key: 'type',
@@ -83,14 +88,22 @@ function InspectionsBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (i) => <Badge tone={INSPECTION_STATUS_TONES[i.status] ?? 'neutral'}>{label(INSPECTION_STATUS_LABELS, i.status)}</Badge>,
+      render: (i) => (
+        <Badge tone={INSPECTION_STATUS_TONES[i.status] ?? 'neutral'}>
+          {label(INSPECTION_STATUS_LABELS, i.status)}
+        </Badge>
+      ),
     },
     {
       key: 'scheduled',
       header: 'Agendada para',
       render: (i) => <span className="peg-text-tertiary">{formatDate(i.scheduledAt)}</span>,
     },
-    { key: 'created', header: 'Criada em', render: (i) => <span className="peg-text-tertiary">{formatDate(i.createdAt)}</span> },
+    {
+      key: 'created',
+      header: 'Criada em',
+      render: (i) => <span className="peg-text-tertiary">{formatDate(i.createdAt)}</span>,
+    },
   ];
 
   return (
@@ -119,13 +132,23 @@ function InspectionsBody() {
                 setPage(0);
               }}
               placeholder="Todos os status"
-              options={Object.entries(INSPECTION_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+              options={Object.entries(INSPECTION_STATUS_LABELS).map(([v, l]) => ({
+                value: v,
+                label: l,
+              }))}
               aria-label="Filtrar por status"
             />
           </Group>
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Nova vistoria
           </Button>
         }
@@ -134,17 +157,23 @@ function InspectionsBody() {
         columns={columns}
         rows={data?.inspections ?? []}
         loading={loading}
-        onRowClick={(i) => { router.push(`/app/inspections/${i.id}`); }}
+        onRowClick={(i) => {
+          router.push(`/app/inspections/${i.id}`);
+        }}
         emptyTitle="Nenhuma vistoria"
         emptyBody="Agende uma vistoria para o imóvel."
         emptyActionLabel="Nova vistoria"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <CreateInspectionModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Vistoria criada');
@@ -199,27 +228,50 @@ function CreateInspectionModal({
       title="Nova vistoria"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-inspection-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-inspection-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-inspection-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-inspection-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Imóvel"
           required
           value={propertyId}
-          onChange={(e) => { setPropertyId(e.target.value); }}
+          onChange={(e) => {
+            setPropertyId(e.target.value);
+          }}
           placeholder="Selecione o imóvel…"
           options={properties.map((p) => ({ value: p.id, label: p.title }))}
         />
         <Select
           label="Tipo"
           value={type}
-          onChange={(e) => { setType(e.target.value); }}
+          onChange={(e) => {
+            setType(e.target.value);
+          }}
           options={Object.entries(TYPE_LABELS).map(([v, l]) => ({ value: v, label: l }))}
         />
-        <Input label="Agendada para" type="datetime-local" optional value={scheduledAt} onChange={(e) => { setScheduledAt(e.target.value); }} />
+        <Input
+          label="Agendada para"
+          type="datetime-local"
+          optional
+          value={scheduledAt}
+          onChange={(e) => {
+            setScheduledAt(e.target.value);
+          }}
+        />
       </form>
     </Modal>
   );

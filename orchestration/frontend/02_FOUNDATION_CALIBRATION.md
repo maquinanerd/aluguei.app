@@ -1,9 +1,11 @@
 # Phase 02 — PEG Foundation & Calibration
 
 ## Objetivo
+
 Implementar/calibrar a base visual antes de dezenas de telas.
 
 Auditar e refinar:
+
 - global tokens;
 - typography;
 - spacing;

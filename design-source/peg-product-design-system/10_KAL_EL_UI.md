@@ -63,6 +63,7 @@ Não reproduzir WordPress Admin nem Gutenberg. A referência dominante é o padr
 ## Article Editor — core screen
 
 ### Header
+
 - Breadcrumb.
 - Save state: `Salvo`, `Salvando…`, `Erro ao salvar`.
 - Preview.
@@ -72,6 +73,7 @@ Não reproduzir WordPress Admin nem Gutenberg. A referência dominante é o padr
 - Overflow para ações secundárias.
 
 ### Main canvas
+
 - Title.
 - Subtitle/dek.
 - Optional summary.
@@ -86,6 +88,7 @@ Não reproduzir WordPress Admin nem Gutenberg. A referência dominante é o padr
 - Source/reference blocks.
 
 ### Inspector sections
+
 - Status e publicação.
 - Autor.
 - Categoria.
@@ -101,6 +104,7 @@ Não reproduzir WordPress Admin nem Gutenberg. A referência dominante é o padr
 - Revisions/history.
 
 ### UX rules
+
 - Não embrulhar cada campo do documento em card.
 - Metadata não pode competir com o texto.
 - Inspector deve poder recolher.

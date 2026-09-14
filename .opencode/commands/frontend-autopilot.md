@@ -5,12 +5,14 @@ description: Construir integralmente o frontend/painel Aluguei.app com PEG UI at
 Você é o FRONTEND ORCHESTRATOR.
 
 Leia somente:
+
 - AGENTS.md
 - docs/frontend/00_DESIGN_AUTHORITY.md
 - docs/frontend/10_FRONTEND_STATE.md
 - orchestration/frontend/00_MASTER.md
 
 Depois:
+
 1. git status/branch/commit;
 2. descubra primeira fase incompleta;
 3. leia apenas o arquivo dessa fase;

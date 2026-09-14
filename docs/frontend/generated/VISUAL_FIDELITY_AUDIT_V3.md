@@ -12,12 +12,12 @@ Causa raiz: `.app-page { max-width: var(--peg-content-max) /* 1280px */; margin:
 centralizava o conteúdo dentro do workspace em telas largas. O gap lateral crescia com a
 viewport (medido em `/app`, conta de teste real):
 
-| Viewport | Workspace | Page | Folga por lado | Causa |
-|---|---|---|---|---|
-| 1440 | 1178px | 1130px | — (max-width inativo) | — |
-| 1600 | 1338px | **1280px** | ~29px | max-width 1280 |
-| 1792 | 1530px | **1280px** | **~101px** | `margin: 0 101px` |
-| 1920 | 1658px | **1280px** | **~165px** | `margin: 0 165px` |
+| Viewport | Workspace | Page       | Folga por lado        | Causa             |
+| -------- | --------- | ---------- | --------------------- | ----------------- |
+| 1440     | 1178px    | 1130px     | — (max-width inativo) | —                 |
+| 1600     | 1338px    | **1280px** | ~29px                 | max-width 1280    |
+| 1792     | 1530px    | **1280px** | **~101px**            | `margin: 0 101px` |
+| 1920     | 1658px    | **1280px** | **~165px**            | `margin: 0 165px` |
 
 Telas de detalhe 360 (Lead/Property/Contract/Screening/Lease/Inspection) usavam
 `maxWidth: 1400 + margin: 0 auto`; inbox usava `maxWidth: 1600` — mesma causa compartilhada.
@@ -43,12 +43,12 @@ Telas de detalhe 360 (Lead/Property/Contract/Screening/Lease/Inspection) usavam
 
 ## AFTER — medição real (mesmos viewports, mesma sessão)
 
-| Viewport | Workspace | Page | Folga por lado | max-width | Summary cols | Search |
-|---|---|---|---|---|---|---|
-| 1440 | 1178px | 1130px | 24px (padding) | none | 270.5×4 | 340px |
-| 1600 | 1338px | 1290px | 24px (padding) | none | 310.5×4 | 340px |
-| 1792 | 1530px | 1482px | 24px (padding) | none | 358.5×4 | 340px |
-| 1920 | 1658px | 1610px | 24px (padding) | none | 390.5×4 | 340px |
+| Viewport | Workspace | Page   | Folga por lado | max-width | Summary cols | Search |
+| -------- | --------- | ------ | -------------- | --------- | ------------ | ------ |
+| 1440     | 1178px    | 1130px | 24px (padding) | none      | 270.5×4      | 340px  |
+| 1600     | 1338px    | 1290px | 24px (padding) | none      | 310.5×4      | 340px  |
+| 1792     | 1530px    | 1482px | 24px (padding) | none      | 358.5×4      | 340px  |
+| 1920     | 1658px    | 1610px | 24px (padding) | none      | 390.5×4      | 340px  |
 
 - Fila vazia: `emptyH 240px`, card 305px — geometria estável.
 - `/app/properties` AFTER: page 1290px, sem max-width (era 1280) — sem regressão.
@@ -65,18 +65,18 @@ groupTitles: CRM / Imóveis / Operação / Financeiro / Crescimento / Administra
 
 ## GATE — Visual Fidelity V3
 
-| Critério | Status |
-|---|---|
-| WORKSPACE_FLUIDITY | PASS (prova: 1440/1600/1792/1920) |
-| DASHBOARD_GEOMETRY | PASS (summary 4 colunas uniformes, proporção queue/rail mantida) |
-| SIDEBAR | PASS (inalterada — já convergente) |
-| TOPBAR | PASS (search 340px + placeholder específico) |
-| EMPTY_STATE_GEOMETRY | PASS (min-height 240px) |
-| PROPERTIES_REGRESSION | PASS (page 1290px fluido, sem quebra) |
-| NEW_PROPERTY_REGRESSION | PASS (Focus Mode intacto, sem container herdado) |
-| 1440 / 1600 / 1792 / 1920 | PASS (medição real em cada) |
-| P0 | 0 |
-| P1 | 0 |
+| Critério                  | Status                                                           |
+| ------------------------- | ---------------------------------------------------------------- |
+| WORKSPACE_FLUIDITY        | PASS (prova: 1440/1600/1792/1920)                                |
+| DASHBOARD_GEOMETRY        | PASS (summary 4 colunas uniformes, proporção queue/rail mantida) |
+| SIDEBAR                   | PASS (inalterada — já convergente)                               |
+| TOPBAR                    | PASS (search 340px + placeholder específico)                     |
+| EMPTY_STATE_GEOMETRY      | PASS (min-height 240px)                                          |
+| PROPERTIES_REGRESSION     | PASS (page 1290px fluido, sem quebra)                            |
+| NEW_PROPERTY_REGRESSION   | PASS (Focus Mode intacto, sem container herdado)                 |
+| 1440 / 1600 / 1792 / 1920 | PASS (medição real em cada)                                      |
+| P0                        | 0                                                                |
+| P1                        | 0                                                                |
 
 ## Verificação executada
 

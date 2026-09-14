@@ -50,7 +50,9 @@ export function AccountMenu({ session }: { session: Session }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Menu da conta"
-        onClick={() => { setOpen((v) => !v); }}
+        onClick={() => {
+          setOpen((v) => !v);
+        }}
       >
         <Avatar name={session.user.name} size="sm" brand />
         <span style={{ fontSize: 13, fontWeight: 500 }}>{session.user.name.split(' ')[0]}</span>
@@ -64,7 +66,9 @@ export function AccountMenu({ session }: { session: Session }) {
         >
           <div className="peg-stack" style={{ gap: 2, padding: '8px 12px' }}>
             <strong style={{ fontSize: 13 }}>{session.user.name}</strong>
-            <span style={{ fontSize: 12, color: 'var(--peg-text-tertiary)' }}>{session.user.email}</span>
+            <span style={{ fontSize: 12, color: 'var(--peg-text-tertiary)' }}>
+              {session.user.email}
+            </span>
           </div>
           <div className="peg-menu__separator" />
           <Link href="/app/settings" className="peg-menu__item" role="menuitem" onClick={close}>

@@ -21,17 +21,19 @@ export type {
 } from './channels/types.js';
 
 export { MockAiProvider } from './ai/mock.js';
+export { OpenAiAiProvider } from './ai/openai.js';
+export { GeminiAiProvider } from './ai/gemini.js';
+export { AiProviderError } from './ai/errors.js';
+export type { AiProviderErrorKind, AiProviderErrorOptions } from './ai/errors.js';
+export type { OpenAiAiProviderOptions } from './ai/openai.js';
+export type { GeminiAiProviderOptions } from './ai/gemini.js';
 export { getAiProvider } from './ai/registry.js';
 export type { AiRegistryOptions } from './ai/registry.js';
 export type { AiProvider, IntentExtraction, IntentKind } from './ai/types.js';
 
-export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
-export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
-export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
-export { getWhatsAppMessenger } from './whatsapp/registry.js';
-export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
-
 export { MockInspectionAiProvider } from './inspection-ai/mock.js';
+export { OpenAiInspectionAiProvider } from './inspection-ai/openai.js';
+export type { OpenAiInspectionAiProviderOptions } from './inspection-ai/openai.js';
 export { getInspectionAiProvider } from './inspection-ai/registry.js';
 export type {
   InspectionAiProvider,
@@ -42,26 +44,22 @@ export type {
   TranscribeResult,
 } from './inspection-ai/types.js';
 
-export { FakeScreeningProvider } from './screening/fake.js';
-export { getScreeningProvider } from './screening/registry.js';
-export type {
-  IScreeningProvider,
-  CreditScreeningInput,
-  ScreeningProviderResult,
-  RedFlag as ScreeningRedFlag,
-} from './screening/types.js';
+export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
+export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
+export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
+export { getWhatsAppMessenger } from './whatsapp/registry.js';
+export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
 
-export { FakeSignatureProvider } from './signature/fake.js';
-export { getSignatureProvider } from './signature/registry.js';
+export { FakePaymentProvider, InMemoryFakePaymentStore } from './payments/fake.js';
+export type { FakeChargeRecord, FakePaymentStore } from './payments/fake.js';
+export { AsaasPaymentProvider, mapAsaasPaymentWebhook } from './payments/asaas.js';
 export type {
-  ISignatureProvider,
-  CreateEnvelopeInput,
-  CreateEnvelopeResult,
-  EnvelopeParty,
-  EnvelopeStatus,
-} from './signature/types.js';
-
-export { FakePaymentProvider } from './payments/fake.js';
+  AsaasPaymentProviderOptions,
+  AsaasPaymentWebhookEvent,
+  AsaasPaymentError,
+  AsaasTimeoutError,
+  AsaasNetworkError,
+} from './payments/asaas.js';
 export { getPaymentProvider } from './payments/registry.js';
 export type { PaymentRegistryOptions } from './payments/registry.js';
 export type {
@@ -71,7 +69,35 @@ export type {
   PaymentChargeStatus,
 } from './payments/types.js';
 
+export { FakeSignatureProvider } from './signature/fake.js';
+export { ClicksignSignatureProvider, SignatureProviderError } from './signature/clicksign.js';
+export type {
+  ClicksignSignatureProviderOptions,
+  SignatureProviderErrorCode,
+} from './signature/clicksign.js';
+export { getSignatureProvider } from './signature/registry.js';
+export type {
+  ISignatureProvider,
+  CreateEnvelopeInput,
+  CreateEnvelopeResult,
+  EnvelopeParty,
+  EnvelopeStatus,
+} from './signature/types.js';
+
+export { FakeScreeningProvider } from './screening/fake.js';
+export { SerasaScreeningProvider, mapSerasaScoreResponse } from './screening/serasa.js';
+export type { SerasaScreeningProviderOptions } from './screening/serasa.js';
+export { getScreeningProvider } from './screening/registry.js';
+export type {
+  IScreeningProvider,
+  CreditScreeningInput,
+  ScreeningProviderResult,
+  RedFlag as ScreeningRedFlag,
+} from './screening/types.js';
+
 export { FakeMetaAdsProvider } from './meta-ads/fake.js';
+export { MetaGraphAdsProvider, MetaAdsProviderError } from './meta-ads/graph.js';
+export type { MetaGraphAdsProviderOptions, MetaAdsProviderErrorKind } from './meta-ads/graph.js';
 export { getMetaAdsProvider } from './meta-ads/registry.js';
 export type { MetaAdsRegistryOptions } from './meta-ads/registry.js';
 export type {
@@ -83,6 +109,16 @@ export type {
   MetaConnectionTestResult,
   MetaInsights,
 } from './meta-ads/types.js';
+
+export { GooglePlacesAdapter } from './places/google.js';
+export { PlacesMockService } from './places/mock.js';
+export type {
+  PlacesService,
+  PlacesAutocompleteInput,
+  PlacesAutocompletePrediction,
+  StructuredAddress,
+} from './places/types.js';
+export type { GooglePlacesAdapterOptions } from './places/google.js';
 export type {
   WhatsAppMessenger,
   WebhookMessageEvent,

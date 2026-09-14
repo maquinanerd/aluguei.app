@@ -1,0 +1,13 @@
+api=200 web=200
+$ playwright test
+
+Running 3 tests using 1 worker
+
+  ok 1 main-journey.spec.ts:63:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (6.8s)
+  ok 2 main-journey.spec.ts:92:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (9.8s)
+  ok 3 main-journey.spec.ts:310:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (4.0s)
+
+  Slow test file: main-journey.spec.ts (20.7s)
+  Consider splitting slow test files to speed up parallel execution
+  3 passed (21.9s)
+EXIT=0

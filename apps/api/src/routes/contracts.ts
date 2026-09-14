@@ -108,33 +108,56 @@ async function buildTemplateVariables(
   orgId: string,
   applicationId: string,
 ): Promise<Record<string, string | number>> {
+  // P0-05 (defesa em profundidade): toda leitura derivada é filtrada pela org.
   const [application] = await db
     .select()
     .from(rentalApplications)
-    .where(eq(rentalApplications.id, applicationId))
+    .where(and(eq(rentalApplications.id, applicationId), eq(rentalApplications.orgId, orgId)))
     .limit(1);
   const [property] = application
-    ? await db.select().from(properties).where(eq(properties.id, application.propertyId)).limit(1)
+    ? await db
+        .select()
+        .from(properties)
+        .where(and(eq(properties.id, application.propertyId), eq(properties.orgId, orgId)))
+        .limit(1)
     : [undefined];
   const [terms] = application
     ? await db
         .select()
         .from(propertyFinancialTerms)
-        .where(eq(propertyFinancialTerms.propertyId, application.propertyId))
+        .where(
+          and(
+            eq(propertyFinancialTerms.propertyId, application.propertyId),
+            eq(propertyFinancialTerms.orgId, orgId),
+          ),
+        )
         .limit(1)
     : [undefined];
   const [tenant] = application
-    ? await db.select().from(parties).where(eq(parties.id, application.partyId)).limit(1)
+    ? await db
+        .select()
+        .from(parties)
+        .where(and(eq(parties.id, application.partyId), eq(parties.orgId, orgId)))
+        .limit(1)
     : [undefined];
   const [landlordOwner] = application
     ? await db
         .select()
         .from(propertyOwners)
-        .where(eq(propertyOwners.propertyId, application.propertyId))
+        .where(
+          and(
+            eq(propertyOwners.propertyId, application.propertyId),
+            eq(propertyOwners.orgId, orgId),
+          ),
+        )
         .limit(1)
     : [undefined];
   const [landlord] = landlordOwner
-    ? await db.select().from(parties).where(eq(parties.id, landlordOwner.partyId)).limit(1)
+    ? await db
+        .select()
+        .from(parties)
+        .where(and(eq(parties.id, landlordOwner.partyId), eq(parties.orgId, orgId)))
+        .limit(1)
     : [undefined];
 
   return {
@@ -199,7 +222,12 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
       const owners = await db
         .select()
         .from(propertyOwners)
-        .where(eq(propertyOwners.propertyId, application.propertyId));
+        .where(
+          and(
+            eq(propertyOwners.propertyId, application.propertyId),
+            eq(propertyOwners.orgId, auth.orgId),
+          ),
+        );
       if (owners.length > 0) {
         await db.insert(contractParties).values(
           owners.map((owner, index) => ({
@@ -280,7 +308,12 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         ? await db
             .select()
             .from(contractTemplates)
-            .where(eq(contractTemplates.id, contract.templateId))
+            .where(
+              and(
+                eq(contractTemplates.id, contract.templateId),
+                eq(contractTemplates.orgId, auth.orgId),
+              ),
+            )
             .limit(1)
         : [undefined];
       if (!template || template.status !== 'APPROVED') {

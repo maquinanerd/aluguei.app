@@ -6,22 +6,22 @@ Método: comparação estrutural entre a composição descrita nos mockups e a i
 
 ## Resumo
 
-| Critério | Antes | Depois | Status |
-|---|---|---|---|
-| App frame | full-bleed | contido (radius 14, border, bg externo, elevação sutil) | PASS |
-| Sidebar | grupos genéricos, active verde, footer só org | grupos de domínio, active neutro + accent verde, rail colapsável, profile footer | PASS |
-| Topbar | breadcrumb simples | contexto + org + relógio, busca global ⌘K, atendimento, conta | PASS |
-| Dashboard | KPIs + empties + quick links | central operacional com dados reais | PASS |
-| Imóveis | tabela genérica | contagens, tabs, filtros aplicados, densidade | PASS |
-| Novo imóvel | formulário no shell | Focus Mode (header + stepper + rail + main) | PASS |
-| Tokens/cores | active nav verde demais | active neutro, accent controlado | PASS |
-| Borders/shadows | flat | bordas finas + elevação leve consistente | PASS |
-| Tipografia | genérica | títulos/pesos recalibrados (Inter, 13/14px corpo, uppercase 11px) | PASS |
-| Densidade | tables 52px | 44px global, dense 36px | PASS |
-| Responsive | já responsivo | frame recolhe no mobile, drawer com focus trap | PASS |
-| A11y | — | P0/P1 → 0 (combobox APG, tabs roving, menu APG, skip link, AA) | PASS |
-| P0 | 0 | 0 | PASS |
-| P1 | 8 (prompt) | 0 | PASS |
+| Critério        | Antes                                         | Depois                                                                           | Status |
+| --------------- | --------------------------------------------- | -------------------------------------------------------------------------------- | ------ |
+| App frame       | full-bleed                                    | contido (radius 14, border, bg externo, elevação sutil)                          | PASS   |
+| Sidebar         | grupos genéricos, active verde, footer só org | grupos de domínio, active neutro + accent verde, rail colapsável, profile footer | PASS   |
+| Topbar          | breadcrumb simples                            | contexto + org + relógio, busca global ⌘K, atendimento, conta                    | PASS   |
+| Dashboard       | KPIs + empties + quick links                  | central operacional com dados reais                                              | PASS   |
+| Imóveis         | tabela genérica                               | contagens, tabs, filtros aplicados, densidade                                    | PASS   |
+| Novo imóvel     | formulário no shell                           | Focus Mode (header + stepper + rail + main)                                      | PASS   |
+| Tokens/cores    | active nav verde demais                       | active neutro, accent controlado                                                 | PASS   |
+| Borders/shadows | flat                                          | bordas finas + elevação leve consistente                                         | PASS   |
+| Tipografia      | genérica                                      | títulos/pesos recalibrados (Inter, 13/14px corpo, uppercase 11px)                | PASS   |
+| Densidade       | tables 52px                                   | 44px global, dense 36px                                                          | PASS   |
+| Responsive      | já responsivo                                 | frame recolhe no mobile, drawer com focus trap                                   | PASS   |
+| A11y            | —                                             | P0/P1 → 0 (combobox APG, tabs roving, menu APG, skip link, AA)                   | PASS   |
+| P0              | 0                                             | 0                                                                                | PASS   |
+| P1              | 8 (prompt)                                    | 0                                                                                | PASS   |
 
 ## Divergências encontradas e correções (ID → tela → componente → esperado → atual → severidade → correção)
 

@@ -1,0 +1,73 @@
+{
+  "S2_sequential_and_coowners": {
+    "owners": ["3f9acc62-fbe4-4819-af75-591fbfe246bd", "f7542dec-c1ef-4b8a-b5cd-cb138aad92d7"],
+    "splitRule": [
+      {
+        "agency_share_bps": 1000,
+        "landlord_share_bps": 9000,
+        "landlord_party_id": "3f9acc62-fbe4-4819-af75-591fbfe246bd"
+      }
+    ],
+    "payoutsByParty": [
+      {
+        "party_id": "3f9acc62-fbe4-4819-af75-591fbfe246bd",
+        "amount_cents": 111112
+      }
+    ],
+    "chargeStatus": "PAID",
+    "payments": {
+      "total": 1,
+      "confirmed": 1
+    },
+    "splitAllocations": {
+      "n": 2,
+      "sum": 123457
+    },
+    "payouts": {
+      "n": 1,
+      "sum": 111112,
+      "parties": 1
+    },
+    "paymentTx": 1,
+    "payoutTx": 1,
+    "refundTx": 0,
+    "cashBalance": 12345,
+    "unbalancedTx": 0
+  },
+  "S3_forged_refund_twice": {
+    "refundProviderCalls": 2,
+    "inbox": [
+      {
+        "provider_event_id": "PAY:refund-1",
+        "status": "SUCCESS",
+        "attempts": 1,
+        "err": ""
+      },
+      {
+        "provider_event_id": "PAY:refund-2",
+        "status": "SUCCESS",
+        "attempts": 1,
+        "err": ""
+      }
+    ],
+    "chargeStatus": "REFUNDED",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 2,
+      "sum": 123457
+    },
+    "payouts": {
+      "n": 1,
+      "sum": 111112,
+      "parties": 1
+    },
+    "paymentTx": 1,
+    "payoutTx": 1,
+    "refundTx": 2,
+    "cashBalance": -234569,
+    "unbalancedTx": 0
+  }
+}

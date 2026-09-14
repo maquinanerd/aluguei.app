@@ -55,10 +55,11 @@ function ListingsBody() {
     return `/listings?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ listings: Listing[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    listings: Listing[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a listings" />;
 
   const propertyTitle = useMemo(() => {
     const m = new Map<string, string>();
@@ -73,10 +74,15 @@ function ListingsBody() {
     return rows.filter((l) => l.title.toLowerCase().includes(q));
   }, [data, search]);
 
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a listings" />;
+
   async function changeStatus(listing: Listing, next: string) {
     setBusy(listing.id);
     try {
-      await apiClient(`/listings/${listing.id}/status`, { method: 'PATCH', body: { status: next } });
+      await apiClient(`/listings/${listing.id}/status`, {
+        method: 'PATCH',
+        body: { status: next },
+      });
       toast.success('Status atualizado', label(LISTING_STATUS_LABELS, next));
       reload();
     } catch (err) {
@@ -94,19 +100,27 @@ function ListingsBody() {
       render: (l) => (
         <Stack gap={0}>
           <span style={{ fontWeight: 500 }}>{l.title}</span>
-          <span className="peg-text-tertiary" style={{ fontSize: 12 }}>/{l.slug}</span>
+          <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+            /{l.slug}
+          </span>
         </Stack>
       ),
     },
     {
       key: 'property',
       header: 'Imóvel',
-      render: (l) => <span className="peg-text-secondary">{propertyTitle.get(l.propertyId) ?? '—'}</span>,
+      render: (l) => (
+        <span className="peg-text-secondary">{propertyTitle.get(l.propertyId) ?? '—'}</span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (l) => <Badge tone={LISTING_STATUS_TONES[l.status] ?? 'neutral'}>{label(LISTING_STATUS_LABELS, l.status)}</Badge>,
+      render: (l) => (
+        <Badge tone={LISTING_STATUS_TONES[l.status] ?? 'neutral'}>
+          {label(LISTING_STATUS_LABELS, l.status)}
+        </Badge>
+      ),
     },
     {
       key: 'published',
@@ -119,21 +133,48 @@ function ListingsBody() {
       render: (l) => (
         <Group gap={1}>
           {l.status === 'DRAFT' || l.status === 'PAUSED' ? (
-            <Button size="xs" variant="secondary" loading={busy === l.id} onClick={() => { void changeStatus(l, 'READY'); }}>
+            <Button
+              size="xs"
+              variant="secondary"
+              loading={busy === l.id}
+              onClick={() => {
+                void changeStatus(l, 'READY');
+              }}
+            >
               Pronto
             </Button>
           ) : null}
           {l.status === 'READY' ? (
-            <Button size="xs" variant="brand" loading={busy === l.id} onClick={() => { void changeStatus(l, 'PUBLISHED'); }}>
+            <Button
+              size="xs"
+              variant="brand"
+              loading={busy === l.id}
+              onClick={() => {
+                void changeStatus(l, 'PUBLISHED');
+              }}
+            >
               Publicar
             </Button>
           ) : null}
           {l.status === 'PUBLISHED' ? (
-            <Button size="xs" variant="tertiary" loading={busy === l.id} onClick={() => { void changeStatus(l, 'PAUSED'); }}>
+            <Button
+              size="xs"
+              variant="tertiary"
+              loading={busy === l.id}
+              onClick={() => {
+                void changeStatus(l, 'PAUSED');
+              }}
+            >
               Pausar
             </Button>
           ) : null}
-          <Button size="xs" variant="tertiary" onClick={() => { router.push(`/app/properties/${l.propertyId}`); }}>
+          <Button
+            size="xs"
+            variant="tertiary"
+            onClick={() => {
+              router.push(`/app/properties/${l.propertyId}`);
+            }}
+          >
             Imóvel
           </Button>
         </Group>
@@ -156,12 +197,22 @@ function ListingsBody() {
               setPage(0);
             }}
             placeholder="Todos os status"
-            options={Object.entries(LISTING_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(LISTING_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar por status"
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Novo listing
           </Button>
         }
@@ -170,17 +221,23 @@ function ListingsBody() {
         columns={columns}
         rows={listings}
         loading={loading}
-        onRowClick={(l) => { router.push(`/app/properties/${l.propertyId}`); }}
+        onRowClick={(l) => {
+          router.push(`/app/properties/${l.propertyId}`);
+        }}
         emptyTitle="Nenhum listing"
         emptyBody="Crie um anúncio para publicar o imóvel."
         emptyActionLabel="Novo listing"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <CreateListingModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Listing criado');
@@ -214,7 +271,10 @@ function CreateListingModal({
     if (!propertyId || !title.trim()) return;
     setBusy(true);
     try {
-      const body: { propertyId: string; title: string; description?: string } = { propertyId, title: title.trim() };
+      const body: { propertyId: string; title: string; description?: string } = {
+        propertyId,
+        title: title.trim(),
+      };
       if (description.trim()) body.description = description.trim();
       await apiClient('/listings', { method: 'POST', body });
       setPropertyId('');
@@ -235,22 +295,51 @@ function CreateListingModal({
       title="Novo listing"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-listing-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-listing-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-listing-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-listing-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Imóvel"
           required
           value={propertyId}
-          onChange={(e) => { setPropertyId(e.target.value); }}
+          onChange={(e) => {
+            setPropertyId(e.target.value);
+          }}
           placeholder="Selecione o imóvel…"
           options={properties.map((p) => ({ value: p.id, label: p.title }))}
         />
-        <Input label="Título do anúncio" required value={title} onChange={(e) => { setTitle(e.target.value); }} placeholder="Ex.: Apartamento na Paulista" />
-        <Input label="Descrição" optional placeholder="Texto do anúncio…" value={description} onChange={(e) => { setDescription(e.target.value); }} />
+        <Input
+          label="Título do anúncio"
+          required
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
+          placeholder="Ex.: Apartamento na Paulista"
+        />
+        <Input
+          label="Descrição"
+          optional
+          placeholder="Texto do anúncio…"
+          value={description}
+          onChange={(e) => {
+            setDescription(e.target.value);
+          }}
+        />
       </form>
     </Modal>
   );

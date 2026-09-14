@@ -16,6 +16,10 @@
       "types": "./src/ledger.ts",
       "default": "./src/ledger.ts"
     },
+    "./finance": {
+      "types": "./src/finance/settlement.ts",
+      "default": "./src/finance/settlement.ts"
+    },
     "./audit": {
       "types": "./src/plugins/audit.ts",
       "default": "./src/plugins/audit.ts"
@@ -46,7 +50,7 @@
     "@fastify/helmet": "13.1.0",
     "@fastify/rate-limit": "11.2.0",
     "drizzle-orm": "0.45.2",
-    "fastify": "5.12.0",
+    "fastify": "5.12.3",
     "fastify-plugin": "6.0.0",
     "zod": "4.4.3"
   },

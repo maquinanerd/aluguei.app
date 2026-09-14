@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { FakeScreeningProvider, FakeSignatureProvider } from '@aluguei/integrations';
 import { runInboxJobs } from '@aluguei/worker';
 import { buildTestApp, fakePayments, fakeStorage, registerUser } from './helpers.js';
+import { futurePeriod } from './test-dates.js';
 
 /**
  * E2E crítico (Fase 12): journey completo ponta-a-ponta via API pública:
@@ -230,7 +231,7 @@ describe('Fase 12: E2E crítico (journey completo)', () => {
       method: 'POST',
       url: '/charges',
       headers: { cookie },
-      payload: { leaseId, periodStart: '2026-11-01' },
+      payload: { leaseId, periodStart: futurePeriod() },
     });
     const chargeId = (charge.json() as { charge: { id: string } }).charge.id;
     const payment = await app.inject({
@@ -247,7 +248,9 @@ describe('Fase 12: E2E crítico (journey completo)', () => {
     expect(paymentBody.payment.status).toBe('PENDING');
     expect(paymentBody.pixQrCode).toBeTruthy();
 
-    // 6. Confirmação via webhook → charge PAID
+    // 6. Pagador quita no provider + notificação do provider → worker credita
+    // (o webhook não confirma nada por si — auditoria 2026-09-10, P0-02)
+    await fakePayments.confirmCharge(paymentBody.providerChargeId);
     await app.inject({
       method: 'POST',
       url: '/webhooks/payments',

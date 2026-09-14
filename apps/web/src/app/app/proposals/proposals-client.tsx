@@ -58,11 +58,12 @@ function ProposalsBody() {
     return `/proposals?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ proposals: Proposal[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    proposals: Proposal[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a propostas" />;
 
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
@@ -76,18 +77,26 @@ function ProposalsBody() {
     return m;
   }, [propsQ.data]);
 
-  const detail = detailId ? data?.proposals.find((p) => p.id === detailId) ?? null : null;
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a propostas" />;
+
+  const detail = detailId ? (data?.proposals.find((p) => p.id === detailId) ?? null) : null;
 
   const columns: Column<Proposal>[] = [
     {
       key: 'party',
       header: 'Interessado',
-      render: (p) => <span style={{ fontWeight: 500 }}>{partyMap.get(p.partyId ?? '')?.name ?? '—'}</span>,
+      render: (p) => (
+        <span style={{ fontWeight: 500 }}>{partyMap.get(p.partyId ?? '')?.name ?? '—'}</span>
+      ),
     },
     {
       key: 'property',
       header: 'Imóvel',
-      render: (p) => <span className="peg-text-secondary">{propertyMap.get(p.propertyId ?? '')?.title ?? '—'}</span>,
+      render: (p) => (
+        <span className="peg-text-secondary">
+          {propertyMap.get(p.propertyId ?? '')?.title ?? '—'}
+        </span>
+      ),
     },
     {
       key: 'rent',
@@ -97,9 +106,17 @@ function ProposalsBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (p) => <Badge tone={PROPOSAL_STATUS_TONES[p.status] ?? 'neutral'}>{label(PROPOSAL_STATUS_LABELS, p.status)}</Badge>,
+      render: (p) => (
+        <Badge tone={PROPOSAL_STATUS_TONES[p.status] ?? 'neutral'}>
+          {label(PROPOSAL_STATUS_LABELS, p.status)}
+        </Badge>
+      ),
     },
-    { key: 'valid', header: 'Válida até', render: (p) => <span className="peg-text-tertiary">{formatDate(p.validUntil)}</span> },
+    {
+      key: 'valid',
+      header: 'Válida até',
+      render: (p) => <span className="peg-text-tertiary">{formatDate(p.validUntil)}</span>,
+    },
   ];
 
   return (
@@ -116,12 +133,22 @@ function ProposalsBody() {
               setPage(0);
             }}
             placeholder="Todos os status"
-            options={Object.entries(PROPOSAL_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(PROPOSAL_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar propostas"
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Nova proposta
           </Button>
         }
@@ -130,20 +157,31 @@ function ProposalsBody() {
         columns={columns}
         rows={data?.proposals ?? []}
         loading={loading}
-        onRowClick={(p) => { setDetailId(p.id); }}
+        onRowClick={(p) => {
+          setDetailId(p.id);
+        }}
         emptyTitle="Nenhuma proposta"
         emptyBody="Crie propostas para os leads qualificados."
         emptyActionLabel="Nova proposta"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <Drawer
         open={detail !== null}
-        onClose={() => { setDetailId(null); }}
+        onClose={() => {
+          setDetailId(null);
+        }}
         title="Detalhe da proposta"
         footer={
-          <Button variant="secondary" onClick={() => { setDetailId(null); }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setDetailId(null);
+            }}
+          >
             Fechar
           </Button>
         }
@@ -151,27 +189,65 @@ function ProposalsBody() {
         {detail ? (
           <Stack gap={4}>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Interessado</span>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>{partyMap.get(detail.partyId ?? '')?.name ?? '—'}</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Interessado
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>
+                {partyMap.get(detail.partyId ?? '')?.name ?? '—'}
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Imóvel</span>
-              <span style={{ fontSize: 14 }}>{propertyMap.get(detail.propertyId ?? '')?.title ?? '—'}</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Imóvel
+              </span>
+              <span style={{ fontSize: 14 }}>
+                {propertyMap.get(detail.propertyId ?? '')?.title ?? '—'}
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Aluguel proposto</span>
-              <span style={{ fontSize: 16, fontWeight: 600 }}>{formatBRL(detail.monthlyRentCents)}/mês</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Aluguel proposto
+              </span>
+              <span style={{ fontSize: 16, fontWeight: 600 }}>
+                {formatBRL(detail.monthlyRentCents)}/mês
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</span>
-              <Badge tone={PROPOSAL_STATUS_TONES[detail.status] ?? 'neutral'}>{label(PROPOSAL_STATUS_LABELS, detail.status)}</Badge>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Status
+              </span>
+              <Badge tone={PROPOSAL_STATUS_TONES[detail.status] ?? 'neutral'}>
+                {label(PROPOSAL_STATUS_LABELS, detail.status)}
+              </Badge>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Condições</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Condições
+              </span>
               <span style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}>{detail.terms ?? '—'}</span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Válida até</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Válida até
+              </span>
               <span style={{ fontSize: 13 }}>{formatDate(detail.validUntil)}</span>
             </Stack>
           </Stack>
@@ -180,7 +256,9 @@ function ProposalsBody() {
 
       <CreateProposalModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Proposta criada');
@@ -219,7 +297,12 @@ function CreateProposalModal({
     }
     setBusy(true);
     try {
-      const body: { propertyId: string; monthlyRentCents: number; terms?: string; validUntil?: string } = {
+      const body: {
+        propertyId: string;
+        monthlyRentCents: number;
+        terms?: string;
+        validUntil?: string;
+      } = {
         propertyId,
         monthlyRentCents: rentCents,
       };
@@ -245,23 +328,62 @@ function CreateProposalModal({
       title="Nova proposta"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-proposal-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-proposal-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-proposal-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-proposal-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Imóvel"
           required
           value={propertyId}
-          onChange={(e) => { setPropertyId(e.target.value); }}
+          onChange={(e) => {
+            setPropertyId(e.target.value);
+          }}
           placeholder="Selecione o imóvel…"
           options={properties.map((p) => ({ value: p.id, label: p.title }))}
         />
-        <Input label="Aluguel mensal (R$)" required inputMode="decimal" value={monthlyRent} onChange={(e) => { setMonthlyRent(e.target.value); }} placeholder="3.500" />
-        <Textarea label="Condições" optional rows={3} value={terms} onChange={(e) => { setTerms(e.target.value); }} placeholder="Ex.: caução de 1 mês, contrato 12 meses…" />
-        <Input label="Válida até" type="date" optional value={validUntil} onChange={(e) => { setValidUntil(e.target.value); }} />
+        <Input
+          label="Aluguel mensal (R$)"
+          required
+          inputMode="decimal"
+          value={monthlyRent}
+          onChange={(e) => {
+            setMonthlyRent(e.target.value);
+          }}
+          placeholder="3.500"
+        />
+        <Textarea
+          label="Condições"
+          optional
+          rows={3}
+          value={terms}
+          onChange={(e) => {
+            setTerms(e.target.value);
+          }}
+          placeholder="Ex.: caução de 1 mês, contrato 12 meses…"
+        />
+        <Input
+          label="Válida até"
+          type="date"
+          optional
+          value={validUntil}
+          onChange={(e) => {
+            setValidUntil(e.target.value);
+          }}
+        />
       </form>
     </Modal>
   );

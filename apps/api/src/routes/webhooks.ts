@@ -3,7 +3,6 @@ import { Readable } from 'node:stream';
 import type { FastifyPluginAsync } from 'fastify';
 import { and, eq } from 'drizzle-orm';
 import {
-  charges,
   webhookInbox,
   whatsappConnections,
   signatureEnvelopes,
@@ -11,6 +10,7 @@ import {
   metaWebhookEvents,
 } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
+import { findPaymentByProviderId } from '../finance/settlement.js';
 import { writeAudit } from '../plugins/audit.js';
 import {
   metaWebhookEventSchema,
@@ -42,6 +42,48 @@ function isValidHubSignature(
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** Compara token compartilhado em tempo constante (evita timing attack). */
+function isValidSharedToken(presented: string | undefined, expected: string): boolean {
+  if (presented === undefined) {
+    return false;
+  }
+  const a = Buffer.from(presented);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/** Extrai o token Bearer de `Authorization: Bearer <token>` (comparação constante). */
+function bearerToken(header: string | string[] | undefined): string | undefined {
+  if (Array.isArray(header)) {
+    header = header[0];
+  }
+  if (typeof header !== 'string' || !header.startsWith('Bearer ')) {
+    return undefined;
+  }
+  return header.slice('Bearer '.length);
+}
+
+/**
+ * Em produção os webhooks de assinatura e da Meta exigem credencial de
+ * verificação configurada (SIGNATURE_WEBHOOK_TOKEN / META_APP_SECRET). Sem a
+ * credencial, rejeita com 500 — sinal explícito de configuração incorreta
+ * (o provider vê falha e não entrega eventos para um endpoint mal configurado).
+ */
+function enforceProductionSecret(
+  request: { log: { error(msg: string): void } },
+  reply: { status(code: number): unknown },
+  env: { NODE_ENV?: string },
+  secretConfigured: boolean,
+  secretName: string,
+): boolean {
+  if (env.NODE_ENV === 'production' && !secretConfigured) {
+    request.log.error(`webhook: ${secretName} ausente em produção`);
+    reply.status(500);
+    return true;
+  }
+  return false;
+}
+
 /**
  * Webhook do WhatsApp (público, sem sessão). Valida → deduplica → enfileira
  * no webhook_inbox e responde 200 imediatamente (processamento assíncrono).
@@ -51,10 +93,10 @@ function isValidHubSignature(
 export const webhookRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
-  // Captura o raw body do webhook WhatsApp antes do parse JSON.
+  // Captura o raw body dos webhooks que usam X-Hub-Signature-256 antes do parse.
   // preParsing deve retornar um Stream (Buffer direto trava o parser).
   app.addHook('preParsing', async (request, _reply, payload) => {
-    if (request.url === '/webhooks/whatsapp') {
+    if (request.url === '/webhooks/whatsapp' || request.url === '/webhooks/meta') {
       const chunks: Buffer[] = [];
       for await (const chunk of payload) {
         chunks.push(
@@ -102,9 +144,11 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         return reply.status(200).send({ status: 'ignored' });
       }
       // Autenticidade (P1): X-Hub-Signature-256 exigida quando META_APP_SECRET
-      // está configurado. Sem secret configurado (dev/dry-run), aceita — mas
-      // produção DEVE configurar o secret (docs/THREAT_MODEL.md).
-      const appSecret = process.env.META_APP_SECRET;
+      // está configurado. Em produção a configuração é OBRIGATÓRIA (500 se ausente).
+      const appSecret = app.env.META_APP_SECRET;
+      if (enforceProductionSecret(request, reply, app.env, Boolean(appSecret), 'META_APP_SECRET')) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
       if (appSecret) {
         const rawBody = request.rawBody ?? Buffer.from(JSON.stringify(request.body ?? {}));
         if (
@@ -170,6 +214,29 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     '/webhooks/signature',
     { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
     async (request, reply) => {
+      // Autenticidade (P1): token compartilhado via `Authorization: Bearer`.
+      // Em produção SIGNATURE_WEBHOOK_TOKEN é OBRIGATÓRIO; em dev/test sem token
+      // configurado aceita (providers reais sempre enviam). O dedup por
+      // provider_event_id e a resolução por envelope impedem envenenamento.
+      const expectedToken = app.env.SIGNATURE_WEBHOOK_TOKEN;
+      if (
+        enforceProductionSecret(
+          request,
+          reply,
+          app.env,
+          Boolean(expectedToken),
+          'SIGNATURE_WEBHOOK_TOKEN',
+        )
+      ) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
+      if (expectedToken) {
+        const presented = bearerToken(request.headers.authorization);
+        if (!isValidSharedToken(presented, expectedToken)) {
+          app.log.warn('signature webhook: token inválido');
+          return reply.status(401).send({ error: 'Unauthorized' });
+        }
+      }
       const input = signatureWebhookEventSchema.parse(request.body);
       // Resolve envelope da org (não confia em org_id do payload).
       const [envelope] = await db
@@ -210,37 +277,48 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     '/webhooks/payments',
     { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
     async (request, reply) => {
+      // Autenticidade (P0-02): em produção o token do provider é OBRIGATÓRIO —
+      // sem ele o endpoint recusa, em vez de aceitar evento de qualquer origem.
+      // A doc oficial vigente usa `asaas-access-token`; versões históricas do
+      // produto usavam `asaas-webhook-token` — ambos aceitos (tempo constante).
+      const expectedToken = app.env.ASAAS_WEBHOOK_TOKEN;
+      if (
+        enforceProductionSecret(
+          request,
+          reply,
+          app.env,
+          Boolean(expectedToken),
+          'ASAAS_WEBHOOK_TOKEN',
+        )
+      ) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
+      if (expectedToken) {
+        const header =
+          typeof request.headers['asaas-webhook-token'] === 'string'
+            ? (request.headers['asaas-webhook-token'] as string)
+            : typeof request.headers['asaas-access-token'] === 'string'
+              ? (request.headers['asaas-access-token'] as string)
+              : undefined;
+        if (!isValidSharedToken(header, expectedToken)) {
+          app.log.warn('payments webhook: token inválido');
+          return reply.status(401).send({ error: 'Unauthorized' });
+        }
+      }
       const input = paymentWebhookEventSchema.parse(request.body);
-      // Autenticidade (P1): quando ASAAS_WEBHOOK_TOKEN está configurado, o
-      // provider real envia o token no header `asaas-webhook-token`. Sem o
-      // token esperado → 401 (nunca enfileira). Em dev (provider FAKE sem
-      // token), a segurança vem da confirmação no provider feita pelo worker.
-      const expectedToken = process.env.ASAAS_WEBHOOK_TOKEN;
-      const presentedToken = request.headers['asaas-webhook-token'];
-      if (expectedToken && presentedToken !== expectedToken) {
-        return reply.status(401).send({ error: 'Unauthorized' });
-      }
-      // Resolve org por provider_charge_id (não confia em org_id do payload).
-      const [charge] = await db
-        .select({ orgId: charges.orgId, providerChargeId: charges.providerChargeId })
-        .from(charges)
-        .where(eq(charges.providerChargeId, input.providerChargeId))
-        .limit(1);
-      if (!charge) {
+      // Resolve a org pela tentativa de pagamento (não confia no payload). O
+      // webhook NÃO muda nada no provider nem no sistema: apenas enfileira —
+      // o worker relê o status no provider antes de qualquer efeito (P0-02).
+      const payment = await findPaymentByProviderId(db, input.provider, input.providerChargeId);
+      if (!payment) {
         return reply.status(200).send({ status: 'ignored' });
-      }
-      // Em modo FAKE, o webhook confirma a cobrança no provider para que o
-      // worker (que SEMPRE confirma via getChargeStatus) possa creditar.
-      const provider = app.payments;
-      if (provider?.confirmCharge && charge.providerChargeId) {
-        await provider.confirmCharge(charge.providerChargeId);
       }
       await db
         .insert(webhookInbox)
         .values({
-          orgId: charge.orgId,
+          orgId: payment.orgId,
           provider: 'PAYMENT',
-          providerEventId: `PAY:${input.providerEventId}`,
+          providerEventId: `PAY:${input.provider}:${input.providerEventId}`,
           payload: { ...input } as unknown as Record<string, unknown>,
         })
         .onConflictDoNothing();
@@ -254,11 +332,11 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
       'hub.verify_token'?: string;
       'hub.challenge'?: string;
     };
-    const verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
+    const verifyToken = app.env.META_WEBHOOK_VERIFY_TOKEN;
     if (
       query['hub.mode'] !== 'subscribe' ||
       !verifyToken ||
-      query['hub.verify_token'] !== verifyToken
+      !isValidSharedToken(query['hub.verify_token'], verifyToken)
     ) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
@@ -269,6 +347,26 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
     '/webhooks/meta',
     { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
     async (request, reply) => {
+      // Autenticidade (P1): a Meta assina o payload com X-Hub-Signature-256
+      // (HMAC-SHA256 do body bruto com o app secret), igual ao WhatsApp.
+      // Em produção META_APP_SECRET é OBRIGATÓRIO.
+      const appSecret = app.env.META_APP_SECRET;
+      if (enforceProductionSecret(request, reply, app.env, Boolean(appSecret), 'META_APP_SECRET')) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
+      if (appSecret) {
+        const rawBody = request.rawBody ?? Buffer.from(JSON.stringify(request.body ?? {}));
+        if (
+          !isValidHubSignature(
+            rawBody,
+            request.headers['x-hub-signature-256'] as string | undefined,
+            appSecret,
+          )
+        ) {
+          app.log.warn('meta webhook: assinatura X-Hub-Signature-256 inválida');
+          return reply.status(401).send({ error: 'Unauthorized' });
+        }
+      }
       const input = metaWebhookEventSchema.parse(request.body);
 
       // Resolve org pelo ad account (não confia em org_id do payload).

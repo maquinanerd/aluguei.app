@@ -1,0 +1,22 @@
+# Finais de linha: o repositório é LF (padrão do prettier). Sem este arquivo,
+# checkouts Windows com core.autocrlf=true convertem para CRLF e o
+# `pnpm format:check` falha localmente (auditoria 2026-09-10, P2-21).
+* text=auto eol=lf
+
+# Binários (nunca normalizar)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp3 binary
+*.mp4 binary
+*.m4a binary
+*.wav binary

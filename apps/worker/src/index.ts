@@ -6,11 +6,13 @@ import { getChannelAdapter } from '@aluguei/integrations';
 import type { FakeChannel } from '@aluguei/integrations';
 import { runChannelJobs } from './channelJobs.js';
 import { runInboxJobs } from './inboxJobs.js';
+import type { InboxDeadLetter } from './inboxJobs.js';
 import { runMetaJobs } from './metaJobs.js';
 import { startHeartbeat } from './heartbeat.js';
 import { getMetaAdsProvider } from '@aluguei/integrations';
 
 export { runChannelJobs, runInboxJobs, runMetaJobs };
+export { processPaymentJob } from './paymentJobs.js';
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const JOB_POLL_INTERVAL_MS = 5_000;
@@ -33,6 +35,8 @@ export interface WorkerRunOptions {
   fakeChannel?: FakeChannel;
   pollIntervalMs?: number;
   log?: (msg: string) => void;
+  /** Job descartado após esgotar tentativas — alerta operacional. */
+  onDeadLetter?: (job: InboxDeadLetter) => void;
 }
 
 /** Um ciclo de jobs de canal (testável com PGlite). */
@@ -54,10 +58,13 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
   }
   const fakeChannel = opts.fakeChannel ?? undefined;
   const metaAdsOptions: Parameters<typeof getMetaAdsProvider>[0] = {
-    mode: process.env.META_MODE === 'live' ? 'live' : 'dry_run',
+    mode: env.META_MODE === 'live' ? 'live' : 'dry_run',
   };
-  if (process.env.META_ACCESS_TOKEN) {
-    metaAdsOptions.accessToken = process.env.META_ACCESS_TOKEN;
+  if (env.META_ACCESS_TOKEN) {
+    metaAdsOptions.accessToken = env.META_ACCESS_TOKEN;
+  }
+  if (env.META_AD_ACCOUNT_ID) {
+    metaAdsOptions.adAccountId = env.META_AD_ACCOUNT_ID;
   }
   const metaAds = getMetaAdsProvider(metaAdsOptions);
 
@@ -69,7 +76,13 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
       limit: 10,
       log,
     }),
-    runInboxJobs({ db, limit: 10, log }),
+    runInboxJobs({
+      db,
+      limit: 10,
+      log,
+      env,
+      ...(opts.onDeadLetter ? { onDeadLetter: opts.onDeadLetter } : {}),
+    }),
     runMetaJobs({ db, meta: metaAds, limit: 10, log }),
   ]);
   return { processed: channels.processed + inbox.processed + metaJobs.processed };
@@ -97,14 +110,38 @@ export function run(argv: string[]): Promise<void> {
     log.debug({ tick }, 'heartbeat');
   });
 
+  // Um ciclo por vez: ciclos sobrepostos processavam o mesmo evento em
+  // paralelo dentro do próprio worker (auditoria 2026-09-10, P0-01).
+  let cycleInFlight = false;
   const poll = setInterval(() => {
+    if (cycleInFlight) {
+      log.debug({}, 'ciclo anterior ainda em execução — aguardando');
+      return;
+    }
+    cycleInFlight = true;
     runOnce({
       log: (msg: string) => {
         log.debug(msg);
       },
-    }).catch((err: unknown) => {
-      log.error(err, 'channel job cycle failed');
-    });
+      onDeadLetter: (job) => {
+        log.error(
+          {
+            event: 'inbox.dead_letter',
+            jobId: job.id,
+            provider: job.provider,
+            attempts: job.attempts,
+            lastError: job.lastError,
+          },
+          'job descartado após esgotar as tentativas',
+        );
+      },
+    })
+      .catch((err: unknown) => {
+        log.error(err, 'job cycle failed');
+      })
+      .finally(() => {
+        cycleInFlight = false;
+      });
   }, JOB_POLL_INTERVAL_MS);
 
   const shutdown = (signal: string): void => {

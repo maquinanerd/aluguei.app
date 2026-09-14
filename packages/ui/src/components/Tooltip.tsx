@@ -29,7 +29,11 @@ export function Tooltip({
     } else if (side === 'bottom') {
       setPos({ top: r.bottom + gap, left: r.left + r.width / 2, transform: 'translate(-50%, 0)' });
     } else if (side === 'left') {
-      setPos({ top: r.top + r.height / 2, left: r.left - gap, transform: 'translate(-100%, -50%)' });
+      setPos({
+        top: r.top + r.height / 2,
+        left: r.left - gap,
+        transform: 'translate(-100%, -50%)',
+      });
     } else {
       setPos({ top: r.top + r.height / 2, left: r.right + gap, transform: 'translate(0, -50%)' });
     }
@@ -43,16 +47,24 @@ export function Tooltip({
         update();
         setShow(true);
       }}
-      onMouseLeave={() => { setShow(false); }}
+      onMouseLeave={() => {
+        setShow(false);
+      }}
       onFocus={() => {
         update();
         setShow(true);
       }}
-      onBlur={() => { setShow(false); }}
+      onBlur={() => {
+        setShow(false);
+      }}
     >
       {children}
       {show && pos ? (
-        <span role="tooltip" className="peg-tooltip" style={{ top: pos.top, left: pos.left, transform: pos.transform }}>
+        <span
+          role="tooltip"
+          className="peg-tooltip"
+          style={{ top: pos.top, left: pos.left, transform: pos.transform }}
+        >
           {label}
         </span>
       ) : null}

@@ -2,12 +2,14 @@ import { randomUUID } from 'node:crypto';
 import {
   boolean,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -36,6 +38,7 @@ export const metaConnections = pgTable(
   (t) => [
     index('meta_connections_org_idx').on(t.orgId),
     index('meta_connections_org_status_idx').on(t.orgId, t.status),
+    unique('meta_connections_org_id_unique').on(t.orgId, t.id),
   ],
 );
 
@@ -47,9 +50,7 @@ export const metaAssets = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    connectionId: uuid('connection_id')
-      .notNull()
-      .references(() => metaConnections.id, { onDelete: 'cascade' }),
+    connectionId: uuid('connection_id').notNull(),
     kind: text('kind').notNull(), // AD_ACCOUNT | PAGE | INSTAGRAM_ACCOUNT | BUSINESS
     providerAssetId: text('provider_asset_id').notNull(),
     name: text('name').notNull(),
@@ -66,6 +67,12 @@ export const metaAssets = pgTable(
       t.providerAssetId,
     ),
     index('meta_assets_org_kind_idx').on(t.orgId, t.kind),
+    unique('meta_assets_org_id_unique').on(t.orgId, t.id),
+    foreignKey({
+      name: 'meta_assets_connection_org_fk',
+      columns: [t.orgId, t.connectionId],
+      foreignColumns: [metaConnections.orgId, metaConnections.id],
+    }).onDelete('cascade'),
   ],
 );
 
@@ -77,12 +84,8 @@ export const metaAdProfiles = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    connectionId: uuid('connection_id')
-      .notNull()
-      .references(() => metaConnections.id, { onDelete: 'cascade' }),
-    propertyId: uuid('property_id')
-      .notNull()
-      .references(() => properties.id, { onDelete: 'cascade' }),
+    connectionId: uuid('connection_id').notNull(),
+    propertyId: uuid('property_id').notNull(),
     listingId: uuid('listing_id').references(() => listings.id, { onDelete: 'set null' }),
     name: text('name').notNull(),
     objective: text('objective').notNull(), // OUTCOME_TRAFFIC | OUTCOME_LEADS | OUTCOME_ENGAGEMENT
@@ -92,10 +95,8 @@ export const metaAdProfiles = pgTable(
     endAt: timestamp('end_at', { withTimezone: true }),
     geos: jsonb('geos').notNull().default([]),
     mediaSelection: jsonb('media_selection').notNull().default([]), // ids de property_media PHOTO pública
-    pageAssetId: uuid('page_asset_id').references(() => metaAssets.id, { onDelete: 'set null' }),
-    instagramAssetId: uuid('instagram_asset_id').references(() => metaAssets.id, {
-      onDelete: 'set null',
-    }),
+    pageAssetId: uuid('page_asset_id'),
+    instagramAssetId: uuid('instagram_asset_id'),
     landingUrl: text('landing_url').notNull(),
     copyPrimary: text('copy_primary').notNull(),
     copyVariants: jsonb('copy_variants').notNull().default([]),
@@ -110,6 +111,27 @@ export const metaAdProfiles = pgTable(
     uniqueIndex('meta_ad_profiles_org_idempotency_unique').on(t.orgId, t.idempotencyKey),
     index('meta_ad_profiles_org_property_idx').on(t.orgId, t.propertyId),
     index('meta_ad_profiles_org_status_idx').on(t.orgId, t.status),
+    // Campanha usa conexão, imóvel e ativos da própria organização (P0-05).
+    foreignKey({
+      name: 'meta_ad_profiles_connection_org_fk',
+      columns: [t.orgId, t.connectionId],
+      foreignColumns: [metaConnections.orgId, metaConnections.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'meta_ad_profiles_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'meta_ad_profiles_page_asset_org_fk',
+      columns: [t.orgId, t.pageAssetId],
+      foreignColumns: [metaAssets.orgId, metaAssets.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'meta_ad_profiles_instagram_asset_org_fk',
+      columns: [t.orgId, t.instagramAssetId],
+      foreignColumns: [metaAssets.orgId, metaAssets.id],
+    }).onDelete('set null'),
   ],
 );
 

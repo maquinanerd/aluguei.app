@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Group,
-  Icon,
-  Stack,
-  ToastProvider,
-  useToast,
-} from '@aluguei/ui';
+import { Badge, Button, Card, Group, Icon, Stack, ToastProvider, useToast } from '@aluguei/ui';
 import type { IconName } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
@@ -49,12 +40,48 @@ interface IntegrationDef {
 }
 
 const INTEGRATIONS: IntegrationDef[] = [
-  { key: 'meta', name: 'Meta Ads', description: 'Campanhas de anúncios para imóveis (Housing).', icon: 'megaphone', provider: 'meta' },
-  { key: 'whatsapp', name: 'WhatsApp Business', description: 'Conversas e envio de mensagens.', icon: 'whatsapp', provider: 'whatsapp' },
-  { key: 'geocoding', name: 'Google Maps', description: 'Geocodificação de endereços.', icon: 'mapPin', provider: 'geocoding' },
-  { key: 'screening', name: 'Análise de crédito', description: 'Screening Serasa/SPC via adapter.', icon: 'shield', provider: 'screening' },
-  { key: 'signature', name: 'Assinatura eletrônica', description: 'Envelopes Clicksign/D4Sign.', icon: 'gavel', provider: 'signature' },
-  { key: 'payments', name: 'Pagamentos', description: 'Pix/boleto via gateway (Asaas).', icon: 'creditCard', provider: 'payments' },
+  {
+    key: 'meta',
+    name: 'Meta Ads',
+    description: 'Campanhas de anúncios para imóveis (Housing).',
+    icon: 'megaphone',
+    provider: 'meta',
+  },
+  {
+    key: 'whatsapp',
+    name: 'WhatsApp Business',
+    description: 'Conversas e envio de mensagens.',
+    icon: 'whatsapp',
+    provider: 'whatsapp',
+  },
+  {
+    key: 'geocoding',
+    name: 'Google Maps',
+    description: 'Geocodificação de endereços.',
+    icon: 'mapPin',
+    provider: 'geocoding',
+  },
+  {
+    key: 'screening',
+    name: 'Análise de crédito',
+    description: 'Screening Serasa/SPC via adapter.',
+    icon: 'shield',
+    provider: 'screening',
+  },
+  {
+    key: 'signature',
+    name: 'Assinatura eletrônica',
+    description: 'Envelopes Clicksign/D4Sign.',
+    icon: 'gavel',
+    provider: 'signature',
+  },
+  {
+    key: 'payments',
+    name: 'Pagamentos',
+    description: 'Pix/boleto via gateway (Asaas).',
+    icon: 'creditCard',
+    provider: 'payments',
+  },
 ];
 
 function IntegrationsBody() {
@@ -74,7 +101,10 @@ function IntegrationsBody() {
         toast.success('Meta reconectada (teste)');
         metaQ.reload();
       } else if (kind === 'whatsapp') {
-        await apiClient('/whatsapp/connections', { method: 'POST', body: { phoneNumberId: 'fake-phone-1' } });
+        await apiClient('/whatsapp/connections', {
+          method: 'POST',
+          body: { phoneNumberId: 'fake-phone-1' },
+        });
         toast.success('WhatsApp conectado (teste)');
         waQ.reload();
       }
@@ -95,11 +125,19 @@ function IntegrationsBody() {
     }
     if (def.provider === 'whatsapp') {
       if (!waConn) return { connected: false, label: 'Desconectada' };
-      return { connected: waConn.status === 'ACTIVE', label: waConn.status === 'ACTIVE' ? 'Ativa' : 'Desativada', detail: waConn.phoneNumberId };
+      return {
+        connected: waConn.status === 'ACTIVE',
+        label: waConn.status === 'ACTIVE' ? 'Ativa' : 'Desativada',
+        detail: waConn.phoneNumberId,
+      };
     }
     // Adapters com mock implícito (sem estado de conexão exposto): reportado como
     // "mock/dry-run" quando sem credencial externa (IMPLEMENTED_NOT_LIVE_VERIFIED).
-    return { connected: false, label: 'Mock / dry-run', detail: 'Sem credencial externa — adapter implementado, não verificado ao vivo.' };
+    return {
+      connected: false,
+      label: 'Mock / dry-run',
+      detail: 'Sem credencial externa — adapter implementado, não verificado ao vivo.',
+    };
   }
 
   return (
@@ -116,13 +154,24 @@ function IntegrationsBody() {
                   <Icon name={def.icon} size={22} />
                   <Stack gap={0} style={{ flex: 1 }}>
                     <span style={{ fontSize: 13 }}>{def.description}</span>
-                    {st.detail ? <span className="peg-text-tertiary" style={{ fontSize: 12 }}>{st.detail}</span> : null}
+                    {st.detail ? (
+                      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                        {st.detail}
+                      </span>
+                    ) : null}
                   </Stack>
                 </Group>
                 <Group between>
                   <Badge tone={st.connected ? 'success' : 'neutral'}>{st.label}</Badge>
-                  {(def.provider === 'meta' || def.provider === 'whatsapp') ? (
-                    <Button size="xs" variant="secondary" icon={<Icon name="refresh" size={12} />} onClick={() => { void reconnect(def.provider); }}>
+                  {def.provider === 'meta' || def.provider === 'whatsapp' ? (
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      icon={<Icon name="refresh" size={12} />}
+                      onClick={() => {
+                        void reconnect(def.provider);
+                      }}
+                    >
                       Conectar (teste)
                     </Button>
                   ) : null}

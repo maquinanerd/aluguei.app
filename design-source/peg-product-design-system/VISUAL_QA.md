@@ -9,12 +9,14 @@
 ## Checklist por tela
 
 ### Typography
+
 - Família correta.
 - Peso visual compatível.
 - Line-height equivalente.
 - Hierarquia não exagerada.
 
 ### Geometry
+
 - Sidebar width.
 - Topbar height.
 - Inspector width.
@@ -24,6 +26,7 @@
 - Radius.
 
 ### Spacing
+
 - Page padding.
 - Section gaps.
 - Internal padding.
@@ -31,6 +34,7 @@
 - Density equivalente.
 
 ### Color / surfaces
+
 - Canvas.
 - Surface hierarchy.
 - Border contrast.
@@ -38,6 +42,7 @@
 - Semantic colors.
 
 ### Overlays
+
 - Anchor.
 - Width.
 - Offset.
@@ -46,6 +51,7 @@
 - Keyboard/escape behavior na implementação.
 
 ### Responsive
+
 - Navigation muda de padrão corretamente.
 - Inspector não comprime conteúdo.
 - Tables mantêm informação prioritária.
@@ -54,6 +60,7 @@
 ## Método
 
 Para cada screen/reference pair:
+
 1. comparar lado a lado;
 2. comparar em overlay visual se a ferramenta permitir;
 3. registrar P0/P1/P2;

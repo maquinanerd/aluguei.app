@@ -95,6 +95,66 @@ function walk(dir, files = []) {
   return files;
 }
 
+/**
+ * `usuario:${VAR}@host`: a senha inteira é referência a variável de ambiente
+ * (compose, shell) e não um valor literal — mesma categoria de `process.env.X`.
+ * Qualquer caractere literal junto da referência continua sendo acusado.
+ */
+function passwordIsEnvReference(url) {
+  return /^[a-z]+:\/\/[^:@/\s]+:\$\{[A-Za-z_][A-Za-z0-9_]*\}@/i.test(url);
+}
+
+/** Padrões que acusam segredo na linha, já descontadas as exceções legítimas. */
+function findingsForLine(line) {
+  const hits = [];
+  for (const pattern of PATTERNS) {
+    const match = pattern.re.exec(line);
+    if (!match) {
+      continue;
+    }
+    // connection-string captura a URL completa no match[0] (grupo 1 é só o scheme).
+    const captured = pattern.name === 'connection-string' ? match[0] : (match[1] ?? match[0]);
+    // Falsos positivos legítimos:
+    // - conexão local (localhost/127.0.0.1) nunca é segredo;
+    // - referência a variável de ambiente (`env.X` / `process.env.X` / `${X}`).
+    if (captured.includes('localhost') || captured.includes('127.0.0.1')) {
+      continue;
+    }
+    if (/^(env|process\.env)\./.test(captured) || captured.includes('process.env.')) {
+      continue;
+    }
+    if (pattern.name === 'connection-string' && passwordIsEnvReference(captured)) {
+      continue;
+    }
+    if (ALLOWLIST_VALUES.has(captured)) {
+      continue;
+    }
+    hits.push(pattern.name);
+  }
+  return hits;
+}
+
+// Autoteste a cada execução: a exceção de `${VAR}` não pode esconder credencial
+// literal. As amostras são montadas em tempo de execução para que este arquivo
+// não vire achado do próprio scan.
+const SCHEME = ['postgres', 'ql://'].join('');
+const SELF_TEST = [
+  { line: `DATABASE_URL=${SCHEME}app:${'s3nh4'.repeat(4)}@db:5432/app`, flagged: true },
+  {
+    line: `DATABASE_URL: ${SCHEME}app:\${SERVICE_PASSWORD_64_POSTGRES}@postgres:5432/app`,
+    flagged: false,
+  },
+  { line: `DATABASE_URL=${SCHEME}app:\${SENHA}sufixo@db:5432/app`, flagged: true },
+];
+for (const sample of SELF_TEST) {
+  if (findingsForLine(sample.line).includes('connection-string') !== sample.flagged) {
+    console.error(
+      `Secret scan: autoteste falhou — a linha ${sample.flagged ? 'deveria' : 'não deveria'} ser acusada: ${sample.line}`,
+    );
+    process.exit(1);
+  }
+}
+
 const findings = [];
 for (const file of walk(ROOT)) {
   const rel = relative(ROOT, file);
@@ -110,29 +170,11 @@ for (const file of walk(ROOT)) {
     if (line.length > 500) {
       continue;
     }
-    for (const pattern of PATTERNS) {
-      const match = pattern.re.exec(line);
-      if (!match) {
-        continue;
-      }
-      // connection-string captura a URL completa no match[0] (grupo 1 é só o scheme).
-      const captured = pattern.name === 'connection-string' ? match[0] : (match[1] ?? match[0]);
-      // Falsos positivos legítimos:
-      // - conexão local (localhost/127.0.0.1) nunca é segredo;
-      // - atribuição de variável de ambiente (`env.X` / `process.env.X`).
-      if (captured.includes('localhost') || captured.includes('127.0.0.1')) {
-        continue;
-      }
-      if (/^(env|process\.env)\./.test(captured) || captured.includes('process.env.')) {
-        continue;
-      }
-      if (ALLOWLIST_VALUES.has(captured)) {
-        continue;
-      }
+    for (const name of findingsForLine(line)) {
       findings.push({
         file: rel,
         line: i + 1,
-        pattern: pattern.name,
+        pattern: name,
         snippet: line.trim().slice(0, 100),
       });
     }

@@ -11,6 +11,7 @@ Você não está autorizado a inventar outra identidade.
 A fonte visual existe dentro do repositório após a extração deste pacote.
 
 Primeiro:
+
 1. descubra a estrutura real do repo;
 2. leia `AGENTS.md`;
 3. leia `docs/frontend/00_DESIGN_AUTHORITY.md`;
@@ -28,6 +29,7 @@ O PEG Product Design System define foundations, components, shells e patterns.
 O arquivo `30_ALUGUEI_APP_COMPLETE_DESIGN.md` define a composição específica do Aluguei.app.
 
 Não:
+
 - crie outro design system;
 - transforme o painel em template SaaS genérico;
 - use glassmorphism;
@@ -40,12 +42,14 @@ Não:
 ## IDENTIDADE
 
 Neutros:
+
 - canvas `#FCFCFC`
 - surface `#F0F0F0`
 - mid `#C7C7C7`
 - ink `#2F332B`
 
 Aluguei:
+
 - primary `#41945D`
 - strong `#417D55`
 
@@ -56,6 +60,7 @@ Verde é accent. Semantic success/error/warning/info continuam semanticamente in
 `PEG primitive → semantic component → domain composition → product screen`
 
 Antes de criar componente:
+
 1. procure em `packages/ui`;
 2. procure em `apps/web`;
 3. procure pattern PEG;
@@ -67,6 +72,7 @@ Antes de criar componente:
 O backend existente é autoridade funcional.
 
 Antes de criar qualquer:
+
 - endpoint;
 - table;
 - migration;
@@ -89,6 +95,7 @@ DISCOVER → MAP → PLAN → IMPLEMENT → FOCUSED TESTS → CODE REVIEW → VI
 
 Não interrompa entre fases.
 Não me peça escolhas de:
+
 - biblioteca;
 - component API;
 - nomes;
@@ -103,6 +110,7 @@ Decida, documente e continue.
 ## AÇÕES EXTERNAS
 
 Durante desenvolvimento/teste:
+
 - não mover dinheiro;
 - não cobrar cliente real;
 - não executar payout real;
@@ -116,6 +124,7 @@ Use mocks, dry-run e adapters existentes.
 ## GATE FINAL
 
 Só encerre quando:
+
 - todas as rotas planejadas estiverem implementadas ou explicitamente classificadas como NOT_APPLICABLE por falta real de capability;
 - zero P0;
 - zero P1;

@@ -5,6 +5,7 @@
 Calibrar usando PEG references.
 
 Baseline:
+
 - spacing: 4/8/12/16/20/24/32/40/48/64;
 - radius: 4/6/8/12/16;
 - control heights: 28/32/36/40;
@@ -23,6 +24,7 @@ Não introduza outra família sem evidência do design source.
 ## Components
 
 Preferir:
+
 1. PEG primitives existentes;
 2. shadcn/Radix ou primitives atuais do repo;
 3. semantic wrappers;
@@ -40,6 +42,7 @@ Preferir:
 ## Density
 
 Painel é operacional:
+
 - tabelas densas e legíveis;
 - cards apenas onde agregam;
 - usar divisores;

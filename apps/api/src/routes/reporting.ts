@@ -276,7 +276,9 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
       const months = aggregateRevenueByMonth(
         rows.map((r) => ({
           month: r.createdAt.toISOString(),
-          amountCents: Math.abs(r.amountCents),
+          // Receita é conta credora (valores negativos); estorno entra como
+          // débito e precisa reduzir o mês — por isso o sinal, não o módulo.
+          amountCents: -r.amountCents,
         })),
       );
       await writeAudit(db, {

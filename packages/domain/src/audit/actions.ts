@@ -72,6 +72,8 @@ export const AUDIT_ACTIONS = {
   CHARGE_CANCELLED: 'charge.cancelled',
   PAYMENT_INITIATED: 'payment.initiated',
   PAYMENT_CONFIRMED: 'payment.confirmed',
+  /** Dinheiro recebido para cobrança que não aceita liquidação (P0-03). */
+  PAYMENT_UNAPPLIED: 'payment.unapplied',
   PAYMENT_REFUNDED: 'payment.refunded',
   PAYOUT_CREATED: 'payout.created',
   LEDGER_POSTED: 'ledger.posted',

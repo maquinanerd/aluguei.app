@@ -22,7 +22,11 @@ export function PageToolbar({ title, description, actions, search, filters }: Pa
           <h1 className="app-page__title">{title}</h1>
           {description ? <p className="app-page__desc">{description}</p> : null}
         </div>
-        {actions ? <div className="peg-group" style={{ gap: 8 }}>{actions}</div> : null}
+        {actions ? (
+          <div className="peg-group" style={{ gap: 8 }}>
+            {actions}
+          </div>
+        ) : null}
       </div>
       {search || filters ? (
         <div className="peg-group" style={{ gap: 12, flexWrap: 'wrap' }}>
@@ -30,7 +34,9 @@ export function PageToolbar({ title, description, actions, search, filters }: Pa
             <SearchInput
               size="md"
               value={search.value}
-              onChange={(e) => { search.onChange(e.target.value); }}
+              onChange={(e) => {
+                search.onChange(e.target.value);
+              }}
               placeholder={search.placeholder ?? 'Buscar…'}
               style={{ width: 280 }}
               aria-label="Buscar"

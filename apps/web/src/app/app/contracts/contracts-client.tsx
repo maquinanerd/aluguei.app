@@ -63,12 +63,19 @@ function ContractsBody() {
     return `/contracts?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ contracts: Contract[]; total: number }>(queryPath, [queryPath]);
-  const appsQ = useQuery<{ applications: Application[]; total: number }>('/rental-applications?limit=200', []);
-  const templatesQ = useQuery<{ templates: Template[]; total: number }>('/contract-templates?limit=100', []);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    contracts: Contract[];
+    total: number;
+  }>(queryPath, [queryPath]);
+  const appsQ = useQuery<{ applications: Application[]; total: number }>(
+    '/rental-applications?limit=200',
+    [],
+  );
+  const templatesQ = useQuery<{ templates: Template[]; total: number }>(
+    '/contract-templates?limit=100',
+    [],
+  );
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
-
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a contratos" />;
 
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
@@ -88,6 +95,8 @@ function ContractsBody() {
     return m;
   }, [templatesQ.data]);
 
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a contratos" />;
+
   const columns: Column<Contract>[] = [
     {
       key: 'party',
@@ -101,15 +110,31 @@ function ContractsBody() {
     {
       key: 'template',
       header: 'Template',
-      render: (c) => <span className="peg-text-secondary">{c.templateId ? templateMap.get(c.templateId)?.name ?? '—' : '—'}</span>,
+      render: (c) => (
+        <span className="peg-text-secondary">
+          {c.templateId ? (templateMap.get(c.templateId)?.name ?? '—') : '—'}
+        </span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (c) => <Badge tone={CONTRACT_STATUS_TONES[c.status] ?? 'neutral'}>{label(CONTRACT_STATUS_LABELS, c.status)}</Badge>,
+      render: (c) => (
+        <Badge tone={CONTRACT_STATUS_TONES[c.status] ?? 'neutral'}>
+          {label(CONTRACT_STATUS_LABELS, c.status)}
+        </Badge>
+      ),
     },
-    { key: 'signed', header: 'Assinado em', render: (c) => <span className="peg-text-tertiary">{formatDate(c.signedAt)}</span> },
-    { key: 'created', header: 'Criado em', render: (c) => <span className="peg-text-tertiary">{formatDate(c.createdAt)}</span> },
+    {
+      key: 'signed',
+      header: 'Assinado em',
+      render: (c) => <span className="peg-text-tertiary">{formatDate(c.signedAt)}</span>,
+    },
+    {
+      key: 'created',
+      header: 'Criado em',
+      render: (c) => <span className="peg-text-tertiary">{formatDate(c.createdAt)}</span>,
+    },
   ];
 
   return (
@@ -126,16 +151,33 @@ function ContractsBody() {
               setPage(0);
             }}
             placeholder="Todos os status"
-            options={Object.entries(CONTRACT_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(CONTRACT_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar contratos"
           />
         }
         actions={
           <Group gap={2}>
-            <Button size="sm" variant="secondary" icon={<Icon name="fileText" size={14} />} onClick={() => { router.push('/app/contract-templates'); }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<Icon name="fileText" size={14} />}
+              onClick={() => {
+                router.push('/app/contract-templates');
+              }}
+            >
               Templates
             </Button>
-            <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+            <Button
+              variant="brand"
+              size="sm"
+              icon={<Icon name="plus" size={14} />}
+              onClick={() => {
+                setCreateOpen(true);
+              }}
+            >
               Novo contrato
             </Button>
           </Group>
@@ -145,17 +187,23 @@ function ContractsBody() {
         columns={columns}
         rows={data?.contracts ?? []}
         loading={loading}
-        onRowClick={(c) => { router.push(`/app/contracts/${c.id}`); }}
+        onRowClick={(c) => {
+          router.push(`/app/contracts/${c.id}`);
+        }}
         emptyTitle="Nenhum contrato"
         emptyBody="Crie um contrato a partir de uma aplicação aprovada."
         emptyActionLabel="Novo contrato"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <CreateContractModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         applications={appsQ.data?.applications ?? []}
         templates={templatesQ.data?.templates ?? []}
         onCreated={() => {
@@ -209,17 +257,30 @@ function CreateContractModal({
       title="Novo contrato"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-contract-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-contract-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-contract-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-contract-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Aplicação aprovada"
           required
           value={applicationId}
-          onChange={(e) => { setApplicationId(e.target.value); }}
+          onChange={(e) => {
+            setApplicationId(e.target.value);
+          }}
           placeholder="Selecione a aplicação…"
           options={applications
             .filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING')
@@ -229,9 +290,13 @@ function CreateContractModal({
           label="Template"
           required
           value={templateId}
-          onChange={(e) => { setTemplateId(e.target.value); }}
+          onChange={(e) => {
+            setTemplateId(e.target.value);
+          }}
           placeholder="Selecione o template…"
-          options={templates.filter((t) => t.status === 'APPROVED').map((t) => ({ value: t.id, label: t.name }))}
+          options={templates
+            .filter((t) => t.status === 'APPROVED')
+            .map((t) => ({ value: t.id, label: t.name }))}
         />
         <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
           Somente templates aprovados podem ser usados.

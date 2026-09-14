@@ -25,6 +25,16 @@ export interface PresignedPutResult {
   expiresIn: number;
 }
 
+export interface PresignedGetOptions {
+  key: string;
+  expiresInSeconds?: number;
+}
+
+export interface PresignedGetResult {
+  url: string;
+  expiresIn: number;
+}
+
 /** Interface de storage — implementada por adapters S3-compatible (baseline Cloudflare R2). */
 export interface StorageService {
   putObject(input: StoragePutInput): Promise<StoragePutResult>;
@@ -33,4 +43,6 @@ export interface StorageService {
   headObject(key: string): Promise<StorageObjectHead | null>;
   /** URL pré-assinada para upload direto (browser→R2) — sem credencial no client. */
   getPresignedPutUrl(input: PresignedPutOptions): Promise<PresignedPutResult>;
+  /** URL pré-assinada para download direto (R2→browser) — sem credencial no client. */
+  getPresignedDownloadUrl(input: PresignedGetOptions): Promise<PresignedGetResult>;
 }

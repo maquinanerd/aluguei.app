@@ -56,11 +56,12 @@ function VisitsBody() {
     return `/visits?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ visits: Visit[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    visits: Visit[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  if (permissionDenied) return <PermissionDenied title="Sem acesso a visitas" />;
 
   const partyMap = useMemo(() => {
     const m = new Map<string, Party>();
@@ -74,7 +75,9 @@ function VisitsBody() {
     return m;
   }, [propsQ.data]);
 
-  const detail = detailId ? data?.visits.find((v) => v.id === detailId) ?? null : null;
+  if (permissionDenied) return <PermissionDenied title="Sem acesso a visitas" />;
+
+  const detail = detailId ? (data?.visits.find((v) => v.id === detailId) ?? null) : null;
 
   const columns: Column<Visit>[] = [
     {
@@ -86,17 +89,27 @@ function VisitsBody() {
     {
       key: 'property',
       header: 'Imóvel',
-      render: (v) => <span className="peg-text-secondary">{propertyMap.get(v.propertyId ?? '')?.title ?? '—'}</span>,
+      render: (v) => (
+        <span className="peg-text-secondary">
+          {propertyMap.get(v.propertyId ?? '')?.title ?? '—'}
+        </span>
+      ),
     },
     {
       key: 'party',
       header: 'Interessado',
-      render: (v) => <span className="peg-text-secondary">{partyMap.get(v.partyId ?? '')?.name ?? '—'}</span>,
+      render: (v) => (
+        <span className="peg-text-secondary">{partyMap.get(v.partyId ?? '')?.name ?? '—'}</span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (v) => <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>{label(VISIT_STATUS_LABELS, v.status)}</Badge>,
+      render: (v) => (
+        <Badge tone={VISIT_STATUS_TONES[v.status] ?? 'neutral'}>
+          {label(VISIT_STATUS_LABELS, v.status)}
+        </Badge>
+      ),
     },
   ];
 
@@ -119,7 +132,14 @@ function VisitsBody() {
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Agendar visita
           </Button>
         }
@@ -128,20 +148,31 @@ function VisitsBody() {
         columns={columns}
         rows={data?.visits ?? []}
         loading={loading}
-        onRowClick={(v) => { setDetailId(v.id); }}
+        onRowClick={(v) => {
+          setDetailId(v.id);
+        }}
         emptyTitle="Nenhuma visita"
         emptyBody="Agende visitas para os interessados nos imóveis."
         emptyActionLabel="Agendar visita"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <Drawer
         open={detail !== null}
-        onClose={() => { setDetailId(null); }}
+        onClose={() => {
+          setDetailId(null);
+        }}
         title="Detalhe da visita"
         footer={
-          <Button variant="secondary" onClick={() => { setDetailId(null); }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setDetailId(null);
+            }}
+          >
             Fechar
           </Button>
         }
@@ -149,23 +180,56 @@ function VisitsBody() {
         {detail ? (
           <Stack gap={4}>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Data e hora</span>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>{formatDateTime(detail.scheduledAt)}</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Data e hora
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>
+                {formatDateTime(detail.scheduledAt)}
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Imóvel</span>
-              <span style={{ fontSize: 14 }}>{propertyMap.get(detail.propertyId ?? '')?.title ?? '—'}</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Imóvel
+              </span>
+              <span style={{ fontSize: 14 }}>
+                {propertyMap.get(detail.propertyId ?? '')?.title ?? '—'}
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Interessado</span>
-              <span style={{ fontSize: 14 }}>{partyMap.get(detail.partyId ?? '')?.name ?? '—'}</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Interessado
+              </span>
+              <span style={{ fontSize: 14 }}>
+                {partyMap.get(detail.partyId ?? '')?.name ?? '—'}
+              </span>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</span>
-              <Badge tone={VISIT_STATUS_TONES[detail.status] ?? 'neutral'}>{label(VISIT_STATUS_LABELS, detail.status)}</Badge>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Status
+              </span>
+              <Badge tone={VISIT_STATUS_TONES[detail.status] ?? 'neutral'}>
+                {label(VISIT_STATUS_LABELS, detail.status)}
+              </Badge>
             </Stack>
             <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Observação</span>
+              <span
+                className="peg-text-tertiary"
+                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                Observação
+              </span>
               <span style={{ fontSize: 13 }}>{detail.note ?? '—'}</span>
             </Stack>
           </Stack>
@@ -174,7 +238,9 @@ function VisitsBody() {
 
       <CreateVisitModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         onCreated={() => {
           toast.success('Visita agendada');
           setCreateOpen(false);
@@ -204,7 +270,9 @@ function CreateVisitModal({
     if (!scheduledAt) return;
     setBusy(true);
     try {
-      const body: { scheduledAt: string; note?: string } = { scheduledAt: new Date(scheduledAt).toISOString() };
+      const body: { scheduledAt: string; note?: string } = {
+        scheduledAt: new Date(scheduledAt).toISOString(),
+      };
       if (note.trim()) body.note = note.trim();
       await apiClient('/visits', { method: 'POST', body });
       setScheduledAt('');
@@ -224,14 +292,41 @@ function CreateVisitModal({
       title="Agendar visita"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-visit-form" loading={busy}>Agendar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-visit-form" loading={busy}>
+            Agendar
+          </Button>
         </>
       }
     >
-      <form id="create-visit-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
-        <Input label="Data e hora" type="datetime-local" required value={scheduledAt} onChange={(e) => { setScheduledAt(e.target.value); }} />
-        <Input label="Observação" optional value={note} onChange={(e) => { setNote(e.target.value); }} placeholder="Ex.: Confirmar com o interessado" />
+      <form
+        id="create-visit-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <Input
+          label="Data e hora"
+          type="datetime-local"
+          required
+          value={scheduledAt}
+          onChange={(e) => {
+            setScheduledAt(e.target.value);
+          }}
+        />
+        <Input
+          label="Observação"
+          optional
+          value={note}
+          onChange={(e) => {
+            setNote(e.target.value);
+          }}
+          placeholder="Ex.: Confirmar com o interessado"
+        />
       </form>
     </Modal>
   );

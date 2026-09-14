@@ -4,6 +4,7 @@ Inbox shell:
 conversation list + active conversation + CRM context.
 
 Implementar:
+
 - search/filter/unread/owner/queue;
 - messages;
 - attachments/templates se endpoint existir;

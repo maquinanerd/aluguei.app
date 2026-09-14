@@ -1,0 +1,815 @@
+[
+  {
+    "auth": true,
+    "route": "/",
+    "status": 200,
+    "finalUrl": "/",
+    "title": "Aluguei.app",
+    "textLen": 235,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Começar grátis O sistema operacional da locação imobiliária Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos, vistorias e cobranças em um só lugar. Criar conta Ver imóveis"
+  },
+  {
+    "auth": true,
+    "route": "/login",
+    "status": 200,
+    "finalUrl": "/login",
+    "title": "Entrar | Aluguei.app",
+    "textLen": 74,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Entrar E-mail Senha Entrar Ainda não tem conta? Criar conta"
+  },
+  {
+    "auth": true,
+    "route": "/register",
+    "status": 200,
+    "finalUrl": "/register",
+    "title": "Criar conta | Aluguei.app",
+    "textLen": 120,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Criar conta Nome E-mail Senha Mínimo de 8 caracteres Nome da imobiliária Criar conta Já tem conta? Entrar"
+  },
+  {
+    "auth": true,
+    "route": "/imoveis",
+    "status": 200,
+    "finalUrl": "/imoveis",
+    "title": "Imóveis | Aluguei.app",
+    "textLen": 213,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Início Entrar Imóveis para locação Imóveis disponíveis publicados pela imobiliária. Publicado Apartamento Apto Audit mtw5tfdx São Paulo · Jardins · SP 3 dorm. 1 ban. 1 vagas 70.5 m² R$ 2.500,00/mês"
+  },
+  {
+    "auth": true,
+    "route": "/imoveis/apto-audit-mtw5tfdx",
+    "status": 200,
+    "finalUrl": "/imoveis/apto-audit-mtw5tfdx",
+    "title": "Apto Audit mtw5tfdx | Aluguei.app",
+    "textLen": 228,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Início / Imóveis / Apto Audit mtw5tfdx Apto Audit mtw5tfdx R$ 2.500,00/mês São Paulo · Jardins · SP 3 dorm. 1 ban. 1 vagas 70.5 m² Aceita pets Apartamento Lindo apto 3 quartos ← Voltar para imóveis"
+  },
+  {
+    "auth": true,
+    "route": "/imoveis/apto-audit-mtw5tfdx?org=imob-a-mtw5tfdx",
+    "status": 200,
+    "finalUrl": "/imoveis/apto-audit-mtw5tfdx?org=imob-a-mtw5tfdx",
+    "title": "Apto Audit mtw5tfdx | Aluguei.app",
+    "textLen": 228,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Início / Imóveis / Apto Audit mtw5tfdx Apto Audit mtw5tfdx R$ 2.500,00/mês São Paulo · Jardins · SP 3 dorm. 1 ban. 1 vagas 70.5 m² Aceita pets Apartamento Lindo apto 3 quartos ← Voltar para imóveis"
+  },
+  {
+    "auth": true,
+    "route": "/inquilino",
+    "status": 200,
+    "finalUrl": "/",
+    "title": "Aluguei.app",
+    "textLen": 235,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Começar grátis O sistema operacional da locação imobiliária Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos, vistorias e cobranças em um só lugar. Criar conta Ver imóveis"
+  },
+  {
+    "auth": true,
+    "route": "/proprietario",
+    "status": 200,
+    "finalUrl": "/",
+    "title": "Aluguei.app",
+    "textLen": 235,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Começar grátis O sistema operacional da locação imobiliária Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos, vistorias e cobranças em um só lugar. Criar conta Ver imóveis"
+  },
+  {
+    "auth": true,
+    "route": "/dev/calibration",
+    "status": 200,
+    "finalUrl": "/dev/calibration",
+    "title": "Calibração | Aluguei.app",
+    "textLen": 1177,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["erro"],
+    "snippet": "Aluguei / Desenvolvimento / Calibração Aluguei.app — Calibração PEG Laboratório visual da fundação. Comparar com design-source/peg-product-design-system/references. LEADS NOVOS 128 +12% esta semana VISITAS AGENDADAS 36 -3 vs ontem REPASSES PENDENTES R$ 18,4 mi"
+  },
+  {
+    "auth": true,
+    "route": "/dashboard",
+    "status": 200,
+    "finalUrl": "/dashboard",
+    "title": "Dashboard | Aluguei.app",
+    "textLen": 171,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Dashboard Audit A · Imob A mtw5tfdx Leads (1) VISIT · web · SITE · R$ 2000.00–3000.00PROPOSALQUALIFIEDLOST Canais Anúncio Canal Status Apto Audit mtw5tfdx fake publicado"
+  },
+  {
+    "auth": true,
+    "route": "/app",
+    "status": 200,
+    "finalUrl": "/app",
+    "title": "Visão Geral | Aluguei.app",
+    "textLen": 1181,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["Nenhum", "Nenhuma"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/admin/integrations",
+    "status": 200,
+    "finalUrl": "/app/admin/integrations",
+    "title": "Integrações | Aluguei.app",
+    "textLen": 1707,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["Mock"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/admin/members",
+    "status": 200,
+    "finalUrl": "/app/admin/members",
+    "title": "Usuários e equipe | Aluguei.app",
+    "textLen": 760,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/channels",
+    "status": 200,
+    "finalUrl": "/app/channels",
+    "title": "Canais | Aluguei.app",
+    "textLen": 1109,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/charges",
+    "status": 200,
+    "finalUrl": "/app/charges",
+    "title": "Cobranças | Aluguei.app",
+    "textLen": 812,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/contract-templates",
+    "status": 200,
+    "finalUrl": "/app/contract-templates",
+    "title": "Templates de contrato | Aluguei.app",
+    "textLen": 667,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/contracts",
+    "status": 200,
+    "finalUrl": "/app/contracts",
+    "title": "Contratos | Aluguei.app",
+    "textLen": 745,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/rental-applications?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/rental-applications?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/contracts/d2925349-73c4-4fa0-b2d3-d16149ad9d46",
+    "status": 200,
+    "finalUrl": "/app/contracts/d2925349-73c4-4fa0-b2d3-d16149ad9d46",
+    "title": "Contrato | Aluguei.app",
+    "textLen": 888,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/calendar",
+    "status": 200,
+    "finalUrl": "/app/crm/calendar",
+    "title": "Agenda | Aluguei.app",
+    "textLen": 681,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/contacts",
+    "status": 200,
+    "finalUrl": "/app/crm/contacts",
+    "title": "Contatos | Aluguei.app",
+    "textLen": 1007,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/leads",
+    "status": 200,
+    "finalUrl": "/app/crm/leads",
+    "title": "Leads | Aluguei.app",
+    "textLen": 747,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/leads/9bf6e34f-e25c-48a7-ab8c-1ee6665d3714",
+    "status": 200,
+    "finalUrl": "/app/crm/leads/9bf6e34f-e25c-48a7-ab8c-1ee6665d3714",
+    "title": "Lead | Aluguei.app",
+    "textLen": 905,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/pipeline",
+    "status": 200,
+    "finalUrl": "/app/crm/pipeline",
+    "title": "Pipeline | Aluguei.app",
+    "textLen": 698,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/crm/tasks",
+    "status": 200,
+    "finalUrl": "/app/crm/tasks",
+    "title": "Tarefas | Aluguei.app",
+    "textLen": 686,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/finance",
+    "status": 200,
+    "finalUrl": "/app/finance",
+    "title": "Financeiro | Aluguei.app",
+    "textLen": 951,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["Nenhum"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/inbox",
+    "status": 200,
+    "finalUrl": "/app/inbox",
+    "title": "Inbox | Aluguei.app",
+    "textLen": 705,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/inspections",
+    "status": 200,
+    "finalUrl": "/app/inspections",
+    "title": "Vistorias | Aluguei.app",
+    "textLen": 775,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/inspections/c8c148e0-3d9e-4672-8033-80a9bfd28a14",
+    "status": 200,
+    "finalUrl": "/app/inspections/c8c148e0-3d9e-4672-8033-80a9bfd28a14",
+    "title": "",
+    "textLen": 70,
+    "pageErrors": ["Rendered more hooks than during the previous render."],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks\n\n  "
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "This page couldn’t load Reload to try again, or go back. Reload Back"
+  },
+  {
+    "auth": true,
+    "route": "/app/leases",
+    "status": 200,
+    "finalUrl": "/app/leases",
+    "title": "Locações | Aluguei.app",
+    "textLen": 685,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/leases/07907ea3-40a6-4f89-8730-210debc722dd",
+    "status": 200,
+    "finalUrl": "/app/leases/07907ea3-40a6-4f89-8730-210debc722dd",
+    "title": "Locação | Aluguei.app",
+    "textLen": 927,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/ledger",
+    "status": 200,
+    "finalUrl": "/app/ledger",
+    "title": "Ledger | Aluguei.app",
+    "textLen": 1659,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/listings",
+    "status": 200,
+    "finalUrl": "/app/listings",
+    "title": "Listings | Aluguei.app",
+    "textLen": 734,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/marketing",
+    "status": 200,
+    "finalUrl": "/app/marketing",
+    "title": "Marketing | Aluguei.app",
+    "textLen": 799,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/listings?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/listings?limit=200"
+    ],
+    "markers": ["Nenhum", "Nenhuma", "sandbox"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/payments",
+    "status": 200,
+    "finalUrl": "/app/payments",
+    "title": "Pagamentos | Aluguei.app",
+    "textLen": 721,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/payouts",
+    "status": 200,
+    "finalUrl": "/app/payouts",
+    "title": "Repasses | Aluguei.app",
+    "textLen": 668,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["Nenhum"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/properties",
+    "status": 200,
+    "finalUrl": "/app/properties",
+    "title": "Imóveis | Aluguei.app",
+    "textLen": 869,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/properties/6d573a1d-6da7-4c71-a0fe-ec0aa75e1c7b",
+    "status": 200,
+    "finalUrl": "/app/properties/6d573a1d-6da7-4c71-a0fe-ec0aa75e1c7b",
+    "title": "Imóvel | Aluguei.app",
+    "textLen": 1040,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/properties/new",
+    "status": 200,
+    "finalUrl": "/app/properties/new",
+    "title": "Novo imóvel | Aluguei.app",
+    "textLen": 1088,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Novo imóvel Revisão dos dados do cadastro 1 Áudio 2 Transcrição Revisão dos dados 4 Mídia e anúncio 5 Publicação Cancelar Criar imóvel CAPTAÇÃO POR ÁUDIO Grave ou envie o áudio descrevendo o imóvel. O Aluguei.app transcreve e extrai os dados automaticamente pa"
+  },
+  {
+    "auth": true,
+    "route": "/app/proposals",
+    "status": 200,
+    "finalUrl": "/app/proposals",
+    "title": "Propostas | Aluguei.app",
+    "textLen": 685,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/reconciliation",
+    "status": 200,
+    "finalUrl": "/app/reconciliation",
+    "title": "Conciliação | Aluguei.app",
+    "textLen": 730,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/reporting",
+    "status": 200,
+    "finalUrl": "/app/reporting",
+    "title": "Relatórios | Aluguei.app",
+    "textLen": 903,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["Nenhum"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/screening",
+    "status": 200,
+    "finalUrl": "/app/screening",
+    "title": "Crédito | Aluguei.app",
+    "textLen": 726,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/screening/8067f0ae-ead6-4370-ac83-d767f21f3a40",
+    "status": 200,
+    "finalUrl": "/app/screening/8067f0ae-ead6-4370-ac83-d767f21f3a40",
+    "title": "Análise de crédito | Aluguei.app",
+    "textLen": 916,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/settings",
+    "status": 200,
+    "finalUrl": "/app/settings",
+    "title": "Configurações | Aluguei.app",
+    "textLen": 716,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["sandbox"],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/visits",
+    "status": 200,
+    "finalUrl": "/app/visits",
+    "title": "Visitas | Aluguei.app",
+    "textLen": 665,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ],
+    "failedRequests": [
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200",
+      "400 GET /api/backend/parties?limit=200",
+      "400 GET /api/backend/properties?limit=200"
+    ],
+    "markers": [],
+    "snippet": "Pular para o conteúdo A Aluguei.app Visão Geral CRM Leads Contatos Pipeline Tarefas Agenda IMÓVEIS Imóveis Anúncios Canais OPERAÇÃO Inbox Visitas Propostas Crédito Contratos Vistorias Locações FINANCEIRO Visão Geral Cobranças Pagamentos Repasses Conciliação Le"
+  },
+  {
+    "auth": true,
+    "route": "/app/rota-inexistente",
+    "status": 404,
+    "finalUrl": "/app/rota-inexistente",
+    "title": "Aluguei.app",
+    "textLen": 33,
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "failedRequests": ["404 GET /app/rota-inexistente"],
+    "markers": ["This page could not be found", "404"],
+    "snippet": "404 This page could not be found."
+  },
+  {
+    "auth": false,
+    "route": "/app",
+    "status": 200,
+    "finalUrl": "/login",
+    "title": "Entrar | Aluguei.app",
+    "textLen": 74,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Entrar E-mail Senha Entrar Ainda não tem conta? Criar conta"
+  },
+  {
+    "auth": false,
+    "route": "/app/properties",
+    "status": 200,
+    "finalUrl": "/login",
+    "title": "Entrar | Aluguei.app",
+    "textLen": 74,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Entrar E-mail Senha Entrar Ainda não tem conta? Criar conta"
+  },
+  {
+    "auth": false,
+    "route": "/app/charges",
+    "status": 200,
+    "finalUrl": "/login",
+    "title": "Entrar | Aluguei.app",
+    "textLen": 74,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Entrar E-mail Senha Entrar Ainda não tem conta? Criar conta"
+  },
+  {
+    "auth": false,
+    "route": "/dev/calibration",
+    "status": 200,
+    "finalUrl": "/dev/calibration",
+    "title": "Calibração | Aluguei.app",
+    "textLen": 1177,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": ["erro"],
+    "snippet": "Aluguei / Desenvolvimento / Calibração Aluguei.app — Calibração PEG Laboratório visual da fundação. Comparar com design-source/peg-product-design-system/references. LEADS NOVOS 128 +12% esta semana VISITAS AGENDADAS 36 -3 vs ontem REPASSES PENDENTES R$ 18,4 mi"
+  },
+  {
+    "auth": false,
+    "route": "/inquilino",
+    "status": 200,
+    "finalUrl": "/",
+    "title": "Aluguei.app",
+    "textLen": 235,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Começar grátis O sistema operacional da locação imobiliária Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos, vistorias e cobranças em um só lugar. Criar conta Ver imóveis"
+  },
+  {
+    "auth": false,
+    "route": "/proprietario",
+    "status": 200,
+    "finalUrl": "/",
+    "title": "Aluguei.app",
+    "textLen": 235,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": [],
+    "markers": [],
+    "snippet": "A Aluguei.app Imóveis Entrar Começar grátis O sistema operacional da locação imobiliária Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos, vistorias e cobranças em um só lugar. Criar conta Ver imóveis"
+  }
+]

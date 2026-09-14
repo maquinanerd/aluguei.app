@@ -1,12 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  Badge,
-  DataTable,
-  Select,
-  ToastProvider,
-} from '@aluguei/ui';
+import { Badge, DataTable, Select, ToastProvider } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
@@ -36,7 +31,10 @@ function PaymentsBody() {
     return `/payments?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ payments: Payment[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    payments: Payment[];
+    total: number;
+  }>(queryPath, [queryPath]);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a pagamentos" />;
 
@@ -54,7 +52,11 @@ function PaymentsBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (p) => <Badge tone={PAYMENT_STATUS_TONES[p.status] ?? 'neutral'}>{label(PAYMENT_STATUS_LABELS, p.status)}</Badge>,
+      render: (p) => (
+        <Badge tone={PAYMENT_STATUS_TONES[p.status] ?? 'neutral'}>
+          {label(PAYMENT_STATUS_LABELS, p.status)}
+        </Badge>
+      ),
     },
     {
       key: 'paidAt',
@@ -86,7 +88,10 @@ function PaymentsBody() {
               setPage(0);
             }}
             placeholder="Todos os status"
-            options={Object.entries(PAYMENT_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(PAYMENT_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar pagamentos"
           />
         }

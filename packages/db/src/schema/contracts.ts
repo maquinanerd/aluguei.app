@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -20,14 +21,10 @@ export const rentalApplications = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
-    partyId: uuid('party_id')
-      .notNull()
-      .references(() => parties.id, { onDelete: 'cascade' }),
-    propertyId: uuid('property_id')
-      .notNull()
-      .references(() => properties.id, { onDelete: 'cascade' }),
-    proposalId: uuid('proposal_id').references(() => proposals.id, { onDelete: 'set null' }),
+    leadId: uuid('lead_id'),
+    partyId: uuid('party_id').notNull(),
+    propertyId: uuid('property_id').notNull(),
+    proposalId: uuid('proposal_id'),
     status: text('status').notNull().default('DRAFT'), // DRAFT|SUBMITTED|SCREENING|MANUAL_REVIEW|APPROVED|REJECTED|CONTRACTING
     decisionReason: text('decision_reason'),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
@@ -43,6 +40,28 @@ export const rentalApplications = pgTable(
     index('rental_applications_lead_idx').on(t.leadId),
     index('rental_applications_property_idx').on(t.propertyId),
     index('rental_applications_proposal_idx').on(t.proposalId),
+    // Candidatura só referencia pessoa, imóvel, lead e proposta da própria
+    // organização (auditoria 2026-09-10, P0-05).
+    foreignKey({
+      name: 'applications_party_org_fk',
+      columns: [t.orgId, t.partyId],
+      foreignColumns: [parties.orgId, parties.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'applications_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'applications_lead_org_fk',
+      columns: [t.orgId, t.leadId],
+      foreignColumns: [leads.orgId, leads.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'applications_proposal_org_fk',
+      columns: [t.orgId, t.proposalId],
+      foreignColumns: [proposals.orgId, proposals.id],
+    }).onDelete('set null'),
   ],
 );
 

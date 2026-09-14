@@ -1,0 +1,179 @@
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+stdout | src/zz-audit-races.tmp.test.ts > AUDIT financial races (temporary)
+AUDIT_RESULT {
+  "S1_concurrent_handlers": {
+    "setup": {
+      "lease": 201,
+      "app": "APPROVED",
+      "pay": 201,
+      "amount": 100000
+    },
+    "settled": [
+      "fulfilled",
+      "fulfilled"
+    ],
+    "chargeStatus": "PAID",
+    "payments": {
+      "total": 1,
+      "confirmed": 1
+    },
+    "splitAllocations": {
+      "n": 4,
+      "sum": 200000
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 2,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 200000,
+    "unbalancedTx": 0
+  },
+  "S1b_concurrent_loops": {
+    "settled": [
+      "fulfilled",
+      "fulfilled",
+      "fulfilled",
+      "fulfilled"
+    ],
+    "chargeStatus": "OPEN",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 0,
+      "sum": 0
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 0,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 0,
+    "unbalancedTx": 0
+  },
+  "S4_portal_payment_scheduled": {
+    "chargeStatusAtCreation": "SCHEDULED",
+    "portalPay": 201,
+    "inbox": [
+      {
+        "status": "FAILED",
+        "attempts": 1,
+        "err": "Transição inválida: SCHEDULED → PAID"
+      }
+    ],
+    "chargeStatus": "SCHEDULED",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 0,
+      "sum": 0
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 0,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 0,
+    "unbalancedTx": 0
+  },
+  "S5_two_charges_same_month": {
+    "first": 201,
+    "second": 201
+  },
+  "S9_cancel_then_customer_pays": {
+    "cancel": 200,
+    "inbox": [
+      {
+        "status": "FAILED",
+        "attempts": 1,
+        "err": "Transição inválida: CANCELLED → PAID"
+      }
+    ],
+    "chargeCreationTxStillPosted": 1,
+    "chargeStatus": "CANCELLED",
+    "payments": {
+      "total": 1,
+      "confirmed": 0
+    },
+    "splitAllocations": {
+      "n": 0,
+      "sum": 0
+    },
+    "payouts": {
+      "n": 0,
+      "sum": 0,
+      "parties": 0
+    },
+    "paymentTx": 0,
+    "payoutTx": 0,
+    "refundTx": 0,
+    "cashBalance": 0,
+    "unbalancedTx": 0
+  },
+  "S6_interest_100_days": {
+    "rentCents": 100000,
+    "condoFeeCents": 0,
+    "lateFeeCents": 2000,
+    "interestCents": 100000,
+    "taxesCents": 0,
+    "discountCents": 0,
+    "amountCents": 202000
+  },
+  "S6_interest_30_days": {
+    "rentCents": 100000,
+    "condoFeeCents": 0,
+    "lateFeeCents": 2000,
+    "interestCents": 30000,
+    "taxesCents": 0,
+    "discountCents": 0,
+    "amountCents": 132000
+  },
+  "S8_ledger": {
+    "globalSum": 0,
+    "entries": 22,
+    "unbalancedTx": 0
+  }
+}
+
+ ❯ src/zz-audit-races.tmp.test.ts (6 tests | 1 failed) 4329ms
+     × S2 — control: two events processed sequentially + co-owners 60/40 284ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/zz-audit-races.tmp.test.ts > AUDIT financial races (temporary) > S2 — control: two events processed sequentially + co-owners 60/40
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ chargeAndPay src/zz-audit-races.tmp.test.ts:112:37
+    110|   async function chargeAndPay(cookie: string, leaseId: string, periodS…
+    111|     const ch = await inj('POST', '/charges', cookie, { leaseId, period…
+    112|     const chargeId = ch.body.charge.id as string;
+       |                                     ^
+    113|     const pay = await inj('POST', `/charges/${chargeId}/payment`, cook…
+    114|     return { chargeId, pcid: pay.body.providerChargeId as string, amou…
+ ❯ src/zz-audit-races.tmp.test.ts:156:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  20:38:50
+   Duration  8.26s (transform 1.60s, setup 0ms, import 3.56s, tests 4.33s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/zz-audit-races.tmp.test.ts

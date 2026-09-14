@@ -1,4 +1,4 @@
-import type { AppDb } from '@aluguei/db';
+import type { DbExecutor } from '@aluguei/db';
 import { auditEvents } from '@aluguei/db';
 
 export interface AuditInput {
@@ -10,8 +10,11 @@ export interface AuditInput {
   payload?: Record<string, unknown>;
 }
 
-/** Grava audit event com payload redactada de PII antes do jsonb. */
-export async function writeAudit(db: AppDb, input: AuditInput): Promise<void> {
+/**
+ * Grava audit event com payload redactada de PII antes do jsonb. Aceita `tx`
+ * para que o registro faça parte da mesma transação do efeito auditado.
+ */
+export async function writeAudit(db: DbExecutor, input: AuditInput): Promise<void> {
   const { orgId, actorUserId, action, entityType, entityId, payload } = input;
 
   // Redação preventiva: nunca persistir credenciais/segredos em audit.

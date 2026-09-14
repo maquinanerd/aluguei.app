@@ -30,7 +30,9 @@ export function Tabs({
           aria-selected={value === item.value}
           className={cx('peg-tab', value === item.value && 'peg-tab--active')}
           disabled={item.disabled}
-          onClick={() => { onChange(item.value); }}
+          onClick={() => {
+            onChange(item.value);
+          }}
         >
           {item.icon}
           {item.label}

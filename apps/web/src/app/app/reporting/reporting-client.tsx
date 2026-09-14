@@ -51,11 +51,12 @@ function ReportingBody() {
   const [exportFormat, setExportFormat] = useState('csv');
   const [exporting, setExporting] = useState(false);
 
-  const funnelQ = useQuery<{ points: FunnelPoint[] }>(`/reporting/leads-funnel?periodDays=${periodDays}`, [periodDays]);
+  const funnelQ = useQuery<{ points: FunnelPoint[] }>(
+    `/reporting/leads-funnel?periodDays=${periodDays}`,
+    [periodDays],
+  );
   const revenueQ = useQuery<{ months: RevenueMonth[] }>('/reporting/revenue-monthly', []);
   const spendQ = useQuery<MetaSpend>('/reporting/meta-spend', []);
-
-  if (funnelQ.permissionDenied) return <PermissionDenied title="Sem acesso a relatórios" />;
 
   const funnel = useMemo(() => {
     const points = funnelQ.data?.points ?? [];
@@ -66,15 +67,26 @@ function ReportingBody() {
     return [...totals.entries()].sort((a, b) => b[1] - a[1]);
   }, [funnelQ.data]);
 
+  if (funnelQ.permissionDenied) return <PermissionDenied title="Sem acesso a relatórios" />;
+
   const maxCount = funnel.reduce((m, [, c]) => Math.max(m, c), 1);
 
   async function exportData() {
     setExporting(true);
     try {
-      const res = await fetch(`/api/backend/reporting/export/${exportKind}?format=${exportFormat}&maxRows=1000`, { cache: 'no-store' });
+      const res = await fetch(
+        `/api/backend/reporting/export/${exportKind}?format=${exportFormat}&maxRows=1000`,
+        { cache: 'no-store' },
+      );
       if (!res.ok) {
         const data: unknown = await res.json().catch(() => ({}));
-        const message = typeof data === 'object' && data !== null && 'message' in data && typeof data.message === 'string' ? data.message : 'Falha na exportação';
+        const message =
+          typeof data === 'object' &&
+          data !== null &&
+          'message' in data &&
+          typeof data.message === 'string'
+            ? data.message
+            : 'Falha na exportação';
         toast.error('Falha na exportação', message);
         return;
       }
@@ -105,7 +117,9 @@ function ReportingBody() {
           <Select
             size="sm"
             value={periodDays}
-            onChange={(e) => { setPeriodDays(e.target.value); }}
+            onChange={(e) => {
+              setPeriodDays(e.target.value);
+            }}
             options={[
               { value: '1', label: 'Hoje' },
               { value: '7', label: '7 dias' },
@@ -119,21 +133,39 @@ function ReportingBody() {
       <div className="peg-grid cols-2">
         <Card title="Funil de leads" padless>
           {funnel.length === 0 ? (
-            <EmptyState title="Sem dados" body="Os pontos do funil aparecerão conforme os leads avançam." icon="pieChart" />
+            <EmptyState
+              title="Sem dados"
+              body="Os pontos do funil aparecerão conforme os leads avançam."
+              icon="pieChart"
+            />
           ) : (
             <Stack gap={3} style={{ padding: 20 }}>
               {funnel.map(([status, count]) => (
                 <div key={status} className="peg-stack" style={{ gap: 4 }}>
                   <Group between>
-                    <span style={{ fontSize: 13, fontWeight: 500 }}>{label(FUNNEL_LABELS, status)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 500 }}>
+                      {label(FUNNEL_LABELS, status)}
+                    </span>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{String(count)}</span>
                   </Group>
-                  <div style={{ height: 8, borderRadius: 4, background: 'var(--peg-surface-muted)', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      height: 8,
+                      borderRadius: 4,
+                      background: 'var(--peg-surface-muted)',
+                      overflow: 'hidden',
+                    }}
+                  >
                     <div
                       style={{
                         height: '100%',
                         width: `${String(Math.max(4, (count / maxCount) * 100))}%`,
-                        background: status === 'WON' ? 'var(--peg-success)' : status === 'LOST' ? 'var(--peg-danger)' : 'var(--aluguei-brand)',
+                        background:
+                          status === 'WON'
+                            ? 'var(--peg-success)'
+                            : status === 'LOST'
+                              ? 'var(--peg-danger)'
+                              : 'var(--aluguei-brand)',
                         borderRadius: 4,
                       }}
                     />
@@ -146,16 +178,29 @@ function ReportingBody() {
 
         <Card title="Receita mensal (aluguel)" padless>
           {months.length === 0 ? (
-            <EmptyState title="Sem dados" body="Receita mensal aparecerá com as cobranças pagas." icon="barChart" />
+            <EmptyState
+              title="Sem dados"
+              body="Receita mensal aparecerá com as cobranças pagas."
+              icon="barChart"
+            />
           ) : (
             <Stack gap={3} style={{ padding: 20 }}>
               {months.map((m) => (
                 <div key={m.month} className="peg-stack" style={{ gap: 4 }}>
                   <Group between>
                     <span style={{ fontSize: 13, fontWeight: 500 }}>{m.month}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(m.amountCents)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>
+                      {formatBRL(m.amountCents)}
+                    </span>
                   </Group>
-                  <div style={{ height: 8, borderRadius: 4, background: 'var(--peg-surface-muted)', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      height: 8,
+                      borderRadius: 4,
+                      background: 'var(--peg-surface-muted)',
+                      overflow: 'hidden',
+                    }}
+                  >
                     <div
                       style={{
                         height: '100%',
@@ -177,18 +222,24 @@ function ReportingBody() {
           {spendQ.data && spendQ.data.totalSpendCents > 0 ? (
             <>
               <Group gap={2}>
-                <span style={{ fontSize: 20, fontWeight: 700 }}>{formatBRL(spendQ.data.totalSpendCents)}</span>
+                <span style={{ fontSize: 20, fontWeight: 700 }}>
+                  {formatBRL(spendQ.data.totalSpendCents)}
+                </span>
                 <Badge tone="info">total</Badge>
               </Group>
               {spendQ.data.byCampaign.map((c) => (
                 <Group key={c.campaignId} gap={2}>
-                  <span className="peg-text-mono peg-text-tertiary" style={{ fontSize: 11 }}>{c.campaignId.slice(0, 8)}</span>
+                  <span className="peg-text-mono peg-text-tertiary" style={{ fontSize: 11 }}>
+                    {c.campaignId.slice(0, 8)}
+                  </span>
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{formatBRL(c.spendCents)}</span>
                 </Group>
               ))}
             </>
           ) : (
-            <span className="peg-text-secondary" style={{ fontSize: 13 }}>Nenhum gasto registrado (modo dry-run).</span>
+            <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+              Nenhum gasto registrado (modo dry-run).
+            </span>
           )}
         </Stack>
       </Card>
@@ -199,26 +250,38 @@ function ReportingBody() {
             <Select
               label="Tipo"
               value={exportKind}
-              onChange={(e) => { setExportKind(e.target.value); }}
+              onChange={(e) => {
+                setExportKind(e.target.value);
+              }}
               options={EXPORT_KINDS}
             />
             <Select
               label="Formato"
               value={exportFormat}
-              onChange={(e) => { setExportFormat(e.target.value); }}
+              onChange={(e) => {
+                setExportFormat(e.target.value);
+              }}
               options={[
                 { value: 'csv', label: 'CSV' },
                 { value: 'json', label: 'JSON' },
               ]}
             />
             <div className="peg-group" style={{ alignItems: 'flex-end' }}>
-              <Button variant="brand" loading={exporting} onClick={() => { void exportData(); }} icon={<Icon name="download" size={14} />}>
+              <Button
+                variant="brand"
+                loading={exporting}
+                onClick={() => {
+                  void exportData();
+                }}
+                icon={<Icon name="download" size={14} />}
+              >
                 Exportar
               </Button>
             </div>
           </div>
           <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
-            Limite de 10.000 linhas por exportação. Histórico e agendamento são responsabilidade do domínio.
+            Limite de 10.000 linhas por exportação. Histórico e agendamento são responsabilidade do
+            domínio.
           </p>
         </Stack>
       </Card>

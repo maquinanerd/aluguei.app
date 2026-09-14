@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
-import { timelineEvents } from '@aluguei/db';
+import { leads, parties, proposals, tasks, timelineEvents, visits } from '@aluguei/db';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import {
   createTimelineEventRequestSchema,
@@ -11,7 +11,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 function toTimelineDto(row: typeof timelineEvents.$inferSelect): unknown {
   return timelineEventSchema.parse({
@@ -26,6 +26,15 @@ function toTimelineDto(row: typeof timelineEvents.$inferSelect): unknown {
   });
 }
 
+/** Entidades que um evento de timeline pode referenciar. */
+const TIMELINE_ENTITY_TABLES = {
+  LEAD: leads,
+  PARTY: parties,
+  PROPOSAL: proposals,
+  VISIT: visits,
+  TASK: tasks,
+} as const;
+
 export const timelineRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
@@ -35,6 +44,15 @@ export const timelineRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createTimelineEventRequestSchema.parse(request.body);
+
+      // P0-05: a entidade precisa ser da própria org (id inválido → 404, nunca 500).
+      await assertOwnedByOrg(
+        db,
+        TIMELINE_ENTITY_TABLES[input.entityType],
+        input.entityId,
+        auth.orgId,
+        'Entidade não encontrada',
+      );
 
       const event = first(
         await db

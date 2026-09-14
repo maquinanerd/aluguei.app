@@ -1,9 +1,11 @@
 # Phase 01 — Repository & Design Discovery
 
 ## Objetivo
+
 Descobrir antes de mudar.
 
 Inventariar:
+
 - monorepo;
 - apps/web;
 - packages/ui;
@@ -23,6 +25,7 @@ Inventariar:
 Auditar `design-source`.
 
 Criar:
+
 - `docs/frontend/generated/ROUTE_ENDPOINT_MATRIX.md`
 - `docs/frontend/generated/CURRENT_UI_INVENTORY.md`
 - `docs/frontend/generated/DESIGN_GAP_AUDIT.md`
@@ -30,6 +33,7 @@ Criar:
 Não implementar grandes telas ainda.
 
 Gate:
+
 - nenhuma suposição sobre paths;
 - design authority confirmado;
 - API mapping inicial;

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import { webhookInbox } from '@aluguei/db';
+import type { AppEnv } from '@aluguei/config';
+import { createDbFakePaymentStore, webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
 import {
   getAiProvider,
@@ -34,6 +34,8 @@ export interface RunInboxJobsOptions {
   db: AppDb;
   limit?: number;
   log?: (msg: string) => void;
+  /** Env tipado (loadEnv) — os valores de provider são lidos daqui quando presente. */
+  env?: AppEnv;
   ai?: AiProvider;
   messenger?: WhatsAppMessenger | null;
   inspectionAi?: InspectionAiProvider;
@@ -41,6 +43,8 @@ export interface RunInboxJobsOptions {
   signature?: ISignatureProvider;
   screeningApproveScoreMin?: number;
   payments?: IPaymentProvider | null;
+  /** Job descartado após esgotar as tentativas (alerta operacional). */
+  onDeadLetter?: (job: InboxDeadLetter) => void;
 }
 
 /** Enfileira jobs recorrentes (scheduler de charges e reconciliação) antes do claim. */
@@ -78,85 +82,164 @@ interface InboxJob {
   orgId: string;
   provider: string;
   payload: Record<string, unknown>;
+  attempts: number;
+  /** Marca do claim: garante que só quem está executando conclui o job. */
+  startedAt: unknown;
+}
+
+export interface InboxDeadLetter {
+  id: string;
+  provider: string;
+  attempts: number;
+  lastError: string;
 }
 
 function sanitizeError(message: string): string {
   return message.replace(/https?:\/\/\S+/g, '[url]').slice(0, 500);
 }
 
+const PAYMENT_MAX_ATTEMPTS = 8;
+const DEFAULT_MAX_ATTEMPTS = 3;
+/**
+ * Pagamento tolera mais tentativas: a confirmação no provider pode demorar.
+ * Fragmento literal (constantes internas): como parâmetros, os dois ramos do
+ * CASE ficariam sem tipo e o PostgreSQL recusaria a comparação.
+ */
+const MAX_ATTEMPTS = sql.raw(
+  `(CASE provider WHEN 'PAYMENT' THEN ${String(PAYMENT_MAX_ATTEMPTS)} ELSE ${String(DEFAULT_MAX_ATTEMPTS)} END)`,
+);
+
+function maxAttemptsFor(provider: string): number {
+  return provider === 'PAYMENT' ? PAYMENT_MAX_ATTEMPTS : DEFAULT_MAX_ATTEMPTS;
+}
+
+/**
+ * Execução que passou de 5 minutos sem concluir volta para a fila com backoff —
+ * e vira DEAD quando esgota as tentativas, em vez de reciclar para sempre
+ * (auditoria 2026-09-10, P2-10).
+ */
+async function reapStuckJobs(db: AppDb): Promise<InboxDeadLetter[]> {
+  const result = await db.execute(sql`
+    UPDATE webhook_inbox
+    SET status = CASE WHEN attempts >= ${MAX_ATTEMPTS} THEN 'DEAD' ELSE 'FAILED' END,
+        last_error = 'execução expirada (worker não concluiu em 5 minutos)',
+        finished_at = now(),
+        run_at = now() + LEAST(POWER(2, attempts), 600) * interval '1 second'
+    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'
+    RETURNING id, provider, attempts, status
+  `);
+  return result.rows
+    .filter((row) => String(row.status) === 'DEAD')
+    .map((row) => ({
+      id: String(row.id),
+      provider: String(row.provider),
+      attempts: Number(row.attempts),
+      lastError: 'execução expirada (worker não concluiu em 5 minutos)',
+    }));
+}
+
 /** Claim atômico de eventos do webhook inbox (SKIP LOCKED, mesmo padrão ADR-010). */
 async function claimInboxJobs(db: AppDb, limit: number): Promise<InboxJob[]> {
-  await db.execute(sql`
-    UPDATE webhook_inbox
-    SET status = 'PENDING'
-    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'
-  `);
   const result = await db.execute(sql`
     UPDATE webhook_inbox
     SET status = 'RUNNING', started_at = now(), attempts = attempts + 1
     WHERE id IN (
       SELECT id FROM webhook_inbox
-      WHERE run_at <= now() AND (status = 'PENDING' OR (status = 'FAILED' AND attempts < 3))
+      WHERE run_at <= now()
+        AND (status = 'PENDING' OR (status = 'FAILED' AND attempts < ${MAX_ATTEMPTS}))
       ORDER BY created_at ASC
       LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, org_id, provider, payload
+    RETURNING id, org_id, provider, payload, attempts, started_at
   `);
   return result.rows.map((row) => ({
     id: String(row.id),
     orgId: String(row.org_id),
     provider: String(row.provider),
     payload: (row.payload ?? {}) as Record<string, unknown>,
+    attempts: Number(row.attempts),
+    startedAt: row.started_at,
   }));
 }
 
 /** Executa um ciclo de processamento do inbox. */
 export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ processed: number }> {
-  const { db, limit = 10, log } = opts;
+  const { db, limit = 10, log, env, onDeadLetter } = opts;
   await enqueueSchedulerJobs(db, log);
+  for (const dead of await reapStuckJobs(db)) {
+    log?.(`inbox ${dead.id} (${dead.provider}) DEAD após ${String(dead.attempts)} tentativas`);
+    onDeadLetter?.(dead);
+  }
   const jobs = await claimInboxJobs(db, limit);
-  const ai = opts.ai ?? getAiProvider({ provider: process.env.AI_PROVIDER ?? 'mock' });
+  const ai =
+    opts.ai ?? getAiProvider({ provider: env?.AI_PROVIDER ?? process.env.AI_PROVIDER ?? 'mock' });
   const messenger =
     opts.messenger !== undefined
       ? opts.messenger
       : (() => {
+          const mode = env?.META_MODE ?? (process.env.META_MODE as 'dry_run' | 'live' | undefined);
           const messengerOptions: WhatsAppRegistryOptions = {
-            mode: process.env.META_MODE === 'live' ? 'live' : 'dry_run',
+            mode: mode === 'live' ? 'live' : 'dry_run',
           };
-          if (process.env.WHATSAPP_ACCESS_TOKEN) {
-            messengerOptions.accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+          const accessToken = env?.WHATSAPP_ACCESS_TOKEN ?? process.env.WHATSAPP_ACCESS_TOKEN;
+          if (accessToken) {
+            messengerOptions.accessToken = accessToken;
           }
-          if (process.env.WHATSAPP_PHONE_NUMBER_ID) {
-            messengerOptions.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+          const phoneNumberId =
+            env?.WHATSAPP_PHONE_NUMBER_ID ?? process.env.WHATSAPP_PHONE_NUMBER_ID;
+          if (phoneNumberId) {
+            messengerOptions.phoneNumberId = phoneNumberId;
           }
-          if (process.env.META_WEBHOOK_VERIFY_TOKEN) {
-            messengerOptions.verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
+          const verifyToken =
+            env?.META_WEBHOOK_VERIFY_TOKEN ?? process.env.META_WEBHOOK_VERIFY_TOKEN;
+          if (verifyToken) {
+            messengerOptions.verifyToken = verifyToken;
           }
           return getWhatsAppMessenger(messengerOptions);
         })();
   const inspectionAi = opts.inspectionAi ?? getInspectionAiProvider({});
   const screeningProvider =
     opts.screening ??
-    getScreeningProvider({
-      provider:
-        process.env.SCREENING_PROVIDER ??
-        (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
-    });
+    (() => {
+      const options: Parameters<typeof getScreeningProvider>[0] = {
+        provider:
+          env?.SCREENING_PROVIDER ??
+          process.env.SCREENING_PROVIDER ??
+          (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
+      };
+      const clientId = env?.SERASA_CLIENT_ID ?? process.env.SERASA_CLIENT_ID;
+      const clientSecret = env?.SERASA_CLIENT_SECRET ?? process.env.SERASA_CLIENT_SECRET;
+      if (clientId) {
+        options.clientId = clientId;
+      }
+      if (clientSecret) {
+        options.clientSecret = clientSecret;
+      }
+      return getScreeningProvider(options);
+    })();
   const approveScoreMin =
     opts.screeningApproveScoreMin ??
-    (process.env.SCREENING_APPROVE_SCORE_MIN
-      ? Number(process.env.SCREENING_APPROVE_SCORE_MIN)
+    ((env?.SCREENING_APPROVE_SCORE_MIN ?? process.env.SCREENING_APPROVE_SCORE_MIN)
+      ? Number(env?.SCREENING_APPROVE_SCORE_MIN ?? process.env.SCREENING_APPROVE_SCORE_MIN)
       : undefined);
   const paymentProvider =
     opts.payments !== undefined
       ? opts.payments
       : (() => {
           const paymentOptions: PaymentRegistryOptions = {
-            provider: process.env.PAYMENT_PROVIDER ?? 'FAKE',
+            provider: env?.PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'FAKE',
+            // O FAKE do worker precisa ver as cobranças criadas pela API (P1-13).
+            fakeStore: createDbFakePaymentStore(db),
           };
-          if (process.env.ASAAS_API_KEY) {
-            paymentOptions.apiKey = process.env.ASAAS_API_KEY;
+          const apiKey = env?.ASAAS_API_KEY ?? process.env.ASAAS_API_KEY;
+          if (apiKey) {
+            paymentOptions.apiKey = apiKey;
+          }
+          const asaasEnv =
+            env?.ASAAS_ENV ?? (process.env.ASAAS_ENV as 'sandbox' | 'production' | undefined);
+          if (asaasEnv) {
+            paymentOptions.env = asaasEnv;
           }
           return getPaymentProvider(paymentOptions);
         })();
@@ -188,21 +271,42 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
       } else {
         throw new Error(`provider desconhecido: ${job.provider}`);
       }
-      await db
-        .update(webhookInbox)
-        .set({ status: 'SUCCESS', finishedAt: new Date() })
-        .where(and(eq(webhookInbox.id, job.id), eq(webhookInbox.status, 'RUNNING')));
-      log?.(`inbox ${job.id} (${job.provider}) OK`);
+      // Só conclui quem ainda detém o claim: uma execução expirada e reenfileirada
+      // não sobrescreve o resultado da tentativa seguinte.
+      const finished = await db.execute(sql`
+        UPDATE webhook_inbox SET status = 'SUCCESS', finished_at = now()
+        WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
+        RETURNING id
+      `);
+      log?.(
+        finished.rows.length > 0
+          ? `inbox ${job.id} (${job.provider}) OK`
+          : `inbox ${job.id} (${job.provider}) concluído fora do claim — resultado ignorado`,
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       const safe = sanitizeError(message);
-      await db.execute(
-        sql`UPDATE webhook_inbox
-            SET status = 'FAILED', last_error = ${safe}, finished_at = now(),
-                run_at = now() + LEAST(POWER(2, attempts), 600) * interval '1 second'
-            WHERE id = ${job.id}`,
-      );
-      log?.(`inbox ${job.id} (${job.provider}) FAILED: ${safe}`);
+      const failed = await db.execute(sql`
+        UPDATE webhook_inbox
+        SET status = CASE WHEN attempts >= ${maxAttemptsFor(job.provider)} THEN 'DEAD' ELSE 'FAILED' END,
+            last_error = ${safe}, finished_at = now(),
+            run_at = now() + LEAST(POWER(2, attempts), 600) * interval '1 second'
+        WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
+        RETURNING status
+      `);
+      // `rows` vem como Record<string, unknown>: sem tipar, o status cairia em
+      // "[object Object]" no log em vez de FAILED/DEAD.
+      const [outcome] = failed.rows as Array<{ status?: string } | undefined>;
+      const status = outcome?.status ?? 'FAILED';
+      log?.(`inbox ${job.id} (${job.provider}) ${status}: ${safe}`);
+      if (status === 'DEAD') {
+        onDeadLetter?.({
+          id: job.id,
+          provider: job.provider,
+          attempts: job.attempts,
+          lastError: safe,
+        });
+      }
     }
   }
 

@@ -1,12 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  Badge,
-  DataTable,
-  Select,
-  ToastProvider,
-} from '@aluguei/ui';
+import { Badge, DataTable, Select, ToastProvider } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
@@ -34,7 +29,10 @@ function PayoutsBody() {
     return `/payouts?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ payouts: Payout[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    payouts: Payout[];
+    total: number;
+  }>(queryPath, [queryPath]);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a repasses" />;
 
@@ -48,7 +46,9 @@ function PayoutsBody() {
       key: 'status',
       header: 'Status',
       render: (p) => (
-        <Badge tone={p.status === 'PAID' ? 'success' : p.status === 'FAILED' ? 'danger' : 'warning'}>
+        <Badge
+          tone={p.status === 'PAID' ? 'success' : p.status === 'FAILED' ? 'danger' : 'warning'}
+        >
           {label(PAYOUT_STATUS_LABELS, p.status)}
         </Badge>
       ),

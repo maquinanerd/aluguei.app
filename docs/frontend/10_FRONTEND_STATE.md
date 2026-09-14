@@ -18,6 +18,7 @@ responsive: green
 secret_scan: green
 
 ## Completed
+
 - Phase 01 — Repository & Design Discovery.
 - Phase 02 — PEG Foundation & Calibration (packages/ui + calibration screen).
 - Phase 03 — Application Shell & Navigation (sidebar/topbar/breadcrumbs/drawer/RBAC nav).
@@ -43,12 +44,15 @@ secret_scan: green
   - Relatório final: docs/frontend/FINAL_FRONTEND_REPORT.md.
 
 ## In progress
+
 - none
 
 ## Next
+
 - none — painel completo.
 
 ## Blockers
+
 - Integrações externas sem credencial: IMPLEMENTED_NOT_LIVE_VERIFIED (Meta Ads,
   WhatsApp, Google Maps, crédito, assinatura, pagamentos) — mocks/dry-run cobrem.
 - NOT_APPLICABLE_BACKEND_GAP (documentadas): auditoria de leitura, empresas separadas,
@@ -56,4 +60,5 @@ secret_scan: green
   role em /parties, timeline de imóveis.
 
 ## Rule
+
 Update this file at every committed phase.

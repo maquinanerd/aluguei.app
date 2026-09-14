@@ -11,7 +11,9 @@ export const CHARGE_STATUSES = [
 export type ChargeStatus = (typeof CHARGE_STATUSES)[number];
 
 const TRANSITIONS: Record<ChargeStatus, readonly ChargeStatus[]> = {
-  SCHEDULED: ['OPEN', 'CANCELLED'],
+  // SCHEDULED → PAID: cobrança agendada paga antes do vencimento (pelo portal,
+  // por exemplo) precisa ser liquidada, não recusada (auditoria 2026-09-10, P0-03).
+  SCHEDULED: ['OPEN', 'PAID', 'CANCELLED'],
   OPEN: ['PAID', 'OVERDUE', 'CANCELLED'],
   OVERDUE: ['PAID', 'OPEN'],
   PAID: ['REFUNDED'],
@@ -72,13 +74,23 @@ export function transitionLease(from: LeaseStatus, to: LeaseStatus): LeaseStatus
   return to;
 }
 
-export const PAYMENT_STATUSES = ['PENDING', 'CONFIRMED', 'FAILED', 'REFUNDED'] as const;
+export const PAYMENT_STATUSES = [
+  'PENDING',
+  'CONFIRMED',
+  'FAILED',
+  'CANCELLED',
+  'REFUNDED',
+] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 const PAYMENT_TRANSITIONS: Record<PaymentStatus, readonly PaymentStatus[]> = {
-  PENDING: ['CONFIRMED', 'FAILED'],
+  PENDING: ['CONFIRMED', 'FAILED', 'CANCELLED'],
   CONFIRMED: ['REFUNDED'],
-  FAILED: [],
+  // O provider é a autoridade sobre o dinheiro: se uma tentativa falha ou
+  // substituída for paga mesmo assim, o recebimento tem de ser registrado
+  // (auditoria 2026-09-10, P0-03) — aplicado à cobrança ou como não aplicado.
+  FAILED: ['CONFIRMED'],
+  CANCELLED: ['CONFIRMED'],
   REFUNDED: [],
 };
 

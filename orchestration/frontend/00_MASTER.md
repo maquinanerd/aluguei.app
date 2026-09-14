@@ -4,6 +4,7 @@ Estados:
 NOT_STARTED → DISCOVERED → MAPPED → PLANNED → IMPLEMENTING → REVIEWING → VISUAL_QA → ACCESSIBILITY → QA → GREEN → COMMITTED → DONE
 
 ## Fases
+
 01 Discovery
 02 Foundation & Calibration
 03 Shell & Navigation
@@ -18,7 +19,9 @@ NOT_STARTED → DISCOVERED → MAPPED → PLANNED → IMPLEMENTING → REVIEWING
 12 Responsive + Final Audit
 
 ## Protocolo
+
 Para cada fase:
+
 1. leia state;
 2. leia somente arquivo da fase;
 3. inspecione repo real;

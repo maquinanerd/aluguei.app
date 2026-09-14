@@ -41,7 +41,10 @@ function ReconciliationBody() {
     return `/reconciliations?${params.toString()}`;
   }, [status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ reconciliations: Reconciliation[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    reconciliations: Reconciliation[];
+    total: number;
+  }>(queryPath, [queryPath]);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso à conciliação" />;
 
@@ -68,7 +71,11 @@ function ReconciliationBody() {
         </span>
       ),
     },
-    { key: 'provider', header: 'Provedor', render: (r) => <Badge tone="neutral">{r.provider}</Badge> },
+    {
+      key: 'provider',
+      header: 'Provedor',
+      render: (r) => <Badge tone="neutral">{r.provider}</Badge>,
+    },
     {
       key: 'total',
       header: 'Totais',
@@ -82,7 +89,11 @@ function ReconciliationBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (r) => <Badge tone={RECONCILIATION_STATUS_TONES[r.status] ?? 'neutral'}>{label(RECONCILIATION_STATUS_LABELS, r.status)}</Badge>,
+      render: (r) => (
+        <Badge tone={RECONCILIATION_STATUS_TONES[r.status] ?? 'neutral'}>
+          {label(RECONCILIATION_STATUS_LABELS, r.status)}
+        </Badge>
+      ),
     },
   ];
 
@@ -95,14 +106,27 @@ function ReconciliationBody() {
           <Select
             size="sm"
             value={status}
-            onChange={(e) => { setStatus(e.target.value); }}
+            onChange={(e) => {
+              setStatus(e.target.value);
+            }}
             placeholder="Todos os status"
-            options={Object.entries(RECONCILIATION_STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+            options={Object.entries(RECONCILIATION_STATUS_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            }))}
             aria-label="Filtrar conciliações"
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="refresh" size={14} />} loading={busy} onClick={() => { void run(); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="refresh" size={14} />}
+            loading={busy}
+            onClick={() => {
+              void run();
+            }}
+          >
             Conciliar agora
           </Button>
         }

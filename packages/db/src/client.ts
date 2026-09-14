@@ -8,6 +8,16 @@ import * as schema from './schema/index.js';
 
 export type AppDb = ReturnType<typeof drizzleNode<typeof schema>>;
 
+/**
+ * Transação do drizzle. As funções que mexem em dinheiro recebem `tx` (nunca
+ * `db`): usar a conexão de fora dentro de uma transação trava no PGlite e, no
+ * PostgreSQL, escreveria fora da transação sem aviso.
+ */
+export type AppTx = Parameters<Parameters<AppDb['transaction']>[0]>[0];
+
+/** `db` ou `tx` — para helpers que rodam nos dois contextos. */
+export type DbExecutor = AppDb | AppTx;
+
 const MIGRATIONS_DIR = fileURLToPath(new URL('../drizzle', import.meta.url));
 
 /** Conecta ao PostgreSQL real (produção/dev). */

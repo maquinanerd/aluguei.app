@@ -62,12 +62,15 @@ function ChargesBody() {
     return `/charges?${params.toString()}`;
   }, [page, status]);
 
-  const { data, loading, error, permissionDenied, reload } = useQuery<{ charges: Charge[]; total: number }>(queryPath, [queryPath]);
+  const { data, loading, error, permissionDenied, reload } = useQuery<{
+    charges: Charge[];
+    total: number;
+  }>(queryPath, [queryPath]);
   const leasesQ = useQuery<{ leases: Lease[]; total: number }>('/leases?limit=100', []);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a cobranças" />;
 
-  const detail = detailId ? data?.charges.find((c) => c.id === detailId) ?? null : null;
+  const detail = detailId ? (data?.charges.find((c) => c.id === detailId) ?? null) : null;
 
   async function cancel() {
     if (!cancelCharge) return;
@@ -91,7 +94,11 @@ function ChargesBody() {
       sortable: true,
       render: (c) => <span style={{ fontWeight: 500 }}>{formatDate(c.periodStart)}</span>,
     },
-    { key: 'due', header: 'Vencimento', render: (c) => <span className="peg-text-secondary">{formatDate(c.dueDate)}</span> },
+    {
+      key: 'due',
+      header: 'Vencimento',
+      render: (c) => <span className="peg-text-secondary">{formatDate(c.dueDate)}</span>,
+    },
     {
       key: 'amount',
       header: 'Valor',
@@ -100,7 +107,11 @@ function ChargesBody() {
     {
       key: 'status',
       header: 'Status',
-      render: (c) => <Badge tone={CHARGE_STATUS_TONES[c.status] ?? 'neutral'}>{label(CHARGE_STATUS_LABELS, c.status)}</Badge>,
+      render: (c) => (
+        <Badge tone={CHARGE_STATUS_TONES[c.status] ?? 'neutral'}>
+          {label(CHARGE_STATUS_LABELS, c.status)}
+        </Badge>
+      ),
     },
     {
       key: 'actions',
@@ -109,16 +120,35 @@ function ChargesBody() {
         <Group gap={1}>
           {c.status === 'OPEN' || c.status === 'OVERDUE' ? (
             <>
-              <Button size="xs" variant="brand" onClick={() => { setDetailId(c.id); setPayOpen(true); }}>
+              <Button
+                size="xs"
+                variant="brand"
+                onClick={() => {
+                  setDetailId(c.id);
+                  setPayOpen(true);
+                }}
+              >
                 Receber
               </Button>
-              <Button size="xs" variant="tertiary" onClick={() => { setCancelCharge(c); }}>
+              <Button
+                size="xs"
+                variant="tertiary"
+                onClick={() => {
+                  setCancelCharge(c);
+                }}
+              >
                 Cancelar
               </Button>
             </>
           ) : null}
           {c.status === 'PAID' ? (
-            <Button size="xs" variant="tertiary" onClick={() => { void refund(c.id); }}>
+            <Button
+              size="xs"
+              variant="tertiary"
+              onClick={() => {
+                void refund(c.id);
+              }}
+            >
               Estornar
             </Button>
           ) : null}
@@ -159,7 +189,14 @@ function ChargesBody() {
           />
         }
         actions={
-          <Button variant="brand" size="sm" icon={<Icon name="plus" size={14} />} onClick={() => { setCreateOpen(true); }}>
+          <Button
+            variant="brand"
+            size="sm"
+            icon={<Icon name="plus" size={14} />}
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+          >
             Nova cobrança
           </Button>
         }
@@ -168,20 +205,31 @@ function ChargesBody() {
         columns={columns}
         rows={data?.charges ?? []}
         loading={loading}
-        onRowClick={(c) => { setDetailId(c.id); }}
+        onRowClick={(c) => {
+          setDetailId(c.id);
+        }}
         emptyTitle="Nenhuma cobrança"
         emptyBody="Gere cobranças a partir de uma locação ativa."
         emptyActionLabel="Nova cobrança"
-        onEmptyAction={() => { setCreateOpen(true); }}
+        onEmptyAction={() => {
+          setCreateOpen(true);
+        }}
       />
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
 
       <Drawer
         open={detail !== null}
-        onClose={() => { setDetailId(null); }}
+        onClose={() => {
+          setDetailId(null);
+        }}
         title="Detalhe da cobrança"
         footer={
-          <Button variant="secondary" onClick={() => { setDetailId(null); }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setDetailId(null);
+            }}
+          >
             Fechar
           </Button>
         }
@@ -189,26 +237,52 @@ function ChargesBody() {
         {detail ? (
           <Stack gap={4}>
             <Group between>
-              <span className="peg-text-secondary" style={{ fontSize: 13 }}>Período</span>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>{formatDate(detail.periodStart)}</span>
+              <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                Período
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>
+                {formatDate(detail.periodStart)}
+              </span>
             </Group>
             <Group between>
-              <span className="peg-text-secondary" style={{ fontSize: 13 }}>Vencimento</span>
+              <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                Vencimento
+              </span>
               <span style={{ fontSize: 14, fontWeight: 500 }}>{formatDate(detail.dueDate)}</span>
             </Group>
             <Group between>
-              <span className="peg-text-secondary" style={{ fontSize: 13 }}>Status</span>
-              <Badge tone={CHARGE_STATUS_TONES[detail.status] ?? 'neutral'}>{label(CHARGE_STATUS_LABELS, detail.status)}</Badge>
+              <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                Status
+              </span>
+              <Badge tone={CHARGE_STATUS_TONES[detail.status] ?? 'neutral'}>
+                {label(CHARGE_STATUS_LABELS, detail.status)}
+              </Badge>
             </Group>
-            <div style={{ borderTop: '1px solid var(--peg-border)', paddingTop: 12 }} className="peg-stack">
+            <div
+              style={{ borderTop: '1px solid var(--peg-border)', paddingTop: 12 }}
+              className="peg-stack"
+            >
               <BreakdownRow label="Aluguel" value={detail.rentCents} />
-              {detail.condoFeeCents > 0 ? <BreakdownRow label="Condomínio" value={detail.condoFeeCents} /> : null}
-              {detail.lateFeeCents > 0 ? <BreakdownRow label="Multa" value={detail.lateFeeCents} /> : null}
-              {detail.interestCents > 0 ? <BreakdownRow label="Juros" value={detail.interestCents} /> : null}
-              {detail.discountCents > 0 ? <BreakdownRow label="Desconto" value={-detail.discountCents} /> : null}
-              <div style={{ borderTop: '1px solid var(--peg-border)', marginTop: 4, paddingTop: 8 }} className="peg-group between">
+              {detail.condoFeeCents > 0 ? (
+                <BreakdownRow label="Condomínio" value={detail.condoFeeCents} />
+              ) : null}
+              {detail.lateFeeCents > 0 ? (
+                <BreakdownRow label="Multa" value={detail.lateFeeCents} />
+              ) : null}
+              {detail.interestCents > 0 ? (
+                <BreakdownRow label="Juros" value={detail.interestCents} />
+              ) : null}
+              {detail.discountCents > 0 ? (
+                <BreakdownRow label="Desconto" value={-detail.discountCents} />
+              ) : null}
+              <div
+                style={{ borderTop: '1px solid var(--peg-border)', marginTop: 4, paddingTop: 8 }}
+                className="peg-group between"
+              >
                 <span style={{ fontSize: 13, fontWeight: 600 }}>Total</span>
-                <span style={{ fontSize: 15, fontWeight: 700 }}>{formatBRL(detail.amountCents)}</span>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>
+                  {formatBRL(detail.amountCents)}
+                </span>
               </div>
             </div>
           </Stack>
@@ -217,7 +291,9 @@ function ChargesBody() {
 
       <CreateChargeModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); }}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
         leases={leasesQ.data?.leases ?? []}
         onCreated={() => {
           toast.success('Cobrança criada');
@@ -228,7 +304,9 @@ function ChargesBody() {
 
       <PaymentModal
         open={payOpen}
-        onClose={() => { setPayOpen(false); }}
+        onClose={() => {
+          setPayOpen(false);
+        }}
         charge={detail}
         onDone={() => {
           setPayOpen(false);
@@ -240,8 +318,12 @@ function ChargesBody() {
 
       <ConfirmModal
         open={cancelCharge !== null}
-        onClose={() => { setCancelCharge(null); }}
-        onConfirm={() => { void cancel(); }}
+        onClose={() => {
+          setCancelCharge(null);
+        }}
+        onConfirm={() => {
+          void cancel();
+        }}
         title="Cancelar cobrança"
         body="Cancelar esta cobrança? A ação é auditada."
         confirmLabel="Cancelar cobrança"
@@ -255,7 +337,9 @@ function ChargesBody() {
 function BreakdownRow({ label, value }: { label: string; value: number }) {
   return (
     <div className="peg-group between" style={{ padding: '2px 0' }}>
-      <span className="peg-text-secondary" style={{ fontSize: 13 }}>{label}</span>
+      <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+        {label}
+      </span>
       <span style={{ fontSize: 13 }}>{formatBRL(value)}</span>
     </div>
   );
@@ -302,26 +386,57 @@ function CreateChargeModal({
       title="Nova cobrança"
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="create-charge-form" loading={busy}>Criar</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="create-charge-form" loading={busy}>
+            Criar
+          </Button>
         </>
       }
     >
-      <form id="create-charge-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void submit(e); }}>
+      <form
+        id="create-charge-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
         <Select
           label="Locação"
           required
           value={leaseId}
-          onChange={(e) => { setLeaseId(e.target.value); }}
+          onChange={(e) => {
+            setLeaseId(e.target.value);
+          }}
           placeholder="Selecione a locação…"
           options={leases.map((l) => ({ value: l.id, label: l.id.slice(0, 8) }))}
         />
         <input type="hidden" name="periodStart" value="" />
-        <input type="date" aria-label="Vencimento (opcional)" value={dueDate} onChange={(e) => { setDueDate(e.target.value); }} style={{ display: 'none' }} />
-        <Button size="sm" variant="tertiary" onClick={() => { setDueDate(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)); }}>
+        <input
+          type="date"
+          aria-label="Vencimento (opcional)"
+          value={dueDate}
+          onChange={(e) => {
+            setDueDate(e.target.value);
+          }}
+          style={{ display: 'none' }}
+        />
+        <Button
+          size="sm"
+          variant="tertiary"
+          onClick={() => {
+            setDueDate(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
+          }}
+        >
           Usar vencimento padrão (+30 dias)
         </Button>
-        {dueDate ? <span className="peg-text-tertiary" style={{ fontSize: 12 }}>Vencimento: {formatDate(new Date(dueDate).toISOString())}</span> : null}
+        {dueDate ? (
+          <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+            Vencimento: {formatDate(new Date(dueDate).toISOString())}
+          </span>
+        ) : null}
       </form>
     </Modal>
   );
@@ -347,10 +462,13 @@ function PaymentModal({
     if (!charge) return;
     setBusy(true);
     try {
-      const res = await apiClient<{ pixQrCode: string | null; boletoUrl: string | null }>(`/charges/${charge.id}/payment`, {
-        method: 'POST',
-        body: { method },
-      });
+      const res = await apiClient<{ pixQrCode: string | null; boletoUrl: string | null }>(
+        `/charges/${charge.id}/payment`,
+        {
+          method: 'POST',
+          body: { method },
+        },
+      );
       if (res.pixQrCode) {
         toast.info('Pix gerado (sandbox)', res.pixQrCode.slice(0, 40));
       }
@@ -372,16 +490,29 @@ function PaymentModal({
       title={charge ? `Receber ${formatBRL(charge.amountCents)}` : 'Receber'}
       footer={
         <>
-          <Button variant="tertiary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit" form="pay-form" loading={busy}>Iniciar pagamento</Button>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="pay-form" loading={busy}>
+            Iniciar pagamento
+          </Button>
         </>
       }
     >
-      <form id="pay-form" className="peg-stack" style={{ gap: 16 }} onSubmit={(e) => { void pay(e); }}>
+      <form
+        id="pay-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void pay(e);
+        }}
+      >
         <Select
           label="Método"
           value={method}
-          onChange={(e) => { setMethod(e.target.value); }}
+          onChange={(e) => {
+            setMethod(e.target.value);
+          }}
           options={[
             { value: 'PIX', label: 'Pix' },
             { value: 'BOLETO', label: 'Boleto' },

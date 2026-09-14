@@ -20,13 +20,17 @@ O agente deve registrar aqui apenas depend�ncias externas reais: credenciais, 
 
 ## Fase 05 � IMPLEMENTED_NOT_LIVE_VERIFIED
 
-- `MetaWhatsAppAdapter` (Cloud API REST) implementado com zod, timeout 10s e verify token; sem credencial real de homologa��o ? n�o validado contra a Meta live (`META_MODE=dry_run` usa FakeWhatsAppMessenger).
-- `AiProvider` com `MockAiProvider` (regras determin�sticas); adapters OpenAI/Gemini reais adiados (registry � o gancho; sem chave nunca chama LLM externo).
+- `MetaWhatsAppAdapter` (Cloud API REST) auditado contra a doc oficial em 17/08/2026
+  (docs/integrations/WHATSAPP_HOMOLOGATION.md): default da Graph API atualizado para v25.0,
+  envio de template (`sendTemplateMessage`), `testConnection` (GET metadata do número) e erro
+  tipado `WhatsAppProviderError` (retryable p/ 429/5xx/throttling). Sem credencial real de
+  homologação ? n�o validado contra a Meta live (`META_MODE=dry_run` usa FakeWhatsAppMessenger).
+- `AiProvider` com `MockAiProvider` (regras determin�sticas) como default; adapters reais `OpenAiAiProvider`/`GeminiAiProvider` implementados (Fase 16, `docs/integrations/AI_RUNTIME.md`) � sem chave (`OPENAI_API_KEY`/`GEMINI_API_KEY` ausentes) nunca chama LLM externo (registry cai para mock). Classifica��o: IMPLEMENTED_NOT_LIVE_VERIFIED.
 - Assinatura `X-Hub-Signature-256` validada quando `META_APP_SECRET` presente; sem secret, a seguran�a vem do verify token trocado na assinatura do webhook (documentado em INTEGRATIONS.md).
 
 ## Fase 06 � IMPLEMENTED_NOT_LIVE_VERIFIED
 
-- `MockInspectionAiProvider` (transcri��o/sugest�es determin�sticas por regras) � o padr�o; adapters reais de transcri��o/vis�o (LLM) exigem chave e devem obedecer o contrato de payload com EVID�NCIA OBSERV�VEL apenas (nunca causa/diagn�stico) � nota em docs/AI_STRATEGY.md. Sem credencial ? mock, nunca LLM externo.
+- `MockInspectionAiProvider` (transcri��o/sugest�es determin�sticas por regras) � o padr�o; adapter real `OpenAiInspectionAiProvider` implementado (Fase 16) � exige chave E `fetchMedia` (storage plugado pelo chamador); sem isso ? mock, nunca LLM externo. Contrato de payload com EVID�NCIA OBSERV�VEL apenas (nunca causa/diagn�stico) � nota em docs/AI_STRATEGY.md e docs/integrations/AI_RUNTIME.md.
 - Assinatura de vistoria (SIGNED) reservada: transi��o existe na m�quina, rota rejeita com 400 at� a Fase 07. PDF de relat�rio adiado para a fase de relat�rios (10) � endpoint de snapshot estruturado dispon�vel.
 
 ## Fase 07 � IMPLEMENTED_NOT_LIVE_VERIFIED
@@ -64,3 +68,44 @@ O agente deve registrar aqui apenas depend�ncias externas reais: credenciais, 
 ## Fase 12 - Final Audit
 
 - Auditoria de seguranca final: 0 P0, 3 P1 corrigidos (webhook payments agora confirma no provider antes de creditar + valida ASAAS_WEBHOOK_TOKEN; webhook WhatsApp valida X-Hub-Signature-256 quando META_APP_SECRET configurado; UPDATE_BUDGET valida caps da org na rota, tool MCP e worker) e 7 P2 tratados (ownership em intents, MCP_ALLOWED_ORG_ID, redacao EAAG, refund com reversao contabil + confirmacao no provider, overrides uuid). P2-7 (content de contrato antes de SIGNED para staff) e decisao documentada: staff interno revisa antes de enviar — portal externo segue o gate SIGNED.
+
+## Fase 12 - BLOCKED_PROVIDER_CONTRACT (screening)
+
+- Serasa Experian "Score e Atributos via API" (score PF 0-1000): adapter ESQUELETO em packages/integrations/src/screening/serasa.ts implementando IScreeningProvider. Documentacao publica (portal-integracao, 17/08/2026) confirma produto, faixa 0-1000, HTTPS/POST TLS 1.2+, autenticacao IAM e sandbox (logon 90 dias), mas endpoint, layout de chamada/retorno e detalhes de auth exigem o layout do produto CONTRATADO - classificacao BLOCKED_PROVIDER_CONTRACT (docs/integrations/SERASA_HOMOLOGATION.md). requestCreditScreening lanca DomainError tipado com instrucoes (representante / 11 3003-7372) e NUNCA chama a rede.
+- SPC Brasil: idem (BLOCKED_PROVIDER_CONTRACT) - produtos comerciais sem documentacao tecnica publica de API sem contrato.
+
+## Fase 05 (atualizacao 17/08/2026) - WhatsApp Cloud API homologacao
+
+- WhatsApp permanece IMPLEMENTED_NOT_LIVE_VERIFIED: adapter auditado contra a doc oficial vigente
+  (Graph API v25.0; docs/integrations/WHATSAPP_HOMOLOGATION.md), mas a Meta bloqueia fetch direto
+  das docs (400) - consulta via Wayback Machine (snapshots 05/07 a 10/08/2026). Para homologar:
+  (1) WABA real + numero registrado (ou test phone number 555 do sandbox), (2) system user access
+  token permanente com whatsapp_business_messaging (+ gestao para templates), (3) META_APP_SECRET
+  (X-Hub-Signature-256) + META_WEBHOOK_VERIFY_TOKEN, (4) URL HTTPS publica do /webhooks/whatsapp,
+  (5) templates aprovados p/ mensagens fora da janela. Nenhuma chamada real feita; envio real
+  somente apos validacao no sandbox com evidencia registrada.
+
+## Fase 09 (atualizacao 17/08/2026) - Meta Marketing API (Meta Ads) homologacao
+
+- `MetaGraphAdsProvider` (packages/integrations/src/meta-ads/graph.ts) implementado e testado
+  com fetch mock (23 testes) contra a doc oficial vigente (Marketing API v25.0, consulta via
+  Wayback Machine 09/05 a 15/07/2026 - o site bloqueia fetch direto com 400):
+  docs/integrations/META_ADS_HOMOLOGATION.md. Classificacao IMPLEMENTED_NOT_LIVE_VERIFIED:
+  sem app + ad account + token de homologacao nenhuma chamada real foi executada; o registry
+  NAO foi alterado (live sem credencial continua null - rotas respondem "Meta Ads nao configurado").
+- Ajustes do pipeline exigidos antes do live (relatados, nao alterados): orcamento e OU na
+  campanha OU no ad set (hoje o pipeline envia nos dois; adapter normaliza preferindo a
+  campanha); mediaRefs locais nao sao image_hash da Meta (exige upload via /act_{id}/adimages
+  - resolver); object_story_spec exige page_id (adapter usa defaultPageId); updateCreative e
+    impossivel na Graph API (conteudo do creative e imutavel - adapter lanca CREATIVE_IMMUTABLE;
+    UPDATE_CREATIVE precisa criar novo creative e re-apontar o ad); formato de geos a confirmar;
+    optimization_goal default LINK_CLICKS (alinhado a OUTCOME_TRAFFIC); carousel via
+    child_attachments e decisao de produto; special_ad_category_country nao enviado (default:
+    pais fiscal); ativacao do registry depende dos resolvers acima.
+- Housing/Special Ad Category: confirmado na doc oficial que toda criacao de campanha exige
+  special_ad_categories (HOUSING p/ imoveis) + special_ad_category_country recomendado;
+  restricoes de targeting Housing (idade 18-65+, sem genero, sem custom/lookalike audiences,
+  geo minimo) ja validadas no dominio (validateHousingTargeting) antes de qualquer envio.
+- Webhook /webhooks/meta: formato entry[].changes[] + X-Hub-Signature-256 ja implementado na
+  API (META_APP_SECRET obrigatorio em producao); conteudo dos eventos de ads a validar na
+  homologacao.

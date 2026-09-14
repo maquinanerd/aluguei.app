@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { Icon, type IconName } from './icons';
@@ -54,7 +47,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         item.body = body;
       }
       setToasts((prev) => [...prev, item]);
-      window.setTimeout(() => { dismiss(id); }, 5000);
+      window.setTimeout(() => {
+        dismiss(id);
+      }, 5000);
     },
     [dismiss],
   );
@@ -62,10 +57,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ToastContextValue>(
     () => ({
       toast,
-      success: (t, b) => { toast('success', t, b); },
-      error: (t, b) => { toast('error', t, b); },
-      info: (t, b) => { toast('info', t, b); },
-      warning: (t, b) => { toast('warning', t, b); },
+      success: (t, b) => {
+        toast('success', t, b);
+      },
+      error: (t, b) => {
+        toast('error', t, b);
+      },
+      info: (t, b) => {
+        toast('info', t, b);
+      },
+      warning: (t, b) => {
+        toast('warning', t, b);
+      },
     }),
     [toast],
   );
@@ -85,7 +88,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             </div>
             <button
               type="button"
-              onClick={() => { dismiss(t.id); }}
+              onClick={() => {
+                dismiss(t.id);
+              }}
               aria-label="Fechar notificação"
               className="peg-tag__remove"
               style={{ marginLeft: 'auto' }}

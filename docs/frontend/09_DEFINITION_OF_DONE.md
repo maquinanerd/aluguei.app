@@ -29,6 +29,7 @@ Uma rota/tela está pronta quando:
 - P0/P1 = 0.
 
 ## Gate da fase
+
 - lint;
 - typecheck;
 - unit/component tests;

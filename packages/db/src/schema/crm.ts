@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
+  foreignKey,
   index,
   boolean,
   integer,
@@ -7,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -26,7 +28,11 @@ export const parties = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('parties_org_idx').on(t.orgId)],
+  (t) => [
+    index('parties_org_idx').on(t.orgId),
+    // Alvo de FK composta: a referência passa a carregar a organização (P0-05).
+    unique('parties_org_id_unique').on(t.orgId, t.id),
+  ],
 );
 
 export const partyRoles = pgTable(
@@ -139,7 +145,7 @@ export const leads = pgTable(
     status: text('status').notNull().default('NEW'), // funil validado no domínio
     source: text('source'),
     channel: text('channel'), // PORTAL | WHATSAPP | INDICACAO | META | MANUAL ...
-    partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
+    partyId: uuid('party_id'), // FK composta (org_id, party_id) — ver abaixo
     ownerUserId: uuid('owner_user_id').references(() => users.id, { onDelete: 'set null' }),
     budgetMinCents: integer('budget_min_cents'),
     budgetMaxCents: integer('budget_max_cents'),
@@ -150,6 +156,14 @@ export const leads = pgTable(
   (t) => [
     index('leads_org_status_idx').on(t.orgId, t.status),
     index('leads_org_created_idx').on(t.orgId, t.createdAt),
+    unique('leads_org_id_unique').on(t.orgId, t.id),
+    // Lead de uma imobiliária não aponta para pessoa de outra, mesmo que uma
+    // rota futura esqueça a checagem (auditoria 2026-09-10, P0-05).
+    foreignKey({
+      name: 'leads_party_org_fk',
+      columns: [t.orgId, t.partyId],
+      foreignColumns: [parties.orgId, parties.id],
+    }).onDelete('set null'),
   ],
 );
 
@@ -160,16 +174,24 @@ export const leadPropertyInterests = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    leadId: uuid('lead_id')
-      .notNull()
-      .references(() => leads.id, { onDelete: 'cascade' }),
-    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
-    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
+    leadId: uuid('lead_id').notNull(),
+    // ON DELETE SET NULL preserva o registro de CRM quando o imóvel some
+    propertyId: uuid('property_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex('lead_property_interests_lead_property_unique').on(t.leadId, t.propertyId),
     index('lead_property_interests_property_idx').on(t.propertyId),
+    foreignKey({
+      name: 'lead_interests_lead_org_fk',
+      columns: [t.orgId, t.leadId],
+      foreignColumns: [leads.orgId, leads.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'lead_interests_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('set null'),
   ],
 );
 
@@ -204,17 +226,33 @@ export const visits = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
-    partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
-    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
-    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
+    leadId: uuid('lead_id'),
+    partyId: uuid('party_id'),
+    propertyId: uuid('property_id'),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
     status: text('status').notNull().default('SCHEDULED'), // SCHEDULED | CONFIRMED | DONE | CANCELLED | NO_SHOW
     note: text('note'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('visits_org_scheduled_idx').on(t.orgId, t.scheduledAt)],
+  (t) => [
+    index('visits_org_scheduled_idx').on(t.orgId, t.scheduledAt),
+    foreignKey({
+      name: 'visits_lead_org_fk',
+      columns: [t.orgId, t.leadId],
+      foreignColumns: [leads.orgId, leads.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'visits_party_org_fk',
+      columns: [t.orgId, t.partyId],
+      foreignColumns: [parties.orgId, parties.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'visits_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('set null'),
+  ],
 );
 
 export const proposals = pgTable(
@@ -224,10 +262,9 @@ export const proposals = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
-    partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
-    // FK para properties (Fase 03): ON DELETE SET NULL preserva registros de CRM
-    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
+    leadId: uuid('lead_id'),
+    partyId: uuid('party_id'),
+    propertyId: uuid('property_id'),
     status: text('status').notNull().default('DRAFT'), // DRAFT | SENT | ACCEPTED | REJECTED | EXPIRED
     monthlyRentCents: integer('monthly_rent_cents').notNull(),
     terms: text('terms'),
@@ -236,7 +273,25 @@ export const proposals = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('proposals_org_status_idx').on(t.orgId, t.status)],
+  (t) => [
+    index('proposals_org_status_idx').on(t.orgId, t.status),
+    unique('proposals_org_id_unique').on(t.orgId, t.id),
+    foreignKey({
+      name: 'proposals_lead_org_fk',
+      columns: [t.orgId, t.leadId],
+      foreignColumns: [leads.orgId, leads.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'proposals_party_org_fk',
+      columns: [t.orgId, t.partyId],
+      foreignColumns: [parties.orgId, parties.id],
+    }).onDelete('set null'),
+    foreignKey({
+      name: 'proposals_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('set null'),
+  ],
 );
 
 export const timelineEvents = pgTable(

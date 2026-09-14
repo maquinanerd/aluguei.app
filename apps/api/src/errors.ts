@@ -13,6 +13,23 @@ const DOMAIN_STATUS: Record<string, number> = {
   PROVIDER_ERROR: 502,
 };
 
+/**
+ * Código de erro do PostgreSQL. O drizzle embrulha o erro do driver (e uma
+ * falha dentro de transação pode vir embrulhada mais de uma vez), então a
+ * cadeia de causas é percorrida.
+ */
+function postgresErrorCode(err: unknown): string | null {
+  let current: unknown = err;
+  for (let depth = 0; depth < 5 && current !== null && current !== undefined; depth += 1) {
+    const candidate = current as { code?: unknown; cause?: unknown };
+    if (typeof candidate.code === 'string' && /^[0-9A-Z]{5}$/.test(candidate.code)) {
+      return candidate.code;
+    }
+    current = candidate.cause;
+  }
+  return null;
+}
+
 /** Error handler padrão: DomainError → status + ErrorResponse; ZodError → 400. */
 export function setErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((err, request, reply) => {
@@ -37,6 +54,19 @@ export function setErrorHandler(app: FastifyInstance): void {
       });
     }
 
+    // Violação de unicidade do banco é conflito de negócio, não erro interno
+    // (ex.: segunda cobrança do mesmo mês, segunda tentativa de pagamento
+    // pendente) — auditoria 2026-09-10, P2-09.
+    const pgCode = postgresErrorCode(err);
+    if (pgCode === '23505') {
+      request.log.debug({ code: pgCode }, 'unique violation');
+      return reply.status(409).send({
+        error: 'DomainError',
+        code: 'CONFLICT',
+        message: 'Registro já existente',
+      });
+    }
+
     // Erros de framework com statusCode explícito (ex.: 429 rate limit, 413
     // bodyLimit, 400 body parse) não podem virar 500 genérico.
     const frameworkError = err as {
@@ -57,7 +87,20 @@ export function setErrorHandler(app: FastifyInstance): void {
       });
     }
 
-    request.log.error({ err }, 'unhandled error');
+    // O serializador do pino descarta `cause` e `code`: sem isso um erro do
+    // banco chega ao log como "Failed query", sem o motivo.
+    const cause = (err as { cause?: { message?: unknown; code?: unknown; constraint?: unknown } })
+      .cause;
+    request.log.error(
+      {
+        err,
+        pgCode,
+        causeMessage: typeof cause?.message === 'string' ? cause.message : undefined,
+        causeCode: typeof cause?.code === 'string' ? cause.code : undefined,
+        causeConstraint: typeof cause?.constraint === 'string' ? cause.constraint : undefined,
+      },
+      'unhandled error',
+    );
     return reply.status(500).send({
       error: 'InternalServerError',
       code: 'INTERNAL',

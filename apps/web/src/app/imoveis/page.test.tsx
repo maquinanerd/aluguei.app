@@ -33,7 +33,10 @@ vi.mock('@/lib/public-api', () => ({
     ],
     total: 1,
   }),
-  formatBRL: (cents: number | null) => (cents === null ? '—' : `R$ ${(cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`),
+  formatBRL: (cents: number | null) =>
+    cents === null
+      ? '—'
+      : `R$ ${(cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
 }));
 
 import ImoveisPage from './page';

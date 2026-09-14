@@ -177,52 +177,9 @@ describe('Fase 11: Hardening (readiness, rate limits, cross-tenant)', () => {
     expect(rows.length).toBe(1);
   });
 
-  it('webhook WhatsApp: X-Hub-Signature-256 exigida quando META_APP_SECRET configurado', async () => {
-    process.env.META_APP_SECRET = 'app-secret-de-teste';
-    try {
-      const noSignature = await app.inject({
-        method: 'POST',
-        url: '/webhooks/whatsapp',
-        payload: { entry: [], object: 'whatsapp_business_account' },
-      });
-      expect(noSignature.statusCode).toBe(401);
-
-      const { createHmac } = await import('node:crypto');
-      const raw = JSON.stringify({ entry: [], object: 'whatsapp_business_account' });
-      const signature = `sha256=${createHmac('sha256', 'app-secret-de-teste').update(raw).digest('hex')}`;
-      const valid = await app.inject({
-        method: 'POST',
-        url: '/webhooks/whatsapp',
-        headers: { 'x-hub-signature-256': signature },
-        payload: { entry: [], object: 'whatsapp_business_account' },
-      });
-      // payload vazio → sem mensagens → 200 (assinatura válida aceita)
-      expect(valid.statusCode).toBe(200);
-    } finally {
-      delete process.env.META_APP_SECRET;
-    }
-  });
-
-  it('webhook payments: token ASAAS exigido quando ASAAS_WEBHOOK_TOKEN configurado', async () => {
-    process.env.ASAAS_WEBHOOK_TOKEN = 'token-teste';
-    try {
-      const res = await app.inject({
-        method: 'POST',
-        url: '/webhooks/payments',
-        payload: {
-          provider: 'FAKE',
-          eventType: 'PAYMENT_CONFIRMED',
-          providerEventId: `tok-${Math.random().toString(36).slice(2, 8)}`,
-          providerChargeId: 'pc.fake.xxxxxxxxxxxx',
-          amountCents: 100_000,
-          paidAt: '2026-11-05T00:00:00.000Z',
-        },
-      });
-      expect(res.statusCode).toBe(401);
-    } finally {
-      delete process.env.ASAAS_WEBHOOK_TOKEN;
-    }
-  });
+  // Autenticidade de webhooks (X-Hub-Signature-256 WhatsApp/Meta, Bearer da
+  // assinatura, token asaas-webhook-token) é coberta em webhook-security.test.ts
+  // com env tipado (app.env) e casos válido/inválido/ausente + idempotência.
 
   it('UPDATE_BUDGET: orçamento acima do teto da org é rejeitado (400)', async () => {
     const { cookie, body } = await registerUser(app);

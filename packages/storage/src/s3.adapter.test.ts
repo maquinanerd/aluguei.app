@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { S3Client } from '@aws-sdk/client-s3';
-import { S3StorageAdapter } from './s3.adapter.js';
+import { S3StorageAdapter, StorageSizeLimitError } from './s3.adapter.js';
 
 interface FakeCommandLike {
   constructor: { name: string };
@@ -80,5 +80,47 @@ describe('S3StorageAdapter', () => {
     expect(result.expiresIn).toBe(300);
     expect(result.url).toContain('X-Amz-Signature=');
     expect(result.url).toContain('aluguei-test');
+  });
+
+  it('getPresignedDownloadUrl gera URL assinada GET sem rede (SigV4 local)', async () => {
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: 'http://localhost:9000',
+      credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
+    });
+    const adapter = new S3StorageAdapter({ bucket: 'aluguei-test', client });
+    const result = await adapter.getPresignedDownloadUrl({
+      key: 'orgs/1/reports/report.pdf',
+      expiresInSeconds: 60,
+    });
+    expect(result.expiresIn).toBe(60);
+    expect(result.url).toContain('X-Amz-Signature=');
+    expect(result.url).toContain('aluguei-test');
+    expect(result.url).toContain('/orgs/1/reports/report.pdf');
+  });
+
+  it('putObject respeita maxSizeBytes (limite excedido → StorageSizeLimitError)', async () => {
+    const fake = new FakeS3Client();
+    const adapter = new S3StorageAdapter({
+      bucket: 'aluguei-test',
+      client: fake as unknown as S3Client,
+      maxSizeBytes: 2,
+    });
+    await expect(
+      adapter.putObject({ key: 'a/b.txt', body: new Uint8Array([1, 2, 3]) }),
+    ).rejects.toBeInstanceOf(StorageSizeLimitError);
+    expect(fake.sent).toHaveLength(0); // nenhum comando foi enviado
+  });
+
+  it('putObject aceita objeto dentro do limite', async () => {
+    const fake = new FakeS3Client();
+    const adapter = new S3StorageAdapter({
+      bucket: 'aluguei-test',
+      client: fake as unknown as S3Client,
+      maxSizeBytes: 4,
+    });
+    const result = await adapter.putObject({ key: 'a/b.txt', body: new Uint8Array([1, 2, 3]) });
+    expect(result.size).toBe(3);
+    expect(fake.sent[0]?.constructor.name).toBe('PutObjectCommand');
   });
 });

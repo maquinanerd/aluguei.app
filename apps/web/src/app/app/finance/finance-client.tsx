@@ -2,18 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Group,
-  Icon,
-  Kpi,
-  Select,
-  Stack,
-} from '@aluguei/ui';
+import { Button, Card, Group, Icon, Kpi, Select, Stack } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
-import { label, CHARGE_STATUS_LABELS, CHARGE_STATUS_TONES, LEASE_STATUS_LABELS } from '@/lib/labels';
+import {
+  label,
+  CHARGE_STATUS_LABELS,
+  CHARGE_STATUS_TONES,
+  LEASE_STATUS_LABELS,
+} from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 import { Badge } from '@aluguei/ui';
@@ -73,9 +70,15 @@ function FinanceBody() {
 
   const openCharges = charges.filter((c) => c.status === 'OPEN' || c.status === 'OVERDUE');
   const openTotal = openCharges.reduce((s, c) => s + c.amountCents, 0);
-  const paidTotal = charges.filter((c) => c.status === 'PAID').reduce((s, c) => s + c.amountCents, 0);
-  const receivedTotal = payments.filter((p) => p.status === 'CONFIRMED').reduce((s, p) => s + p.amountCents, 0);
-  const pendingPayouts = payouts.filter((p) => p.status === 'PENDING').reduce((s, p) => s + p.amountCents, 0);
+  const paidTotal = charges
+    .filter((c) => c.status === 'PAID')
+    .reduce((s, c) => s + c.amountCents, 0);
+  const receivedTotal = payments
+    .filter((p) => p.status === 'CONFIRMED')
+    .reduce((s, p) => s + p.amountCents, 0);
+  const pendingPayouts = payouts
+    .filter((p) => p.status === 'PENDING')
+    .reduce((s, p) => s + p.amountCents, 0);
 
   return (
     <div className="app-page">
@@ -86,7 +89,9 @@ function FinanceBody() {
           <Select
             size="sm"
             value={range}
-            onChange={(e) => { setRange(e.target.value); }}
+            onChange={(e) => {
+              setRange(e.target.value);
+            }}
             options={[
               { value: '30', label: 'Últimos 30 dias' },
               { value: '90', label: 'Últimos 90 dias' },
@@ -97,13 +102,31 @@ function FinanceBody() {
         }
         actions={
           <Group gap={2}>
-            <Button size="sm" variant="secondary" onClick={() => { router.push('/app/charges'); }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                router.push('/app/charges');
+              }}
+            >
               Cobranças
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => { router.push('/app/payments'); }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                router.push('/app/payments');
+              }}
+            >
               Pagamentos
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => { router.push('/app/ledger'); }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                router.push('/app/ledger');
+              }}
+            >
               Ledger
             </Button>
           </Group>
@@ -111,10 +134,34 @@ function FinanceBody() {
       />
 
       <div className="peg-grid cols-4">
-        <Kpi label="Em aberto" value={formatBRL(openTotal)} delta={`${String(openCharges.length)} cobranças`} deltaTone={openCharges.length > 0 ? 'down' : 'neutral'} icon="receipt" />
-        <Kpi label="Recebido (confirmado)" value={formatBRL(receivedTotal)} delta={`${String(payments.filter((p) => p.status === 'CONFIRMED').length)} pagamentos`} deltaTone="up" icon="trendingUp" />
-        <Kpi label="Cobrado no período" value={formatBRL(paidTotal)} delta={`${String(charges.filter((c) => c.status === 'PAID').length)} pagas`} deltaTone="neutral" icon="checkCircle" />
-        <Kpi label="Repasses pendentes" value={formatBRL(pendingPayouts)} delta={`${String(payouts.filter((p) => p.status === 'PENDING').length)} repasses`} deltaTone="neutral" icon="trendingUp" />
+        <Kpi
+          label="Em aberto"
+          value={formatBRL(openTotal)}
+          delta={`${String(openCharges.length)} cobranças`}
+          deltaTone={openCharges.length > 0 ? 'down' : 'neutral'}
+          icon="receipt"
+        />
+        <Kpi
+          label="Recebido (confirmado)"
+          value={formatBRL(receivedTotal)}
+          delta={`${String(payments.filter((p) => p.status === 'CONFIRMED').length)} pagamentos`}
+          deltaTone="up"
+          icon="trendingUp"
+        />
+        <Kpi
+          label="Cobrado no período"
+          value={formatBRL(paidTotal)}
+          delta={`${String(charges.filter((c) => c.status === 'PAID').length)} pagas`}
+          deltaTone="neutral"
+          icon="checkCircle"
+        />
+        <Kpi
+          label="Repasses pendentes"
+          value={formatBRL(pendingPayouts)}
+          delta={`${String(payouts.filter((p) => p.status === 'PENDING').length)} repasses`}
+          deltaTone="neutral"
+          icon="trendingUp"
+        />
       </div>
 
       <div className="peg-grid cols-2">
@@ -126,9 +173,17 @@ function FinanceBody() {
           ) : (
             <Stack gap={0}>
               {openCharges.slice(0, 6).map((c) => (
-                <Group key={c.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                  <Badge tone={CHARGE_STATUS_TONES[c.status] ?? 'neutral'}>{label(CHARGE_STATUS_LABELS, c.status)}</Badge>
-                  <span className="peg-grow" style={{ fontSize: 13 }}>{formatDate(c.dueDate)}</span>
+                <Group
+                  key={c.id}
+                  gap={3}
+                  style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
+                  <Badge tone={CHARGE_STATUS_TONES[c.status] ?? 'neutral'}>
+                    {label(CHARGE_STATUS_LABELS, c.status)}
+                  </Badge>
+                  <span className="peg-grow" style={{ fontSize: 13 }}>
+                    {formatDate(c.dueDate)}
+                  </span>
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(c.amountCents)}</span>
                 </Group>
               ))}
@@ -143,13 +198,24 @@ function FinanceBody() {
             </div>
           ) : (
             <Stack gap={0}>
-              {payouts.filter((p) => p.status === 'PENDING').slice(0, 6).map((p) => (
-                <Group key={p.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
-                  <Badge tone="warning">Pendente</Badge>
-                  <span className="peg-grow" style={{ fontSize: 13 }}>{formatDate(p.paidAt)}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(p.amountCents)}</span>
-                </Group>
-              ))}
+              {payouts
+                .filter((p) => p.status === 'PENDING')
+                .slice(0, 6)
+                .map((p) => (
+                  <Group
+                    key={p.id}
+                    gap={3}
+                    style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                  >
+                    <Badge tone="warning">Pendente</Badge>
+                    <span className="peg-grow" style={{ fontSize: 13 }}>
+                      {formatDate(p.paidAt)}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>
+                      {formatBRL(p.amountCents)}
+                    </span>
+                  </Group>
+                ))}
             </Stack>
           )}
         </Card>
@@ -157,15 +223,37 @@ function FinanceBody() {
 
       <Card title="Locação ativa" padless>
         {leases.length === 0 ? (
-          <EmptyState title="Sem locações ativas" body="As locações ativas aparecerão aqui com seus valores." icon="key" />
+          <EmptyState
+            title="Sem locações ativas"
+            body="As locações ativas aparecerão aqui com seus valores."
+            icon="key"
+          />
         ) : (
           <Stack gap={0}>
             {leases.slice(0, 8).map((l) => (
-              <Group key={l.id} gap={3} style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+              <Group
+                key={l.id}
+                gap={3}
+                style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+              >
                 <Icon name="key" size={14} />
-                <span className="peg-grow" style={{ fontSize: 13 }}>{l.id.slice(0, 8)}</span>
-                <Badge tone={l.status === 'ACTIVE' ? 'success' : l.status === 'DELINQUENT' ? 'danger' : 'neutral'}>{label(LEASE_STATUS_LABELS, l.status)}</Badge>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{formatBRL(l.monthlyRentCents)}</span>
+                <span className="peg-grow" style={{ fontSize: 13 }}>
+                  {l.id.slice(0, 8)}
+                </span>
+                <Badge
+                  tone={
+                    l.status === 'ACTIVE'
+                      ? 'success'
+                      : l.status === 'DELINQUENT'
+                        ? 'danger'
+                        : 'neutral'
+                  }
+                >
+                  {label(LEASE_STATUS_LABELS, l.status)}
+                </Badge>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>
+                  {formatBRL(l.monthlyRentCents)}
+                </span>
               </Group>
             ))}
           </Stack>

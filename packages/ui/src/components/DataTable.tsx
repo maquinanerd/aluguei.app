@@ -58,8 +58,7 @@ export function DataTable<T extends { id: string }>({
   skeletonRows = 6,
 }: DataTableProps<T>) {
   const allSelected = rows.length > 0 && rows.every((r) => selectedIds?.has(r.id));
-  const someSelected =
-    rows.some((r) => selectedIds?.has(r.id)) && !allSelected;
+  const someSelected = rows.some((r) => selectedIds?.has(r.id)) && !allSelected;
 
   function toggleAll() {
     if (!onSelectIds) return;
@@ -116,7 +115,9 @@ export function DataTable<T extends { id: string }>({
                   <button
                     type="button"
                     className="peg-table__sort-btn"
-                    onClick={() => { onSort(col.sortKey ?? col.key); }}
+                    onClick={() => {
+                      onSort(col.sortKey ?? col.key);
+                    }}
                     aria-label={`Ordenar por ${typeof col.header === 'string' ? col.header : col.key}`}
                   >
                     <span className="peg-group" style={{ gap: 4 }}>
@@ -159,15 +160,28 @@ export function DataTable<T extends { id: string }>({
                   <tr
                     key={id}
                     className={cx(selected && 'peg-table__selected')}
-                    onClick={onRowClick ? () => { onRowClick(row); } : undefined}
+                    onClick={
+                      onRowClick
+                        ? () => {
+                            onRowClick(row);
+                          }
+                        : undefined
+                    }
                     style={onRowClick ? { cursor: 'pointer' } : undefined}
                   >
                     {onSelectIds ? (
-                      <td style={{ width: 36 }} onClick={(e) => { e.stopPropagation(); }}>
+                      <td
+                        style={{ width: 36 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
                         <Checkbox
                           checked={selected}
                           aria-label={`Selecionar ${id}`}
-                          onChange={() => { toggleOne(id); }}
+                          onChange={() => {
+                            toggleOne(id);
+                          }}
                           ref={undefined}
                         />
                       </td>
@@ -182,20 +196,20 @@ export function DataTable<T extends { id: string }>({
               })}
         </tbody>
       </table>
-      {!loading && rows.length === 0 ? (
-        (() => {
-          const emptyProps: {
-            title: string;
-            body: string;
-            icon: 'inbox';
-            actionLabel?: string;
-            onAction?: () => void;
-          } = { title: emptyTitle, body: emptyBody, icon: 'inbox' };
-          if (emptyActionLabel !== undefined) emptyProps.actionLabel = emptyActionLabel;
-          if (onEmptyAction !== undefined) emptyProps.onAction = onEmptyAction;
-          return <EmptyState {...emptyProps} />;
-        })()
-      ) : null}
+      {!loading && rows.length === 0
+        ? (() => {
+            const emptyProps: {
+              title: string;
+              body: string;
+              icon: 'inbox';
+              actionLabel?: string;
+              onAction?: () => void;
+            } = { title: emptyTitle, body: emptyBody, icon: 'inbox' };
+            if (emptyActionLabel !== undefined) emptyProps.actionLabel = emptyActionLabel;
+            if (onEmptyAction !== undefined) emptyProps.onAction = onEmptyAction;
+            return <EmptyState {...emptyProps} />;
+          })()
+        : null}
     </div>
   );
 }

@@ -28,9 +28,16 @@ export default function HomePage() {
       </nav>
       <main className="marketing-hero">
         <h1>O sistema operacional da locação imobiliária</h1>
-        <p style={{ marginTop: 12, color: 'var(--peg-text-secondary)', fontSize: 16, lineHeight: '24px' }}>
-          Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas,
-          contratos, vistorias e cobranças em um só lugar.
+        <p
+          style={{
+            marginTop: 12,
+            color: 'var(--peg-text-secondary)',
+            fontSize: 16,
+            lineHeight: '24px',
+          }}
+        >
+          Do cadastro do imóvel ao repasse financeiro: leads, visitas, propostas, contratos,
+          vistorias e cobranças em um só lugar.
         </p>
         <Group gap={3} style={{ justifyContent: 'center', marginTop: 24 }}>
           <Link href="/register" className="peg-btn peg-btn--brand peg-btn--lg">

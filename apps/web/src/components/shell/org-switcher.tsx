@@ -42,7 +42,9 @@ export function OrgSwitcher({ session }: { session: Session }) {
     <div
       ref={rootRef}
       style={{ position: 'relative' }}
-      onMouseLeave={() => { setOpen(false); }}
+      onMouseLeave={() => {
+        setOpen(false);
+      }}
     >
       <button
         type="button"
@@ -60,16 +62,25 @@ export function OrgSwitcher({ session }: { session: Session }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Trocar organização"
-        onClick={() => { setOpen((v) => !v); }}
+        onClick={() => {
+          setOpen((v) => !v);
+        }}
       >
         <Avatar name={activeOrg.name} size="sm" />
-        <span className="peg-truncate" style={{ fontSize: 13, fontWeight: 500, flex: 1, textAlign: 'left' }}>
+        <span
+          className="peg-truncate"
+          style={{ fontSize: 13, fontWeight: 500, flex: 1, textAlign: 'left' }}
+        >
           {activeOrg.name}
         </span>
         <Icon name="chevronsUpDown" size={14} />
       </button>
       {open ? (
-        <div role="menu" className="peg-menu" style={{ left: 0, right: 0, top: 'calc(100% + 6px)', width: 220 }}>
+        <div
+          role="menu"
+          className="peg-menu"
+          style={{ left: 0, right: 0, top: 'calc(100% + 6px)', width: 220 }}
+        >
           <div className="peg-menu__header">Organizações</div>
           {session.memberships.map((m) => {
             const orgName = session.activeOrg?.id === m.orgId ? session.activeOrg.name : null;

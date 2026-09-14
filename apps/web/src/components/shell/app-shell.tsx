@@ -34,7 +34,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
   useEffect(() => {
     try {
       setCollapsed(localStorage.getItem(COLLAPSE_KEY) === '1');
-    } catch { /* storage indisponível */ }
+    } catch {
+      /* storage indisponível */
+    }
   }, []);
 
   function toggleCollapse() {
@@ -42,7 +44,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
       const next = !v;
       try {
         localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   }
@@ -84,7 +88,14 @@ export function AppShell({ session, children }: { session: Session; children: Re
   const sidebar = (navId: string) => (
     <>
       <header className="app-sidebar__header">
-        <Link href="/app" className="app-sidebar__brand" onClick={() => { setDrawerOpen(false); }} title="Aluguei.app">
+        <Link
+          href="/app"
+          className="app-sidebar__brand"
+          onClick={() => {
+            setDrawerOpen(false);
+          }}
+          title="Aluguei.app"
+        >
           <span className="app-sidebar__logo">A</span>
           {!collapsed ? <span className="app-sidebar__wordmark">Aluguei.app</span> : null}
         </Link>
@@ -103,12 +114,30 @@ export function AppShell({ session, children }: { session: Session; children: Re
         {collapsed ? (
           <div className="app-sidebar__rail">
             {NAV_ROOT.filter((i) => !i.permission || can(session, i.permission)).map((item) => (
-              <RailLink key={item.href} href={item.href} label={item.label} icon={item.icon} pathname={pathname} onNavigate={() => { setDrawerOpen(false); }} />
+              <RailLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                pathname={pathname}
+                onNavigate={() => {
+                  setDrawerOpen(false);
+                }}
+              />
             ))}
             {NAV_GROUPS.flatMap((g) => g.items)
               .filter((item) => !item.permission || can(session, item.permission))
               .map((item) => (
-                <RailLink key={item.href} href={item.href} label={item.label} icon={item.icon} pathname={pathname} onNavigate={() => { setDrawerOpen(false); }} />
+                <RailLink
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  icon={item.icon}
+                  pathname={pathname}
+                  onNavigate={() => {
+                    setDrawerOpen(false);
+                  }}
+                />
               ))}
           </div>
         ) : (
@@ -122,7 +151,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
                     href={item.href}
                     className={cx('app-sidebar__link', isActive && 'app-sidebar__link--active')}
                     aria-current={isActive ? 'page' : undefined}
-                    onClick={() => { setDrawerOpen(false); }}
+                    onClick={() => {
+                      setDrawerOpen(false);
+                    }}
                   >
                     <span className="app-sidebar__icon">
                       <Icon name={item.icon} size={16} />
@@ -133,7 +164,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
               })}
             </div>
             {NAV_GROUPS.map((group) => {
-              const items = group.items.filter((item) => !item.permission || can(session, item.permission));
+              const items = group.items.filter(
+                (item) => !item.permission || can(session, item.permission),
+              );
               if (items.length === 0) return null;
               return (
                 <div key={group.title} className="app-sidebar__group">
@@ -146,14 +179,21 @@ export function AppShell({ session, children }: { session: Session; children: Re
                         href={item.href}
                         className={cx('app-sidebar__link', isActive && 'app-sidebar__link--active')}
                         aria-current={isActive ? 'page' : undefined}
-                        onClick={() => { setDrawerOpen(false); }}
+                        onClick={() => {
+                          setDrawerOpen(false);
+                        }}
                       >
                         <span className="app-sidebar__icon">
                           <Icon name={item.icon} size={16} />
                         </span>
                         <span className="app-sidebar__label">{item.label}</span>
                         {item.badge !== undefined ? (
-                          <span className={cx('app-sidebar__badge', item.badgeTone === 'danger' && 'app-sidebar__badge--danger')}>
+                          <span
+                            className={cx(
+                              'app-sidebar__badge',
+                              item.badgeTone === 'danger' && 'app-sidebar__badge--danger',
+                            )}
+                          >
                             {item.badge}
                           </span>
                         ) : null}
@@ -200,10 +240,15 @@ export function AppShell({ session, children }: { session: Session; children: Re
 
   return (
     <div className="app-shell">
-      <a href="#app-content" className="skip-link">Pular para o conteúdo</a>
+      <a href="#app-content" className="skip-link">
+        Pular para o conteúdo
+      </a>
       <div className="app-frame">
         {/* Sidebar desktop */}
-        <aside className={cx('app-sidebar', collapsed && 'app-sidebar--collapsed')} aria-label="Menu lateral">
+        <aside
+          className={cx('app-sidebar', collapsed && 'app-sidebar--collapsed')}
+          aria-label="Menu lateral"
+        >
           {sidebar('desktop-nav')}
         </aside>
 
@@ -215,7 +260,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
               aria-label="Abrir menu"
               aria-expanded={drawerOpen}
               aria-controls="mobile-nav"
-              onClick={() => { setDrawerOpen(true); }}
+              onClick={() => {
+                setDrawerOpen(true);
+              }}
             >
               <Icon name="menu" size={18} />
             </button>
@@ -224,9 +271,18 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 const last = i === crumbs.length - 1;
                 return (
                   <span key={i} className="peg-group" style={{ gap: 8 }}>
-                    {i > 0 ? <span className="peg-breadcrumb__separator" aria-hidden="true">/</span> : null}
+                    {i > 0 ? (
+                      <span className="peg-breadcrumb__separator" aria-hidden="true">
+                        /
+                      </span>
+                    ) : null}
                     {last || !c.href ? (
-                      <span className={last ? 'peg-breadcrumb__current' : undefined} aria-current={last ? 'page' : undefined}>{c.label}</span>
+                      <span
+                        className={last ? 'peg-breadcrumb__current' : undefined}
+                        aria-current={last ? 'page' : undefined}
+                      >
+                        {c.label}
+                      </span>
                     ) : (
                       <Link href={c.href} className="peg-breadcrumb__link">
                         {c.label}
@@ -236,9 +292,13 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 );
               })}
             </nav>
-            <span className="peg-breadcrumb__separator" aria-hidden="true">·</span>
+            <span className="peg-breadcrumb__separator" aria-hidden="true">
+              ·
+            </span>
             {activeOrg ? (
-              <span className="peg-text-secondary" style={{ fontSize: 13 }}>{activeOrg.name}</span>
+              <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                {activeOrg.name}
+              </span>
             ) : null}
             <TopbarClock />
             <div className="peg-spacer" />
@@ -255,17 +315,35 @@ export function AppShell({ session, children }: { session: Session; children: Re
             ) : null}
             <AccountMenu session={session} />
           </header>
-          <main id="app-content" className="app-content" tabIndex={-1}>{children}</main>
+          <main id="app-content" className="app-content" tabIndex={-1}>
+            {children}
+          </main>
         </div>
       </div>
 
       {/* Drawer mobile */}
       {drawerOpen ? (
-        <div className="app-drawer-overlay" onClick={() => { setDrawerOpen(false); }} aria-hidden="true" />
+        <div
+          className="app-drawer-overlay"
+          onClick={() => {
+            setDrawerOpen(false);
+          }}
+          aria-hidden="true"
+        />
       ) : null}
       {drawerOpen ? (
-        <aside ref={drawerRef} className="app-drawer-sidebar" role="dialog" aria-modal="true" aria-label="Menu de navegação">
-          <GroupHeader onClose={() => { setDrawerOpen(false); }} />
+        <aside
+          ref={drawerRef}
+          className="app-drawer-sidebar"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu de navegação"
+        >
+          <GroupHeader
+            onClose={() => {
+              setDrawerOpen(false);
+            }}
+          />
           {sidebar('mobile-nav')}
         </aside>
       ) : null}
@@ -273,7 +351,10 @@ export function AppShell({ session, children }: { session: Session; children: Re
   );
 }
 
-function isItemActive(item: { href: string; activePrefixes?: string[] }, pathname: string): boolean {
+function isItemActive(
+  item: { href: string; activePrefixes?: string[] },
+  pathname: string,
+): boolean {
   if (pathname === item.href) return true;
   if (item.href === '/app') return false; // Visão Geral só quando exatamente /app
   return item.activePrefixes?.some((p) => pathname.startsWith(p)) || false;
@@ -334,7 +415,10 @@ function Avatar({ name, size, brand }: { name: string; size: 'sm' | 'md'; brand?
     .map((p) => p[0]?.toUpperCase())
     .join('');
   return (
-    <span className={cx('peg-avatar', `peg-avatar--${size}`, brand && 'peg-avatar--brand')} aria-hidden="true">
+    <span
+      className={cx('peg-avatar', `peg-avatar--${size}`, brand && 'peg-avatar--brand')}
+      aria-hidden="true"
+    >
       {initials}
     </span>
   );
@@ -351,7 +435,9 @@ function ProfileMenu({ session }: { session: Session }) {
       if (!ref.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('pointerdown', onPointer);
-    return () => { document.removeEventListener('pointerdown', onPointer); };
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+    };
   }, [open]);
 
   // Teclado APG: Escape fecha; setas movem entre itens
@@ -371,14 +457,15 @@ function ProfileMenu({ session }: { session: Session }) {
       if (!['ArrowDown', 'ArrowUp'].includes(e.key) || items.length === 0) return;
       e.preventDefault();
       const idx = items.indexOf(document.activeElement as HTMLElement);
-      const next = e.key === 'ArrowDown'
-        ? (idx + 1) % items.length
-        : (idx - 1 + items.length) % items.length;
+      const next =
+        e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
       const target = items[next];
       if (target) target.focus();
     }
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
+    return () => {
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   async function logout() {
@@ -397,23 +484,52 @@ function ProfileMenu({ session }: { session: Session }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Menu da conta"
-        onClick={() => { setOpen((v) => !v); }}
+        onClick={() => {
+          setOpen((v) => !v);
+        }}
       >
         <Icon name="moreVertical" size={16} />
       </button>
       {open ? (
-        <div ref={menuRef} role="menu" className="peg-menu" style={{ left: 'auto', right: 0, bottom: 'calc(100% + 6px)', width: 200 }}>
+        <div
+          ref={menuRef}
+          role="menu"
+          className="peg-menu"
+          style={{ left: 'auto', right: 0, bottom: 'calc(100% + 6px)', width: 200 }}
+        >
           <div className="peg-stack" style={{ gap: 2, padding: '8px 12px' }}>
             <strong style={{ fontSize: 13 }}>{session.user.name}</strong>
-            <span style={{ fontSize: 12, color: 'var(--peg-text-tertiary)' }}>{session.user.email}</span>
+            <span style={{ fontSize: 12, color: 'var(--peg-text-tertiary)' }}>
+              {session.user.email}
+            </span>
           </div>
           <div className="peg-menu__separator" />
-          <Link href="/app/settings" className="peg-menu__item" role="menuitem" tabIndex={0} onClick={() => { setOpen(false); }}>
-            <span className="peg-menu__icon"><Icon name="settings" size={14} /></span>
+          <Link
+            href="/app/settings"
+            className="peg-menu__item"
+            role="menuitem"
+            tabIndex={0}
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            <span className="peg-menu__icon">
+              <Icon name="settings" size={14} />
+            </span>
             Configurações
           </Link>
-          <button type="button" role="menuitem" tabIndex={0} className="peg-menu__item peg-menu__item--danger" onClick={() => { void logout(); }}>
-            <span className="peg-menu__icon"><Icon name="logOut" size={14} /></span>
+          <button
+            type="button"
+            role="menuitem"
+            tabIndex={0}
+            className="peg-menu__item peg-menu__item--danger"
+            onClick={() => {
+              void logout();
+            }}
+          >
+            <span className="peg-menu__icon">
+              <Icon name="logOut" size={14} />
+            </span>
             Sair
           </button>
         </div>
