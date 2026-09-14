@@ -265,7 +265,8 @@ describe('P1-06: decisão de crédito só com análise, motivo e origem auditáv
     const payload = { applicationId: application.applicationId, templateId };
     const created = await fx.call('POST', '/contracts', { cookie: application.cookie, payload });
     expect(created.status, JSON.stringify(created.body)).toBe(201);
-    const contractId = (created.body.contract as { contract: { id: string } }).contract.id;
+    // POST /contracts devolve o agregado: `contract` é o próprio contrato.
+    const contractId = (created.body.contract as { id: string }).id;
     expect((await aggregateOf(application)).application.status).toBe('CONTRACTING');
 
     await fx.call('POST', `/contracts/${contractId}/generate`, {
