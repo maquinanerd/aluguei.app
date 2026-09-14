@@ -30,6 +30,9 @@ export const rentalApplications = pgTable(
     proposalId: uuid('proposal_id'),
     status: text('status').notNull().default('DRAFT'), // DRAFT|SUBMITTED|SCREENING|MANUAL_REVIEW|APPROVED|REJECTED|CONTRACTING
     decisionReason: text('decision_reason'),
+    // Origem da decisão de crédito (P1-06): MANUAL (pessoa, com decided_by) |
+    // AUTOMATIC (regras sobre o resultado do screening, sem decided_by).
+    decisionSource: text('decision_source'),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
     decidedBy: uuid('decided_by').references(() => users.id, { onDelete: 'set null' }),
     decidedAt: timestamp('decided_at', { withTimezone: true }),
@@ -65,6 +68,16 @@ export const rentalApplications = pgTable(
       columns: [t.orgId, t.proposalId],
       foreignColumns: [proposals.orgId, proposals.id],
     }).onDelete('set null'),
+    // Decisão de crédito sempre com motivo, data e origem (P1-06). `decided_by`
+    // fica fora do CHECK porque a FK é ON DELETE SET NULL.
+    check(
+      'rental_applications_decision_source_valid',
+      sql`${t.decisionSource} is null or ${t.decisionSource} in ('MANUAL', 'AUTOMATIC')`,
+    ),
+    check(
+      'rental_applications_decision_recorded',
+      sql`${t.status} not in ('APPROVED', 'REJECTED', 'CONTRACTING') or (${t.decisionReason} is not null and btrim(${t.decisionReason}) <> '' and ${t.decidedAt} is not null and ${t.decisionSource} is not null)`,
+    ),
   ],
 );
 

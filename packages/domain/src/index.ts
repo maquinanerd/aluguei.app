@@ -94,6 +94,7 @@ export { computeInspectionDifferences } from './inspection/compare.js';
 
 export {
   RENTAL_APPLICATION_STATUSES,
+  CREDIT_DECISION_SOURCES,
   isRentalApplicationStatus,
   canTransitionRentalApplication,
   applicationTransitionIssues,
@@ -102,9 +103,11 @@ export {
 export type {
   RentalApplicationStatus,
   ApplicationTransitionContext,
+  ApplicationTransitionSource,
+  CreditDecisionSource,
 } from './rental/application.js';
 
-export { decideApplication } from './rental/screening.js';
+export { decideApplication, describeScreeningDecision } from './rental/screening.js';
 export type {
   ScreeningDecision,
   ScreeningDecisionInput,

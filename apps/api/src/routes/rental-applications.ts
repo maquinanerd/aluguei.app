@@ -16,8 +16,6 @@ import type { AppDb } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
-  applicationTransitionIssues,
-  canTransitionRentalApplication,
   isRentalApplicationStatus,
   transitionRentalApplication,
 } from '@aluguei/domain';
@@ -40,6 +38,7 @@ import { writeAudit } from '../plugins/audit.js';
 import { assertOwnedByOrg, first } from './helpers.js';
 
 type AppRow = typeof rentalApplications.$inferSelect;
+type AppPatch = Partial<typeof rentalApplications.$inferInsert>;
 
 function toAppDto(row: AppRow): unknown {
   return rentalApplicationSchema.parse({
@@ -51,12 +50,20 @@ function toAppDto(row: AppRow): unknown {
     proposalId: row.proposalId,
     status: row.status,
     decisionReason: row.decisionReason,
+    decisionSource: row.decisionSource,
     submittedAt: row.submittedAt?.toISOString() ?? null,
     decidedBy: row.decidedBy,
     decidedAt: row.decidedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   });
+}
+
+function applicationStatusOf(row: AppRow): RentalApplicationStatus {
+  if (!isRentalApplicationStatus(row.status)) {
+    throw new Error(`status de candidatura inválido: ${row.status}`);
+  }
+  return row.status;
 }
 
 async function loadAggregate(db: AppDb, orgId: string, applicationId: string): Promise<unknown> {
@@ -100,6 +107,23 @@ async function loadAggregate(db: AppDb, orgId: string, applicationId: string): P
         }
       : null,
   });
+}
+
+/** Resultado de screening mais recente da candidatura (a análise que embasa a decisão). */
+async function latestScreeningResultId(
+  db: AppDb,
+  orgId: string,
+  applicationId: string,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ id: screeningResults.id })
+    .from(screeningResults)
+    .where(
+      and(eq(screeningResults.applicationId, applicationId), eq(screeningResults.orgId, orgId)),
+    )
+    .orderBy(desc(screeningResults.createdAt))
+    .limit(1);
+  return row?.id ?? null;
 }
 
 /** Consentimento LGPD obrigatório antes de screening. */
@@ -204,6 +228,7 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
     async (request) => {
       const auth = requireAuth(request);
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
+      // Aprovação/rejeição sem motivo não chega aqui: 400 na validação (P1-06).
       const input = updateRentalApplicationStatusRequestSchema.parse(request.body);
       const [application] = await db
         .select()
@@ -213,60 +238,72 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
       if (!application) {
         throw new DomainError('NOT_FOUND', 'Candidatura não encontrada');
       }
-      if (
-        !isRentalApplicationStatus(application.status) ||
-        !isRentalApplicationStatus(input.status)
-      ) {
-        throw new Error('status inválido');
+      const from = applicationStatusOf(application);
+      const to = input.status;
+      if (from === to) {
+        // Idempotente: repetir o destino não reescreve a decisão registrada.
+        return loadAggregate(db, auth.orgId, application.id);
       }
 
-      const consent = await findActiveConsent(db, auth.orgId, application.partyId);
-      const ctx = {
+      const [consent, screeningResultId] = await Promise.all([
+        findActiveConsent(db, auth.orgId, application.partyId),
+        latestScreeningResultId(db, auth.orgId, application.id),
+      ]);
+      // P1-06: o PATCH é a origem MANUAL. Não inicia a análise (só o pedido de
+      // screening), não decide candidatura em SCREENING (só o resultado) e não
+      // leva à contratação (só o contrato). Decide apenas a revisão manual.
+      transitionRentalApplication(from, to, {
+        source: 'MANUAL',
         hasConsent: consent !== null,
         hasRequiredData: true, // propertyId e partyId são NOT NULL no schema
         hasDecisionReason: Boolean(input.decisionReason),
+        hasDecidedBy: true, // usuário autenticado
+        hasScreeningResult: screeningResultId !== null,
         hasContract: false,
-      };
-      if (
-        !canTransitionRentalApplication(
-          application.status as RentalApplicationStatus,
-          input.status as RentalApplicationStatus,
-          ctx,
-        )
-      ) {
-        const issues = applicationTransitionIssues(
-          application.status as RentalApplicationStatus,
-          input.status as RentalApplicationStatus,
-          ctx,
-        );
-        throw new DomainError('INVALID_TRANSITION', `Transição inválida (${issues.join('; ')})`);
-      }
-      transitionRentalApplication(
-        application.status as RentalApplicationStatus,
-        input.status as RentalApplicationStatus,
-        ctx,
-      );
+      });
 
-      const patch: Record<string, unknown> = { status: input.status, updatedAt: new Date() };
-      if (input.status === 'SUBMITTED') {
-        patch.submittedAt = new Date();
+      const now = new Date();
+      const patch: AppPatch = { status: to, updatedAt: now };
+      if (to === 'SUBMITTED') {
+        patch.submittedAt = now;
       }
-      if ((input.status === 'APPROVED' || input.status === 'REJECTED') && input.decisionReason) {
-        patch.decisionReason = input.decisionReason;
+      const decided = to === 'APPROVED' || to === 'REJECTED';
+      if (decided) {
+        patch.decisionReason = input.decisionReason ?? null;
+        patch.decisionSource = 'MANUAL';
         patch.decidedBy = auth.userId;
-        patch.decidedAt = new Date();
+        patch.decidedAt = now;
       }
-      await db
+      // Compare-and-set: outra operação concorrente não é sobrescrita.
+      const [updated] = await db
         .update(rentalApplications)
-        .set(patch as never)
-        .where(eq(rentalApplications.id, application.id));
+        .set(patch)
+        .where(
+          and(
+            eq(rentalApplications.id, application.id),
+            eq(rentalApplications.orgId, auth.orgId),
+            eq(rentalApplications.status, from),
+          ),
+        )
+        .returning({ id: rentalApplications.id });
+      if (!updated) {
+        throw new DomainError(
+          'CONFLICT',
+          'Candidatura alterada por outra operação; recarregue e tente novamente',
+        );
+      }
       await writeAudit(db, {
         orgId: auth.orgId,
         actorUserId: auth.userId,
         action: AUDIT_ACTIONS.RENTAL_APPLICATION_DECIDED,
         entityType: 'RENTAL_APPLICATION',
         entityId: application.id,
-        payload: { from: application.status, to: input.status },
+        payload: {
+          from,
+          to,
+          source: 'MANUAL',
+          ...(decided && screeningResultId ? { screeningResultId } : {}),
+        },
       });
       return loadAggregate(db, auth.orgId, application.id);
     },
@@ -292,49 +329,93 @@ export const rentalApplicationRoutes: FastifyPluginAsync = (app) => {
       if (!consent) {
         throw new DomainError('INVALID_INPUT', 'Consentimento LGPD de análise de crédito ausente');
       }
-      if (application.status === 'DRAFT') {
+      const from = applicationStatusOf(application);
+      if (from === 'DRAFT') {
         throw new DomainError(
           'INVALID_TRANSITION',
           'Submeta a candidatura antes de solicitar screening',
         );
       }
-
-      const [requestRow] = await db
-        .insert(screeningRequests)
-        .values({
-          orgId: auth.orgId,
-          applicationId: application.id,
-          partyId: application.partyId,
-          provider: input.provider ?? 'FAKE',
-          purpose: 'CREDIT_SCREENING',
-          consentId: consent.id,
-        })
-        .returning();
-      if (!requestRow) {
-        throw new Error('screening request insert failed');
+      if (from === 'SCREENING') {
+        // Idempotente: análise já em andamento devolve o pedido pendente.
+        const [pending] = await db
+          .select({ id: screeningRequests.id })
+          .from(screeningRequests)
+          .where(
+            and(
+              eq(screeningRequests.applicationId, application.id),
+              eq(screeningRequests.orgId, auth.orgId),
+              eq(screeningRequests.status, 'PENDING'),
+            ),
+          )
+          .orderBy(desc(screeningRequests.requestedAt))
+          .limit(1);
+        if (pending) {
+          return reply.status(202).send({ requestId: pending.id, status: 'SCREENING' as const });
+        }
       }
-      if (application.status === 'SUBMITTED') {
-        await db
+      // P1-06: esta é a única origem de SCREENING — e sempre com pedido gravado.
+      transitionRentalApplication(from, 'SCREENING', {
+        source: 'SCREENING_REQUEST',
+        hasConsent: true,
+        hasRequiredData: true,
+        hasDecisionReason: false,
+        hasDecidedBy: false,
+        hasScreeningResult: false,
+        hasContract: false,
+      });
+
+      const provider = input.provider ?? 'FAKE';
+      const requestRow = await db.transaction(async (tx) => {
+        const [moved] = await tx
           .update(rentalApplications)
           .set({ status: 'SCREENING', updatedAt: new Date() })
-          .where(eq(rentalApplications.id, application.id));
-      }
-      await db
-        .insert(webhookInbox)
-        .values({
+          .where(
+            and(
+              eq(rentalApplications.id, application.id),
+              eq(rentalApplications.orgId, auth.orgId),
+              eq(rentalApplications.status, from),
+            ),
+          )
+          .returning({ id: rentalApplications.id });
+        if (!moved) {
+          throw new DomainError(
+            'CONFLICT',
+            'Candidatura alterada por outra operação; recarregue e tente novamente',
+          );
+        }
+        const created = first(
+          await tx
+            .insert(screeningRequests)
+            .values({
+              orgId: auth.orgId,
+              applicationId: application.id,
+              partyId: application.partyId,
+              provider,
+              purpose: 'CREDIT_SCREENING',
+              consentId: consent.id,
+            })
+            .returning(),
+        );
+        // Um job por pedido: um novo pedido nunca é descartado pelo dedup do inbox.
+        await tx
+          .insert(webhookInbox)
+          .values({
+            orgId: auth.orgId,
+            provider: 'SCREENING',
+            providerEventId: `${auth.orgId}:${application.id}:SCREENING:${created.id}`,
+            payload: { screeningRequestId: created.id },
+          })
+          .onConflictDoNothing();
+        await writeAudit(tx, {
           orgId: auth.orgId,
-          provider: 'SCREENING',
-          providerEventId: `${auth.orgId}:${application.id}:SCREENING`,
-          payload: { screeningRequestId: requestRow.id },
-        })
-        .onConflictDoNothing();
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.SCREENING_REQUESTED,
-        entityType: 'RENTAL_APPLICATION',
-        entityId: application.id,
-        payload: { provider: input.provider ?? 'FAKE' },
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.SCREENING_REQUESTED,
+          entityType: 'RENTAL_APPLICATION',
+          entityId: application.id,
+          payload: { provider, from, to: 'SCREENING', screeningRequestId: created.id },
+        });
+        return created;
       });
       return reply.status(202).send({ requestId: requestRow.id, status: 'SCREENING' as const });
     },
