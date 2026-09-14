@@ -85,7 +85,8 @@ jobs:
 
   e2e:
     # Jornada Playwright contra a stack real (API + worker + web, providers FAKE)
-    # sobre o serviço postgres; o globalSetup aplica as migrations e sobe tudo.
+    # sobre o serviço postgres; o webServer do Playwright aplica as migrations e
+    # sobe tudo.
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -103,7 +104,6 @@ jobs:
           --health-retries 12
     env:
       E2E_DATABASE_URL: postgresql://postgres@localhost:5432/aluguei
-      ALUGUEI_E2E_RUNS: ${{ runner.temp }}/e2e-runs
     steps:
       - uses: actions/checkout@v4
 
@@ -124,6 +124,10 @@ jobs:
 
       - name: E2E (Playwright)
         run: pnpm --filter @aluguei/tests-e2e test:e2e
+        env:
+          # O contexto `runner` não existe no env do job — o GitHub recusa o
+          # arquivo inteiro e nenhum job roda. Nos steps ele existe.
+          ALUGUEI_E2E_RUNS: ${{ runner.temp }}/e2e-runs
 
       - name: Stack logs
         if: failure()
