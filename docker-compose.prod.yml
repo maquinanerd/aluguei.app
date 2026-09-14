@@ -1,0 +1,133 @@
+# Homologação do Aluguei.app no Coolify (build pack "Docker Compose").
+#
+# - Segredos: variáveis mágicas do Coolify (SERVICE_PASSWORD_*, SERVICE_HEX_*),
+#   geradas e guardadas pelo próprio Coolify. Nenhum valor fica no repositório.
+# - APP_BASE_URL e API_BASE_URL: definidas nas variáveis do recurso no Coolify,
+#   iguais aos domínios HTTPS dos serviços web e api. O web recusa API_BASE_URL
+#   sem https (auditoria P1-15), então ele fala com a API pelo domínio público.
+# - Providers em FAKE / dry-run / mock: nenhuma cobrança, assinatura, consulta de
+#   crédito, mensagem ou publicação real.
+# - Sem REDIS_URL: com ela preenchida a API cai no boot (auditoria P1-14).
+#
+# Ver docs/DEPLOY_COOLIFY.md.
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: aluguei
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_64_POSTGRES}
+      POSTGRES_DB: aluguei
+    volumes:
+      - aluguei-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aluguei -d aluguei']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Aplica as migrations e termina. A API e o worker só sobem se ela concluir.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    command: ['node', 'packages/db/scripts/apply-migrations.mjs']
+    environment:
+      DATABASE_URL: postgresql://aluguei:${SERVICE_PASSWORD_64_POSTGRES}@postgres:5432/aluguei
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+    exclude_from_hc: true
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    command: ['node', '--import', 'tsx', 'apps/api/src/index.ts']
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+      API_HOST: 0.0.0.0
+      API_PORT: '4000'
+      DATABASE_URL: postgresql://aluguei:${SERVICE_PASSWORD_64_POSTGRES}@postgres:5432/aluguei
+      APP_BASE_URL: ${APP_BASE_URL}
+      CORS_ORIGINS: ${APP_BASE_URL}
+      COOKIE_SECURE: 'true'
+      PAYMENT_PROVIDER: FAKE
+      SIGNATURE_PROVIDER: FAKE
+      SCREENING_PROVIDER: FAKE
+      META_MODE: dry_run
+      AI_PROVIDER: mock
+      SIGNATURE_WEBHOOK_TOKEN: ${SERVICE_HEX_64_SIGNATUREWEBHOOK}
+      ASAAS_WEBHOOK_TOKEN: ${SERVICE_HEX_64_ASAASWEBHOOK}
+      META_APP_SECRET: ${SERVICE_HEX_64_METAAPPSECRET}
+      META_WEBHOOK_VERIFY_TOKEN: ${SERVICE_HEX_64_METAVERIFY}
+      META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health/ready').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    command: ['node', '--import', 'tsx', 'apps/worker/src/index.ts']
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://aluguei:${SERVICE_PASSWORD_64_POSTGRES}@postgres:5432/aluguei
+      APP_BASE_URL: ${APP_BASE_URL}
+      PAYMENT_PROVIDER: FAKE
+      SIGNATURE_PROVIDER: FAKE
+      SCREENING_PROVIDER: FAKE
+      META_MODE: dry_run
+      AI_PROVIDER: mock
+      META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+    environment:
+      NODE_ENV: production
+      APP_BASE_URL: ${APP_BASE_URL}
+      API_BASE_URL: ${API_BASE_URL}
+      PUBLIC_ORG_SLUG: ${PUBLIC_ORG_SLUG:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/login').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  aluguei-pgdata:
