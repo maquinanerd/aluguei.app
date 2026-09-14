@@ -129,6 +129,12 @@ export {
 export type { ContractStatus, ContractTransitionContext } from './contract/contract.js';
 
 export { renderTemplate } from './contract/template.js';
+export {
+  CONTRACT_TEMPLATE_VARIABLES,
+  buildContractVariables,
+  formatCentsBRL,
+} from './contract/variables.js';
+export type { ContractTemplateVariable, ContractVariableSource } from './contract/variables.js';
 
 export { add, sub, negate, mulBpsFloor, splitAmount } from './finance/money.js';
 export { calculateChargeBreakdown } from './finance/chargeCalc.js';

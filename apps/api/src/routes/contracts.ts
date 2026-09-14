@@ -18,6 +18,7 @@ import {
   AUDIT_ACTIONS,
   DomainError,
   assertContractContentWritable,
+  buildContractVariables,
   isContractStatus,
   renderTemplate,
   sha256Hex,
@@ -140,7 +141,7 @@ async function buildTemplateVariables(
   db: AppDb,
   orgId: string,
   applicationId: string,
-): Promise<Record<string, string | number>> {
+): Promise<Record<string, string>> {
   // P0-05 (defesa em profundidade): toda leitura derivada é filtrada pela org.
   const [application] = await db
     .select()
@@ -193,12 +194,13 @@ async function buildTemplateVariables(
         .limit(1)
     : [undefined];
 
-  return {
-    tenantName: tenant?.name ?? '—',
-    propertyTitle: property?.title ?? '—',
-    monthlyRentCents: terms?.monthlyRentCents ?? 0,
-    landlordName: landlord?.name ?? '—',
-  };
+  // P2-08: valores formatados (R$) e "—" para dado ausente — nunca centavos crus.
+  return buildContractVariables({
+    tenantName: tenant?.name ?? null,
+    propertyTitle: property?.title ?? null,
+    monthlyRentCents: terms?.monthlyRentCents ?? null,
+    landlordName: landlord?.name ?? null,
+  });
 }
 
 export const contractRoutes: FastifyPluginAsync = (app) => {
@@ -714,9 +716,11 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         }
         return voided;
       });
-      return updateContractStatusResponseSchema.parse(
-        await loadContractAggregate(db, auth.orgId, updated.id),
-      );
+      // P2-08: a resposta segue o contrato da API ({ contract: agregado }). Antes o
+      // agregado cru falhava na validação e o VOID, já gravado, respondia 400.
+      return updateContractStatusResponseSchema.parse({
+        contract: await loadContractAggregate(db, auth.orgId, updated.id),
+      });
     },
   );
 
