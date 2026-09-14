@@ -79,3 +79,32 @@ Consequências: a UI de crédito precisa oferecer decisão só em `MANUAL_REVIEW
 (não fixo), e pedir screening só em `SUBMITTED`; a tela de contratos deixa de listar `CONTRACTING`
 como elegível. Candidaturas legadas sem trilha bloqueiam a migration até revisão humana — decisão
 deliberada: aprovação de crédito sem análise não é reclassificada como aceitável.
+
+## G2A-3 — Texto do contrato em R$ e trilha de eventos de assinatura (P2-08)
+
+Status: Proposto.
+
+Contexto: P2-08 — o corpo do contrato saía com o aluguel em centavos crus ("ALUGUEL 250000"); o
+template era obrigado a usar todas as variáveis oferecidas; `signature_events` nunca era gravada;
+`PATCH /contracts/:id/status` gravava `VOID` e respondia `400` (schema de resposta errado).
+
+Decisões:
+
+- A geração oferece um conjunto fixo de variáveis (`CONTRACT_TEMPLATE_VARIABLES`: `tenantName`,
+  `landlordName`, `propertyTitle`, `monthlyRent`, `monthlyRentCents`). Valor monetário é formatado
+  no domínio (`formatCentsBRL`: centavos inteiros, sem ponto flutuante e sem depender de ICU,
+  `R$ 2.500,00`); dado ausente vira `—`, nunca `R$ 0,00`.
+- `monthlyRentCents` fica como nome legado e renderiza o mesmo valor em R$: templates aprovados
+  são imutáveis (mudar exige nova versão e nova aprovação) e nenhum contrato deve exibir centavos
+  crus. Templates novos devem usar `monthlyRent`.
+- `renderTemplate` deixa de recusar variável oferecida e não usada; continua recusando
+  placeholder sem variável (erro de digitação) e passa a usar `Object.hasOwn`, para que
+  `{{constructor}}` não resolva para o protótipo do objeto.
+- `POST /webhooks/signature` grava `signature_events` na chegada, na mesma transação do inbox,
+  com dedup por `UNIQUE (provider, provider_event_id)`; envelope desconhecido continua ignorado
+  (`200`) e sem linha.
+- `PATCH /contracts/:id/status` responde `{ contract: agregado }`, no mesmo formato de `generate`.
+
+Consequências: os placeholders ainda não são validados no cadastro/aprovação do template — o erro
+aparece só ao gerar (`400`). `occurred_at` do evento é a hora do recebimento: o contrato atual do
+webhook não traz a hora do evento no provider.

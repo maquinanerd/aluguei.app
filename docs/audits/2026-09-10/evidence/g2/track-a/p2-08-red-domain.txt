@@ -1,0 +1,49 @@
+# item: P2-08 — RED domínio (testes permanentes na árvore SEM correção)
+# commit: 564b74f
+# diretório: packages/domain
+# comando: pnpm exec vitest run src/contract/variables.test.ts src/rental/rental.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/packages/domain
+
+ ❯ src/contract/variables.test.ts (0 test)
+ ❯ src/rental/rental.test.ts (17 tests | 1 failed) 23ms
+     × renderTemplate preenche e falha em variável ausente 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/contract/variables.test.ts [ src/contract/variables.test.ts ]
+Error: Cannot find module './variables.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/packages/domain/src/contract/variables.test.ts
+ ❯ src/contract/variables.test.ts:4:1
+      2| import { DomainError } from '../errors.js';
+      3| import { renderTemplate } from './template.js';
+      4| import { buildContractVariables, formatCentsBRL } from './variables.js…
+       | ^
+      5|
+      6| describe('formatCentsBRL (P2-08: valores em R$ no corpo do contrato)',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/rental/rental.test.ts > contract state machine + template > renderTemplate preenche e falha em variável ausente
+DomainError: Variáveis declaradas sem uso no template: unused
+ ❯ renderTemplate src/contract/template.ts:27:11
+     25|   const unused = Object.keys(variables).filter((key) => !declared.has(…
+     26|   if (unused.length > 0) {
+     27|     throw new DomainError(
+       |           ^
+     28|       'INVALID_INPUT',
+     29|       `Variáveis declaradas sem uso no template: ${unused.join(', ')}`,
+ ❯ src/rental/rental.test.ts:221:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 16 passed (17)
+   Start at  16:08:59
+   Duration  997ms (transform 292ms, setup 0ms, import 204ms, tests 23ms, environment 0ms)
+
+# exit=1
