@@ -1,0 +1,45 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e test:e2e
+# árvore: commit 5f84703 (g2/track-b1-web, Track B1 completa com a trilha A mesclada); todos os specs (main-journey da trilha A e g2-b1-*), stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-15T18:29:22Z
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789496966217\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] (node:7108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789496966217).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 15 tests using 1 worker
+
+(node:25064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (3.7s)
+  ok 2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (2.2s)
+  ok 3 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (2.4s)
+  ok 4 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (1.8s)
+  ok 5 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.4s)
+  ok 6 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (1.3s)
+  ok 7 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (1.4s)
+  ok 8 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (1.5s)
+  ok 9 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (40.1s)
+  ok 10 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (8.3s)
+  ok 11 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (1.3s)
+  ok 12 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (4.7s)
+  ok 13 main-journey.spec.ts:73:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (3.9s)
+  ok 14 main-journey.spec.ts:102:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (12.4s)
+  ok 15 main-journey.spec.ts:418:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (5.7s)
+[e2e-stack] stack run-1789496966217 desligada.
+
+  Slow test file: g2-b1-navigation.spec.ts (54.4s)
+  Slow test file: main-journey.spec.ts (22.1s)
+  Consider splitting slow test files to speed up parallel execution
+  15 passed (2.9m)
+# exit=0
