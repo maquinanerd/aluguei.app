@@ -1,6 +1,7 @@
 /** Entry do design system @aluguei/ui. Componentes e estilos PEG + Aluguei override. */
 export * from './lib/cx';
 export * from './lib/format';
+export * from './lib/money';
 export * from './components/Button';
 export * from './components/IconButton';
 export * from './components/Field';
@@ -35,4 +36,5 @@ export * from './components/StatusBadge';
 export * from './components/Divider';
 export * from './components/Stack';
 export * from './components/MoneyValue';
+export * from './components/MoneyInput';
 export * from './components/icons';
