@@ -1,0 +1,42 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e test:e2e
+# árvore: commit a089f5e (g2/track-b1-web: Track B1 completa, trilha A mesclada e correção do foco de Modal/Drawer); todos os specs (main-journey da trilha A e g2-b1-*), stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-15T19:20:55Z
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789500058459\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789500058459).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 18 tests using 1 worker
+
+  ok 1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (2.3s)
+  ok 2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (1.7s)
+  ok 3 g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado (7.7s)
+  ok 4 g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado (2.6s)
+  ok 5 g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho (2.3s)
+  ok 6 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (2.1s)
+  ok 7 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (1.6s)
+  ok 8 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.3s)
+  ok 9 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (1.2s)
+  ok 10 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (1.3s)
+  ok 11 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (1.2s)
+  ok 12 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (36.9s)
+  ok 13 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (6.0s)
+  ok 14 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (931ms)
+  ok 15 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (3.3s)
+  ok 16 main-journey.spec.ts:73:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (2.2s)
+  ok 17 main-journey.spec.ts:102:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (15.2s)
+  ok 18 main-journey.spec.ts:418:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (3.7s)
+[e2e-stack] stack run-1789500058459 desligada.
+
+  Slow test file: g2-b1-navigation.spec.ts (47.2s)
+  Slow test file: main-journey.spec.ts (21.1s)
+  Consider splitting slow test files to speed up parallel execution
+  18 passed (2.0m)
+# exit=0

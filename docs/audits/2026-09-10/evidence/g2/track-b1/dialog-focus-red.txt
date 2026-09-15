@@ -1,0 +1,134 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e exec playwright test g2-b1-dialog-focus
+# árvore: commit 3d255fb (spec novo e campo controlado na calibração; Modal e Drawer sem correção), stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-15T19:13:57Z
+$ playwright test g2-b1-dialog-focus
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789499649258\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789499649258).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 3 tests using 1 worker
+
+  x  1 g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado (20.9s)
+  x  2 g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado (17.0s)
+  x  3 g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho (17.3s)
+[e2e-stack] stack run-1789499649258 desligada.
+
+
+  1) g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado 
+
+    Error: Timed out 15000ms waiting for expect(locator).toBeFocused()
+
+    Locator: getByRole('dialog', { name: 'Aprovar crédito' }).getByLabel('Motivo da decisão')
+    Expected: focused
+    Received: inactive
+    Call log:
+      - expect.toBeFocused with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Aprovar crédito' }).getByLabel('Motivo da decisão')
+        18 × locator resolved to <textarea rows="4" id="_r_0_" required="" class="peg-textarea" aria-invalid="false" placeholder="Ex.: renda comprovada de 3x o aluguel e nenhuma restrição ativa.">R</textarea>
+           - unexpected value "not focused"
+
+
+       97 |     const draft = approveDialog.getByLabel('Motivo da decisão');
+       98 |     await draft.pressSequentially('Rascunho', { delay: 30 });
+    >  99 |     await expect(draft).toBeFocused();
+          |                         ^
+      100 |     await expect(draft).toHaveValue('Rascunho');
+      101 |     await page.keyboard.press('Escape');
+      102 |     await expect(approveDialog).toBeHidden();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-dialog-focus.spec.ts:99:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-cf35a-iálogo-e-o-motivo-é-gravado\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-cf35a-iálogo-e-o-motivo-é-gravado\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-dialog-focus-Foco-em-cf35a-iálogo-e-o-motivo-é-gravado\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado 
+
+    Error: Timed out 15000ms waiting for expect(locator).toBeFocused()
+
+    Locator: getByRole('dialog', { name: 'Novo contato' }).getByLabel('Nome')
+    Expected: focused
+    Received: inactive
+    Call log:
+      - expect.toBeFocused with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Novo contato' }).getByLabel('Nome')
+        18 × locator resolved to <input value="" id="_r_5_" required="" aria-invalid="false" class="peg-input__control" placeholder="Nome completo"/>
+           - unexpected value "not focused"
+
+
+      156 |     await nameField.pressSequentially(name, { delay: 20 });
+      157 |     await expect(dialog).toBeVisible();
+    > 158 |     await expect(nameField).toBeFocused();
+          |                             ^
+      159 |     await expect(nameField).toHaveValue(name);
+      160 |
+      161 |     const email = `contato-foco-${uniq()}@teste.com`;
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-dialog-focus.spec.ts:158:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-784b2-campos-e-o-contato-é-criado\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-784b2-campos-e-o-contato-é-criado\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-dialog-focus-Foco-em-784b2-campos-e-o-contato-é-criado\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho 
+
+    Error: Timed out 15000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByRole('dialog', { name: 'Inspector contextual' })
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Inspector contextual' })
+
+
+      186 |     const text = 'Ligar para o lead amanhã cedo';
+      187 |     await field.pressSequentially(text, { delay: 20 });
+    > 188 |     await expect(drawer).toBeVisible();
+          |                          ^
+      189 |     await expect(field).toBeFocused();
+      190 |     await expect(field).toHaveValue(text);
+      191 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-dialog-focus.spec.ts:188:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-daed8-e-devolve-o-foco-ao-gatilho\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-dialog-focus-Foco-em-daed8-e-devolve-o-foco-ao-gatilho\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-dialog-focus-Foco-em-daed8-e-devolve-o-foco-ao-gatilho\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado 
+    g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado 
+    g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho 
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: playwright test g2-b1-dialog-focus
+# exit=1

@@ -138,3 +138,31 @@ Decisões:
   e quebraria o bundle do cliente (mesma cautela de `apps/web/src/lib/rbac.ts`). A consistência com
   o domínio é garantida nos testes, que rodam no Node e comparam com `canTransitionContract`,
   `CONTRACT_TEMPLATE_VARIABLES`, `renderTemplate` e `suggestionStatusSchema`.
+
+## G2B1-8 — Foco de `Modal` e `Drawer` não depende de `onClose`
+
+Status: Proposto.
+
+Contexto: na revisão final da trilha, o diálogo da decisão de crédito (motivo digitado, G2B1-7)
+perdia o foco a cada tecla. `Modal` e `Drawer` de `packages/ui` rodavam o efeito de foco com
+`[open, onClose]`, e as telas passam uma função nova a cada render: cada tecla num campo controlado
+re-executava o efeito, que devolvia o foco ao botão que abriu o diálogo e o levava para "Fechar" — o
+espaço seguinte fechava o diálogo. O `fill` do Playwright troca o valor de uma vez e escondia o
+defeito. Reproduzido também em "Novo contato" (CRM) e no `Drawer` da página de calibração; pelo
+código, "Nova ocorrência" (detalhe da vistoria) tem a mesma causa.
+
+Decisões:
+
+- Um hook compartilhado, `packages/ui/src/lib/use-dialog-focus.ts`, usado por `Modal` e `Drawer`:
+  o efeito depende só de `open`; uma referência guarda o `onClose` mais recente. Padrão do `Modal`
+  de `packages/design-system/src/components/Overlays.tsx` do Kal El, reimplementado — o CSS e o
+  restante do componente do Kal El não foram trazidos.
+- A lista de focáveis é lida a cada Tab, sem elementos desabilitados ou invisíveis, porque o
+  conteúdo do diálogo muda enquanto ele está aberto.
+- O listener de teclado continua na fase de bolha (o Kal El usa captura): o `AsyncCombobox` para a
+  propagação do Escape para fechar só a lista de opções, sem fechar o modal.
+- Spec que digita em diálogo usa `pressSequentially`, como uma pessoa digita.
+
+Consequências: todo `Modal`, `ConfirmModal` e `Drawer` do web herda a correção sem mudança nas
+telas. Teste permanente: `tests/e2e/src/g2-b1-dialog-focus.spec.ts` (decisão de crédito com Tab e
+Escape, "Novo contato" e campo controlado no `Drawer` da página de calibração).

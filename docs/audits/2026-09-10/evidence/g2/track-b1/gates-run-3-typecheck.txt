@@ -1,0 +1,68 @@
+# comando: pnpm typecheck --force
+# árvore: commit a089f5e (g2/track-b1-web, rodada 3 dos gates, sem cache)
+# data (UTC): 2026-09-15T19:24:54Z
+$ turbo run typecheck "--force"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running typecheck in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/domain:typecheck: cache bypass, force executing b2e8d590fdac2032
+@aluguei/config:typecheck: cache bypass, force executing ea9d471064f356e2
+@aluguei/contracts:typecheck: cache bypass, force executing 5f4b4662fc3e440c
+@aluguei/db:build: cache bypass, force executing eb1f1f2375c83db8
+@aluguei/observability:build: cache bypass, force executing b1251b5b82200219
+@aluguei/config:build: cache bypass, force executing d1711655a1b636d6
+@aluguei/storage:typecheck: cache bypass, force executing 49d9071c99eb03f3
+@aluguei/mobile:typecheck: cache bypass, force executing 46b8a17f43dfd396
+@aluguei/domain:build: cache bypass, force executing e20cc2725d67ab61
+@aluguei/db:typecheck: cache bypass, force executing f1d5f99f333df9aa
+@aluguei/domain:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/config:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/contracts:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/storage:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/mobile:typecheck: $ tsc --noEmit
+@aluguei/db:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/contracts:build: cache bypass, force executing 7ca088c02ac91d4f
+@aluguei/storage:build: cache bypass, force executing 49f45905d1725690
+@aluguei/observability:typecheck: cache bypass, force executing cd40be2a69793a9e
+@aluguei/tests-e2e:typecheck: cache bypass, force executing 5ab93bd1d93c9351
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/integrations:build: cache bypass, force executing 2b6b9b233427c580
+@aluguei/integrations:typecheck: cache bypass, force executing 714d476830b193e9
+@aluguei/observability:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-e2e:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/integrations:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/ui:build: cache bypass, force executing 0c22cd13647363ac
+@aluguei/ui:typecheck: cache bypass, force executing cb121bcde47be223
+@aluguei/tests-contract:typecheck: cache bypass, force executing c485847d48a13e7d
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/ui:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-contract:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/api:typecheck: cache bypass, force executing c0e2b86598f031c9
+@aluguei/meta-mcp:typecheck: cache bypass, force executing 8b80e8d8735a065c
+@aluguei/api:build: cache bypass, force executing 72839e79fb34d05f
+@aluguei/api:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/meta-mcp:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/web:typecheck: cache bypass, force executing 13845c8390f5f6c7
+@aluguei/web:typecheck: $ tsc --noEmit
+@aluguei/worker:build: cache bypass, force executing 1a9d1935fe027abf
+@aluguei/worker:typecheck: cache bypass, force executing 8a4d7fd7db8c0808
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/worker:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-integration:typecheck: cache bypass, force executing d8ba24f43d769511
+@aluguei/tests-integration:typecheck: $ tsc -p tsconfig.json --noEmit
+
+ Tasks:    26 successful, 26 total
+Cached:    0 cached, 26 total
+  Time:    51.008s 
+
+# exit=0
