@@ -5,8 +5,9 @@ externos: providers FAKE, Meta em dry-run, IA mock, nenhuma credencial. Cada arq
 com o comando, a base e a data (UTC) e termina com `# exit=<código>`.
 
 Um `*-red.txt` é a suíte rodando **sem** a correção e precisa falhar; o `*-green.txt`
-correspondente é a mesma suíte depois da correção. Base dos RED: `0585fc6` (G1 + deploy),
-com os testes novos e nenhuma correção.
+correspondente é a mesma suíte depois da correção. Base dos RED da Track B1: `0585fc6` (G1 +
+deploy), com os testes novos e nenhuma correção. Base de `track-a-ui-red.txt`: `71869f7`, já
+com a trilha A mesclada — as regras novas da API existem e a interface ainda não as segue.
 
 ## RED
 
@@ -21,12 +22,18 @@ com os testes novos e nenhuma correção.
 | `p3-calibration-e-p1-03-logout-helper-red.txt` | P3: `/dev/calibration` renderiza em produção (o controle fora de produção passa). P1-03: o helper que só aceita logout com 2xx/401 não existe (suíte não carrega)                                                                                                                                                                                                                                                                                                                                                                                         |
 | `e2e-red.txt`                                  | Playwright dos specs `g2-b1-*` (stack e cluster descartáveis, portas 3320/4320/5553) contra o código sem correção: 12 de 12 falham — CSV chega como `application/json` e remover característica dá 400 (P1-02); "3.500" e "3.500,50" gravados como 350 centavos (P0-07); "Sair" recebe 400 nos dois menus e o "Sair" do portal não chama o logout (P1-03); 52 respostas ≥ 400 nas telas, nomes ausentes, Visão Geral com "0" e select de imóvel vazio (P1-01); detalhe de vistoria sem render com o hunk de `5def4aa` revertido só nesta execução (P1-04) |
 | `p1-04-inspection-detail-red.txt`              | P1-04: só o spec do detalhe de vistoria, com o hunk de `5def4aa` revertido apenas durante a execução — falha com `pageerror: Rendered more hooks than during the previous render.` (a mensagem aparece na falha, não só "aba ausente")                                                                                                                                                                                                                                                                                                                    |
+| `track-a-ui-red.txt`                           | Regras da trilha A na interface: `credit-decision`, `contract-rules`, `contract-template-hints` e `inspection-suggestions`, contra módulos que reproduzem o comportamento atual das telas, falham 30 de 37 — screening e "Aprovar" em qualquer status, com motivo fixo e sem rejeitar; "Cancelar" em DRAFT e SIGNED; candidatura CONTRACTING elegível para novo contrato; exemplo de template `{{nome_locatario}}`, que a geração recusa; sugestões resolvidas somem sem status e o 409 é repetido cru                                                    |
 
 ## GREEN
 
 | Arquivo                             | O que prova                                                                                                                                    |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `p0-07-parser-green.txt`            | P0-07: `parseMoneyInput`, `parseDecimalInput` e `formatCentsForInput` em `packages/ui/src/lib/money.ts` — 63/63                                |
+| `p0-07-parsing-guard-green.txt`     | P0-07: nenhum `parseFloat`/`Number` sobre `replace(',', '.')` no web — 1/1                                                                     |
 | `p1-01-busca-q-green.txt`           | P1-01: `q` em `/properties` e `ids` em `/properties`, `/parties` e `/listings`, restritos à organização — 11/11                                |
 | `p1-01-dashboard-summary-green.txt` | P1-01: `GET /dashboard/summary` — 4/4: números iguais às contagens SQL independentes (mais de 100 leads), isolamento entre organizações e RBAC |
+| `p1-01-limit-guard-green.txt`       | P1-01: nenhum `limit` literal acima do aceito pela API e nenhum `limit` calculado em tempo de execução — 3/3                                   |
+| `p1-02-bff-green.txt`               | P1-02: content-type só com corpo; CSV, 204, erros e Set-Cookie repassados como vieram — 16/16                                                  |
 | `p1-03-logout-helper-green.txt`     | P1-03: `requestLogout` só conclui com 2xx ou 401; 400, 500 e falha de rede viram erro — 5/5                                                    |
+| `p3-calibration-green.txt`          | P3: `/dev/calibration` responde `notFound` em produção e continua disponível fora dela — 2/2                                                   |
+| `track-a-ui-green.txt`              | Regras da trilha A na interface: crédito, contrato, template e vistoria — 37/37                                                                |
