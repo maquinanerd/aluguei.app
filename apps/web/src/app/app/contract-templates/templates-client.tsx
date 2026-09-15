@@ -18,6 +18,7 @@ import type { Column } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { TEMPLATE_BODY_EXAMPLE, TEMPLATE_VARIABLE_HINTS } from '@/lib/contract-template-hints';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
 
@@ -258,11 +259,21 @@ function CreateTemplateModal({
           onChange={(e) => {
             setBody(e.target.value);
           }}
-          placeholder={'{{nome_locatario}} aluga de {{nome_proprietario}}…'}
+          placeholder={TEMPLATE_BODY_EXAMPLE}
         />
-        <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
-          O corpo usa variáveis de template preenchidas no momento da geração.
-        </p>
+        <div className="peg-stack" style={{ gap: 4 }}>
+          <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
+            Variáveis preenchidas na geração do contrato. Um placeholder fora desta lista faz a
+            geração falhar.
+          </p>
+          <ul className="peg-text-secondary" style={{ margin: 0, paddingLeft: 18, fontSize: 12 }}>
+            {TEMPLATE_VARIABLE_HINTS.map((hint) => (
+              <li key={hint.variable}>
+                <code className="peg-text-mono">{`{{${hint.variable}}}`}</code> — {hint.description}
+              </li>
+            ))}
+          </ul>
+        </div>
       </form>
     </Modal>
   );

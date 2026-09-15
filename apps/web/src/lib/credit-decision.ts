@@ -1,9 +1,9 @@
 /**
- * CONTROLE NEGATIVO (versionado só no commit de RED): as decisões que a tela de
- * crédito (screening/[id]/screening-detail-client.tsx) toma hoje — botão de
- * screening e "Aprovar" em qualquer status, motivo fixo "Aprovado pela equipe",
- * sem rejeitar e sem mostrar a origem da decisão. Substituído pela
- * implementação no commit de correção.
+ * Decisões da tela de crédito (screening/[id]) diante das regras da trilha A do
+ * G2 (P1-06, ADR G2A-2): o screening só é pedido em SUBMITTED; aprovar ou
+ * rejeitar só em MANUAL_REVIEW, por uma pessoa e com motivo digitado — o texto
+ * fixo anterior derrotava a auditoria. A API responde 409 fora dessas situações
+ * e 400 sem motivo; a tela não oferece a ação.
  */
 export type CreditDecision = 'APPROVED' | 'REJECTED';
 
@@ -12,10 +12,18 @@ export interface CreditActions {
   decisions: readonly CreditDecision[];
 }
 
+/** Mesmo limite do contrato da API para `decisionReason`. */
 export const DECISION_REASON_MAX_LENGTH = 2000;
 
-export function creditActions(_status: string): CreditActions {
-  return { canRequestScreening: true, decisions: ['APPROVED'] };
+export function creditActions(status: string): CreditActions {
+  switch (status) {
+    case 'SUBMITTED':
+      return { canRequestScreening: true, decisions: [] };
+    case 'MANUAL_REVIEW':
+      return { canRequestScreening: false, decisions: ['APPROVED', 'REJECTED'] };
+    default:
+      return { canRequestScreening: false, decisions: [] };
+  }
 }
 
 export type DecisionPayloadResult =
@@ -23,12 +31,30 @@ export type DecisionPayloadResult =
   | { ok: false; message: string };
 
 export function buildDecisionPayload(
-  _decision: CreditDecision,
-  _reason: string,
+  decision: CreditDecision,
+  reason: string,
 ): DecisionPayloadResult {
-  return { ok: true, body: { status: 'APPROVED', decisionReason: 'Aprovado pela equipe' } };
+  const decisionReason = reason.trim();
+  if (decisionReason === '') {
+    return {
+      ok: false,
+      message: 'Informe o motivo da decisão: ele fica registrado na auditoria do crédito.',
+    };
+  }
+  if (decisionReason.length > DECISION_REASON_MAX_LENGTH) {
+    return {
+      ok: false,
+      message: `O motivo pode ter no máximo ${String(DECISION_REASON_MAX_LENGTH)} caracteres.`,
+    };
+  }
+  return { ok: true, body: { status: decision, decisionReason } };
 }
 
-export function decisionSourceLabel(_source: string | null): string {
-  return '—';
+const DECISION_SOURCE_LABELS: Readonly<Record<string, string>> = {
+  MANUAL: 'Manual (equipe)',
+  AUTOMATIC: 'Automática (regras do screening)',
+};
+
+export function decisionSourceLabel(source: string | null): string {
+  return source === null ? '—' : (DECISION_SOURCE_LABELS[source] ?? source);
 }

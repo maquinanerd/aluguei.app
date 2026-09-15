@@ -20,6 +20,7 @@ import { formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
+import { contractActions } from '@/lib/contract-rules';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 
@@ -30,7 +31,17 @@ interface Contract {
   status: string;
   content: string | null;
   contentHash: string | null;
+  currentVersion: number | null;
   signedAt: string | null;
+  createdAt: string;
+}
+
+/** Versão imutável do texto (trilha A do G2, P0-04). */
+interface ContractVersion {
+  id: string;
+  version: number;
+  contentHash: string;
+  templateVersion: number | null;
   createdAt: string;
 }
 
@@ -46,6 +57,10 @@ interface Envelope {
   id: string;
   provider: string;
   providerEnvelopeId: string;
+  /** Versão do contrato enviada ao provider. */
+  contractVersion: number | null;
+  /** SHA-256 do documento (PDF) enviado ao provider. */
+  documentHash: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -85,6 +100,7 @@ function ContractBody() {
   const [showContent, setShowContent] = useState(false);
 
   const aggQ = useQuery<Aggregate>(`/contracts/${id}`, [id]);
+  const versionsQ = useQuery<{ versions: ContractVersion[] }>(`/contracts/${id}/versions`, [id]);
 
   const contract = aggQ.data?.contract ?? null;
   const cParties = aggQ.data?.parties ?? [];
@@ -111,12 +127,20 @@ function ContractBody() {
   }
   if (!contract) return <EmptyState title="Carregando contrato…" icon="fileText" />;
 
-  async function generate() {
+  // Regras da trilha A do G2 (P0-04): gerar em DRAFT, regerar explícito em
+  // GENERATED sem envelope, texto congelado a partir do envio.
+  const actions = contractActions(contract, envelope);
+
+  async function generate(
+    body: Record<string, never> | { regenerate: true },
+    successMessage: string,
+  ) {
     setBusy(true);
     try {
-      await apiClient(`/contracts/${id}/generate`, { method: 'POST' });
-      toast.success('Contrato gerado');
+      await apiClient(`/contracts/${id}/generate`, { method: 'POST', body });
+      toast.success(successMessage);
       aggQ.reload();
+      versionsQ.reload();
     } catch (err) {
       toast.error('Falha ao gerar', err instanceof Error ? err.message : undefined);
     } finally {
@@ -130,6 +154,7 @@ function ContractBody() {
       await apiClient(`/contracts/${id}/send-for-signature`, { method: 'POST' });
       toast.success('Enviado para assinatura');
       aggQ.reload();
+      versionsQ.reload();
     } catch (err) {
       toast.error('Falha ao enviar', err instanceof Error ? err.message : undefined);
     } finally {
@@ -140,10 +165,14 @@ function ContractBody() {
   async function voidContract() {
     setBusy(true);
     try {
-      await apiClient(`/contracts/${id}/status`, { method: 'PATCH', body: { status: 'VOID' } });
+      // O cancelamento devolve o contrato atualizado ({ contract }, 200).
+      const res = await apiClient<{ contract: Aggregate }>(`/contracts/${id}/status`, {
+        method: 'PATCH',
+        body: { status: 'VOID' },
+      });
+      aggQ.setData(() => res.contract);
       toast.success('Contrato cancelado');
       setConfirmVoid(false);
-      aggQ.reload();
     } catch (err) {
       toast.error('Falha ao cancelar', err instanceof Error ? err.message : undefined);
     } finally {
@@ -151,8 +180,7 @@ function ContractBody() {
     }
   }
 
-  const canGenerate = contract.status === 'DRAFT';
-  const canSend = contract.status === 'GENERATED';
+  const versions = [...(versionsQ.data?.versions ?? [])].sort((a, b) => b.version - a.version);
 
   return (
     <Stack gap={4} style={{ width: '100%' }}>
@@ -175,24 +203,41 @@ function ContractBody() {
             </Group>
             <span className="peg-text-secondary" style={{ fontSize: 13 }}>
               {contract.contentHash
-                ? `hash: ${contract.contentHash.slice(0, 20)}…`
+                ? `versão ${String(contract.currentVersion ?? '—')} · hash: ${contract.contentHash.slice(0, 20)}…`
                 : 'conteúdo não gerado'}
             </span>
           </Stack>
           <Group gap={2}>
-            {canGenerate ? (
+            {actions.generate ? (
               <Button
                 size="sm"
                 variant="brand"
                 loading={busy}
                 onClick={() => {
-                  void generate();
+                  if (actions.generate) void generate(actions.generate.body, 'Contrato gerado');
                 }}
               >
                 Gerar contrato
               </Button>
             ) : null}
-            {canSend ? (
+            {actions.regenerate ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={busy}
+                onClick={() => {
+                  if (actions.regenerate) {
+                    void generate(
+                      actions.regenerate.body,
+                      'Texto regerado: nova versão registrada',
+                    );
+                  }
+                }}
+              >
+                Regerar texto
+              </Button>
+            ) : null}
+            {actions.send ? (
               <Button
                 size="sm"
                 variant="brand"
@@ -204,7 +249,7 @@ function ContractBody() {
                 Enviar para assinatura
               </Button>
             ) : null}
-            {contract.status !== 'VOID' ? (
+            {actions.void ? (
               <Button
                 size="sm"
                 variant="danger-subtle"
@@ -274,6 +319,28 @@ function ContractBody() {
                     {envelope.providerEnvelopeId}
                   </span>
                 </Stack>
+                <Stack gap={0}>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    Versão enviada
+                  </span>
+                  <span style={{ fontSize: 13 }}>
+                    {envelope.contractVersion !== null
+                      ? `v${String(envelope.contractVersion)}`
+                      : '—'}
+                  </span>
+                </Stack>
+                <Stack gap={0}>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    Hash do documento enviado (SHA-256)
+                  </span>
+                  <span
+                    className="peg-text-mono"
+                    style={{ fontSize: 12, overflowWrap: 'anywhere' }}
+                    title={envelope.documentHash ?? undefined}
+                  >
+                    {envelope.documentHash ?? '—'}
+                  </span>
+                </Stack>
                 <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
                   Atualizado em {formatDateTime(envelope.updatedAt)}
                 </span>
@@ -286,6 +353,43 @@ function ContractBody() {
           </Stack>
         </Card>
       </div>
+
+      <Card title="Versões do texto" padless>
+        {versions.length === 0 ? (
+          <div className="peg-empty" style={{ padding: 16 }}>
+            <span className="peg-empty__body">Nenhuma versão gerada ainda.</span>
+          </div>
+        ) : (
+          <Stack gap={0}>
+            {versions.map((v) => (
+              <Group
+                key={v.id}
+                gap={3}
+                style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
+              >
+                <Badge tone={v.version === contract.currentVersion ? 'success' : 'neutral'}>
+                  v{String(v.version)}
+                </Badge>
+                <span
+                  className="peg-text-mono peg-grow"
+                  style={{ fontSize: 12, minWidth: 0 }}
+                  title={v.contentHash}
+                >
+                  {v.contentHash.slice(0, 16)}…
+                </span>
+                {v.templateVersion !== null ? (
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    template v{String(v.templateVersion)}
+                  </span>
+                ) : null}
+                <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                  {formatDateTime(v.createdAt)}
+                </span>
+              </Group>
+            ))}
+          </Stack>
+        )}
+      </Card>
 
       {contract.content ? (
         <Card

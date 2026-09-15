@@ -7,13 +7,14 @@ import {
   Breadcrumb,
   Button,
   Card,
-  ConfirmModal,
   Group,
   Icon,
   Inspector,
   InspectorRows,
   InspectorSection,
+  Modal,
   Stack,
+  Textarea,
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
@@ -21,6 +22,8 @@ import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
+import { buildDecisionPayload, creditActions, decisionSourceLabel } from '@/lib/credit-decision';
+import type { CreditDecision } from '@/lib/credit-decision';
 import {
   label,
   APPLICATION_STATUS_LABELS,
@@ -37,6 +40,7 @@ interface Application {
   proposalId: string | null;
   status: string;
   decisionReason: string | null;
+  decisionSource: string | null;
   submittedAt: string | null;
   decidedBy: string | null;
   decidedAt: string | null;
@@ -85,7 +89,10 @@ function ScreeningBody() {
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  const [confirmApprove, setConfirmApprove] = useState(false);
+  // Decisão manual com motivo digitado (trilha A do G2, P1-06): nunca texto fixo.
+  const [decision, setDecision] = useState<CreditDecision | null>(null);
+  const [reason, setReason] = useState('');
+  const [reasonError, setReasonError] = useState<string | null>(null);
 
   const appQ = useQuery<Aggregate>(`/rental-applications/${id}`, [id]);
   const proposalsQ = useQuery<{ proposals: Proposal[] }>('/proposals?limit=100', [id]);
@@ -120,6 +127,20 @@ function ScreeningBody() {
 
   if (!application) return <EmptyState title="Carregando análise…" icon="shield" />;
 
+  // Screening só em SUBMITTED; decisão só em MANUAL_REVIEW (a API responde 409 fora disso).
+  const actions = creditActions(application.status);
+
+  function openDecision(next: CreditDecision) {
+    setDecision(next);
+    setReason('');
+    setReasonError(null);
+  }
+
+  function closeDecision() {
+    setDecision(null);
+    setReasonError(null);
+  }
+
   async function runScreening() {
     setBusy(true);
     try {
@@ -133,18 +154,26 @@ function ScreeningBody() {
     }
   }
 
-  async function approve() {
+  async function decide() {
+    if (decision === null) return;
+    const payload = buildDecisionPayload(decision, reason);
+    if (!payload.ok) {
+      setReasonError(payload.message);
+      return;
+    }
+    setReasonError(null);
     setBusy(true);
     try {
       await apiClient(`/rental-applications/${id}/status`, {
         method: 'PATCH',
-        body: { status: 'APPROVED', decisionReason: 'Aprovado pela equipe' },
+        body: payload.body,
       });
-      toast.success('Aplicação aprovada');
-      setConfirmApprove(false);
+      toast.success(decision === 'APPROVED' ? 'Crédito aprovado' : 'Crédito rejeitado');
+      setDecision(null);
+      setReason('');
       appQ.reload();
     } catch (err) {
-      toast.error('Falha ao aprovar', err instanceof Error ? err.message : undefined);
+      toast.error('Falha ao registrar a decisão', err instanceof Error ? err.message : undefined);
     } finally {
       setBusy(false);
     }
@@ -184,26 +213,41 @@ function ScreeningBody() {
             </span>
           </Stack>
           <Group gap={2}>
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<Icon name="refresh" size={14} />}
-              loading={busy}
-              onClick={() => {
-                void runScreening();
-              }}
-            >
-              Solicitar screening
-            </Button>
-            <Button
-              size="sm"
-              variant="brand"
-              onClick={() => {
-                setConfirmApprove(true);
-              }}
-            >
-              Aprovar
-            </Button>
+            {actions.canRequestScreening ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<Icon name="refresh" size={14} />}
+                loading={busy}
+                onClick={() => {
+                  void runScreening();
+                }}
+              >
+                Solicitar screening
+              </Button>
+            ) : null}
+            {actions.decisions.includes('REJECTED') ? (
+              <Button
+                size="sm"
+                variant="danger-subtle"
+                onClick={() => {
+                  openDecision('REJECTED');
+                }}
+              >
+                Rejeitar
+              </Button>
+            ) : null}
+            {actions.decisions.includes('APPROVED') ? (
+              <Button
+                size="sm"
+                variant="brand"
+                onClick={() => {
+                  openDecision('APPROVED');
+                }}
+              >
+                Aprovar
+              </Button>
+            ) : null}
           </Group>
         </Group>
       </div>
@@ -270,9 +314,40 @@ function ScreeningBody() {
             Motivo
           </span>
           <span style={{ fontSize: 14 }}>{application.decisionReason ?? '—'}</span>
+          <div className="peg-grid cols-2">
+            <Stack gap={1}>
+              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                Origem
+              </span>
+              <span style={{ fontSize: 13 }}>
+                {decisionSourceLabel(application.decisionSource)}
+              </span>
+            </Stack>
+            <Stack gap={1}>
+              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                Responsável
+              </span>
+              <span
+                className={application.decidedBy ? 'peg-text-mono' : undefined}
+                style={{ fontSize: 13 }}
+                title={application.decidedBy ?? undefined}
+              >
+                {application.decidedBy
+                  ? `usuário ${application.decidedBy.slice(0, 8)}`
+                  : application.decisionSource === 'AUTOMATIC'
+                    ? 'regras do screening'
+                    : '—'}
+              </span>
+            </Stack>
+          </div>
           <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
             Decidida em {formatDateTime(application.decidedAt)}
           </span>
+          {application.status === 'SCREENING' ? (
+            <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+              Aguardando o resultado do screening. A decisão manual só existe em revisão manual.
+            </span>
+          ) : null}
         </Stack>
       </Card>
 
@@ -291,19 +366,55 @@ function ScreeningBody() {
         </InspectorSection>
       </Inspector>
 
-      <ConfirmModal
-        open={confirmApprove}
-        onClose={() => {
-          setConfirmApprove(false);
-        }}
-        onConfirm={() => {
-          void approve();
-        }}
-        title="Aprovar análise de crédito"
-        body="Confirmar a aprovação da aplicação? A decisão é auditada."
-        confirmLabel="Aprovar"
-        loading={busy}
-      />
+      <Modal
+        open={decision !== null}
+        onClose={closeDecision}
+        title={decision === 'REJECTED' ? 'Rejeitar crédito' : 'Aprovar crédito'}
+        footer={
+          <>
+            <Button variant="tertiary" onClick={closeDecision}>
+              Cancelar
+            </Button>
+            <Button
+              variant={decision === 'REJECTED' ? 'danger-subtle' : 'brand'}
+              type="submit"
+              form="credit-decision-form"
+              loading={busy}
+            >
+              {decision === 'REJECTED' ? 'Rejeitar' : 'Aprovar'}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="credit-decision-form"
+          className="peg-stack"
+          style={{ gap: 12 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void decide();
+          }}
+        >
+          <Textarea
+            label="Motivo da decisão"
+            required
+            rows={4}
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+            }}
+            placeholder="Ex.: renda comprovada de 3x o aluguel e nenhuma restrição ativa."
+          />
+          {reasonError ? (
+            <span className="peg-field__error" role="alert">
+              {reasonError}
+            </span>
+          ) : null}
+          <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
+            O motivo e o responsável ficam registrados na auditoria do crédito.
+          </p>
+        </form>
+      </Modal>
     </Stack>
   );
 }

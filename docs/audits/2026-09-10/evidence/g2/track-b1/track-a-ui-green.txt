@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/credit-decision.test.ts src/lib/contract-rules.test.ts src/lib/contract-template-hints.test.ts src/lib/inspection-suggestions.test.ts
+# base: 90a6c12 + implementação dos quatro módulos em apps/web/src/lib (GREEN)
+# data (UTC): 2026-09-15T18:16:52Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+
+ Test Files  4 passed (4)
+      Tests  37 passed (37)
+   Start at  15:16:53
+   Duration  889ms (transform 906ms, setup 0ms, import 1.35s, tests 30ms, environment 1ms)
+
+# exit=0

@@ -21,9 +21,15 @@ import {
   useToast,
 } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiClientError } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
+import {
+  splitSuggestions,
+  suggestionResolveErrorMessage,
+  suggestionStatusLabel,
+  suggestionStatusTone,
+} from '@/lib/inspection-suggestions';
 import { label, INSPECTION_STATUS_LABELS, INSPECTION_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 
@@ -250,11 +256,18 @@ function InspectionBody() {
       );
       aggQ.reload();
     } catch (err) {
-      toast.error('Falha', err instanceof Error ? err.message : undefined);
+      toast.error('Falha ao resolver a sugestão', suggestionResolveErrorMessage(err));
+      // 409: outra pessoa já resolveu — recarrega para mostrar o status gravado.
+      if (err instanceof ApiClientError && err.status === 409) {
+        aggQ.reload();
+      }
     }
   }
 
-  const pendingSuggestions = agg.aiSuggestions.filter((s) => s.status === 'PENDING');
+  // Pendentes têm ação; resolvidas mostram o status gravado (ACCEPTED, REJECTED, EDITED).
+  const { pending: pendingSuggestions, resolved: resolvedSuggestions } = splitSuggestions(
+    agg.aiSuggestions,
+  );
 
   return (
     <Stack gap={4} style={{ width: '100%' }}>
@@ -493,6 +506,28 @@ function InspectionBody() {
               ))}
             </Stack>
           )}
+        </Card>
+      ) : null}
+
+      {tab === 'revisao-ia' && resolvedSuggestions.length > 0 ? (
+        <Card title="Sugestões resolvidas" padless>
+          <Stack gap={0}>
+            {resolvedSuggestions.map((s) => (
+              <Group
+                key={s.id}
+                gap={3}
+                style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}
+              >
+                <Icon name={s.kind === 'VISUAL' ? 'eye' : 'mic'} size={16} />
+                <span className="peg-text-secondary peg-grow" style={{ fontSize: 12, minWidth: 0 }}>
+                  {JSON.stringify(s.payload).slice(0, 160)}
+                </span>
+                <Badge tone={suggestionStatusTone(s.status)}>
+                  {suggestionStatusLabel(s.status)}
+                </Badge>
+              </Group>
+            ))}
+          </Stack>
         </Card>
       ) : null}
 

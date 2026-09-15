@@ -18,6 +18,7 @@ import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useAllPages, useLookup } from '@/lib/lookup';
+import { eligibleApplicationsForContract } from '@/lib/contract-rules';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -87,9 +88,7 @@ function ContractsBody() {
     ...(data?.contracts ?? []).map((c) =>
       c.applicationId ? appMap.get(c.applicationId)?.partyId : null,
     ),
-    ...appsQ.rows
-      .filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING')
-      .map((a) => a.partyId),
+    ...eligibleApplicationsForContract(appsQ.rows).map((a) => a.partyId),
   ]).map;
 
   const templateMap = useMemo(() => {
@@ -289,12 +288,10 @@ function CreateContractModal({
             setApplicationId(e.target.value);
           }}
           placeholder="Selecione a aplicação…"
-          options={applications
-            .filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING')
-            .map((a) => ({
-              value: a.id,
-              label: `${partyMap.get(a.partyId)?.name ?? a.id.slice(0, 8)} · ${a.status}`,
-            }))}
+          options={eligibleApplicationsForContract(applications).map((a) => ({
+            value: a.id,
+            label: partyMap.get(a.partyId)?.name ?? `Candidatura ${a.id.slice(0, 8)}`,
+          }))}
         />
         <Select
           label="Template"
@@ -309,7 +306,7 @@ function CreateContractModal({
             .map((t) => ({ value: t.id, label: t.name }))}
         />
         <p className="peg-text-tertiary" style={{ fontSize: 12 }}>
-          Somente templates aprovados podem ser usados.
+          Só candidaturas aprovadas e sem contrato em andamento, com template aprovado.
         </p>
       </form>
     </Modal>

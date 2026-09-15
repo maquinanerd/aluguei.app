@@ -1,31 +1,42 @@
 /**
- * CONTROLE NEGATIVO (versionado só no commit de RED): as decisões que as telas
- * de contrato tomam hoje — "Gerar" só em DRAFT, sem regenerar, "Enviar" em
- * GENERATED, "Cancelar" em qualquer status que não seja VOID (inclusive DRAFT e
- * SIGNED) e candidaturas APPROVED ou CONTRACTING no modal de novo contrato.
- * Substituído pela implementação no commit de correção.
+ * Ações das telas de contrato diante das regras da trilha A do G2 (P0-04 e
+ * P1-06, ADRs G2A-1 e G2A-2). Espelha as transições de
+ * packages/domain/src/contract/contract.ts sem importar o pacote de domínio no
+ * bundle do cliente (ele traz node:crypto); contract-rules.test.ts compara com
+ * canTransitionContract.
  */
 export interface ContractActions {
+  /** Gerar o texto pela primeira vez (DRAFT). */
   generate: { body: Record<string, never> } | null;
+  /** Regerar em GENERATED antes do envio: pedido explícito, vira nova versão. */
   regenerate: { body: { regenerate: true } } | null;
   send: boolean;
   void: boolean;
 }
 
+/** Estados com transição para VOID no domínio: DRAFT não cancela; SIGNED e VOID são terminais. */
+const VOIDABLE_STATUSES: readonly string[] = [
+  'GENERATED',
+  'SENT_FOR_SIGNATURE',
+  'PARTIALLY_SIGNED',
+];
+
 export function contractActions(
   contract: { status: string },
-  _envelope: { status: string } | null,
+  envelope: { status: string } | null,
 ): ContractActions {
+  const { status } = contract;
   return {
-    generate: contract.status === 'DRAFT' ? { body: {} } : null,
-    regenerate: null,
-    send: contract.status === 'GENERATED',
-    void: contract.status !== 'VOID',
+    generate: status === 'DRAFT' ? { body: {} } : null,
+    regenerate: status === 'GENERATED' && envelope === null ? { body: { regenerate: true } } : null,
+    send: status === 'GENERATED',
+    void: VOIDABLE_STATUSES.includes(status),
   };
 }
 
+/** Contrato novo só de candidatura APPROVED: em CONTRACTING já existe contrato (a API responde 409). */
 export function eligibleApplicationsForContract<T extends { status: string }>(
   applications: readonly T[],
 ): T[] {
-  return applications.filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING');
+  return applications.filter((a) => a.status === 'APPROVED');
 }
