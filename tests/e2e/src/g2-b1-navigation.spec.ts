@@ -311,8 +311,8 @@ test.describe('P1-01: telas que usavam limit=200', () => {
       const dialog = page.getByRole('dialog', { name: trigger });
       const field = dialog.getByLabel('Imóvel', { exact: true });
       await expect(field).toBeVisible();
-      // Vale para <select> nativo e para combobox: só um campo de texto recebe a busca.
-      if (await field.evaluate((el) => el.tagName === 'INPUT')) {
+      // Vale para <select> nativo e para combobox: só o combobox recebe a busca.
+      if ((await field.getAttribute('role')) === 'combobox') {
         await field.fill('Navegação');
       }
       await expect(
