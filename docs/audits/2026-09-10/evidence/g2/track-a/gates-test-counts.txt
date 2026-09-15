@@ -1,0 +1,32 @@
+# Gate G2 — trilha A: contagem de testes do `pnpm test --force`
+# commit: 53cbc93 (árvore limpa)
+# data (UTC): 2026-09-15, execução 13:24–13:30
+# comando: pnpm test --force (turbo, sem cache)
+# resultado: exit 0 — Tasks: 24 successful, 24 total
+
+@aluguei/tests-integration   164 passed (164)
+@aluguei/integrations        158 passed (158)
+@aluguei/domain              107 passed (107)
+@aluguei/tests-contract       10 passed (10)
+@aluguei/web                  10 passed (10)
+@aluguei/worker                9 passed (9)
+@aluguei/storage               8 passed (8)
+@aluguei/contracts             7 passed (7)
+@aluguei/meta-mcp              7 passed (7)
+@aluguei/ui                    6 passed (6)
+@aluguei/api                   5 passed (5)
+@aluguei/mobile                5 passed (5)
+@aluguei/config                4 passed (4)
+@aluguei/observability         4 passed (4)
+
+total: 504 testes, 0 falhas (G1 fechou com 462: +42)
+
+Testes permanentes novos da trilha A:
+- tests-integration: contract-immutability (8), credit-decision (8),
+  contract-document-events (4), signature-provider (2), migrations-track-a (4),
+  inspections.test.ts (+1 caso e releitura no ciclo existente)
+- domain: rental.test.ts (casos de origem da transição e conteúdo gravável),
+  screening.test.ts (2), contract/variables.test.ts (5)
+- integrations: signature/document.test.ts (4)
+
+Fora do `pnpm test` por desenho: `test:pg` (PostgreSQL real) e Playwright (e2e.txt).
