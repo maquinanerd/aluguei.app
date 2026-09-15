@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/api-limits.test.ts
+# base: f2b1abf + referências por ids, combobox de imóvel, todas as páginas em até 100 e Visão Geral por /dashboard/summary (GREEN)
+# data (UTC): 2026-09-15T18:15:31Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  15:15:32
+   Duration  726ms (transform 238ms, setup 0ms, import 465ms, tests 5ms, environment 0ms)
+
+# exit=0

@@ -1,0 +1,513 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e exec playwright test g2-b1-
+# base: 39d6579 (testes RED) + specs E2E g2-b1-*, sem correção; P1-04 com o hunk de 5def4aa revertido só nesta execução (controle negativo)
+# data (UTC): 2026-09-14T18:57:49Z
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789412273242\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] (node:5572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789412273242).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 12 tests using 1 worker
+
+(node:25280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (3.2s)
+(node:22728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (3.3s)
+(node:27548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (1.0m)
+(node:27340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  4 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (4.0s)
+(node:27896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  5 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.7s)
+(node:13736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  6 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (19.5s)
+(node:27092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  7 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (2.7s)
+(node:27944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  8 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (4.4s)
+(node:27780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  9 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (1.1m)
+(node:24928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  10 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (32.6s)
+(node:27700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  11 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (16.8s)
+(node:23296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  12 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (47.2s)
+[e2e-stack] stack run-1789412273242 desligada.
+
+
+  1) g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "text/csv"
+    Received string:    "application/json"
+
+      29 |     );
+      30 |     expect(direct.status()).toBe(200);
+    > 31 |     expect(direct.headers()['content-type']).toContain('text/csv');
+         |                                              ^
+      32 |     expect(direct.headers()['content-disposition']).toContain('leads.csv');
+      33 |     expect((await direct.text()).split('\n')[0]).toBe('id,status,channel,source,createdAt');
+      34 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-bff.spec.ts:31:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-bff-P1-02-BFF-repass-7fc0b-eads-chega-como-arquivo-CSV\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-bff-P1-02-BFF-repass-7fc0b-eads-chega-como-arquivo-CSV\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-bff-P1-02-BFF-repass-7fc0b-eads-chega-como-arquivo-CSV\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 300
+    Received:   400
+
+      64 |       .getByRole('button', { name: 'Remover' })
+      65 |       .click();
+    > 66 |     expect((await removal).status()).toBeLessThan(300);
+         |                                      ^
+      67 |
+      68 |     const detail = await api<{ property: { features: string[] } }>(
+      69 |       'GET',
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-bff.spec.ts:66:38
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-bff-P1-02-BFF-repass-06a39-er-característica-do-imóvel\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-bff-P1-02-BFF-repass-06a39-er-característica-do-imóvel\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-bff-P1-02-BFF-repass-06a39-er-característica-do-imóvel\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror 
+
+    Error: Timed out 60000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByRole('tab', { name: 'Resumo' })
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 60000ms
+      - waiting for getByRole('tab', { name: 'Resumo' })
+
+
+      25 |
+      26 |   await page.goto(`/app/inspections/${created.body.inspection.id}`);
+    > 27 |   await expect(page.getByRole('tab', { name: 'Resumo' })).toBeVisible({ timeout: 60_000 });
+         |                                                           ^
+      28 |   for (const tab of ['Ambientes', 'Ocorrências', 'Revisão IA', 'Relatório', 'Resumo']) {
+      29 |     await page.getByRole('tab', { name: tab }).click();
+      30 |     await expect(page.getByRole('tab', { name: tab })).toHaveAttribute('aria-selected', 'true');
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-inspection-detail.spec.ts:27:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      37 |     const logout = page.waitForResponse((res) => res.url().endsWith('/api/auth/logout'));
+      38 |     await page.locator('header.app-topbar').getByRole('menuitem', { name: 'Sair' }).click();
+    > 39 |     expect((await logout).status()).toBe(200);
+         |                                     ^
+      40 |     await expectBackofficeSessionRevoked(page, account.cookie);
+      41 |   });
+      42 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-logout.spec.ts:39:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--ba9da-nta-do-topo-revoga-a-sessão\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--ba9da-nta-do-topo-revoga-a-sessão\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-logout-P1-03-logout--ba9da-nta-do-topo-revoga-a-sessão\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      50 |     const logout = page.waitForResponse((res) => res.url().endsWith('/api/auth/logout'));
+      51 |     await sidebar.getByRole('menuitem', { name: 'Sair' }).click();
+    > 52 |     expect((await logout).status()).toBe(200);
+         |                                     ^
+      53 |     await expectBackofficeSessionRevoked(page, session.cookie);
+      54 |   });
+      55 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-logout.spec.ts:52:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--575c8-rra-lateral-revoga-a-sessão\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--575c8-rra-lateral-revoga-a-sessão\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-logout-P1-03-logout--575c8-rra-lateral-revoga-a-sessão\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador 
+
+    TimeoutError: page.waitForResponse: Timeout 15000ms exceeded while waiting for event "response"
+
+      83 |       timeout: 60_000,
+      84 |     });
+    > 85 |     const logout = page.waitForResponse((res) => res.url().endsWith('/api/portal/auth/logout'), {
+         |                         ^
+      86 |       timeout: 15_000,
+      87 |     });
+      88 |     await page
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-logout.spec.ts:85:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--9a9da-ssão-do-portal-no-navegador\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-logout-P1-03-logout--9a9da-ssão-do-portal-no-navegador\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-logout-P1-03-logout--9a9da-ssão-do-portal-no-navegador\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 350000
+    Received: 350
+
+      31 |     }>('GET', `/properties/${propertyId}`, { cookie: account.cookie });
+      32 |     expect(persisted.status).toBe(200);
+    > 33 |     expect(persisted.body.property.financialTerms?.monthlyRentCents).toBe(350_000);
+         |                                                                      ^
+      34 |
+      35 |     await page.getByRole('tab', { name: 'Financeiro' }).click();
+      36 |     await expect(page.getByText(/R\$\s3\.500,00/).first()).toBeVisible({ timeout: 30_000 });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-money-input.spec.ts:33:70
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-money-input-P0-07-va-3d959--do-imóvel-grava-R-3-500-00\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-money-input-P0-07-va-3d959--do-imóvel-grava-R-3-500-00\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-money-input-P0-07-va-3d959--do-imóvel-grava-R-3-500-00\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 350050
+    Received: 350
+
+      54 |     const lead = leads.body.leads.find((l) => l.source === 'E2E orçamento B1');
+      55 |     expect(lead, 'o lead criado pela UI deve existir').toBeTruthy();
+    > 56 |     expect(lead?.budgetMinCents).toBe(350_050);
+         |                                  ^
+      57 |   });
+      58 | });
+      59 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-money-input.spec.ts:56:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-money-input-P0-07-va-f507a--novo-grava-350050-centavos\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-money-input-P0-07-va-f507a--novo-grava-350050-centavos\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-money-input-P0-07-va-f507a--novo-grava-350050-centavos\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 52
+
+    - Array []
+    + Array [
+    +   "/app/contracts → 400 GET /api/backend/rental-applications?limit=200",
+    +   "/app/contracts → 400 GET /api/backend/parties?limit=200",
+    +   "/app/contracts → 400 GET /api/backend/rental-applications?limit=200",
+    +   "/app/contracts → 400 GET /api/backend/parties?limit=200",
+    +   "/app/contracts/48623c5c-d69e-4ad5-996a-50ceb7443f40 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/contracts/48623c5c-d69e-4ad5-996a-50ceb7443f40 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/leases → 400 GET /api/backend/properties?limit=200",
+    +   "/app/leases → 400 GET /api/backend/parties?limit=200",
+    +   "/app/leases → 400 GET /api/backend/properties?limit=200",
+    +   "/app/leases → 400 GET /api/backend/parties?limit=200",
+    +   "/app/leases/7d883596-81fb-40d9-b242-674f0e72f4e5 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/leases/7d883596-81fb-40d9-b242-674f0e72f4e5 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/leases/7d883596-81fb-40d9-b242-674f0e72f4e5 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/leases/7d883596-81fb-40d9-b242-674f0e72f4e5 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/marketing → 400 GET /api/backend/properties?limit=200",
+    +   "/app/marketing → 400 GET /api/backend/listings?limit=200",
+    +   "/app/marketing → 400 GET /api/backend/listings?limit=200",
+    +   "/app/marketing → 400 GET /api/backend/properties?limit=200",
+    +   "/app/visits → 400 GET /api/backend/parties?limit=200",
+    +   "/app/visits → 400 GET /api/backend/properties?limit=200",
+    +   "/app/visits → 400 GET /api/backend/parties?limit=200",
+    +   "/app/visits → 400 GET /api/backend/properties?limit=200",
+    +   "/app/proposals → 400 GET /api/backend/parties?limit=200",
+    +   "/app/proposals → 400 GET /api/backend/properties?limit=200",
+    +   "/app/proposals → 400 GET /api/backend/parties?limit=200",
+    +   "/app/proposals → 400 GET /api/backend/properties?limit=200",
+    +   "/app/screening → 400 GET /api/backend/parties?limit=200",
+    +   "/app/screening → 400 GET /api/backend/properties?limit=200",
+    +   "/app/screening → 400 GET /api/backend/parties?limit=200",
+    +   "/app/screening → 400 GET /api/backend/properties?limit=200",
+    +   "/app/screening/175060d4-7cf9-478c-8738-7c528ac495b7 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/screening/175060d4-7cf9-478c-8738-7c528ac495b7 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/screening/175060d4-7cf9-478c-8738-7c528ac495b7 → 400 GET /api/backend/parties?limit=200",
+    +   "/app/screening/175060d4-7cf9-478c-8738-7c528ac495b7 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/inbox → 400 GET /api/backend/parties?limit=200",
+    +   "/app/inbox → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/pipeline → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/pipeline → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/leads → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/leads → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/leads/c7b44cf5-b904-4857-825d-aaf4d630e25c → 400 GET /api/backend/parties?limit=200",
+    +   "/app/crm/leads/c7b44cf5-b904-4857-825d-aaf4d630e25c → 400 GET /api/backend/parties?limit=200",
+    +   "/app/listings → 400 GET /api/backend/properties?limit=200",
+    +   "/app/listings → 400 GET /api/backend/properties?limit=200",
+    +   "/app/inspections → 400 GET /api/backend/properties?limit=200",
+    +   "/app/inspections → 400 GET /api/backend/properties?limit=200",
+    +   "/app/inspections/2733cde7-3ef9-4243-b358-56f80ecbd4a1 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/inspections/2733cde7-3ef9-4243-b358-56f80ecbd4a1 → 400 GET /api/backend/properties?limit=200",
+    +   "/app/properties/0923fee6-64f5-4237-ad9f-fa6e4f8af3ef → 400 GET /api/backend/parties?limit=200",
+    +   "/app/properties/0923fee6-64f5-4237-ad9f-fa6e4f8af3ef → 400 GET /api/backend/parties?limit=200",
+    + ]
+
+      258 |       await page.waitForTimeout(1_000);
+      259 |     }
+    > 260 |     expect(watch.backendFailures).toEqual([]);
+          |                                   ^
+      261 |     expect(watch.pageErrors).toEqual([]);
+      262 |   });
+      263 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-navigation.spec.ts:260:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-cb4b2--400-do-BFF-e-sem-pageerror\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-cb4b2--400-do-BFF-e-sem-pageerror\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-navigation-P1-01-tel-cb4b2--400-do-BFF-e-sem-pageerror\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes 
+
+    Error: /app/leases deve mostrar "Imóvel Navegação B1"
+
+    Timed out 30000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByText('Imóvel Navegação B1').first()
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - /app/leases deve mostrar "Imóvel Navegação B1" with timeout 30000ms
+      - waiting for getByText('Imóvel Navegação B1').first()
+
+
+      280 |       await page.goto(route, { timeout: 240_000 });
+      281 |       for (const text of texts) {
+    > 282 |         await expect(page.getByText(text).first(), `${route} deve mostrar "${text}"`).toBeVisible({
+          |                                                                                       ^
+      283 |           timeout: 30_000,
+      284 |         });
+      285 |       }
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-navigation.spec.ts:282:87
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-a0c23-recem-nas-listas-e-detalhes\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-a0c23-recem-nas-listas-e-detalhes\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-navigation-P1-01-tel-a0c23-recem-nas-listas-e-detalhes\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização 
+
+    Error: Timed out 15000ms waiting for expect(locator).toHaveText(expected)
+
+    Locator: locator('.dash-summary').filter({ has: getByRole('heading', { name: 'Imóveis', exact: true }) }).locator('.dash-summary__row').filter({ hasText: 'Disponíveis' }).locator('.dash-summary__value')
+    Expected string: "1"
+    Received string: "0"
+    Call log:
+      - expect.toHaveText with timeout 15000ms
+      - waiting for locator('.dash-summary').filter({ has: getByRole('heading', { name: 'Imóveis', exact: true }) }).locator('.dash-summary__row').filter({ hasText: 'Disponíveis' }).locator('.dash-summary__value')
+        18 × locator resolved to <span class="dash-summary__value">0</span>
+           - unexpected value "0"
+
+
+      291 |     await useSession(page, seed.cookie);
+      292 |     await page.goto('/app', { timeout: 240_000 });
+    > 293 |     await expect(summaryValue(page, 'Imóveis', 'Disponíveis')).toHaveText('1');
+          |                                                                ^
+      294 |     await expect(summaryValue(page, 'Imóveis', 'Reservados')).toHaveText('1');
+      295 |     await expect(summaryValue(page, 'CRM', 'Aguardando resposta')).toHaveText('1');
+      296 |     await expect(summaryValue(page, 'Operação', 'Vistorias em aberto')).toHaveText('1');
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-navigation.spec.ts:293:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-f2c69-úmeros-reais-da-organização\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-f2c69-úmeros-reais-da-organização\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-navigation-P1-01-tel-f2c69-úmeros-reais-da-organização\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização 
+
+    Error: /app/listings: o imóvel da organização deve estar entre as opções
+
+    Timed out 30000ms waiting for expect(locator).toBeAttached()
+
+    Locator: getByRole('dialog', { name: 'Novo listing' }).getByRole('option', { name: 'Imóvel Navegação B1', includeHidden: true }).first()
+    Expected: attached
+    Received: <element(s) not found>
+    Call log:
+      - /app/listings: o imóvel da organização deve estar entre as opções with timeout 30000ms
+      - waiting for getByRole('dialog', { name: 'Novo listing' }).getByRole('option', { name: 'Imóvel Navegação B1', includeHidden: true }).first()
+
+
+      319 |         dialog.getByRole('option', { name: PROPERTY_TITLE, includeHidden: true }).first(),
+      320 |         `${route}: o imóvel da organização deve estar entre as opções`,
+    > 321 |       ).toBeAttached({ timeout: 30_000 });
+          |         ^
+      322 |       await dialog.getByRole('button', { name: 'Cancelar' }).click();
+      323 |       await expect(dialog).toBeHidden();
+      324 |     }
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-navigation.spec.ts:321:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-81bee-cem-o-imóvel-da-organização\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-navigation-P1-01-tel-81bee-cem-o-imóvel-da-organização\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-navigation-P1-01-tel-81bee-cem-o-imóvel-da-organização\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: g2-b1-inspection-detail.spec.ts (1.0m)
+  Consider splitting slow test files to speed up parallel execution
+  12 failed
+    g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV 
+    g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel 
+    g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror 
+    g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão 
+    g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão 
+    g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador 
+    g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 
+    g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos 
+    g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror 
+    g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes 
+    g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização 
+    g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização 
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: playwright test g2-b1-
+# exit=1

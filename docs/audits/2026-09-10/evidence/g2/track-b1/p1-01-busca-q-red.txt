@@ -1,0 +1,346 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/list-search.test.ts
+# base: 0585fc6 + testes novos, sem correção (RED) — parâmetros q e ids nas listagens
+# data (UTC): 2026-09-14T18:53:46Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/tests/integration
+
+(node:6192) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/list-search.test.ts (11 tests | 10 failed) 11035ms
+       × filtra por trecho do título sem diferenciar maiúsculas 28ms
+       × nunca devolve imóvel de outra organização 12ms
+       × % e _ são texto, não curinga 9ms
+       × combina com filtro de status e paginação 15ms
+       × q acima de 100 caracteres é recusado 9ms
+       × /properties devolve só os ids pedidos que são da organização 11ms
+       × /parties devolve só os ids pedidos que são da organização 23ms
+       × /listings devolve só os ids pedidos que são da organização 11ms
+       × só ids de outra organização: lista vazia, sem vazar existência 18ms
+       × aceita até 100 ids e recusa lista maior ou id fora do formato 101ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > q em /properties > filtra por trecho do título sem diferenciar maiúsculas
+AssertionError: expected { status: 200, titles: [ …(5) ] } to deeply equal { status: 200, titles: [ …(2) ] }
+
+- Expected
++ Received
+
+  {
+    "status": 200,
+    "titles": [
++     "Apartamento Verde",
+      "Casa Azul Arquivada",
+      "Casa Azul Centro",
++     "Galpão_Norte",
++     "Sala 100% comercial",
+    ],
+  }
+
+ ❯ src/list-search.test.ts:114:51
+    112|   describe('q em /properties', () => {
+    113|     it('filtra por trecho do título sem diferenciar maiúsculas', async…
+    114|       expect(await titlesFor(A, 'q=casa%20azul')).toEqual({
+       |                                                   ^
+    115|         status: 200,
+    116|         titles: ['Casa Azul Arquivada', 'Casa Azul Centro'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > q em /properties > nunca devolve imóvel de outra organização
+AssertionError: expected { status: 200, titles: [ …(5) ] } to deeply equal { status: 200, titles: [] }
+
+- Expected
++ Received
+
+  {
+    "status": 200,
+-   "titles": [],
++   "titles": [
++     "Apartamento Verde",
++     "Casa Azul Arquivada",
++     "Casa Azul Centro",
++     "Galpão_Norte",
++     "Sala 100% comercial",
++   ],
+  }
+
+ ❯ src/list-search.test.ts:125:45
+    123|
+    124|     it('nunca devolve imóvel de outra organização', async () => {
+    125|       expect(await titlesFor(A, 'q=outra')).toEqual({ status: 200, tit…
+       |                                             ^
+    126|       expect(await titlesFor(B, 'q=casa')).toEqual({
+    127|         status: 200,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > q em /properties > % e _ são texto, não curinga
+AssertionError: expected { status: 200, titles: [ …(5) ] } to deeply equal { status: 200, …(1) }
+
+- Expected
++ Received
+
+  {
+    "status": 200,
+    "titles": [
++     "Apartamento Verde",
++     "Casa Azul Arquivada",
++     "Casa Azul Centro",
++     "Galpão_Norte",
+      "Sala 100% comercial",
+    ],
+  }
+
+ ❯ src/list-search.test.ts:133:43
+    131|
+    132|     it('% e _ são texto, não curinga', async () => {
+    133|       expect(await titlesFor(A, 'q=%25')).toEqual({
+       |                                           ^
+    134|         status: 200,
+    135|         titles: ['Sala 100% comercial'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > q em /properties > combina com filtro de status e paginação
+AssertionError: expected { status: 200, titles: [ …(4) ] } to deeply equal { status: 200, …(1) }
+
+- Expected
++ Received
+
+  {
+    "status": 200,
+    "titles": [
++     "Apartamento Verde",
+      "Casa Azul Centro",
++     "Galpão_Norte",
++     "Sala 100% comercial",
+    ],
+  }
+
+ ❯ src/list-search.test.ts:145:58
+    143|
+    144|     it('combina com filtro de status e paginação', async () => {
+    145|       expect(await titlesFor(A, 'q=casa&status=ACTIVE')).toEqual({
+       |                                                          ^
+    146|         status: 200,
+    147|         titles: ['Casa Azul Centro'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > q em /properties > q acima de 100 caracteres é recusado
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ src/list-search.test.ts:168:67
+    166|
+    167|     it('q acima de 100 caracteres é recusado', async () => {
+    168|       expect((await titlesFor(A, `q=${'x'.repeat(101)}`)).status).toBe…
+       |                                                                   ^
+    169|     });
+    170|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > ids em /properties, /parties e /listings > /properties devolve só os ids pedidos que são da organização
+AssertionError: expected [ …(5) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
++   "5ba79c55-1d7c-4d1a-988e-5a3cf32dfbae",
+    "6ba9bfce-95ef-49ac-96e8-e60183f3e7f6",
+    "72be9a65-d7b2-46ac-82ff-d3e149548931",
++   "90a7356b-54a3-4582-869d-b0e7aa65f8ac",
++   "b03ee848-a060-4caa-8f3b-885c164ebf8a",
+  ]
+
+ ❯ src/list-search.test.ts:177:42
+    175|       const res = await get(A, `/properties?limit=100&ids=${[...wanted…
+    176|       expect(res.status).toBe(200);
+    177|       expect(idsOf(res.body.properties)).toEqual([...wanted].sort());
+       |                                          ^
+    178|     });
+    179|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > ids em /properties, /parties e /listings > /parties devolve só os ids pedidos que são da organização
+AssertionError: expected [ …(3) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+    "3fedda01-de9a-4279-94f0-63ec25d86d7e",
++   "6973cddd-9bad-451a-80fd-1a92d2669819",
+    "c134eaa6-d25d-4a5c-8b58-6fed2b306a74",
+  ]
+
+ ❯ src/list-search.test.ts:184:39
+    182|       const res = await get(A, `/parties?limit=100&ids=${[...wanted, b…
+    183|       expect(res.status).toBe(200);
+    184|       expect(idsOf(res.body.parties)).toEqual([...wanted].sort());
+       |                                       ^
+    185|     });
+    186|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > ids em /properties, /parties e /listings > /listings devolve só os ids pedidos que são da organização
+AssertionError: expected [ …(3) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
++   "1dc7c71e-d345-4ec7-a060-c813306b2c2b",
+    "54c6df1d-c09e-4845-8c17-3b22c7e834a9",
+    "59204a94-ff37-437b-a641-ba702d0bb37d",
+  ]
+
+ ❯ src/list-search.test.ts:191:40
+    189|       const res = await get(A, `/listings?limit=100&ids=${[...wanted, …
+    190|       expect(res.status).toBe(200);
+    191|       expect(idsOf(res.body.listings)).toEqual([...wanted].sort());
+       |                                        ^
+    192|     });
+    193|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > ids em /properties, /parties e /listings > só ids de outra organização: lista vazia, sem vazar existência
+AssertionError: properties: expected [ { …(14) }, { …(14) }, …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "bathrooms": null,
++     "bedrooms": null,
++     "builtAreaSqm": null,
++     "createdAt": "2026-09-14T18:54:10.072Z",
++     "furnished": false,
++     "id": "b03ee848-a060-4caa-8f3b-885c164ebf8a",
++     "orgId": "4fd04417-660e-47a3-9721-632cd9e936e2",
++     "parkingSpots": null,
++     "petsAllowed": null,
++     "propertyType": "APARTMENT",
++     "status": "ARCHIVED",
++     "title": "Casa Azul Arquivada",
++     "totalAreaSqm": null,
++     "updatedAt": "2026-09-14T18:54:10.072Z",
++   },
++   {
++     "bathrooms": null,
++     "bedrooms": null,
++     "builtAreaSqm": null,
++     "createdAt": "2026-09-14T18:54:10.049Z",
++     "furnished": false,
++     "id": "6ba9bfce-95ef-49ac-96e8-e60183f3e7f6",
++     "orgId": "4fd04417-660e-47a3-9721-632cd9e936e2",
++     "parkingSpots": null,
++     "petsAllowed": null,
++     "propertyType": "APARTMENT",
++     "status": "ACTIVE",
++     "title": "Galpão_Norte",
++     "totalAreaSqm": null,
++     "updatedAt": "2026-09-14T18:54:10.049Z",
++   },
++   {
++     "bathrooms": null,
++     "bedrooms": null,
++     "builtAreaSqm": null,
++     "createdAt": "2026-09-14T18:54:10.028Z",
++     "furnished": false,
++     "id": "90a7356b-54a3-4582-869d-b0e7aa65f8ac",
++     "orgId": "4fd04417-660e-47a3-9721-632cd9e936e2",
++     "parkingSpots": null,
++     "petsAllowed": null,
++     "propertyType": "APARTMENT",
++     "status": "ACTIVE",
++     "title": "Sala 100% comercial",
++     "totalAreaSqm": null,
++     "updatedAt": "2026-09-14T18:54:10.028Z",
++   },
++   {
++     "bathrooms": null,
++     "bedrooms": null,
++     "builtAreaSqm": null,
++     "createdAt": "2026-09-14T18:54:09.957Z",
++     "furnished": false,
++     "id": "5ba79c55-1d7c-4d1a-988e-5a3cf32dfbae",
++     "orgId": "4fd04417-660e-47a3-9721-632cd9e936e2",
++     "parkingSpots": null,
++     "petsAllowed": null,
++     "propertyType": "APARTMENT",
++     "status": "ACTIVE",
++     "title": "Apartamento Verde",
++     "totalAreaSqm": null,
++     "updatedAt": "2026-09-14T18:54:09.957Z",
++   },
++   {
++     "bathrooms": null,
++     "bedrooms": null,
++     "builtAreaSqm": null,
++     "createdAt": "2026-09-14T18:54:09.831Z",
++     "furnished": false,
++     "id": "72be9a65-d7b2-46ac-82ff-d3e149548931",
++     "orgId": "4fd04417-660e-47a3-9721-632cd9e936e2",
++     "parkingSpots": null,
++     "petsAllowed": null,
++     "propertyType": "APARTMENT",
++     "status": "ACTIVE",
++     "title": "Casa Azul Centro",
++     "totalAreaSqm": null,
++     "updatedAt": "2026-09-14T18:54:09.831Z",
++   },
++ ]
+
+ ❯ src/list-search.test.ts:202:46
+    200|         const res = await get(A, `/${resource}?limit=100&ids=${foreign…
+    201|         expect(res.status, resource).toBe(200);
+    202|         expect(res.body[resource], resource).toEqual([]);
+       |                                              ^
+    203|       }
+    204|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/list-search.test.ts > P1-01: buscas nas listagens, restritas à organização > ids em /properties, /parties e /listings > aceita até 100 ids e recusa lista maior ou id fora do formato
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ src/list-search.test.ts:209:93
+    207|       const hundred = Array.from({ length: 100 }, () => randomUUID());
+    208|       expect((await get(A, `/parties?limit=100&ids=${hundred.join(',')…
+    209|       expect((await get(A, `/parties?ids=${[...hundred, randomUUID()].…
+       |                                                                                             ^
+    210|         400,
+    211|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 1 passed (11)
+   Start at  15:53:50
+   Duration  20.29s (transform 5.23s, setup 0ms, import 8.30s, tests 11.03s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/list-search.test.ts
+# exit=1

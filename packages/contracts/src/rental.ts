@@ -11,6 +11,9 @@ export const rentalApplicationStatusSchema = z.enum([
   'CONTRACTING',
 ]);
 
+/** Origem da decisão de crédito: pessoa (MANUAL) ou regras do screening (AUTOMATIC). */
+export const creditDecisionSourceSchema = z.enum(['MANUAL', 'AUTOMATIC']);
+
 export const rentalApplicationSchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
@@ -20,6 +23,7 @@ export const rentalApplicationSchema = z.object({
   proposalId: uuidSchema.nullable(),
   status: rentalApplicationStatusSchema,
   decisionReason: z.string().nullable(),
+  decisionSource: creditDecisionSourceSchema.nullable(),
   submittedAt: z.string().nullable(),
   decidedBy: uuidSchema.nullable(),
   decidedAt: z.string().nullable(),
@@ -72,10 +76,24 @@ export const listRentalApplicationsResponseSchema = z.object({
   total: z.number().int().nonnegative(),
 });
 
-export const updateRentalApplicationStatusRequestSchema = z.object({
-  status: rentalApplicationStatusSchema,
-  decisionReason: z.string().optional(),
-});
+/**
+ * Mudança de status pela equipe. Aprovação e rejeição exigem motivo (P1-06):
+ * sem ele a decisão de crédito não é auditável — a API responde 400.
+ */
+export const updateRentalApplicationStatusRequestSchema = z
+  .object({
+    status: rentalApplicationStatusSchema,
+    decisionReason: z.string().trim().max(2000).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if ((value.status === 'APPROVED' || value.status === 'REJECTED') && !value.decisionReason) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['decisionReason'],
+        message: 'Aprovação ou rejeição de crédito exige motivo',
+      });
+    }
+  });
 
 export const updateRentalApplicationStatusResponseSchema = z.object({
   application: rentalApplicationAggregateSchema,

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
+  AsyncCombobox,
   Badge,
   Button,
   DataTable,
@@ -9,16 +10,18 @@ import {
   Icon,
   Input,
   Modal,
+  MoneyInput,
   Select,
   Stack,
   Textarea,
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
-import type { Column } from '@aluguei/ui';
+import type { Column, ComboboxOption } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { searchProperties, useLookup } from '@/lib/lookup';
 import { label, PROPOSAL_STATUS_LABELS, PROPOSAL_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -62,20 +65,15 @@ function ProposalsBody() {
     proposals: Proposal[];
     total: number;
   }>(queryPath, [queryPath]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
+  // Nomes só das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>(
+    'parties',
+    (data?.proposals ?? []).map((p) => p.partyId),
+  ).map;
+  const propertyMap = useLookup<Property>(
+    'properties',
+    (data?.proposals ?? []).map((p) => p.propertyId),
+  ).map;
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a propostas" />;
 
@@ -259,7 +257,6 @@ function ProposalsBody() {
         onClose={() => {
           setCreateOpen(false);
         }}
-        properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Proposta criada');
           setCreateOpen(false);
@@ -273,25 +270,24 @@ function ProposalsBody() {
 function CreateProposalModal({
   open,
   onClose,
-  properties,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
-  properties: Property[];
   onCreated: () => void;
 }) {
   const toast = useToast();
-  const [propertyId, setPropertyId] = useState('');
-  const [monthlyRent, setMonthlyRent] = useState('');
+  // Imóvel buscado no servidor: o select com limit=200 ficava vazio (P1-01).
+  const [property, setProperty] = useState<ComboboxOption | null>(null);
+  // Centavos inteiros do MoneyInput (auditoria 2026-09-10, P0-07).
+  const [rentCents, setRentCents] = useState<number | null>(null);
   const [terms, setTerms] = useState('');
   const [validUntil, setValidUntil] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    const rentCents = Math.round(parseFloat(monthlyRent.replace(',', '.')) * 100);
-    if (!propertyId || !Number.isFinite(rentCents) || rentCents <= 0) {
+    if (!property || rentCents === null || rentCents <= 0) {
       toast.error('Informe o imóvel e um aluguel válido');
       return;
     }
@@ -303,14 +299,14 @@ function CreateProposalModal({
         terms?: string;
         validUntil?: string;
       } = {
-        propertyId,
+        propertyId: property.value,
         monthlyRentCents: rentCents,
       };
       if (terms.trim()) body.terms = terms.trim();
       if (validUntil) body.validUntil = new Date(validUntil).toISOString();
       await apiClient('/proposals', { method: 'POST', body });
-      setPropertyId('');
-      setMonthlyRent('');
+      setProperty(null);
+      setRentCents(null);
       setTerms('');
       setValidUntil('');
       onCreated();
@@ -345,25 +341,20 @@ function CreateProposalModal({
           void submit(e);
         }}
       >
-        <Select
+        <AsyncCombobox
           label="Imóvel"
           required
-          value={propertyId}
-          onChange={(e) => {
-            setPropertyId(e.target.value);
-          }}
-          placeholder="Selecione o imóvel…"
-          options={properties.map((p) => ({ value: p.id, label: p.title }))}
+          value={property}
+          onChange={setProperty}
+          loadOptions={searchProperties}
+          placeholder="Buscar imóvel pelo título…"
         />
-        <Input
+        <MoneyInput
           label="Aluguel mensal (R$)"
           required
-          inputMode="decimal"
-          value={monthlyRent}
-          onChange={(e) => {
-            setMonthlyRent(e.target.value);
-          }}
-          placeholder="3.500"
+          valueCents={rentCents}
+          onValueChange={setRentCents}
+          placeholder="3.500,00"
         />
         <Textarea
           label="Condições"

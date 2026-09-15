@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   doublePrecision,
   foreignKey,
   index,
@@ -155,6 +156,11 @@ export const inspectionAiSuggestions = pgTable(
     index('inspection_ai_suggestions_inspection_status_idx').on(t.inspectionId, t.status),
     index('inspection_ai_suggestions_media_idx').on(t.mediaId),
     index('inspection_ai_suggestions_org_idx').on(t.orgId),
+    // Status é o resultado, nunca a ação ACCEPT/REJECT/EDIT (auditoria 2026-09-10, P1-05).
+    check(
+      'inspection_ai_suggestions_status_valid',
+      sql`${t.status} in ('PENDING', 'ACCEPTED', 'REJECTED', 'EDITED')`,
+    ),
   ],
 );
 

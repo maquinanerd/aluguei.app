@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import { cx } from '../lib/cx';
+import { useDialogFocus } from '../lib/use-dialog-focus';
 import { IconButton } from './IconButton';
 import { Icon } from './icons';
 
@@ -24,39 +25,7 @@ export function Drawer({
   className?: string;
 }) {
   const panelRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const panel = panelRef.current;
-    if (!panel) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const focusables = panel.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
-    focusables[0]?.focus();
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (e.key !== 'Tab' || focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last?.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first?.focus();
-      }
-    }
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus();
-    };
-  }, [open, onClose]);
+  useDialogFocus(open, panelRef, onClose);
 
   if (!open) return null;
 

@@ -4,10 +4,12 @@ import type {
   CreateEnvelopeResult,
   EnvelopeStatus,
   ISignatureProvider,
+  SignatureProviderName,
 } from './types.js';
 
 /** Provider mock de assinatura: envelope id determinístico por contractId. */
 export class FakeSignatureProvider implements ISignatureProvider {
+  readonly name: SignatureProviderName = 'FAKE';
   private readonly statuses = new Map<string, EnvelopeStatus>();
 
   createEnvelope(input: CreateEnvelopeInput): Promise<CreateEnvelopeResult> {

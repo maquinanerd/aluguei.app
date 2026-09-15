@@ -1,0 +1,179 @@
+# item: P0-04 — RED (teste permanente na árvore SEM correção)
+# commit: e93a783
+# data: 2026-09-14 (hora local em "Start at")
+# diretório: tests/integration
+# comando: pnpm exec vitest run src/contract-immutability.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/tests/integration
+
+(node:9904) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/contract-immutability.test.ts (8 tests | 8 failed) 5091ms
+     × SIGNED: regenerar → 409; status, conteúdo, hash e assinatura intactos 402ms
+     × SENT_FOR_SIGNATURE: regenerar → 409 sem nenhuma escrita 207ms
+     × PARTIALLY_SIGNED: regenerar → 409 sem nenhuma escrita 204ms
+     × VOID: regenerar → 409 sem nenhuma escrita 196ms
+     × DRAFT → GENERATED grava a versão 1 com o hash do conteúdo 176ms
+     × GENERATED: repetir é idempotente; regeneração explícita cria a versão 2 e preserva a 1 204ms
+     × envio fixa a versão: o envelope registra a versão enviada 174ms
+     × banco recusa reescrever texto enviado, regredir SIGNED e alterar versão gravada 260ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > SIGNED: regenerar → 409; status, conteúdo, hash e assinatura intactos
+AssertionError: generate {} em SIGNED: {"contract":{"contract":{"id":"bb3b1dbb-c3a8-4971-8a9b-10a4cfc57ba0","orgId":"588888c6-d7b8-47b3-9958-b42665e6b470","templateId":"3aa36b9d-1f2f-4b52-8c8b-85839dfd5ee8","applicationId":"234ca928-a17e-4d30-9d1b-9df0a298615e","status":"GENERATED","content":"PROP: Proprietária Contrato TEN: Locatária Contrato IMOV: Imóvel Contrato cw02iys5 ALUGUEL: 999900","contentHash":"2a0b542cd5036bed8239fb31aa4eeb60b882c3f1fbb5d7c4b647ceffe07da4d8","signedAt":"2026-09-14T14:41:05.318Z","createdAt":"2026-09-14T14:41:05.256Z","updatedAt":"2026-09-14T14:41:05.358Z"},"parties":[{"id":"f6d4b8ee-df8a-4600-846b-d25178d97965","contractId":"bb3b1dbb-c3a8-4971-8a9b-10a4cfc57ba0","partyId":"37ca644b-a4eb-422a-9ae3-f6eea550866e","role":"LANDLORD","signOrder":1,"signedAt":"2026-09-14T14:41:05.303Z"},{"id":"f550bed1-45b9-45c9-916c-89157f87ec63","contractId":"bb3b1dbb-c3a8-4971-8a9b-10a4cfc57ba0","partyId":"f2224353-3945-425d-ab61-b0e90a445bb5","role":"TENANT","signOrder":2,"signedAt":"2026-09-14T14:41:05.315Z"}],"envelope":{"id":"b005e07f-b5a9-49a8-91d9-b068d955cd04","contractId":"bb3b1dbb-c3a8-4971-8a9b-10a4cfc57ba0","provider":"FAKE","providerEnvelopeId":"env.fake.503ff790ebd1","status":"SIGNED","createdAt":"2026-09-14T14:41:05.287Z","updatedAt":"2026-09-14T14:41:05.331Z"}}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ expectGenerateRefused src/contract-immutability.test.ts:98:9
+     96|         res.status,
+     97|         `generate ${JSON.stringify(payload)} em ${before.status}: ${JS…
+     98|       ).toBe(409);
+       |         ^
+     99|       expect(await fx.contractRow(fixture.contractId)).toEqual(before);
+    100|     }
+ ❯ src/contract-immutability.test.ts:109:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > SENT_FOR_SIGNATURE: regenerar → 409 sem nenhuma escrita
+AssertionError: generate {} em SENT_FOR_SIGNATURE: {"contract":{"contract":{"id":"21e25222-9c9b-48f4-b5d3-05ad91f7e72c","orgId":"e707dce7-cf36-4df6-98a9-4a3023058ffb","templateId":"b6a3ef62-041e-4703-ac86-d72582164be2","applicationId":"e390a2ad-4284-4e33-b780-0a5670b0591b","status":"GENERATED","content":"PROP: Proprietária Contrato TEN: Locatária Contrato IMOV: Imóvel Contrato ypqspt4b ALUGUEL: 999900","contentHash":"6c3dbddf05ab42f284d1d4fa5b92dfa2e59d49fb23426d4ac4c0bff17e389230","signedAt":null,"createdAt":"2026-09-14T14:41:05.521Z","updatedAt":"2026-09-14T14:41:05.570Z"},"parties":[{"id":"369f4d27-10f9-4a29-bb63-59d8046e1991","contractId":"21e25222-9c9b-48f4-b5d3-05ad91f7e72c","partyId":"c4803b19-4ebc-4c66-937a-24d858aedc5f","role":"LANDLORD","signOrder":1,"signedAt":null},{"id":"ba97cba4-e9a0-47b9-a334-cd94543e09ad","contractId":"21e25222-9c9b-48f4-b5d3-05ad91f7e72c","partyId":"c29e5354-73ed-43d2-b1b6-35142f0f8127","role":"TENANT","signOrder":2,"signedAt":null}],"envelope":{"id":"a1785d07-6ee9-4e52-bcc8-b6fbda647b00","contractId":"21e25222-9c9b-48f4-b5d3-05ad91f7e72c","provider":"FAKE","providerEnvelopeId":"env.fake.02ed6acce2b3","status":"SENT","createdAt":"2026-09-14T14:41:05.546Z","updatedAt":"2026-09-14T14:41:05.546Z"}}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ expectGenerateRefused src/contract-immutability.test.ts:98:9
+     96|         res.status,
+     97|         `generate ${JSON.stringify(payload)} em ${before.status}: ${JS…
+     98|       ).toBe(409);
+       |         ^
+     99|       expect(await fx.contractRow(fixture.contractId)).toEqual(before);
+    100|     }
+ ❯ src/contract-immutability.test.ts:122:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > PARTIALLY_SIGNED: regenerar → 409 sem nenhuma escrita
+AssertionError: generate {} em PARTIALLY_SIGNED: {"contract":{"contract":{"id":"daeb9896-c265-46ff-9a2d-fd16a1768961","orgId":"4b5302bc-62b6-44d3-bf61-4f8c9d02569a","templateId":"134c69dc-90ae-4f8a-b4fc-8b7284102078","applicationId":"a18dabce-d333-4b2f-a0b7-276b01c58864","status":"GENERATED","content":"PROP: Proprietária Contrato TEN: Locatária Contrato IMOV: Imóvel Contrato tb5ndxxd ALUGUEL: 999900","contentHash":"29c2dfe9156d77c13377cddb205a983ed4e881fb1e2a4b5b34697a3e79cdea67","signedAt":null,"createdAt":"2026-09-14T14:41:05.716Z","updatedAt":"2026-09-14T14:41:05.775Z"},"parties":[{"id":"7b7acbef-74a6-4418-a2c8-9848b766d83a","contractId":"daeb9896-c265-46ff-9a2d-fd16a1768961","partyId":"c5e97332-d78c-4a54-bba6-f8bdfaf1e1a0","role":"LANDLORD","signOrder":1,"signedAt":"2026-09-14T14:41:05.752Z"},{"id":"dda0c9fb-cef9-4ff7-b522-d9cc508d7db5","contractId":"daeb9896-c265-46ff-9a2d-fd16a1768961","partyId":"e4aa26fa-9f4b-463f-8d59-8d86baebd566","role":"TENANT","signOrder":2,"signedAt":null}],"envelope":{"id":"f05dd048-eba2-4bc2-8e6a-aefbe3bf26dd","contractId":"daeb9896-c265-46ff-9a2d-fd16a1768961","provider":"FAKE","providerEnvelopeId":"env.fake.9b6abaf5fdd5","status":"PARTIALLY_SIGNED","createdAt":"2026-09-14T14:41:05.740Z","updatedAt":"2026-09-14T14:41:05.752Z"}}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ expectGenerateRefused src/contract-immutability.test.ts:98:9
+     96|         res.status,
+     97|         `generate ${JSON.stringify(payload)} em ${before.status}: ${JS…
+     98|       ).toBe(409);
+       |         ^
+     99|       expect(await fx.contractRow(fixture.contractId)).toEqual(before);
+    100|     }
+ ❯ src/contract-immutability.test.ts:127:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > VOID: regenerar → 409 sem nenhuma escrita
+AssertionError: generate {} em VOID: {"contract":{"contract":{"id":"29eee8a8-2e43-4b06-86fb-3635459f958b","orgId":"04ff954a-4066-43c6-8d80-dcf76574791d","templateId":"9dd10da1-3cbd-4c35-aeef-529b7287b7cd","applicationId":"e6cf4433-2735-4821-a6c2-ff3a730058b5","status":"GENERATED","content":"PROP: Proprietária Contrato TEN: Locatária Contrato IMOV: Imóvel Contrato nz0vjakk ALUGUEL: 999900","contentHash":"e98faf2d4b12a34c0d6d8b889ce87d2e96f9897ccb1354bd657c09ee6d78baa4","signedAt":null,"createdAt":"2026-09-14T14:41:05.920Z","updatedAt":"2026-09-14T14:41:05.970Z"},"parties":[{"id":"3da760e7-6058-4464-bda5-6caac5d5ce26","contractId":"29eee8a8-2e43-4b06-86fb-3635459f958b","partyId":"82d766ab-6aee-4ff0-ae2c-182dd9b5aafc","role":"LANDLORD","signOrder":1,"signedAt":null},{"id":"5f962d71-4aab-4a4d-8e81-b0c7bdeca781","contractId":"29eee8a8-2e43-4b06-86fb-3635459f958b","partyId":"80d1ee58-f35d-44f2-94a9-42948f0bc36f","role":"TENANT","signOrder":2,"signedAt":null}],"envelope":null}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ expectGenerateRefused src/contract-immutability.test.ts:98:9
+     96|         res.status,
+     97|         `generate ${JSON.stringify(payload)} em ${before.status}: ${JS…
+     98|       ).toBe(409);
+       |         ^
+     99|       expect(await fx.contractRow(fixture.contractId)).toEqual(before);
+    100|     }
+ ❯ src/contract-immutability.test.ts:137:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > DRAFT → GENERATED grava a versão 1 com o hash do conteúdo
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected:
+1
+
++ Received:
+undefined
+
+ ❯ src/contract-immutability.test.ts:146:38
+    144|     const generated = (res.body.contract as { contract: ContractDto })…
+    145|     expect(generated.status).toBe('GENERATED');
+    146|     expect(generated.currentVersion).toBe(1);
+       |                                      ^
+    147|     expect(generated.contentHash).toBe(sha256(generated.content ?? '')…
+    148|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > GENERATED: repetir é idempotente; regeneração explícita cria a versão 2 e preserva a 1
+AssertionError: expected 'PROP: Proprietária Contrato TEN: Loca…' not to be 'PROP: Proprietária Contrato TEN: Loca…' // Object.is equality
+ ❯ src/contract-immutability.test.ts:178:28
+    176|     expect(regenerated.status, JSON.stringify(regenerated.body)).toBe(…
+    177|     const v2 = await fx.contractRow(contract.contractId);
+    178|     expect(v2.content).not.toBe(v1.content);
+       |                            ^
+    179|     expect(v2.content_hash).toBe(sha256(v2.content ?? ''));
+    180|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > envio fixa a versão: o envelope registra a versão enviada
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected:
+1
+
++ Received:
+undefined
+
+ ❯ src/contract-immutability.test.ts:195:39
+    193|     expect(aggregate.status).toBe(200);
+    194|     const envelope = aggregate.body.envelope as { contractVersion?: nu…
+    195|     expect(envelope?.contractVersion).toBe(1);
+       |                                       ^
+    196|   });
+    197|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/contract-immutability.test.ts > P0-04: contrato enviado ou assinado não é regenerado > banco recusa reescrever texto enviado, regredir SIGNED e alterar versão gravada
+AssertionError: contracts.content em SIGNED: o banco deveria recusar com 23514: expected undefined to be '23514' // Object.is equality
+
+- Expected:
+"23514"
+
++ Received:
+undefined
+
+ ❯ src/contract-immutability.test.ts:228:67
+    226|       }
+    227|       // 23514 = check_violation, levantado pelo gatilho de imutabilid…
+    228|       expect(code, `${label}: o banco deveria recusar com 23514`).toBe…
+       |                                                                   ^
+    229|     }
+    230|     expect(await fx.contractRow(id)).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  11:40:57
+   Duration  9.65s (transform 2.27s, setup 0ms, import 4.30s, tests 5.09s, environment 0ms)
+
+# exit=1

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import { idListQuerySchema, paginationQuerySchema, uuidSchema } from './common.js';
 
 export const identityKindSchema = z.enum(['EMAIL', 'PHONE', 'CPF', 'CNPJ', 'PASSPORT']);
 
@@ -60,7 +60,10 @@ export const createPartyResponseSchema = z.object({
   matchedPartyId: uuidSchema.nullable(),
 });
 
-export const listPartiesQuerySchema = paginationQuerySchema;
+export const listPartiesQuerySchema = paginationQuerySchema.extend({
+  /** Ids a resolver para as linhas de uma página. */
+  ids: idListQuerySchema.optional(),
+});
 
 export const listPartiesResponseSchema = z.object({
   parties: z.array(partySchema),

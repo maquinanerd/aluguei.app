@@ -198,10 +198,17 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
       json: { partyId: tenantId, propertyId },
     });
     const applicationId = application.body.application.id;
-    await api('PATCH', `/rental-applications/${applicationId}/status`, {
+    const submitted = await api('PATCH', `/rental-applications/${applicationId}/status`, {
       cookie,
       json: { status: 'SUBMITTED' },
     });
+    expect(submitted.status).toBe(200);
+    // P1-06: a análise de crédito só começa pelo pedido de screening.
+    const skipScreening = await api('PATCH', `/rental-applications/${applicationId}/status`, {
+      cookie,
+      json: { status: 'SCREENING' },
+    });
+    expect(skipScreening.status, 'PATCH não pode pular o screening').toBe(409);
     const screen = await api('POST', `/rental-applications/${applicationId}/screening`, {
       cookie,
       json: { provider: 'FAKE' },
@@ -236,14 +243,36 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
       cookie,
       json: { applicationId, templateId },
     });
+    expect(contract.status).toBe(201);
     contractId = contract.body.contract.id;
-    await api('POST', `/contracts/${contractId}/generate`, { cookie, json: {} });
-    const send = await api<{ envelope: { providerEnvelopeId: string } }>(
-      'POST',
-      `/contracts/${contractId}/send-for-signature`,
-      { cookie, json: {} },
+    // P1-06: o contrato criado leva a candidatura a CONTRACTING.
+    const contracting = await api<{ application: { status: string } }>(
+      'GET',
+      `/rental-applications/${applicationId}`,
+      { cookie },
     );
+    expect(contracting.body.application.status).toBe('CONTRACTING');
+
+    const generated = await api<{
+      contract: { contract: { content: string; currentVersion: number } };
+    }>('POST', `/contracts/${contractId}/generate`, { cookie, json: {} });
+    expect(generated.status).toBe(200);
+    // P2-08: aluguel em R$ no corpo do contrato (antes "ALUGUEL: 250000").
+    expect(generated.body.contract.contract.content).toContain('ALUGUEL: R$ 2.500,00');
+    expect(generated.body.contract.contract.currentVersion).toBe(1);
+
+    const send = await api<{
+      envelope: {
+        providerEnvelopeId: string;
+        provider: string;
+        contractVersion: number;
+        documentHash: string;
+      };
+    }>('POST', `/contracts/${contractId}/send-for-signature`, { cookie, json: {} });
     expect(send.status).toBe(201);
+    // P1-11: envelope com o provider configurado e o hash do PDF enviado.
+    expect(send.body.envelope).toMatchObject({ provider: 'FAKE', contractVersion: 1 });
+    expect(send.body.envelope.documentHash).toMatch(/^[a-f0-9]{64}$/);
     const envelopeId = send.body.envelope.providerEnvelopeId;
 
     for (const order of [1, 2]) {
@@ -277,6 +306,26 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
       }
     }
     expect(signed, 'assinatura FAKE via webhooks deve levar contrato a SIGNED').toBe(true);
+
+    // P0-04: contrato assinado não é regenerado — nem com pedido explícito — e o
+    // texto assinado continua sendo a única versão.
+    const signedContract = await api<{ contract: object }>('GET', `/contracts/${contractId}`, {
+      cookie,
+    });
+    for (const json of [{}, { regenerate: true }]) {
+      const regenerate = await api('POST', `/contracts/${contractId}/generate`, { cookie, json });
+      expect(regenerate.status, `regenerar SIGNED com ${JSON.stringify(json)}`).toBe(409);
+    }
+    const afterRegenerate = await api<{ contract: object }>('GET', `/contracts/${contractId}`, {
+      cookie,
+    });
+    expect(afterRegenerate.body.contract).toEqual(signedContract.body.contract);
+    const versions = await api<{ versions: Array<{ version: number }> }>(
+      'GET',
+      `/contracts/${contractId}/versions`,
+      { cookie },
+    );
+    expect(versions.body.versions.map((v) => v.version)).toEqual([1]);
 
     const lease = await api<{ lease: IdBody }>('POST', '/leases', { cookie, json: { contractId } });
     expect(lease.status).toBe(201);

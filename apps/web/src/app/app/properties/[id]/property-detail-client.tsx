@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Badge,
@@ -15,6 +15,7 @@ import {
   InspectorRows,
   InspectorSection,
   Modal,
+  MoneyInput,
   Stack,
   Tabs,
   Tag,
@@ -64,12 +65,6 @@ interface Property {
   createdAt: string;
 }
 
-interface Party {
-  id: string;
-  name: string;
-  type: string;
-}
-
 interface Listing {
   id: string;
   status: string;
@@ -96,15 +91,11 @@ function PropertyBody() {
   const [busy, setBusy] = useState(false);
 
   const propQ = useQuery<{ property: Property }>(`/properties/${id}`, [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
   const listingsQ = useQuery<{ listings: Listing[] }>('/listings?limit=50', [id]);
 
+  // Os proprietários já vêm com nome no detalhe do imóvel: sem a lista de
+  // pessoas com limit=200, recusada pela API (P1-01).
   const property = propQ.data?.property ?? null;
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
 
   if (propQ.permissionDenied) return <PermissionDenied title="Sem acesso ao imóvel" />;
 
@@ -545,7 +536,7 @@ function PropertyBody() {
           <InspectorSection title="Proprietários">
             <InspectorRows
               rows={property.owners.slice(0, 3).map((o) => ({
-                label: partyMap.get(o.partyId)?.name ?? o.name,
+                label: o.name,
                 value: o.ownershipSharePct !== null ? `${String(o.ownershipSharePct)}%` : '—',
               }))}
             />
@@ -612,41 +603,32 @@ function FinancialTermsModal({
   onSaved: () => void;
 }) {
   const toast = useToast();
-  const [monthlyRent, setMonthlyRent] = useState(
-    initial ? String(initial.monthlyRentCents / 100) : '',
+  // Valores em centavos inteiros: o MoneyInput interpreta "3.500" como R$ 3.500,00
+  // (antes parseFloat("3.500") gravava R$ 3,50 — auditoria 2026-09-10, P0-07).
+  const [monthlyRentCents, setMonthlyRentCents] = useState<number | null>(
+    initial?.monthlyRentCents ?? null,
   );
-  const [condoFee, setCondoFee] = useState(
-    initial?.condoFeeCents != null ? String(initial.condoFeeCents / 100) : '',
+  const [condoFeeCents, setCondoFeeCents] = useState<number | null>(initial?.condoFeeCents ?? null);
+  const [iptuCents, setIptuCents] = useState<number | null>(initial?.iptuCents ?? null);
+  const [securityDepositCents, setSecurityDepositCents] = useState<number | null>(
+    initial?.securityDepositCents ?? null,
   );
-  const [iptu, setIptu] = useState(
-    initial?.iptuCents != null ? String(initial.iptuCents / 100) : '',
-  );
-  const [securityDeposit, setSecurityDeposit] = useState(
-    initial?.securityDepositCents != null ? String(initial.securityDepositCents / 100) : '',
-  );
+  const [rentError, setRentError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  function toCents(v: string): number | undefined {
-    const n = parseFloat(v.replace(',', '.'));
-    return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : undefined;
-  }
 
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    const rent = toCents(monthlyRent);
-    if (rent === undefined || rent <= 0) {
-      toast.error('Aluguel mensal é obrigatório');
+    if (monthlyRentCents === null || monthlyRentCents <= 0) {
+      setRentError('Informe o aluguel mensal, como em 3.500,00.');
       return;
     }
+    setRentError(null);
     setBusy(true);
     try {
-      const body: Record<string, number> = { monthlyRentCents: rent };
-      const condo = toCents(condoFee);
-      if (condo !== undefined) body.condoFeeCents = condo;
-      const i = toCents(iptu);
-      if (i !== undefined) body.iptuCents = i;
-      const dep = toCents(securityDeposit);
-      if (dep !== undefined) body.securityDepositCents = dep;
+      const body: Record<string, number> = { monthlyRentCents };
+      if (condoFeeCents !== null) body.condoFeeCents = condoFeeCents;
+      if (iptuCents !== null) body.iptuCents = iptuCents;
+      if (securityDepositCents !== null) body.securityDepositCents = securityDepositCents;
       await apiClient(`/properties/${propertyId}/financial-terms`, { method: 'PUT', body });
       onSaved();
     } catch (err) {
@@ -680,44 +662,36 @@ function FinancialTermsModal({
           void submit(e);
         }}
       >
-        <Input
+        <MoneyInput
           label="Aluguel mensal (R$)"
           required
-          inputMode="decimal"
-          value={monthlyRent}
-          onChange={(e) => {
-            setMonthlyRent(e.target.value);
+          valueCents={monthlyRentCents}
+          onValueChange={(cents) => {
+            setMonthlyRentCents(cents);
+            if (cents !== null && cents > 0) setRentError(null);
           }}
-          placeholder="3.500"
+          placeholder="3.500,00"
+          {...(rentError ? { error: rentError } : {})}
         />
         <div className="peg-grid cols-2">
-          <Input
+          <MoneyInput
             label="Condomínio (R$)"
             optional
-            inputMode="decimal"
-            value={condoFee}
-            onChange={(e) => {
-              setCondoFee(e.target.value);
-            }}
+            valueCents={condoFeeCents}
+            onValueChange={setCondoFeeCents}
           />
-          <Input
+          <MoneyInput
             label="IPTU (R$)"
             optional
-            inputMode="decimal"
-            value={iptu}
-            onChange={(e) => {
-              setIptu(e.target.value);
-            }}
+            valueCents={iptuCents}
+            onValueChange={setIptuCents}
           />
         </div>
-        <Input
+        <MoneyInput
           label="Caução (R$)"
           optional
-          inputMode="decimal"
-          value={securityDeposit}
-          onChange={(e) => {
-            setSecurityDeposit(e.target.value);
-          }}
+          valueCents={securityDepositCents}
+          onValueChange={setSecurityDepositCents}
         />
       </form>
     </Modal>

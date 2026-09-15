@@ -1,0 +1,7 @@
+# comando: pnpm format:check
+# árvore: commit a089f5e (g2/track-b1-web, rodada 3 dos gates, sem cache)
+# data (UTC): 2026-09-15T19:23:36Z
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+# exit=0

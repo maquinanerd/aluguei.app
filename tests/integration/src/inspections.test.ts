@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { inspectionMedia, inspections } from '@aluguei/db';
-import { eq } from 'drizzle-orm';
+import { inspectionAiSuggestions, inspectionMedia, inspections } from '@aluguei/db';
+import { eq, sql } from 'drizzle-orm';
 import { runInboxJobs } from '@aluguei/worker';
 import { MockInspectionAiProvider } from '@aluguei/integrations';
 import { buildTestApp, fakeStorage, registerUser } from './helpers.js';
@@ -16,6 +16,24 @@ interface InspectionBody {
 
 interface UploadBody {
   key: string;
+}
+
+interface SuggestionView {
+  id: string;
+  status: string;
+}
+
+/** SQLSTATE do erro do banco (o drizzle embrulha o erro do driver em `cause`). */
+function sqlState(error: unknown): string | undefined {
+  let current: unknown = error;
+  for (let depth = 0; depth < 5 && current !== null && current !== undefined; depth += 1) {
+    const candidate = current as { code?: unknown; cause?: unknown };
+    if (typeof candidate.code === 'string' && /^[0-9A-Z]{5}$/.test(candidate.code)) {
+      return candidate.code;
+    }
+    current = candidate.cause;
+  }
+  return undefined;
 }
 
 describe('Fase 06: Inspections + AI', () => {
@@ -170,6 +188,21 @@ describe('Fase 06: Inspections + AI', () => {
       });
       expect(resolve.statusCode).toBe(200);
     }
+    // P1-05: resolver grava o STATUS (ACCEPTED), não a ação (ACCEPT) — a vistoria,
+    // o relatório e a revisão continuam legíveis depois da resolução.
+    for (const path of ['', '/report', '/review']) {
+      const reread = await app.inject({
+        method: 'GET',
+        url: `/inspections/${inspectionId}${path}`,
+        headers: { cookie },
+      });
+      expect(reread.statusCode, `GET /inspections/:id${path}: ${reread.body}`).toBe(200);
+      const reread_suggestions = (reread.json() as { aiSuggestions: SuggestionView[] })
+        .aiSuggestions;
+      expect(reread_suggestions.map((s) => s.status)).toEqual(
+        aggregate.aiSuggestions.map(() => 'ACCEPTED'),
+      );
+    }
     const observation = await app.inject({
       method: 'POST',
       url: `/inspections/${inspectionId}/observations`,
@@ -196,6 +229,97 @@ describe('Fase 06: Inspections + AI', () => {
       payload: { status: 'SIGNED' },
     });
     expect(signed.statusCode).toBe(400);
+  });
+
+  it('P1-05: aceitar, rejeitar e editar gravam ACCEPTED, REJECTED e EDITED; o banco recusa a ação como status', async () => {
+    const { cookie, inspectionId } = await createPropertyAndInspection();
+    const [inspection] = await app.db
+      .select()
+      .from(inspections)
+      .where(eq(inspections.id, inspectionId));
+    if (!inspection) {
+      throw new Error('vistoria não encontrada');
+    }
+    const ids: string[] = [];
+    for (const description of ['Mancha no teto', 'Risco no piso', 'Tomada solta']) {
+      const [row] = await app.db
+        .insert(inspectionAiSuggestions)
+        .values({
+          orgId: inspection.orgId,
+          inspectionId,
+          kind: 'VISUAL',
+          payload: { category: 'DAMAGE', severity: 'LOW', description },
+          confidence: 0.8,
+          status: 'PENDING',
+        })
+        .returning({ id: inspectionAiSuggestions.id });
+      if (!row) {
+        throw new Error('sugestão não criada');
+      }
+      ids.push(row.id);
+    }
+    const [acceptId = '', rejectId = '', editId = ''] = ids;
+    const resolve = (suggestionId: string, payload: Record<string, string>) =>
+      app.inject({
+        method: 'PATCH',
+        url: `/inspections/${inspectionId}/ai-suggestions/${suggestionId}`,
+        headers: { cookie },
+        payload,
+      });
+    interface ResolveBody {
+      suggestion: SuggestionView;
+      observation: { status: string; description: string } | null;
+    }
+
+    const accepted = await resolve(acceptId, { action: 'ACCEPT' });
+    expect(accepted.statusCode, accepted.body).toBe(200);
+    expect((accepted.json() as ResolveBody).suggestion.status).toBe('ACCEPTED');
+    expect((accepted.json() as ResolveBody).observation?.status).toBe('CONFIRMED');
+
+    const rejected = await resolve(rejectId, { action: 'REJECT' });
+    expect(rejected.statusCode, rejected.body).toBe(200);
+    expect((rejected.json() as ResolveBody).suggestion.status).toBe('REJECTED');
+    expect((rejected.json() as ResolveBody).observation).toBeNull();
+
+    const edited = await resolve(editId, { action: 'EDIT', description: 'Tomada solta na sala' });
+    expect(edited.statusCode, edited.body).toBe(200);
+    expect((edited.json() as ResolveBody).suggestion.status).toBe('EDITED');
+    expect((edited.json() as ResolveBody).observation).toMatchObject({
+      status: 'EDITED',
+      description: 'Tomada solta na sala',
+    });
+
+    // Sugestão já resolvida não é resolvida de novo.
+    const again = await resolve(acceptId, { action: 'REJECT' });
+    expect(again.statusCode, again.body).toBe(409);
+
+    const expected = { [acceptId]: 'ACCEPTED', [rejectId]: 'REJECTED', [editId]: 'EDITED' };
+    for (const path of ['', '/report', '/review']) {
+      const reread = await app.inject({
+        method: 'GET',
+        url: `/inspections/${inspectionId}${path}`,
+        headers: { cookie },
+      });
+      expect(reread.statusCode, `GET /inspections/:id${path}: ${reread.body}`).toBe(200);
+      const statuses = Object.fromEntries(
+        (reread.json() as { aiSuggestions: SuggestionView[] }).aiSuggestions.map((s) => [
+          s.id,
+          s.status,
+        ]),
+      );
+      expect(statuses).toEqual(expected);
+    }
+
+    // Defesa no banco: a ação (ACCEPT) não é um status válido de sugestão.
+    let code: string | undefined;
+    try {
+      await app.db.execute(
+        sql`update inspection_ai_suggestions set status = 'ACCEPT' where id = ${rejectId}`,
+      );
+    } catch (error) {
+      code = sqlState(error);
+    }
+    expect(code, 'o banco deveria recusar status ACCEPT com 23514').toBe('23514');
   });
 
   it('privacy: mídia de vistoria NÃO aparece em property_media nem em DTO público', async () => {

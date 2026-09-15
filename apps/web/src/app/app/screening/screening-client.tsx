@@ -6,6 +6,7 @@ import { Badge, DataTable, Select, ToastProvider } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, APPLICATION_STATUS_LABELS, APPLICATION_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -47,20 +48,15 @@ function ScreeningBody() {
     applications: Application[];
     total: number;
   }>(queryPath, [queryPath]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
+  // Nomes só das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>(
+    'parties',
+    (data?.applications ?? []).map((a) => a.partyId),
+  ).map;
+  const propertyMap = useLookup<Property>(
+    'properties',
+    (data?.applications ?? []).map((a) => a.propertyId),
+  ).map;
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a análises de crédito" />;
 

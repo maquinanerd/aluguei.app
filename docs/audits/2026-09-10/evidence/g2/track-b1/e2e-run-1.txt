@@ -1,0 +1,89 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e test:e2e
+# árvore: g2/track-b1-web com a Track B1 completa e a trilha A mesclada; todos os specs (main-journey da trilha A e g2-b1-*), stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-15T18:22:28Z
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789496551246\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] (node:24676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789496551246).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 15 tests using 1 worker
+
+(node:3540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (4.3s)
+  ok 2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (2.1s)
+  x  3 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (32.2s)
+(node:25328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 4 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (1.9s)
+  ok 5 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.4s)
+  ok 6 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (1.6s)
+  ok 7 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (1.4s)
+  ok 8 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (1.4s)
+  ok 9 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (41.3s)
+  ok 10 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (6.2s)
+  ok 11 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (978ms)
+  ok 12 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (3.5s)
+  ok 13 main-journey.spec.ts:73:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (4.3s)
+  ok 14 main-journey.spec.ts:102:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (13.0s)
+  ok 15 main-journey.spec.ts:418:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (5.2s)
+[e2e-stack] stack run-1789496551246 desligada.
+
+
+  1) g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror 
+
+    Error: Timed out 30000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByText('Sala B1', { exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 30000ms
+      - waiting for getByText('Sala B1', { exact: true })
+
+
+      47 |   await page.getByPlaceholder('Nome do ambiente (ex.: Sala)').fill('Sala B1');
+      48 |   await page.getByRole('button', { name: 'Adicionar' }).click();
+    > 49 |   await expect(page.getByText('Sala B1', { exact: true })).toBeVisible({ timeout: 30_000 });
+         |                                                            ^
+      50 |
+      51 |   expect(pageErrors).toEqual([]);
+      52 | });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e\src\g2-b1-inspection-detail.spec.ts:49:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b1-inspection-detail-P1-60d97-ga-pelas-abas-sem-pageerror\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: g2-b1-navigation.spec.ts (51.9s)
+  Slow test file: g2-b1-inspection-detail.spec.ts (32.2s)
+  Slow test file: main-journey.spec.ts (22.6s)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror 
+  14 passed (3.0m)
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test`
+Exit status 1
+# exit=1

@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/logout.test.ts
+# base: 39d6579 + apps/web/src/lib/logout.ts (GREEN)
+# data (UTC): 2026-09-14T19:10:16Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:10:19
+   Duration  742ms (transform 60ms, setup 0ms, import 122ms, tests 70ms, environment 0ms)
+
+# exit=0

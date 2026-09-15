@@ -1,0 +1,26 @@
+# Defeito revelado pelo aceite do P1-04 na primeira execução completa (e2e-run-1.txt, teste 3)
+# data (UTC): 2026-09-15T18:27:52Z
+
+## Falha do spec (e2e-run-1.txt)
+  1) g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror 
+
+    Error: Timed out 30000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByText('Sala B1', { exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+
+## api.log da mesma execução (stack descartável, ALUGUEI_E2E_RUNS/run-1789496551246)
+linhas de requisição com url registradas: 370
+requisições para /inspections*:
+      6 "method":"GET","url":"/inspections/:id"
+      6 "method":"GET","url":"/inspections?limit=50&offset=0"
+      2 "method":"POST","url":"/inspections"
+POST /inspections/:id/rooms: 0 requisições
+
+## Causa no código
+packages/ui/src/components/Button.tsx:27:  type = 'button',
+inspection-detail-client.tsx:397-              />
+inspection-detail-client.tsx:398:              <Button size="sm" variant="secondary" loading={busy}>
+inspection-detail-client.tsx:399-                Adicionar
+inspection-detail-client.tsx:400-              </Button>

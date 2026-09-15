@@ -11,6 +11,7 @@ import {
   Icon,
   Input,
   Modal,
+  MoneyInput,
   Pagination,
   Select,
   Stack,
@@ -22,6 +23,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, FUNNEL_LABELS, FUNNEL_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -83,11 +85,15 @@ function LeadsBody() {
   const { data, loading, error, permissionDenied, reload } = useQuery<LeadsResponse>(queryPath, [
     queryPath,
   ]);
-  const parties = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
+  // Contatos das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyLookup = useLookup<Party>(
+    'parties',
+    (data?.leads ?? []).map((l) => l.partyId),
+  );
 
   const partyName = useCallback(
-    (id: string | null) => parties.data?.parties.find((p) => p.id === id)?.name ?? null,
-    [parties.data],
+    (id: string | null) => (id ? (partyLookup.map.get(id)?.name ?? null) : null),
+    [partyLookup.map],
   );
 
   const leads = useMemo(() => {
@@ -320,7 +326,8 @@ function CreateLeadModal({
 }) {
   const [source, setSource] = useState('');
   const [channel, setChannel] = useState('');
-  const [budget, setBudget] = useState('');
+  // Centavos inteiros do MoneyInput (auditoria 2026-09-10, P0-07).
+  const [budgetCents, setBudgetCents] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -331,15 +338,12 @@ function CreateLeadModal({
       {};
     if (source) input.source = source;
     if (channel) input.channel = channel;
-    if (budget) {
-      const cents = Math.round(parseFloat(budget.replace(',', '.')) * 100);
-      if (Number.isFinite(cents) && cents > 0) input.budgetMinCents = cents;
-    }
+    if (budgetCents !== null && budgetCents > 0) input.budgetMinCents = budgetCents;
     if (notes) input.notes = notes;
     onCreate(input);
     setSource('');
     setChannel('');
-    setBudget('');
+    setBudgetCents(null);
     setNotes('');
     setBusy(false);
   }
@@ -379,15 +383,12 @@ function CreateLeadModal({
             setSource(e.target.value);
           }}
         />
-        <Input
+        <MoneyInput
           label="Orçamento mínimo (R$)"
           optional
-          inputMode="decimal"
-          placeholder="3.500"
-          value={budget}
-          onChange={(e) => {
-            setBudget(e.target.value);
-          }}
+          placeholder="3.500,00"
+          valueCents={budgetCents}
+          onValueChange={setBudgetCents}
         />
         <Textarea
           label="Observações"

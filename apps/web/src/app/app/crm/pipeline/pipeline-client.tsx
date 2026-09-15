@@ -17,6 +17,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatRelative } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, FUNNEL_LABELS, FUNNEL_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
@@ -67,13 +68,17 @@ function PipelineBody() {
     '/leads?limit=100',
     [],
   );
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
+  // Contatos dos leads carregados, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyLookup = useLookup<Party>(
+    'parties',
+    (data?.leads ?? []).map((l) => l.partyId),
+  );
 
   const partyName = useMemo(() => {
     const map = new Map<string, string>();
-    for (const p of partiesQ.data?.parties ?? []) map.set(p.id, p.name);
+    for (const p of partyLookup.map.values()) map.set(p.id, p.name);
     return map;
-  }, [partiesQ.data]);
+  }, [partyLookup.map]);
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a leads" />;
 

@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/dashboard-summary.test.ts
+# base: 9b3fbcf + semente do teste com a trilha da decisão exigida pela migration 0015 da trilha A (GREEN depois do merge; a falha está em gates-run-1-test.txt)
+# data (UTC): 2026-09-15T18:44:44Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/tests/integration
+
+(node:25064) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:44:45
+   Duration  6.40s (transform 1.46s, setup 0ms, import 2.88s, tests 3.28s, environment 0ms)
+
+# exit=0

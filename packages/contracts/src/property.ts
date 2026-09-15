@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import {
+  idListQuerySchema,
+  paginationQuerySchema,
+  searchTextQuerySchema,
+  uuidSchema,
+} from './common.js';
 
 export const propertyTypeSchema = z.enum(['APARTMENT', 'HOUSE', 'COMMERCIAL', 'LAND']);
 export const propertyStatusSchema = z.enum(['ACTIVE', 'ARCHIVED']);
@@ -86,6 +91,10 @@ export const createPropertyResponseSchema = z.object({ property: propertySchema 
 
 export const listPropertiesQuerySchema = paginationQuerySchema.extend({
   status: propertyStatusSchema.optional(),
+  /** Trecho do título, sem diferenciar maiúsculas (combobox de imóvel). */
+  q: searchTextQuerySchema,
+  /** Ids a resolver para as linhas de uma página. */
+  ids: idListQuerySchema.optional(),
 });
 
 export const listPropertiesResponseSchema = z.object({
