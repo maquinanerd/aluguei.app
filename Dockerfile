@@ -44,3 +44,9 @@ USER node
 WORKDIR /app/apps/web
 EXPOSE 3000
 CMD ["node_modules/.bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000"]
+
+# Cópia única do banco embutido para o recurso PostgreSQL próprio (serviço
+# db-copy do compose). Script em arquivo para não depender de escape de $ no YAML.
+FROM postgres:17-alpine AS dbcopy
+COPY deploy/db-copy.sh /usr/local/bin/db-copy.sh
+CMD ["/bin/sh", "/usr/local/bin/db-copy.sh"]
