@@ -1,0 +1,34 @@
+# Gate G2 — trilha A: gates finais sem cache
+# commit: 53cbc93 (árvore limpa; branch g2/track-a-contracts)
+# máquina: Windows 11 Pro, Node 24.19.0, pnpm 11.15.1
+# execução: 2026-09-15T13:20:21Z → 13:30:22Z, sequencial, turbo com --force
+
+gate                                   exit  duração  observação
+format:check (1ª execução)             1     16s      357 arquivos em CRLF só na cópia de trabalho (ver abaixo)
+lint --force --continue                0     96s      Tasks: 26 successful, 26 total
+typecheck --force                      0     63s      Tasks: 26 successful, 26 total
+test --force                           0     323s     Tasks: 24 successful, 24 total — 504 testes (gates-test-counts.txt)
+build --force                          0     94s      Tasks: 12 successful, 12 total
+security:scan                          0     1s       Secret scan OK: nenhum segredo encontrado.
+security:audit --audit-level=critical  0     3s       0 critical; 22 high e 9 moderate — nenhuma ocorrência de pdf-lib, pako ou tslib na saída
+db:generate                            0     5s       drift: `git status --porcelain -- packages/db` = 0 linhas
+format:check (2ª execução)             0     —        All matched files use Prettier code style!
+
+Sobre a 1ª execução do format:check
+- `git ls-files --eol` mostrava `i/lf w/crlf` em 357 arquivos: o conteúdo commitado está em LF, mas
+  a cópia de trabalho deste worktree nasceu (commit 08ca0a5) antes do `.gitattributes` do G1
+  (`* text=auto eol=lf`), e o checkout da branch não reescreve arquivo cujo blob não mudou. Nenhum
+  arquivo alterado pela trilha A estava na lista.
+- Normalização: só CRLF → LF, byte a byte, nesses 357 arquivos — o mesmo que um checkout novo.
+- Prova de que nenhum conteúdo mudou: blob do índice = `git hash-object` do arquivo (ex.: turbo.json,
+  ac6b3c3f988aeec413b9beff1d86c0bc1749a708); `git diff --cached --stat` vazio; `git status` com 0
+  linhas depois de atualizar o stat do índice (`git add -u`, mesmo blob, nada commitado).
+- Em checkout novo, como no CI, os arquivos já saem em LF: mesma causa do P2-21 da auditoria.
+
+Sobre o audit
+- O gate é `--audit-level=critical`: exit 0, zero critical.
+- A trilha A só acrescenta ao lockfile pdf-lib 1.17.1, pako 1.0.11, tslib 1.14.1,
+  @pdf-lib/standard-fonts 1.0.0 e @pdf-lib/upng 1.0.1; nenhum aparece na saída do audit.
+- O G1 registrou 2 high residuais; os 22 high e 9 moderate de hoje não vêm da trilha A.
+- Por pacote (`pnpm audit --prod --json`): high @xmldom/xmldom ×19, image-size ×2, js-yaml ×1;
+  moderate @xmldom/xmldom ×4, hono ×3, qs ×2.

@@ -162,23 +162,35 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       payload: { partyId: tenantId, propertyId },
     });
     const applicationId = idOf(application.body, 'application');
-    await call('PATCH', `/rental-applications/${applicationId}/status`, {
+    const submit = await call('PATCH', `/rental-applications/${applicationId}/status`, {
       cookie,
       payload: { status: 'SUBMITTED' },
     });
-    await call('POST', `/rental-applications/${applicationId}/screening`, {
+    expect(submit.status, JSON.stringify(submit.body)).toBe(200);
+    // A análise começa pelo pedido de screening e o resultado do provider decide
+    // (auditoria 2026-09-10, P1-06) — nunca um PATCH direto para APPROVED.
+    const screening = await call('POST', `/rental-applications/${applicationId}/screening`, {
       cookie,
       payload: { provider: 'FAKE' },
     });
+    expect(screening.status, JSON.stringify(screening.body)).toBe(202);
     await runWorker();
-    const current = await call('GET', `/rental-applications/${applicationId}`, { cookie });
-    const status = (current.body.application as { status?: string } | undefined)?.status;
-    if (status === 'MANUAL_REVIEW') {
-      await call('PATCH', `/rental-applications/${applicationId}/status`, {
+    const applicationStatus = async (): Promise<string | undefined> => {
+      const current = await call('GET', `/rental-applications/${applicationId}`, { cookie });
+      return (current.body.application as { status?: string } | undefined)?.status;
+    };
+    if ((await applicationStatus()) === 'MANUAL_REVIEW') {
+      // Revisão manual: uma pessoa decide, com motivo registrado.
+      const decided = await call('PATCH', `/rental-applications/${applicationId}/status`, {
         cookie,
-        payload: { status: 'APPROVED', decisionReason: 'Aprovação manual (teste)' },
+        payload: {
+          status: 'APPROVED',
+          decisionReason: 'Renda e documentos conferidos pela equipe (teste)',
+        },
       });
+      expect(decided.status, JSON.stringify(decided.body)).toBe(200);
     }
+    expect(await applicationStatus()).toBe('APPROVED');
 
     const template = await call('POST', '/contract-templates', {
       cookie,

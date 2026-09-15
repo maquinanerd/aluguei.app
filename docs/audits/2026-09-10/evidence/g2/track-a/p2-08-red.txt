@@ -1,0 +1,108 @@
+# item: P2-08 — RED integração (teste permanente na árvore SEM correção)
+# commit: 564b74f
+# diretório: tests/integration
+# comando: pnpm exec vitest run src/contract-document-events.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/tests/integration
+
+(node:25524) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/contract-document-events.test.ts (4 tests | 4 failed) 16637ms
+     × aluguel sai em R$ no corpo — variável monthlyRent e o legado {{monthlyRentCents}} 1432ms
+     × template usa só parte das variáveis; placeholder desconhecido continua 400 sem gerar 618ms
+     × webhook de assinatura grava signature_events na chegada, uma linha por evento do provider 537ms
+     × PATCH /contracts/:id/status VOID → 200 com o agregado; transição inválida → 409 sem escrita 517ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/contract-document-events.test.ts > P2-08: texto do contrato, trilha de assinatura e resposta do cancelamento > aluguel sai em R$ no corpo — variável monthlyRent e o legado {{monthlyRentCents}}
+AssertionError: {"error":"DomainError","code":"INVALID_INPUT","message":"Variável do template não fornecida: monthlyRent"}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/contract-document-events.test.ts:70:50
+     68|     });
+     69|     const res = await fx.generate(contract);
+     70|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+       |                                                  ^
+     71|     const content = (res.body as unknown as AggregateBody).contract.co…
+     72|     expect(content).toBe(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/contract-document-events.test.ts > P2-08: texto do contrato, trilha de assinatura e resposta do cancelamento > template usa só parte das variáveis; placeholder desconhecido continua 400 sem gerar
+AssertionError: {"error":"DomainError","code":"INVALID_INPUT","message":"Variáveis declaradas sem uso no template: propertyTitle, monthlyRentCents, landlordName"}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/contract-document-events.test.ts:81:62
+     79|     const partial = await fx.draftContract({ templateBody: 'LOCATARIO:…
+     80|     const generated = await fx.generate(partial);
+     81|     expect(generated.status, JSON.stringify(generated.body)).toBe(200);
+       |                                                              ^
+     82|     expect((generated.body as unknown as AggregateBody).contract.contr…
+     83|       'LOCATARIO: Locatária Contrato',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/contract-document-events.test.ts > P2-08: texto do contrato, trilha de assinatura e resposta do cancelamento > webhook de assinatura grava signature_events na chegada, uma linha por evento do provider
+AssertionError: expected [] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+- [
+-   ObjectContaining {
+-     "event_type": "SIGNER_SIGNED",
+-     "org_id": "8073c13a-2d5c-43db-91b1-f04c569b48e2",
+-     "provider": "FAKE",
+-     "provider_event_id": "sig-ca1cgsvt",
+-   },
+- ]
++ []
+
+ ❯ src/contract-document-events.test.ts:114:22
+    112|     // Gravado na chegada, antes de o worker processar.
+    113|     const received = await eventsOf(contract.providerEnvelopeId);
+    114|     expect(received).toEqual([
+       |                      ^
+    115|       expect.objectContaining({
+    116|         provider: 'FAKE',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/contract-document-events.test.ts > P2-08: texto do contrato, trilha de assinatura e resposta do cancelamento > PATCH /contracts/:id/status VOID → 200 com o agregado; transição inválida → 409 sem escrita
+AssertionError: {"error":"ValidationError","code":"VALIDATION","message":"contract.contract: Invalid input: expected object, received undefined; contract.parties: Invalid input: expected array, received undefined; contract.envelope: Invalid input: expected object, received undefined"}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/contract-document-events.test.ts:156:50
+    154|       payload: { status: 'VOID' },
+    155|     });
+    156|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+       |                                                  ^
+    157|     expect((res.body as unknown as AggregateBody).contract.contract.st…
+    158|     expect((await fx.contractRow(contract.contractId)).status).toBe('V…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  16:08:15
+   Duration  31.58s (transform 9.14s, setup 0ms, import 13.87s, tests 16.64s, environment 0ms)
+
+# exit=1

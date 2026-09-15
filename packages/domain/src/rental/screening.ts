@@ -57,3 +57,21 @@ export function decideApplication(input: ScreeningDecisionInput): ScreeningDecis
 
   return { decision: 'REVIEW', rules };
 }
+
+/**
+ * Motivo auditável de uma decisão automática (auditoria 2026-09-10, P1-06):
+ * provider, decisão e as regras que efetivamente decidiram, com o detalhe de
+ * cada uma. O rastreio completo (inclusive regras não aplicadas) fica em
+ * `screening_results.decision_rules`.
+ */
+export function describeScreeningDecision(
+  provider: string,
+  result: ScreeningDecisionResult,
+): string {
+  const applied = result.rules.filter((rule) => rule.applied);
+  const rules =
+    applied.length > 0
+      ? applied.map((rule) => `${rule.ruleId}: ${rule.detail}`).join('; ')
+      : 'nenhuma regra conclusiva';
+  return `Decisão automática (${provider}): ${result.decision} — ${rules}`;
+}

@@ -50,9 +50,28 @@ export const contractSchema = z.object({
   status: contractStatusSchema,
   content: z.string().nullable(),
   contentHash: z.string().nullable(),
+  /** Versão vigente do texto (null enquanto DRAFT). */
+  currentVersion: z.number().int().positive().nullable(),
   signedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
+});
+
+/** Versão imutável do texto do contrato (P0-04). */
+export const contractVersionSchema = z.object({
+  id: uuidSchema,
+  contractId: uuidSchema,
+  version: z.number().int().positive(),
+  content: z.string(),
+  contentHash: z.string(),
+  templateId: uuidSchema.nullable(),
+  templateVersion: z.number().int().nullable(),
+  createdBy: uuidSchema.nullable(),
+  createdAt: z.string(),
+});
+
+export const listContractVersionsResponseSchema = z.object({
+  versions: z.array(contractVersionSchema),
 });
 
 export const contractPartySchema = z.object({
@@ -69,6 +88,10 @@ export const signatureEnvelopeSchema = z.object({
   contractId: uuidSchema,
   provider: z.string(),
   providerEnvelopeId: z.string(),
+  /** Versão do contrato enviada ao provider. */
+  contractVersion: z.number().int().positive().nullable(),
+  /** SHA-256 hex do documento (PDF) enviado ao provider. */
+  documentHash: z.string().nullable(),
   status: z.enum(['PENDING', 'SENT', 'PARTIALLY_SIGNED', 'SIGNED', 'FAILED']),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -95,6 +118,13 @@ export const listContractsResponseSchema = z.object({
   contracts: z.array(contractSchema),
   total: z.number().int().nonnegative(),
 });
+
+export const generateContractRequestSchema = z
+  .object({
+    /** Regera um contrato GENERATED antes do envio: conteúdo diferente vira nova versão. */
+    regenerate: z.boolean().optional(),
+  })
+  .strict();
 
 export const generateContractResponseSchema = z.object({ contract: contractAggregateSchema });
 

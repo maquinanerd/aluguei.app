@@ -6,6 +6,7 @@ import {
   webhookInbox,
   whatsappConnections,
   signatureEnvelopes,
+  signatureEvents,
   metaAssets,
   metaWebhookEvents,
 } from '@aluguei/db';
@@ -253,16 +254,32 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         // Envelope desconhecido: ignora (200) — não gera retry infinito do provider.
         return reply.status(200).send({ status: 'ignored' });
       }
-      // Dedup por UNIQUE(provider, provider_event_id).
-      await db
-        .insert(webhookInbox)
-        .values({
-          orgId: envelope.orgId,
-          provider: 'SIGNATURE',
-          providerEventId: `${input.provider}:${input.providerEventId}`,
-          payload: { envelopeId: envelope.id, ...input },
-        })
-        .onConflictDoNothing();
+      await db.transaction(async (tx) => {
+        // Trilha de assinatura (P2-08): o evento do provider fica gravado na
+        // chegada, antes do processamento. Reentrega do mesmo evento não duplica
+        // (UNIQUE provider + provider_event_id).
+        await tx
+          .insert(signatureEvents)
+          .values({
+            orgId: envelope.orgId,
+            envelopeId: envelope.id,
+            provider: input.provider,
+            eventType: input.eventType,
+            providerEventId: input.providerEventId,
+            payload: { ...input },
+          })
+          .onConflictDoNothing();
+        // Dedup por UNIQUE(provider, provider_event_id).
+        await tx
+          .insert(webhookInbox)
+          .values({
+            orgId: envelope.orgId,
+            provider: 'SIGNATURE',
+            providerEventId: `${input.provider}:${input.providerEventId}`,
+            payload: { envelopeId: envelope.id, ...input },
+          })
+          .onConflictDoNothing();
+      });
       await writeAudit(db, {
         action: AUDIT_ACTIONS.SIGNATURE_WEBHOOK_RECEIVED,
         entityType: 'WEBHOOK',

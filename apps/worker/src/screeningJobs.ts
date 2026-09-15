@@ -11,6 +11,7 @@ import {
 import {
   AUDIT_ACTIONS,
   decideApplication,
+  describeScreeningDecision,
   normalizeDocument,
   transitionLead,
   transitionRentalApplication,
@@ -28,6 +29,12 @@ export interface ScreeningJob {
 /**
  * Processa um job de screening: valida consentimento, executa o provider,
  * aplica regras determinísticas (explicáveis) e decide a candidatura.
+ *
+ * Decisão automática auditável (auditoria 2026-09-10, P1-06): a candidatura só
+ * sai de SCREENING com o resultado gravado; APPROVED/REJECTED registram origem
+ * AUTOMATIC, motivo com a regra que decidiu e data — `decided_by` fica nulo
+ * porque não há pessoa. Resultado, decisão, timeline e auditoria vão numa única
+ * transação; a chamada ao provider fica fora dela.
  */
 export async function processScreeningJob(
   db: AppDb,
@@ -79,17 +86,6 @@ export async function processScreeningJob(
   const cpf = identity?.value ?? normalizeDocument(application.partyId);
 
   const result = await provider.requestCreditScreening({ cpf, purpose: request.purpose });
-  await db
-    .update(screeningRequests)
-    .set({
-      status: 'COMPLETED',
-      completedAt: new Date(),
-      rawPayload: { score: result.score, redFlags: result.redFlags } as unknown as Record<
-        string,
-        unknown
-      >,
-    })
-    .where(eq(screeningRequests.id, request.id));
 
   const decisionInput: Parameters<typeof decideApplication>[0] = {
     score: result.score,
@@ -99,70 +95,130 @@ export async function processScreeningJob(
     decisionInput.approveScoreMin = approveScoreMin;
   }
   const decision = decideApplication(decisionInput);
-  await db.insert(screeningResults).values({
-    orgId: job.orgId,
-    applicationId: application.id,
-    requestId: request.id,
-    provider: request.provider,
-    score: result.score,
-    summary: result.summary,
-    redFlags: result.redFlags as unknown as Record<string, unknown>,
-    decision: decision.decision,
-    decisionRules: decision.rules as unknown as Record<string, unknown>,
-  });
-
   const nextStatus: RentalApplicationStatus =
     decision.decision === 'APPROVE'
       ? 'APPROVED'
       : decision.decision === 'REJECT'
         ? 'REJECTED'
         : 'MANUAL_REVIEW';
+  // Revisão manual ainda não é decisão: o motivo é registrado por quem decidir.
+  const decisionReason =
+    nextStatus === 'MANUAL_REVIEW' ? null : describeScreeningDecision(request.provider, decision);
   transitionRentalApplication('SCREENING', nextStatus, {
+    source: 'SCREENING_RESULT',
     hasConsent: true,
     hasRequiredData: true,
-    hasDecisionReason: true,
+    hasDecisionReason: decisionReason !== null,
+    hasDecidedBy: false,
+    hasScreeningResult: true,
     hasContract: false,
   });
-  const patch: Record<string, unknown> = { status: nextStatus, updatedAt: new Date() };
-  if (nextStatus === 'APPROVED' || nextStatus === 'REJECTED') {
-    patch.decidedAt = new Date();
-    patch.decisionReason = `auto:${decision.decision.toLowerCase()}`;
-  }
-  await db
-    .update(rentalApplications)
-    .set(patch as never)
-    .where(eq(rentalApplications.id, application.id));
 
-  if (nextStatus === 'REJECTED' && application.leadId) {
-    const [lead] = await db
-      .select()
-      .from(leads)
-      .where(and(eq(leads.id, application.leadId), eq(leads.orgId, job.orgId)))
-      .limit(1);
-    if (lead) {
-      try {
-        const next = transitionLead(lead.status as never, 'LOST');
-        await db
-          .update(leads)
-          .set({ status: next, updatedAt: new Date() })
-          .where(eq(leads.id, lead.id));
-      } catch {
-        // transição inválida do funil — ignora
+  await db.transaction(async (tx) => {
+    const now = new Date();
+    const [claimed] = await tx
+      .update(screeningRequests)
+      .set({
+        status: 'COMPLETED',
+        completedAt: now,
+        rawPayload: { score: result.score, redFlags: result.redFlags } as unknown as Record<
+          string,
+          unknown
+        >,
+      })
+      .where(and(eq(screeningRequests.id, request.id), eq(screeningRequests.status, 'PENDING')))
+      .returning({ id: screeningRequests.id });
+    if (!claimed) {
+      return; // outra execução já registrou este pedido (idempotente)
+    }
+    const [stored] = await tx
+      .insert(screeningResults)
+      .values({
+        orgId: job.orgId,
+        applicationId: application.id,
+        requestId: request.id,
+        provider: request.provider,
+        score: result.score,
+        summary: result.summary,
+        redFlags: result.redFlags as unknown as Record<string, unknown>,
+        decision: decision.decision,
+        decisionRules: decision.rules as unknown as Record<string, unknown>,
+      })
+      .returning({ id: screeningResults.id });
+    if (!stored) {
+      throw new Error('screening result insert failed');
+    }
+
+    const patch: Partial<typeof rentalApplications.$inferInsert> = {
+      status: nextStatus,
+      updatedAt: now,
+    };
+    if (decisionReason !== null) {
+      patch.decisionReason = decisionReason;
+      patch.decisionSource = 'AUTOMATIC';
+      patch.decidedBy = null;
+      patch.decidedAt = now;
+    }
+    const [moved] = await tx
+      .update(rentalApplications)
+      .set(patch)
+      .where(
+        and(
+          eq(rentalApplications.id, application.id),
+          eq(rentalApplications.orgId, job.orgId),
+          eq(rentalApplications.status, 'SCREENING'),
+        ),
+      )
+      .returning({ id: rentalApplications.id });
+    if (!moved) {
+      // Desfaz resultado e conclusão do pedido: a próxima tentativa reavalia.
+      throw new Error(`candidatura ${application.id} saiu de SCREENING durante a análise`);
+    }
+
+    if (nextStatus === 'REJECTED' && application.leadId) {
+      const [lead] = await tx
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, application.leadId), eq(leads.orgId, job.orgId)))
+        .limit(1);
+      if (lead) {
+        try {
+          const next = transitionLead(lead.status as never, 'LOST');
+          await tx
+            .update(leads)
+            .set({ status: next, updatedAt: new Date() })
+            .where(eq(leads.id, lead.id));
+        } catch {
+          // transição inválida do funil — ignora
+        }
       }
     }
-  }
-  await db.insert(timelineEvents).values({
-    orgId: job.orgId,
-    entityType: 'RENTAL_APPLICATION',
-    entityId: application.id,
-    eventType: 'SCREENING_DECIDED',
-    payload: { decision: decision.decision, rules: decision.rules },
-  });
-  await writeAudit(db, {
-    orgId: job.orgId,
-    action: AUDIT_ACTIONS.SCREENING_COMPLETED,
-    entityType: 'RENTAL_APPLICATION',
-    entityId: application.id,
-    payload: { decision: decision.decision },
+    await tx.insert(timelineEvents).values({
+      orgId: job.orgId,
+      entityType: 'RENTAL_APPLICATION',
+      entityId: application.id,
+      eventType: 'SCREENING_DECIDED',
+      payload: { decision: decision.decision, rules: decision.rules, source: 'AUTOMATIC' },
+    });
+    await writeAudit(tx, {
+      orgId: job.orgId,
+      action: AUDIT_ACTIONS.SCREENING_COMPLETED,
+      entityType: 'RENTAL_APPLICATION',
+      entityId: application.id,
+      payload: { decision: decision.decision, screeningResultId: stored.id },
+    });
+    await writeAudit(tx, {
+      orgId: job.orgId,
+      action: AUDIT_ACTIONS.RENTAL_APPLICATION_DECIDED,
+      entityType: 'RENTAL_APPLICATION',
+      entityId: application.id,
+      payload: {
+        from: 'SCREENING',
+        to: nextStatus,
+        source: 'AUTOMATIC',
+        decision: decision.decision,
+        screeningResultId: stored.id,
+      },
+    });
   });
 }

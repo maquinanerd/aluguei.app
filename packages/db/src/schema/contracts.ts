@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import {
+  check,
   foreignKey,
   index,
   integer,
@@ -7,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -27,6 +30,9 @@ export const rentalApplications = pgTable(
     proposalId: uuid('proposal_id'),
     status: text('status').notNull().default('DRAFT'), // DRAFT|SUBMITTED|SCREENING|MANUAL_REVIEW|APPROVED|REJECTED|CONTRACTING
     decisionReason: text('decision_reason'),
+    // Origem da decisão de crédito (P1-06): MANUAL (pessoa, com decided_by) |
+    // AUTOMATIC (regras sobre o resultado do screening, sem decided_by).
+    decisionSource: text('decision_source'),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
     decidedBy: uuid('decided_by').references(() => users.id, { onDelete: 'set null' }),
     decidedAt: timestamp('decided_at', { withTimezone: true }),
@@ -62,6 +68,16 @@ export const rentalApplications = pgTable(
       columns: [t.orgId, t.proposalId],
       foreignColumns: [proposals.orgId, proposals.id],
     }).onDelete('set null'),
+    // Decisão de crédito sempre com motivo, data e origem (P1-06). `decided_by`
+    // fica fora do CHECK porque a FK é ON DELETE SET NULL.
+    check(
+      'rental_applications_decision_source_valid',
+      sql`${t.decisionSource} is null or ${t.decisionSource} in ('MANUAL', 'AUTOMATIC')`,
+    ),
+    check(
+      'rental_applications_decision_recorded',
+      sql`${t.status} not in ('APPROVED', 'REJECTED', 'CONTRACTING') or (${t.decisionReason} is not null and btrim(${t.decisionReason}) <> '' and ${t.decidedAt} is not null and ${t.decisionSource} is not null)`,
+    ),
   ],
 );
 
@@ -149,8 +165,11 @@ export const contracts = pgTable(
       onDelete: 'set null',
     }),
     status: text('status').notNull().default('DRAFT'), // DRAFT|GENERATED|SENT_FOR_SIGNATURE|PARTIALLY_SIGNED|SIGNED|VOID
+    // Cópia da versão vigente (contract_versions): conteúdo e hash só mudam em
+    // DRAFT/GENERATED; a partir do envio o banco recusa a escrita (P0-04).
     content: text('content'),
     contentHash: text('content_hash'),
+    currentVersion: integer('current_version'),
     signedAt: timestamp('signed_at', { withTimezone: true }),
     createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -159,6 +178,42 @@ export const contracts = pgTable(
   (t) => [
     index('contracts_org_status_idx').on(t.orgId, t.status),
     index('contracts_org_application_idx').on(t.orgId, t.applicationId),
+    unique('contracts_org_id_unique').on(t.orgId, t.id),
+  ],
+);
+
+/**
+ * Versões do texto do contrato (auditoria 2026-09-10, P0-04): cada geração
+ * grava uma linha nova com o hash do conteúdo; nenhuma versão é reescrita
+ * (gatilho `contract_versions_immutable` na migration 0014).
+ */
+export const contractVersions = pgTable(
+  'contract_versions',
+  {
+    id: uuid('id').primaryKey().$defaultFn(randomUUID),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    contractId: uuid('contract_id').notNull(),
+    version: integer('version').notNull(),
+    content: text('content').notNull(),
+    contentHash: text('content_hash').notNull(),
+    templateId: uuid('template_id').references(() => contractTemplates.id, {
+      onDelete: 'set null',
+    }),
+    templateVersion: integer('template_version'),
+    createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('contract_versions_contract_version_unique').on(t.contractId, t.version),
+    index('contract_versions_org_contract_idx').on(t.orgId, t.contractId),
+    foreignKey({
+      name: 'contract_versions_contract_org_fk',
+      columns: [t.orgId, t.contractId],
+      foreignColumns: [contracts.orgId, contracts.id],
+    }).onDelete('cascade'),
+    check('contract_versions_version_positive', sql`${t.version} > 0`),
   ],
 );
 
@@ -195,6 +250,10 @@ export const signatureEnvelopes = pgTable(
       .references(() => contracts.id, { onDelete: 'cascade' }),
     provider: text('provider').notNull(), // CLICKSIGN | D4SIGN | FAKE
     providerEnvelopeId: text('provider_envelope_id').notNull(),
+    // Versão do contrato enviada ao provider (P0-04).
+    contractVersion: integer('contract_version'),
+    // SHA-256 hex do documento (PDF) enviado ao provider (P1-11).
+    documentHash: text('document_hash'),
     status: text('status').notNull().default('SENT'), // PENDING|SENT|PARTIALLY_SIGNED|SIGNED|FAILED
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

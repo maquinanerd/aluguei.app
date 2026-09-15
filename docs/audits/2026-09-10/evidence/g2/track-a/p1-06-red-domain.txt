@@ -1,0 +1,159 @@
+# item: P1-06 — RED domínio (teste permanente na árvore SEM correção)
+# commit: 294d171
+# diretório: packages/domain
+# comando: pnpm exec vitest run src/rental/rental.test.ts src/rental/screening.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/packages/domain
+
+ ❯ src/rental/screening.test.ts (2 tests | 2 failed) 7ms
+     × aprovação cita provider, decisão e a regra que decidiu 5ms
+     × rejeição cita a red flag que decidiu 1ms
+ ❯ src/rental/rental.test.ts (17 tests | 6 failed) 17ms
+     × aceita cada transição válida pela origem certa 7ms
+     × decisão manual exige motivo e responsável 1ms
+     × P1-06: SCREENING só pelo pedido de screening 1ms
+     × P1-06: com screening em andamento, só o resultado decide 0ms
+     × P1-06: CONTRACTING só pelo contrato criado 1ms
+     × lança DomainError em transição inválida 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > aceita cada transição válida pela origem certa
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/rental/rental.test.ts:51:7
+     49|         hasContract: false,
+     50|       }),
+     51|     ).toBe(true);
+       |       ^
+     52|   });
+     53|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > decisão manual exige motivo e responsável
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/rental/rental.test.ts:77:7
+     75|         hasDecidedBy: false,
+     76|       }),
+     77|     ).toBe(false);
+       |       ^
+     78|   });
+     79|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > P1-06: SCREENING só pelo pedido de screening
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/rental/rental.test.ts:81:78
+     79|
+     80|   it('P1-06: SCREENING só pelo pedido de screening', () => {
+     81|     expect(canTransitionRentalApplication('SUBMITTED', 'SCREENING', ma…
+       |                                                                              ^
+     82|     expect(
+     83|       applicationTransitionIssues('SUBMITTED', 'SCREENING', manual).jo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > P1-06: com screening em andamento, só o resultado decide
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/rental/rental.test.ts:89:71
+     87|   it('P1-06: com screening em andamento, só o resultado decide', () =>…
+     88|     for (const to of ['APPROVED', 'REJECTED', 'MANUAL_REVIEW'] as cons…
+     89|       expect(canTransitionRentalApplication('SCREENING', to, manual)).…
+       |                                                                       ^
+     90|     }
+     91|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > P1-06: CONTRACTING só pelo contrato criado
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/rental/rental.test.ts:110:79
+    108|
+    109|   it('P1-06: CONTRACTING só pelo contrato criado', () => {
+    110|     expect(canTransitionRentalApplication('APPROVED', 'CONTRACTING', m…
+       |                                                                               ^
+    111|     expect(
+    112|       canTransitionRentalApplication('APPROVED', 'CONTRACTING', {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/rental/rental.test.ts > rental application state machine > lança DomainError em transição inválida
+AssertionError: expected function to throw an error, but it didn't
+ ❯ src/rental/rental.test.ts:124:81
+    122|   it('lança DomainError em transição inválida', () => {
+    123|     expect(() => transitionRentalApplication('DRAFT', 'APPROVED', manu…
+    124|     expect(() => transitionRentalApplication('SUBMITTED', 'SCREENING',…
+       |                                                                                 ^
+    125|       DomainError,
+    126|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/rental/screening.test.ts > describeScreeningDecision (P1-06: motivo auditável da decisão automática) > aprovação cita provider, decisão e a regra que decidiu
+TypeError: describeScreeningDecision is not a function
+ ❯ src/rental/screening.test.ts:7:20
+      5|   it('aprovação cita provider, decisão e a regra que decidiu', () => {
+      6|     const decision = decideApplication({ score: 750, redFlags: [] });
+      7|     const reason = describeScreeningDecision('FAKE', decision);
+       |                    ^
+      8|     expect(reason).toContain('FAKE');
+      9|     expect(reason).toContain('APPROVE');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/rental/screening.test.ts > describeScreeningDecision (P1-06: motivo auditável da decisão automática) > rejeição cita a red flag que decidiu
+TypeError: describeScreeningDecision is not a function
+ ❯ src/rental/screening.test.ts:21:20
+     19|       redFlags: [{ id: 'NEGATIVACAO_ALTA', severity: 'HIGH' }],
+     20|     });
+     21|     const reason = describeScreeningDecision('SERASA', decision);
+       |                    ^
+     22|     expect(reason).toContain('REJECT');
+     23|     expect(reason).toContain('red_flag_high');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  8 failed | 11 passed (19)
+   Start at  15:42:46
+   Duration  435ms (transform 116ms, setup 0ms, import 171ms, tests 25ms, environment 0ms)
+
+# exit=1

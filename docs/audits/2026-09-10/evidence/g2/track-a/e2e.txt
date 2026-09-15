@@ -1,0 +1,28 @@
+# Gate G2 — trilha A: E2E Playwright
+# commit: 53cbc93 (código); execução 2026-09-15 depois dos gates
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e
+# stack: cluster PostgreSQL 17 descartável (migrations 0000-0017 aplicadas), API e worker em processos separados, next dev; providers FAKE
+# resultado: exit 0 — 3 passed
+
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\44b4af8f4e
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\44b4af8f4e\run-1789479316084\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\44b4af8f4e\run-1789479316084).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 3 tests using 1 worker
+
+  ok 1 main-journey.spec.ts:73:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (9.6s)
+  ok 2 main-journey.spec.ts:102:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (13.2s)
+  ok 3 main-journey.spec.ts:418:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (6.2s)
+[e2e-stack] stack run-1789479316084 desligada.
+
+  Slow test file: main-journey.spec.ts (29.0s)
+  Consider splitting slow test files to speed up parallel execution
+  3 passed (56.7s)

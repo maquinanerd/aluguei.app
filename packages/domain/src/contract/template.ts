@@ -4,30 +4,22 @@ const PLACEHOLDER_RE = /\{\{\s*([\w.]+)\s*\}\}/g;
 
 /**
  * Renderiza template com variáveis (placeholders `{{var}}`).
- * Falha se faltar variável (nunca gera documento com buraco) ou se a
- * variável não for declarada (evita erro de digitação silencioso).
+ * Falha se o template usar variável não fornecida: nunca gera documento com
+ * buraco e um placeholder digitado errado não passa em silêncio. Variável
+ * oferecida e não usada não é erro — a geração oferece o conjunto completo e
+ * cada template usa o que precisa (auditoria 2026-09-10, P2-08).
  */
 export function renderTemplate(
   template: string,
   variables: Record<string, string | number | null>,
 ): string {
-  const declared = new Set<string>();
-  const rendered = template.replace(PLACEHOLDER_RE, (match, rawKey: string) => {
+  return template.replace(PLACEHOLDER_RE, (_match, rawKey: string) => {
     const key = rawKey.trim();
-    declared.add(key);
-    if (!(key in variables)) {
+    // hasOwn: `{{constructor}}` não pode resolver para o protótipo do objeto.
+    if (!Object.hasOwn(variables, key)) {
       throw new DomainError('INVALID_INPUT', `Variável do template não fornecida: ${key}`);
     }
     const value = variables[key];
     return value === null || value === undefined ? '' : String(value);
   });
-
-  const unused = Object.keys(variables).filter((key) => !declared.has(key));
-  if (unused.length > 0) {
-    throw new DomainError(
-      'INVALID_INPUT',
-      `Variáveis declaradas sem uso no template: ${unused.join(', ')}`,
-    );
-  }
-  return rendered;
 }
