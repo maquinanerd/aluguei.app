@@ -1,0 +1,4 @@
+# comando: pnpm security:scan
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.
+# exit=0
