@@ -37,4 +37,5 @@ export * from './components/Divider';
 export * from './components/Stack';
 export * from './components/MoneyValue';
 export * from './components/MoneyInput';
+export * from './components/AsyncCombobox';
 export * from './components/icons';
