@@ -24,6 +24,12 @@ export interface S3StorageAdapterOptions {
   endpoint?: string;
   region?: string;
   credentials?: { accessKeyId: string; secretAccessKey: string };
+  /**
+   * Bucket no caminho (`https://endpoint/bucket/chave`) em vez de no host. Obrigatório
+   * para MinIO e S3 compatíveis atrás de domínio próprio: o proxy não tem rota nem
+   * certificado para `bucket.endpoint`.
+   */
+  forcePathStyle?: boolean;
   /** Limite de bytes para `putObject` no servidor (upload direto presign NÃO passa por aqui). */
   maxSizeBytes?: number;
 }
@@ -60,6 +66,9 @@ export class S3StorageAdapter implements StorageService {
     }
     if (opts.credentials) {
       clientOptions.credentials = opts.credentials;
+    }
+    if (opts.forcePathStyle) {
+      clientOptions.forcePathStyle = true;
     }
     this.client = new S3Client(clientOptions);
   }

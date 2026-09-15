@@ -1,0 +1,64 @@
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:17356) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/cross-org-reference.test.ts (30 tests | 2 failed) 3888ms
+     × defesa no banco: FK composta recusa referência a outra org (23503) 6ms
+     × verificação SQL: zero referências entre organizações 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > defesa no banco: FK composta recusa referência a outra org (23503)
+AssertionError: leads.party_id: o banco deveria recusar com 23503: expected undefined to be '23503' // Object.is equality
+
+- Expected:
+"23503"
+
++ Received:
+undefined
+
+ ❯ src/cross-org-reference.test.ts:634:67
+    632|       // 23503 = foreign_key_violation. Outro código (ou nenhum) signi…
+    633|       // insert passou ou falhou por outro motivo — nos dois casos o t…
+    634|       expect(code, `${label}: o banco deveria recusar com 23503`).toBe…
+       |                                                                   ^
+    635|     }
+    636|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > verificação SQL: zero referências entre organizações
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "relation": "leads.party_id",
++     "sample_row_id": "09ed4c9d-6b3d-458e-a34a-f599354659c3",
++     "violations": 1,
++   },
++ ]
+
+ ❯ src/cross-org-reference.test.ts:653:50
+    651|
+    652|   it('verificação SQL: zero referências entre organizações', async () …
+    653|     expect(await findCrossOrgReferences(app.db)).toEqual([]);
+       |                                                  ^
+    654|   });
+    655| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 28 passed (30)
+   Start at  19:38:58
+   Duration  6.98s (transform 1.48s, setup 0ms, import 2.82s, tests 3.89s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/cross-org-reference.test.ts

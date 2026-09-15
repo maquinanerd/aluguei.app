@@ -14,6 +14,8 @@ export interface StoragePluginOptions {
   bucket?: string;
   accessKeyId?: string;
   secretAccessKey?: string;
+  /** Endereçamento path-style (MinIO e S3 compatíveis atrás de domínio próprio). */
+  forcePathStyle?: boolean;
   storage?: StorageService;
 }
 
@@ -43,6 +45,9 @@ export const storagePlugin = fp<StoragePluginOptions>((app, opts) => {
       accessKeyId: opts.accessKeyId,
       secretAccessKey: opts.secretAccessKey,
     };
+  }
+  if (opts.forcePathStyle) {
+    adapterOptions.forcePathStyle = true;
   }
   const adapter = new S3StorageAdapter(adapterOptions);
   app.decorate('storage', adapter);

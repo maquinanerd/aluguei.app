@@ -1,0 +1,14 @@
+$ pnpm --filter @aluguei/tests-integration test:pg
+$ vitest run --config vitest.pg.config.ts
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:13144) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13144) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:21:04
+   Duration  19.30s (transform 1.60s, setup 0ms, import 3.48s, tests 15.54s, environment 0ms)
+

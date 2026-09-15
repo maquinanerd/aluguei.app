@@ -1,0 +1,355 @@
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:5944) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5944) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+ ❯ src/finance-integrity.test.ts (14 tests | 13 failed) 8964ms
+     × P0-01: dois processamentos simultâneos do mesmo pagamento → um crédito, um split, um repasse 454ms
+     × P0-01: ciclos do worker em paralelo com eventos distintos do mesmo pagamento → efeito único 321ms
+     × P0-02: webhook de estorno forjado não executa estorno nem mexe no dinheiro 305ms
+     × P0-02: estorno confirmado pelo provider + webhooks repetidos → um único registro e razão zerada 310ms
+     × P0-03: cobrança SCHEDULED paga pelo portal → PAID e creditada 253ms
+     × P0-03: dinheiro recebido depois do cancelamento é registrado (recebimento não aplicado) 239ms
+     × P0-03: cancelar cobrança já paga no provider → 409 e o pagamento é liquidado 243ms
+     × P0-03: PAYMENT_FAILED sem respaldo no provider não impede a liquidação posterior 257ms
+     × P0-03: reemissão reaproveita a tentativa pendente e o QR substituído, se pago, não se perde 290ms
+     × S5: uma única cobrança por locação e mês (409 na segunda) 243ms
+     × fila: job que esgota as tentativas vira DEAD; o reaper respeita as tentativas 136ms
+     × razão: toda transação balanceada e nenhuma operação lançada duas vezes 4ms
+     × produção sem ASAAS_WEBHOOK_TOKEN → 500 (configuração incorreta) e nada enfileirado 2085ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-01: dois processamentos simultâneos do mesmo pagamento → um crédito, um split, um repasse
+AssertionError: expected { chargeStatus: 'PAID', …(10) } to match object { chargeStatus: 'PAID', …(8) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "allocationSum": 100000,
+-   "allocations": 2,
+-   "cash": 10000,
++   "allocationSum": 200000,
++   "allocations": 4,
++   "cash": 20000,
+    "chargeStatus": "PAID",
+-   "paymentTx": 1,
++   "paymentTx": 2,
+    "paymentsConfirmed": 1,
+-   "payoutSum": 90000,
+-   "payoutTx": 1,
+-   "payouts": 1,
++   "payoutSum": 180000,
++   "payoutTx": 2,
++   "payouts": 2,
+  }
+
+ ❯ src/finance-integrity.test.ts:62:51
+     60|     expect(settled.map((s) => s.status)).toEqual(['fulfilled', 'fulfil…
+     61|
+     62|     expect(await fx.money(lease.orgId, chargeId)).toMatchObject({
+       |                                                   ^
+     63|       chargeStatus: 'PAID',
+     64|       paymentsConfirmed: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-01: ciclos do worker em paralelo com eventos distintos do mesmo pagamento → efeito único
+AssertionError: expected { chargeStatus: 'OPEN', …(10) } to match object { chargeStatus: 'PAID', …(6) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "allocations": 2,
+-   "cash": 10000,
+-   "chargeStatus": "PAID",
+-   "paymentTx": 1,
+-   "paymentsConfirmed": 1,
+-   "payoutTx": 1,
+-   "payouts": 1,
++   "allocations": 0,
++   "cash": 0,
++   "chargeStatus": "OPEN",
++   "paymentTx": 0,
++   "paymentsConfirmed": 0,
++   "payoutTx": 0,
++   "payouts": 0,
+  }
+
+ ❯ src/finance-integrity.test.ts:90:51
+     88|     await Promise.all([worker(1), worker(1), worker(1), worker(1)]);
+     89|
+     90|     expect(await fx.money(lease.orgId, chargeId)).toMatchObject({
+       |                                                   ^
+     91|       chargeStatus: 'PAID',
+     92|       paymentsConfirmed: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-02: webhook de estorno forjado não executa estorno nem mexe no dinheiro
+AssertionError: expected "refundPayment" to not be called at all, but actually been called 2 times
+
+Received:
+
+  1st refundPayment call:
+
+    Array [
+      "pc.fake.1fb8006f4788",
+    ]
+
+  2nd refundPayment call:
+
+    Array [
+      "pc.fake.1fb8006f4788",
+    ]
+
+
+Number of calls: 2
+
+ ❯ src/finance-integrity.test.ts:117:29
+    115|       await fx.paymentWebhook('PAYMENT_REFUNDED', payment.pcid, paymen…
+    116|       await worker();
+    117|       expect(refundSpy).not.toHaveBeenCalled();
+       |                             ^
+    118|     } finally {
+    119|       refundSpy.mockRestore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-02: estorno confirmado pelo provider + webhooks repetidos → um único registro e razão zerada
+AssertionError: {"error":"DomainError","code":"INVALID_TRANSITION","message":"Transição inválida: PENDING → REFUNDED","details":{"from":"PENDING","to":"REFUNDED"}}: expected 409 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 409
+
+ ❯ src/finance-integrity.test.ts:145:58
+    143|         payload: {},
+    144|       });
+    145|       expect(refund.status, JSON.stringify(refund.body)).toBe(200);
+       |                                                          ^
+    146|       await fx.paymentWebhook('PAYMENT_REFUNDED', payment.pcid, paymen…
+    147|       await fx.paymentWebhook('PAYMENT_REFUNDED', payment.pcid, paymen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-03: cobrança SCHEDULED paga pelo portal → PAID e creditada
+AssertionError: expected { chargeStatus: 'SCHEDULED', …(10) } to match object { chargeStatus: 'PAID', …(2) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "chargeStatus": "PAID",
+-   "paymentTx": 1,
+-   "paymentsConfirmed": 1,
++   "chargeStatus": "SCHEDULED",
++   "paymentTx": 0,
++   "paymentsConfirmed": 0,
+  }
+
+ ❯ src/finance-integrity.test.ts:177:51
+    175|     await worker();
+    176|
+    177|     expect(await fx.money(lease.orgId, chargeId)).toMatchObject({
+       |                                                   ^
+    178|       chargeStatus: 'PAID',
+    179|       paymentsConfirmed: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-03: dinheiro recebido depois do cancelamento é registrado (recebimento não aplicado)
+AssertionError: expected [ 'FAILED' ] to deeply equal [ 'SUCCESS' ]
+
+- Expected
++ Received
+
+  [
+-   "SUCCESS",
++   "FAILED",
+  ]
+
+ ❯ src/finance-integrity.test.ts:216:68
+    214|     await worker();
+    215|
+    216|     expect((await fx.inbox(lease.orgId)).map((job) => job.status)).toE…
+       |                                                                    ^
+    217|     expect(await fx.money(lease.orgId, chargeId)).toMatchObject({
+    218|       chargeStatus: 'CANCELLED',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-03: cancelar cobrança já paga no provider → 409 e o pagamento é liquidado
+AssertionError: {"charge":{"id":"1084e4f7-840a-4145-9c31-064128f1ad6a","orgId":"33f32074-865e-4c74-a741-c5038d7be981","leaseId":"19d8a194-8caa-4ec5-9378-c263dc211c42","periodStart":"2027-10-01","dueDate":"2027-10-11","status":"CANCELLED","amountCents":100000,"rentCents":100000,"condoFeeCents":0,"lateFeeCents":0,"interestCents":0,"taxesCents":0,"discountCents":0,"paidAt":null,"providerChargeId":"pc.fake.6109275b3f95","createdAt":"2026-09-11T21:53:33.561Z"}}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ src/finance-integrity.test.ts:244:56
+    242|       payload: {},
+    243|     });
+    244|     expect(cancel.status, JSON.stringify(cancel.body)).toBe(409);
+       |                                                        ^
+    245|
+    246|     await fx.paymentWebhook('PAYMENT_CONFIRMED', payment.pcid, payment…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-03: PAYMENT_FAILED sem respaldo no provider não impede a liquidação posterior
+AssertionError: expected { chargeStatus: 'OPEN', …(10) } to match object { chargeStatus: 'PAID', …(2) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "chargeStatus": "PAID",
+-   "paymentTx": 1,
+-   "paymentsConfirmed": 1,
++   "chargeStatus": "OPEN",
++   "paymentTx": 0,
++   "paymentsConfirmed": 0,
+  }
+
+ ❯ src/finance-integrity.test.ts:264:51
+    262|     await fx.paymentWebhook('PAYMENT_CONFIRMED', payment.pcid, payment…
+    263|     await worker();
+    264|     expect(await fx.money(lease.orgId, chargeId)).toMatchObject({
+       |                                                   ^
+    265|       chargeStatus: 'PAID',
+    266|       paymentsConfirmed: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > P0-03: reemissão reaproveita a tentativa pendente e o QR substituído, se pago, não se perde
+AssertionError: expected 201 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 201
+
+ ❯ src/finance-integrity.test.ts:277:26
+    275|     expect(first.status).toBe(201);
+    276|     const again = await fx.initiate(lease, chargeId, 'PIX');
+    277|     expect(again.status).toBe(200);
+       |                          ^
+    278|     expect(again.paymentId).toBe(first.paymentId);
+    279|     expect(again.pcid).toBe(first.pcid);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > S5: uma única cobrança por locação e mês (409 na segunda)
+AssertionError: {"charge":{"id":"9ce43904-95d8-41ed-95b7-30688067f344","orgId":"70c6f644-235d-4042-9aa9-a47a0bd10a69","leaseId":"8b2de454-3f66-4fcb-8b19-81d19706aa7e","periodStart":"2028-01-15","dueDate":"2028-01-25","status":"SCHEDULED","amountCents":100000,"rentCents":100000,"condoFeeCents":0,"lateFeeCents":0,"interestCents":0,"taxesCents":0,"discountCents":0,"paidAt":null,"providerChargeId":null,"createdAt":"2026-09-11T21:53:34.362Z"}}: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/finance-integrity.test.ts:322:62
+    320|       payload: { leaseId: lease.leaseId, periodStart: '2028-01-15' },
+    321|     });
+    322|     expect(sameMonth.status, JSON.stringify(sameMonth.body)).toBe(409);
+       |                                                              ^
+    323|     const samePeriod = await fx.call('POST', '/charges', {
+    324|       cookie: lease.cookie,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > fila: job que esgota as tentativas vira DEAD; o reaper respeita as tentativas
+AssertionError: expected { status: 'FAILED', attempts: 3 } to match object { status: 'DEAD', attempts: 3 }
+
+- Expected
++ Received
+
+  {
+    "attempts": 3,
+-   "status": "DEAD",
++   "status": "FAILED",
+  }
+
+ ❯ src/finance-integrity.test.ts:344:20
+    342|       sql`select status, attempts from webhook_inbox where id = ${fail…
+    343|     );
+    344|     expect(failed).toMatchObject({ status: 'DEAD', attempts: 3 });
+       |                    ^
+    345|
+    346|     // execução travada (lease expirado) com tentativas esgotadas: não…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > integridade financeira (P0-01/P0-02/P0-03) > razão: toda transação balanceada e nenhuma operação lançada duas vezes
+Error: Failed query: 
+      select org_id, business_key, account_id from ledger_entries
+      where business_key is not null
+      group by org_id, business_key, account_id having count(*) > 1
+    
+params: 
+ ❯ PglitePreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ Object.rows src/finance-fixtures.ts:100:20
+     98|
+     99|   async function rows<T>(query: SQL): Promise<T[]> {
+    100|     const result = await app.db.execute(query);
+       |                    ^
+    101|     return result.rows as T[];
+    102|   }
+ ❯ src/finance-integrity.test.ts:365:24
+
+Caused by: error: column "business_key" does not exist
+ ❯ pe.Ue ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959
+ ❯ pe.tt ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347
+ ❯ pe.parse ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021
+ ❯ O.qe ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1762
+ ❯ ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5921403
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2615913
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2648399
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2649003
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5569736
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 112, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '23', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', routine: 'errorMissingColumn', query: '\n      select org_id, business_key, account_id from ledger_entries\n      where business_key is not null\n      group by org_id, business_key, account_id having count(*) > 1\n    ', params: [], queryOptions: { rowMode: 'object', parsers: { '1082': 'Function<1082>', '1114': 'Function<1114>', '1115': 'Function<1115>', '1182': 'Function<1182>', '1184': 'Function<1184>', '1185': 'Function<1185>', '1186': 'Function<1186>', '1187': 'Function<1187>', '1231': 'Function<1231>' } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  src/finance-integrity.test.ts > P0-02: webhook de pagamentos exige o segredo do provider em produção > produção sem ASAAS_WEBHOOK_TOKEN → 500 (configuração incorreta) e nada enfileirado
+AssertionError: expected 200 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 200
+
+ ❯ src/finance-integrity.test.ts:400:30
+    398|         },
+    399|       });
+    400|       expect(res.statusCode).toBe(500);
+       |                              ^
+    401|       const queued = await db.execute(sql`select count(*)::int as n fr…
+    402|       expect((queued.rows[0] as { n: number } | undefined)?.n).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 1 passed (14)
+   Start at  18:53:22
+   Duration  13.66s (transform 2.16s, setup 0ms, import 4.39s, tests 8.96s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/finance-integrity.test.ts

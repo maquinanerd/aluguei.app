@@ -1,0 +1,10 @@
+commit base: 0e3f51b + implementacao de forcePathStyle e ensureBucket (nao commitada)
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/storage
+
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  09:49:01
+   Duration  978ms (transform 480ms, setup 0ms, import 1.87s, tests 278ms, environment 1ms)
+
