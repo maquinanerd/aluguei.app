@@ -362,3 +362,9 @@ devolve o 401 da própria API, e a rota de simulação de pagamento responde 404
 | `b9a668f` | fix(security): treat ${VAR} passwords in connection strings as env references |
 | `0585fc6` | feat(deploy): route Coolify proxy to container ports and add deploy runbook   |
 | `2bd5b85` | Merge pull request #1 (feito pelo usuário)                                    |
+
+### 15.6 Evidências que não estavam no repositório
+
+Descoberto em 2026-09-15: a regra `*.log` do `.gitignore` (linha 27) fazia o git ignorar em silêncio os logs de evidência. O commit de documentação do G1 levou só os `.txt` e o `README.md`. **Os 13 logs RED/GREEN citados nas seções 3, 4 e 9** (`fase0-e2e.log`, `fase1-red-pglite.log`, `fase1-red-postgres.log`, `fase1-green-pglite.log`, `fase1-green-postgres.log`, `fase2-red.log`, `fase2-green.log`, `fase2-db-red.log`, `fase2-db-green.log`, `fase2-integration-suite.log`, `final-e2e.log`, `final-lint-continue.log` e `final-testpg.log`) existiam apenas na máquina local, inclusive depois do merge do PR #1.
+
+Correção: exceção explícita no `.gitignore` e os 13 logs versionados com o conteúdo original, na branch `ops/storage-db` (commit `5751c7d`). As afirmações das seções 3, 4 e 9 não mudam; o que muda é que agora elas podem ser conferidas no repositório.

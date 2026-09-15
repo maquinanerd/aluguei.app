@@ -1,0 +1,43 @@
+Corte para banco separado e storage MinIO — 2026-09-15 (UTC)
+
+Branch implantada: ops/storage-db (commits b21e3a3 e 5751c7d)
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws)
+Deployments: oqpmrypwsstbzaiga1bj4eti (corte, finished às 12:57 UTC) e
+             12dfbvdkgthfos069qjcw3bw (domínio do MinIO, finished às 13:06 UTC)
+Banco próprio: aluguei-postgres (jwoqv3yr3gxcob9gfj0qgrxj), postgres:17-alpine,
+               running:healthy, sem porta pública
+Nenhuma conta criada nesta verificação: contas e senhas ficam com o usuário.
+
+--- Backup do banco próprio (Coolify MCP, list_backup_executions)
+2026-09-14 19:12 UTC  success  836 bytes  (disparo imediato na criação)
+2026-09-15 05:00 UTC  success  836 bytes  (primeira execução agendada)
+Os dois dumps são anteriores ao corte: o banco próprio ainda estava vazio.
+
+--- Sondas depois do segundo deploy (TLS verificado)
+web  /login                                -> 200
+api  /health/ready                         -> 200
+web  /api/backend/properties (sem sessão)  -> 401
+s3   /minio/health/live                    -> 200
+s3   /aluguei-private/ (anônimo)           -> 403 AccessDenied
+s3   /nao-existe-controle-7x/ (anônimo)    -> 403 AccessDenied
+     INCONCLUSIVO: o MinIO nega o pedido anônimo exista o bucket ou não. A existência
+     do bucket é só inferida: a API depende de storage-init concluir com sucesso e está
+     saudável. A prova direta é um upload autenticado.
+
+--- Prova de que a API usa o banco próprio, já com o schema
+GET /public/organizations/slug-inexistente-controle-9q/listings -> 404
+    {"error":"DomainError","code":"NOT_FOUND","message":"Organização não encontrada"}
+GET /rota-que-nao-existe-9q -> 404
+    {"message":"Route GET:/rota-que-nao-existe-9q not found","error":"Not Found","statusCode":404}
+
+O primeiro 404 é o erro de domínio da própria rota: o select em `organizations` rodou e
+não achou o slug. Sem a tabela a resposta seria 500; o controle mostra que um 404 de rota
+tem corpo diferente. No compose, a API só recebe DATABASE_URL, que aponta para o banco
+próprio — e ele estava vazio antes do corte (backups de 836 bytes). O schema chegou pelo
+db-copy e pelo migrate.
+
+--- O que NÃO foi provado
+- Que dados do banco embutido foram copiados. Sem acesso a logs (o token não tem
+  read:sensitive) e sem conta, só o schema é observável. O volume do banco embutido
+  continua no servidor.
+- Que o bucket existe (ver acima).
