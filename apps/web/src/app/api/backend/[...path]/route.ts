@@ -42,9 +42,11 @@ async function proxy(request: NextRequest) {
   }
 
   const body = method !== 'GET' ? await request.text().catch(() => '') : undefined;
-  const init: RequestInit = { method, headers: {} };
+  const init: RequestInit = { method };
+  // Sem corpo, sem content-type: a API recusa JSON vazio (auditoria 2026-09-10, P1-02).
   if (body && body.length > 0) {
     init.body = body;
+    init.headers = { 'content-type': request.headers.get('content-type') ?? 'application/json' };
   }
   return apiProxy(path, init, request);
 }
