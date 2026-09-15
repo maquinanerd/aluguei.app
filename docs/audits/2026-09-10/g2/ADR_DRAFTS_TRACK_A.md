@@ -108,3 +108,40 @@ Decisões:
 Consequências: os placeholders ainda não são validados no cadastro/aprovação do template — o erro
 aparece só ao gerar (`400`). `occurred_at` do evento é a hora do recebimento: o contrato atual do
 webhook não traz a hora do evento no provider.
+
+## G2A-4 — Documento de assinatura em PDF (pdf-lib) e provider real no envelope (P1-11, parte interna)
+
+Status: Proposto.
+
+Contexto: P1-11 — `send-for-signature` mandava `content_hash` como documento e gravava
+`provider: 'FAKE'` fixo. O adapter Clicksign v3 só aceita arquivo em base64 e recusava o envio (a
+API respondia `500`); e, como o webhook localiza o envelope por `(provider, provider_envelope_id)`,
+um evento `CLICKSIGN` nunca casaria com um envelope gravado como `FAKE`.
+
+Decisões:
+
+- Dependência nova: `pdf-lib` 1.17.1 (MIT), versão fixa, em `@aluguei/integrations`. JavaScript
+  puro, sem binário nativo nem script de instalação; transitivas `pako` (MIT AND Zlib), `tslib`
+  (0BSD), `@pdf-lib/standard-fonts` e `@pdf-lib/upng` (MIT). Sem advisory crítico (gate
+  `security:audit --audit-level=critical`).
+- `renderContractPdf` (`packages/integrations/src/signature/document.ts`): A4 com cabeçalho
+  (contrato e versão), texto quebrado por largura e paginado, rodapé com o SHA-256 do texto; título
+  e assunto nos metadados. Determinístico: `updateMetadata: false` (sem datas nem produtor
+  automático) e sem identificador aleatório — a mesma versão gera os mesmos bytes.
+- Fonte padrão Helvetica (WinAnsi): cobre os acentos do português; caractere fora dela vira `?` em
+  vez de derrubar a geração.
+- `ISignatureProvider.name` (`CLICKSIGN | D4SIGN | FAKE`): o envelope grava o nome do provider que o
+  criou. O documento segue como data URI `application/pdf`; o envelope guarda `document_hash`
+  (SHA-256 dos bytes enviados) ao lado de `contract_version`.
+- Migration 0016: coluna `document_hash`; pré-voo aborta se houver envelope gravado como `FAKE` com
+  id que não é do provider FAKE, ou com provider desconhecido.
+
+Consequências: o PDF enviado não é armazenado — é reproduzível byte a byte a partir de
+`contract_versions` enquanto o renderizador (layout e versão da `pdf-lib`) não mudar; mudar um dos
+dois exige antes armazenar o documento enviado (Storage, Fase 7.1) ou versionar o renderizador. O
+arquivo assinado devolvido pelo provider fica para a Fase 7.3, assim como HMAC do webhook e URL
+base de produção da Clicksign. Nome com caractere fora do WinAnsi sai com `?`; embutir fonte TTF
+(fontkit) foi adiado por peso e por falta de caso real.
+
+Alternativas descartadas: `pdfkit` (mais pesado, depende de fontkit e streams), Chromium/Puppeteer
+(binário nativo), armazenar só o hash sem gerar documento (o provider exige o arquivo).

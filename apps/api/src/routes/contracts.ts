@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { and, asc, desc, eq, ne } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
@@ -41,6 +42,7 @@ import {
   updateContractStatusResponseSchema,
   uuidSchema,
 } from '@aluguei/contracts';
+import { renderContractPdf } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
@@ -72,6 +74,7 @@ function toEnvelopeDto(row: EnvelopeRow): unknown {
     provider: row.provider,
     providerEnvelopeId: row.providerEnvelopeId,
     contractVersion: row.contractVersion,
+    documentHash: row.documentHash,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
@@ -526,7 +529,12 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
       if (!contract) {
         throw new DomainError('NOT_FOUND', 'Contrato não encontrado');
       }
-      if (contract.status !== 'GENERATED') {
+      if (
+        contract.status !== 'GENERATED' ||
+        contract.content === null ||
+        contract.contentHash === null ||
+        contract.currentVersion === null
+      ) {
         throw new DomainError(
           'INVALID_TRANSITION',
           'Gere o documento antes de enviar para assinatura',
@@ -548,6 +556,17 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
         .select()
         .from(contractParties)
         .where(eq(contractParties.contractId, contract.id));
+      // P1-11: o provider recebe o PDF gerado do texto da versão vigente (antes
+      // recebia o hash) e o envelope grava o provider configurado (antes 'FAKE'
+      // fixo, que o webhook de um provider real nunca localizaria) e o hash do PDF.
+      const pdf = await renderContractPdf({
+        contractId: contract.id,
+        version: contract.currentVersion,
+        content: contract.content,
+        contentHash: contract.contentHash,
+      });
+      const documentHash = createHash('sha256').update(pdf).digest('hex');
+      const providerName = app.signature.name;
       const envelopeResult = await app.signature.createEnvelope({
         contractId: contract.id,
         parties: partiesRows.map((row) => ({
@@ -555,7 +574,7 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
           role: row.role as 'LANDLORD' | 'TENANT' | 'GUARANTOR',
           signOrder: row.signOrder,
         })),
-        documentRef: contract.contentHash ?? contract.id,
+        documentRef: `data:application/pdf;base64,${Buffer.from(pdf).toString('base64')}`,
       });
       const envelope = await db.transaction(async (tx) => {
         // O texto enviado ao provider é o da versão lida acima: se outra
@@ -587,9 +606,10 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
             .values({
               orgId: auth.orgId,
               contractId: locked.id,
-              provider: 'FAKE',
+              provider: providerName,
               providerEnvelopeId: envelopeResult.providerEnvelopeId,
               contractVersion: locked.currentVersion,
+              documentHash,
               status: 'SENT',
             })
             .returning(),
@@ -604,7 +624,12 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
           action: AUDIT_ACTIONS.CONTRACT_SENT_FOR_SIGNATURE,
           entityType: 'CONTRACT',
           entityId: locked.id,
-          payload: { version: locked.currentVersion, contentHash: locked.contentHash },
+          payload: {
+            version: locked.currentVersion,
+            contentHash: locked.contentHash,
+            provider: providerName,
+            documentHash,
+          },
         });
         return created;
       });

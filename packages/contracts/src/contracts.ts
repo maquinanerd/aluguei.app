@@ -90,6 +90,8 @@ export const signatureEnvelopeSchema = z.object({
   providerEnvelopeId: z.string(),
   /** Versão do contrato enviada ao provider. */
   contractVersion: z.number().int().positive().nullable(),
+  /** SHA-256 hex do documento (PDF) enviado ao provider. */
+  documentHash: z.string().nullable(),
   status: z.enum(['PENDING', 'SENT', 'PARTIALLY_SIGNED', 'SIGNED', 'FAILED']),
   createdAt: z.string(),
   updatedAt: z.string(),

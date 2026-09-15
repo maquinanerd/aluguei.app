@@ -106,6 +106,13 @@
       "when": 1789411746244,
       "tag": "0015_credit_decision_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1789477205088,
+      "tag": "0016_signature_document_hash",
+      "breakpoints": true
     }
   ]
 }

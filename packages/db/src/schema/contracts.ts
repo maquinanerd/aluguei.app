@@ -252,6 +252,8 @@ export const signatureEnvelopes = pgTable(
     providerEnvelopeId: text('provider_envelope_id').notNull(),
     // Versão do contrato enviada ao provider (P0-04).
     contractVersion: integer('contract_version'),
+    // SHA-256 hex do documento (PDF) enviado ao provider (P1-11).
+    documentHash: text('document_hash'),
     status: text('status').notNull().default('SENT'), // PENDING|SENT|PARTIALLY_SIGNED|SIGNED|FAILED
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
