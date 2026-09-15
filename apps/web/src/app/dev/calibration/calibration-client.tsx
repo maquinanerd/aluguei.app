@@ -58,6 +58,7 @@ function DemoBody() {
   const toast = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [nextAction, setNextAction] = useState('');
   const [tab, setTab] = useState('overview');
   const [view, setView] = useState('tabela');
   const [page, setPage] = useState(0);
@@ -400,7 +401,15 @@ function DemoBody() {
       >
         <Stack gap={4}>
           <SearchInput placeholder="Buscar no contexto…" />
-          <Input label="Próxima ação" placeholder="Ligar para o lead" />
+          {/* Controlado, como nos formulários das telas: cada tecla re-renderiza a página. */}
+          <Input
+            label="Próxima ação"
+            placeholder="Ligar para o lead"
+            value={nextAction}
+            onChange={(e) => {
+              setNextAction(e.target.value);
+            }}
+          />
           <Switch label="Notificar responsável" />
         </Stack>
       </Drawer>
