@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/money-parsing-guard.test.ts
+# base: a58ea73 + MoneyInput nos três formulários e parseDecimalInput no cadastro de imóvel (GREEN)
+# data (UTC): 2026-09-15T18:08:14Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  15:08:16
+   Duration  371ms (transform 29ms, setup 0ms, import 55ms, tests 34ms, environment 0ms)
+
+# exit=0

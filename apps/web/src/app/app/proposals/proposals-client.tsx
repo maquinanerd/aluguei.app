@@ -9,6 +9,7 @@ import {
   Icon,
   Input,
   Modal,
+  MoneyInput,
   Select,
   Stack,
   Textarea,
@@ -283,15 +284,15 @@ function CreateProposalModal({
 }) {
   const toast = useToast();
   const [propertyId, setPropertyId] = useState('');
-  const [monthlyRent, setMonthlyRent] = useState('');
+  // Centavos inteiros do MoneyInput (auditoria 2026-09-10, P0-07).
+  const [rentCents, setRentCents] = useState<number | null>(null);
   const [terms, setTerms] = useState('');
   const [validUntil, setValidUntil] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    const rentCents = Math.round(parseFloat(monthlyRent.replace(',', '.')) * 100);
-    if (!propertyId || !Number.isFinite(rentCents) || rentCents <= 0) {
+    if (!propertyId || rentCents === null || rentCents <= 0) {
       toast.error('Informe o imóvel e um aluguel válido');
       return;
     }
@@ -310,7 +311,7 @@ function CreateProposalModal({
       if (validUntil) body.validUntil = new Date(validUntil).toISOString();
       await apiClient('/proposals', { method: 'POST', body });
       setPropertyId('');
-      setMonthlyRent('');
+      setRentCents(null);
       setTerms('');
       setValidUntil('');
       onCreated();
@@ -355,15 +356,12 @@ function CreateProposalModal({
           placeholder="Selecione o imóvel…"
           options={properties.map((p) => ({ value: p.id, label: p.title }))}
         />
-        <Input
+        <MoneyInput
           label="Aluguel mensal (R$)"
           required
-          inputMode="decimal"
-          value={monthlyRent}
-          onChange={(e) => {
-            setMonthlyRent(e.target.value);
-          }}
-          placeholder="3.500"
+          valueCents={rentCents}
+          onValueChange={setRentCents}
+          placeholder="3.500,00"
         />
         <Textarea
           label="Condições"

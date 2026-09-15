@@ -11,6 +11,7 @@ import {
   Icon,
   Input,
   Modal,
+  MoneyInput,
   Pagination,
   Select,
   Stack,
@@ -320,7 +321,8 @@ function CreateLeadModal({
 }) {
   const [source, setSource] = useState('');
   const [channel, setChannel] = useState('');
-  const [budget, setBudget] = useState('');
+  // Centavos inteiros do MoneyInput (auditoria 2026-09-10, P0-07).
+  const [budgetCents, setBudgetCents] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -331,15 +333,12 @@ function CreateLeadModal({
       {};
     if (source) input.source = source;
     if (channel) input.channel = channel;
-    if (budget) {
-      const cents = Math.round(parseFloat(budget.replace(',', '.')) * 100);
-      if (Number.isFinite(cents) && cents > 0) input.budgetMinCents = cents;
-    }
+    if (budgetCents !== null && budgetCents > 0) input.budgetMinCents = budgetCents;
     if (notes) input.notes = notes;
     onCreate(input);
     setSource('');
     setChannel('');
-    setBudget('');
+    setBudgetCents(null);
     setNotes('');
     setBusy(false);
   }
@@ -379,15 +378,12 @@ function CreateLeadModal({
             setSource(e.target.value);
           }}
         />
-        <Input
+        <MoneyInput
           label="Orçamento mínimo (R$)"
           optional
-          inputMode="decimal"
-          placeholder="3.500"
-          value={budget}
-          onChange={(e) => {
-            setBudget(e.target.value);
-          }}
+          placeholder="3.500,00"
+          valueCents={budgetCents}
+          onValueChange={setBudgetCents}
         />
         <Textarea
           label="Observações"

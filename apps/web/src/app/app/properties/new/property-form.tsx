@@ -15,6 +15,7 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
+import { parseDecimalInput } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { PROPERTY_TYPE_LABELS } from '@/lib/labels';
 import { AddressSearch, structuredAddressToFields } from './address-search';
@@ -41,6 +42,45 @@ const STEPS = [
   { label: 'Mídia e anúncio', available: false },
   { label: 'Publicação', available: false },
 ];
+
+type NumberFields = Pick<
+  PropertyPayload,
+  'totalAreaSqm' | 'builtAreaSqm' | 'bedrooms' | 'bathrooms' | 'parkingSpots'
+>;
+
+/**
+ * Números digitados em pt-BR, com a mesma regra do dinheiro: "1.200" m² é mil e
+ * duzentos, não 1,2 (auditoria 2026-09-10, P0-07). Campo vazio não é enviado;
+ * texto inválido volta como mensagem, em vez de ser ignorado em silêncio.
+ */
+function readNumberFields(
+  input: Record<keyof NumberFields, string>,
+): { ok: true; values: NumberFields } | { ok: false; message: string } {
+  const values: NumberFields = {};
+  const areas = [
+    ['totalAreaSqm', 'Área total'],
+    ['builtAreaSqm', 'Área construída'],
+  ] as const;
+  for (const [key, label] of areas) {
+    const result = parseDecimalInput(input[key], { fractionDigits: 2 });
+    if (!result.ok) return { ok: false, message: `${label}: ${result.message}` };
+    if (result.units === 0) {
+      return { ok: false, message: `${label}: informe um valor maior que zero.` };
+    }
+    if (result.units !== null) values[key] = result.units / 100;
+  }
+  const counts = [
+    ['bedrooms', 'Dormitórios'],
+    ['bathrooms', 'Banheiros'],
+    ['parkingSpots', 'Vagas'],
+  ] as const;
+  for (const [key, label] of counts) {
+    const result = parseDecimalInput(input[key], { fractionDigits: 0 });
+    if (!result.ok) return { ok: false, message: `${label}: ${result.message}` };
+    if (result.units !== null) values[key] = result.units;
+  }
+  return { ok: true, values };
+}
 
 function PropertyFormBody() {
   const router = useRouter();
@@ -69,11 +109,6 @@ function PropertyFormBody() {
    */
   const [, setCoords] = useState<{ lat: number | null; lng: number | null } | null>(null);
 
-  function num(v: string): number | undefined {
-    const n = parseFloat(v.replace(',', '.'));
-    return Number.isFinite(n) && n > 0 ? n : undefined;
-  }
-
   /** Monta o publicAddress apenas com campos preenchidos; null quando vazio. */
   function addressPayload(): { publicAddress: Record<string, string> } | null {
     const fields = {
@@ -95,6 +130,17 @@ function PropertyFormBody() {
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
     if (!title.trim()) return;
+    const numbers = readNumberFields({
+      totalAreaSqm,
+      builtAreaSqm,
+      bedrooms,
+      bathrooms,
+      parkingSpots,
+    });
+    if (!numbers.ok) {
+      toast.error('Revise os números do imóvel', numbers.message);
+      return;
+    }
     setBusy(true);
     try {
       const payload: PropertyPayload = {
@@ -102,18 +148,9 @@ function PropertyFormBody() {
         propertyType,
         furnished,
         petsAllowed,
+        ...numbers.values,
       };
       if (description.trim()) payload.description = description.trim();
-      const bedroomsN = num(bedrooms);
-      if (bedroomsN !== undefined) payload.bedrooms = Math.round(bedroomsN);
-      const bathroomsN = num(bathrooms);
-      if (bathroomsN !== undefined) payload.bathrooms = Math.round(bathroomsN);
-      const parkingN = num(parkingSpots);
-      if (parkingN !== undefined) payload.parkingSpots = Math.round(parkingN);
-      const totalAreaN = num(totalAreaSqm);
-      if (totalAreaN !== undefined) payload.totalAreaSqm = totalAreaN;
-      const builtAreaN = num(builtAreaSqm);
-      if (builtAreaN !== undefined) payload.builtAreaSqm = builtAreaN;
       const res = await apiClient<{ property: { id: string } }>('/properties', {
         method: 'POST',
         body: payload,
