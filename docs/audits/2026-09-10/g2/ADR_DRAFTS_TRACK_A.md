@@ -145,3 +145,24 @@ base de produção da Clicksign. Nome com caractere fora do WinAnsi sai com `?`;
 
 Alternativas descartadas: `pdfkit` (mais pesado, depende de fontkit e streams), Chromium/Puppeteer
 (binário nativo), armazenar só o hash sem gerar documento (o provider exige o arquivo).
+
+## G2A-5 — Sugestão de IA: status é o resultado, nunca a ação (P1-05)
+
+Status: Proposto.
+
+Contexto: P1-05 — resolver uma sugestão gravava a ação (`ACCEPT | REJECT | EDIT`) na coluna
+`status`, que a leitura valida como `PENDING | ACCEPTED | REJECTED | EDITED`: depois da primeira
+resolução, `GET /inspections/:id`, `/report` e `/review` respondiam `400`.
+
+Decisões:
+
+- `SUGGESTION_STATUS_BY_ACTION` (`packages/contracts/src/inspections.ts`) mapeia a ação para o
+  status; `suggestionStatusSchema` é a fonte única dos valores válidos.
+- Resolução numa transação: compare-and-set sobre `status = 'PENDING'` (segunda resolução → `409`),
+  observação e auditoria juntas — não sobra observação sem sugestão resolvida.
+- Banco: `CHECK (status in ('PENDING', 'ACCEPTED', 'REJECTED', 'EDITED'))`. A migration 0017 converte
+  as linhas legadas (`ACCEPT → ACCEPTED`, `REJECT → REJECTED`, `EDIT → EDITED`) antes do CHECK; o
+  pré-voo aborta se houver status fora desses sete valores.
+
+Consequências: o contrato de entrada da API não muda (a UI continua enviando a ação); a resposta e
+as leituras passam a trazer o status.

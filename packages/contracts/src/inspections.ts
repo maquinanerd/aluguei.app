@@ -22,6 +22,20 @@ export const observationCategorySchema = z.enum([
 export const severitySchema = z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']);
 export const suggestionActionSchema = z.enum(['ACCEPT', 'REJECT', 'EDIT']);
 export const suggestionKindSchema = z.enum(['VISUAL', 'TRANSCRIPT']);
+/** Status gravado da sugestão de IA — nunca a ação que a resolveu (auditoria 2026-09-10, P1-05). */
+export const suggestionStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'EDITED']);
+
+export type SuggestionAction = z.infer<typeof suggestionActionSchema>;
+export type SuggestionStatus = z.infer<typeof suggestionStatusSchema>;
+
+/** Status resultante de cada ação de resolução da sugestão. */
+export const SUGGESTION_STATUS_BY_ACTION: Readonly<
+  Record<SuggestionAction, Exclude<SuggestionStatus, 'PENDING'>>
+> = {
+  ACCEPT: 'ACCEPTED',
+  REJECT: 'REJECTED',
+  EDIT: 'EDITED',
+};
 
 export const INSPECTION_MEDIA_SIZE_LIMITS: Record<
   z.infer<typeof inspectionMediaKindSchema>,
@@ -106,7 +120,7 @@ export const inspectionAiSuggestionSchema = z.object({
   kind: suggestionKindSchema,
   payload: z.record(z.string(), z.unknown()),
   confidence: z.number().nullable(),
-  status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'EDITED']),
+  status: suggestionStatusSchema,
   createdAt: z.string(),
 });
 
