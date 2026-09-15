@@ -395,7 +395,9 @@ function InspectionBody() {
                   setRoomName(e.target.value);
                 }}
               />
-              <Button size="sm" variant="secondary" loading={busy}>
+              {/* O Button do design system é type="button" por padrão: sem type="submit"
+                  o clique não enviava o formulário e o ambiente nunca era criado. */}
+              <Button type="submit" size="sm" variant="secondary" loading={busy}>
                 Adicionar
               </Button>
             </form>
