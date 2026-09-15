@@ -1,0 +1,667 @@
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8d0ae446a924c158/tests/integration
+
+(node:18212) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/cross-org-reference.test.ts (28 tests | 27 failed) 6096ms
+     × POST /leads partyId 31ms
+     × POST /leads interestedPropertyIds 33ms
+     × POST /visits leadId 22ms
+     × POST /visits partyId 17ms
+     × POST /visits propertyId 18ms
+     × POST /proposals leadId 17ms
+     × POST /proposals partyId 18ms
+     × POST /proposals propertyId 23ms
+     × POST /rental-applications partyId 16ms
+     × POST /rental-applications propertyId 21ms
+     × POST /rental-applications leadId 23ms
+     × POST /rental-applications proposalId 14ms
+     × POST /inspections propertyId 21ms
+     × POST /inspections/:id/observations roomId 30ms
+     × POST /inspections/:id/observations mediaId 22ms
+     × POST /tasks assigneeUserId 20ms
+     × POST /tasks relatedEntityId (LEAD) 27ms
+     × POST /timeline entityId (LEAD) 21ms
+     × POST /meta/ad-profiles connectionId 38ms
+     × POST /meta/ad-profiles pageAssetId 27ms
+     × POST /meta/ad-profiles instagramAssetId 24ms
+     × POST /meta/campaigns/:id/creative mediaSelection 22ms
+     × observação com ambiente/mídia de OUTRA vistoria da mesma org → 404 18ms
+     × consentimento LGPD: B não lista nem cria consentimento da pessoa de A (404) 6ms
+     × consentimento LGPD: agregado da candidatura nunca devolve consentimento de outra org 17ms
+     × rotas filhas de vistoria de outra org → 404 (não 500) 10ms
+     × verificação SQL: zero referências entre organizações 30ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 27 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /leads partyId
+AssertionError: {"lead":{"id":"057b363c-1978-444f-8778-69c949ff4a1e","orgId":"f49505b3-6a98-4900-abcb-734221a320df","status":"NEW","source":null,"channel":null,"partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","ownerUserId":"663f4c46-8869-44cb-b5c6-e441836d952d","budgetMinCents":null,"budgetMaxCents":null,"notes":null,"createdAt":"2026-09-11T21:54:48.793Z","updatedAt":"2026-09-11T21:54:48.793Z"},"timelineEventId":"dea08000-a732-4132-98d0-480b6ea6790d"}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /leads interestedPropertyIds
+AssertionError: {"lead":{"id":"a45d8f1c-b6b5-4342-9631-6e36e823e026","orgId":"f49505b3-6a98-4900-abcb-734221a320df","status":"NEW","source":null,"channel":null,"partyId":null,"ownerUserId":"663f4c46-8869-44cb-b5c6-e441836d952d","budgetMinCents":null,"budgetMaxCents":null,"notes":null,"createdAt":"2026-09-11T21:54:48.830Z","updatedAt":"2026-09-11T21:54:48.830Z"},"timelineEventId":"0aa1ce0f-9ea7-4b82-b0b4-24583cb6ef3b"}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /visits leadId
+AssertionError: {"visit":{"id":"a8b641e5-f195-481a-983b-9b7aeb82e0c6","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":"72865203-08d3-4845-bded-10a1f1fca80b","partyId":null,"propertyId":null,"scheduledAt":"2026-09-12T21:54:43.268Z","status":"SCHEDULED","note":null,"createdAt":"2026-09-11T21:54:48.853Z","updatedAt":"2026-09-11T21:54:48.853Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /visits partyId
+AssertionError: {"visit":{"id":"bd7a6e00-19c8-4d2e-b922-34b66b4a261c","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","propertyId":null,"scheduledAt":"2026-09-12T21:54:43.268Z","status":"SCHEDULED","note":null,"createdAt":"2026-09-11T21:54:48.871Z","updatedAt":"2026-09-11T21:54:48.871Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /visits propertyId
+AssertionError: {"visit":{"id":"ca7d74c7-26aa-4cec-8e65-d484c71837ba","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":null,"propertyId":"9b86e713-915e-4fff-a4d8-b038dadb8358","scheduledAt":"2026-09-12T21:54:43.268Z","status":"SCHEDULED","note":null,"createdAt":"2026-09-11T21:54:48.889Z","updatedAt":"2026-09-11T21:54:48.889Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /proposals leadId
+AssertionError: {"proposal":{"id":"1b067706-9b02-44d1-86d2-6df671374e39","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":"72865203-08d3-4845-bded-10a1f1fca80b","partyId":null,"propertyId":null,"status":"DRAFT","monthlyRentCents":100000,"terms":null,"validUntil":null,"createdAt":"2026-09-11T21:54:48.904Z","updatedAt":"2026-09-11T21:54:48.904Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /proposals partyId
+AssertionError: {"proposal":{"id":"987264b0-1e7b-476b-8fcb-7f86020660eb","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","propertyId":null,"status":"DRAFT","monthlyRentCents":100000,"terms":null,"validUntil":null,"createdAt":"2026-09-11T21:54:48.923Z","updatedAt":"2026-09-11T21:54:48.923Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /proposals propertyId
+AssertionError: {"proposal":{"id":"25cbe3f1-7263-4562-9e53-33153409cbef","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":null,"propertyId":"9b86e713-915e-4fff-a4d8-b038dadb8358","status":"DRAFT","monthlyRentCents":100000,"terms":null,"validUntil":null,"createdAt":"2026-09-11T21:54:48.946Z","updatedAt":"2026-09-11T21:54:48.946Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /rental-applications partyId
+AssertionError: {"application":{"id":"f21eaf71-76fd-4d2e-b6f5-5fecf48b15a0","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","proposalId":null,"status":"DRAFT","decisionReason":null,"submittedAt":null,"decidedBy":null,"decidedAt":null,"createdAt":"2026-09-11T21:54:48.962Z","updatedAt":"2026-09-11T21:54:48.962Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /rental-applications propertyId
+AssertionError: {"application":{"id":"3637b511-a8b4-4706-97b5-0e142da4fda1","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"f42186df-65bb-49e5-8668-001c6053f78c","propertyId":"9b86e713-915e-4fff-a4d8-b038dadb8358","proposalId":null,"status":"DRAFT","decisionReason":null,"submittedAt":null,"decidedBy":null,"decidedAt":null,"createdAt":"2026-09-11T21:54:48.984Z","updatedAt":"2026-09-11T21:54:48.984Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /rental-applications leadId
+AssertionError: {"application":{"id":"c0c4512d-0193-45d3-a492-8b936894f42b","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":"72865203-08d3-4845-bded-10a1f1fca80b","partyId":"f42186df-65bb-49e5-8668-001c6053f78c","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","proposalId":null,"status":"DRAFT","decisionReason":null,"submittedAt":null,"decidedBy":null,"decidedAt":null,"createdAt":"2026-09-11T21:54:49.006Z","updatedAt":"2026-09-11T21:54:49.006Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /rental-applications proposalId
+AssertionError: {"application":{"id":"7a6b9ad4-5187-4fcc-8d02-5804fc3669d1","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"f42186df-65bb-49e5-8668-001c6053f78c","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","proposalId":"7c883bf5-fd45-43cc-b07b-6660edc38adc","status":"DRAFT","decisionReason":null,"submittedAt":null,"decidedBy":null,"decidedAt":null,"createdAt":"2026-09-11T21:54:49.021Z","updatedAt":"2026-09-11T21:54:49.021Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /inspections propertyId
+AssertionError: {"inspection":{"id":"8ad4f38b-6333-4e37-9e7d-95643e310761","orgId":"f49505b3-6a98-4900-abcb-734221a320df","propertyId":"9b86e713-915e-4fff-a4d8-b038dadb8358","type":"CHECKIN","status":"DRAFT","startedBy":"663f4c46-8869-44cb-b5c6-e441836d952d","scheduledAt":null,"createdAt":"2026-09-11T21:54:49.041Z","updatedAt":"2026-09-11T21:54:49.041Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /inspections/:id/observations roomId
+AssertionError: {"observation":{"id":"c31756a8-9a8c-4d89-acbf-5621258d102f","inspectionId":"41190da6-0e4d-46f1-9ec9-87e5d8b889d2","roomId":"aa78e053-35a0-43a9-a2d4-9e6820bdbb5f","mediaId":null,"category":"DAMAGE","severity":"LOW","description":"Risco na parede","source":"HUMAN","status":"CONFIRMED","aiSuggestionId":null,"createdAt":"2026-09-11T21:54:49.070Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /inspections/:id/observations mediaId
+AssertionError: {"observation":{"id":"6e37d7d3-95d6-49ee-9891-19c0e05d742c","inspectionId":"41190da6-0e4d-46f1-9ec9-87e5d8b889d2","roomId":null,"mediaId":"f7202552-1d1f-47e2-91b9-f5557f3c1fd7","category":"DAMAGE","severity":"LOW","description":"Risco na parede","source":"HUMAN","status":"CONFIRMED","aiSuggestionId":null,"createdAt":"2026-09-11T21:54:49.092Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /tasks assigneeUserId
+AssertionError: {"task":{"id":"aeebec61-2d68-47f3-9162-57f938109b50","orgId":"f49505b3-6a98-4900-abcb-734221a320df","title":"Ligar para cliente","description":null,"status":"OPEN","dueAt":null,"assigneeUserId":"d3c26413-97c5-44d4-b82d-3cf84ecd5d30","relatedEntityType":null,"relatedEntityId":null,"createdAt":"2026-09-11T21:54:49.113Z","updatedAt":"2026-09-11T21:54:49.113Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /tasks relatedEntityId (LEAD)
+AssertionError: {"task":{"id":"7df0e1d9-705d-452c-957f-861beded1174","orgId":"f49505b3-6a98-4900-abcb-734221a320df","title":"Retornar lead","description":null,"status":"OPEN","dueAt":null,"assigneeUserId":null,"relatedEntityType":"LEAD","relatedEntityId":"72865203-08d3-4845-bded-10a1f1fca80b","createdAt":"2026-09-11T21:54:49.136Z","updatedAt":"2026-09-11T21:54:49.136Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /timeline entityId (LEAD)
+AssertionError: {"event":{"id":"75866f02-6b33-4fb3-a036-ef83492e0dcd","orgId":"f49505b3-6a98-4900-abcb-734221a320df","entityType":"LEAD","entityId":"72865203-08d3-4845-bded-10a1f1fca80b","eventType":"NOTA","payload":{},"actorUserId":"663f4c46-8869-44cb-b5c6-e441836d952d","occurredAt":"2026-09-11T21:54:49.161Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /meta/ad-profiles connectionId
+AssertionError: {"adProfile":{"id":"a29145b1-f9c1-4530-bc2a-50ac0b78e94e","orgId":"f49505b3-6a98-4900-abcb-734221a320df","connectionId":"5c844c7b-d02c-4af6-9670-ee6546aa39ea","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","listingId":"034d0bfc-f950-4aba-ae86-8649d2a9202b","name":"Campanha B","objective":"OUTCOME_TRAFFIC","dailyBudgetCents":500000,"lifetimeBudgetCents":null,"startAt":null,"endAt":null,"geos":[],"mediaSelection":["cf194096-189a-4313-a605-ddd7d750363c"],"pageAssetId":null,"instagramAssetId":null,"landingUrl":"https://aluguei.app/imoveis/exemplo","copyPrimary":"Apartamento pronto para morar","copyVariants":[],"specialAdCategories":["HOUSING"],"status":"PREPARED","idempotencyKey":"prep-dp0ktfsj","preparedAt":"2026-09-11T21:54:49.196Z","createdAt":"2026-09-11T21:54:49.197Z","updatedAt":"2026-09-11T21:54:49.197Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /meta/ad-profiles pageAssetId
+AssertionError: {"adProfile":{"id":"d7ed3850-9ff9-4de8-93db-68aee8b6d3c6","orgId":"f49505b3-6a98-4900-abcb-734221a320df","connectionId":"d7c303bd-b6e8-41ef-bed1-70de02417c85","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","listingId":"034d0bfc-f950-4aba-ae86-8649d2a9202b","name":"Campanha B","objective":"OUTCOME_TRAFFIC","dailyBudgetCents":500000,"lifetimeBudgetCents":null,"startAt":null,"endAt":null,"geos":[],"mediaSelection":["cf194096-189a-4313-a605-ddd7d750363c"],"pageAssetId":"0e14cc28-9280-461f-9341-cd03f9971a7a","instagramAssetId":null,"landingUrl":"https://aluguei.app/imoveis/exemplo","copyPrimary":"Apartamento pronto para morar","copyVariants":[],"specialAdCategories":["HOUSING"],"status":"PREPARED","idempotencyKey":"prep-alg79mt2","preparedAt":"2026-09-11T21:54:49.225Z","createdAt":"2026-09-11T21:54:49.226Z","updatedAt":"2026-09-11T21:54:49.226Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /meta/ad-profiles instagramAssetId
+AssertionError: {"adProfile":{"id":"0db05f34-e6b9-4a82-a535-128efe271740","orgId":"f49505b3-6a98-4900-abcb-734221a320df","connectionId":"d7c303bd-b6e8-41ef-bed1-70de02417c85","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","listingId":"034d0bfc-f950-4aba-ae86-8649d2a9202b","name":"Campanha B","objective":"OUTCOME_TRAFFIC","dailyBudgetCents":500000,"lifetimeBudgetCents":null,"startAt":null,"endAt":null,"geos":[],"mediaSelection":["cf194096-189a-4313-a605-ddd7d750363c"],"pageAssetId":null,"instagramAssetId":"d86ccdf9-7759-417f-b3ec-4824a901826f","landingUrl":"https://aluguei.app/imoveis/exemplo","copyPrimary":"Apartamento pronto para morar","copyVariants":[],"specialAdCategories":["HOUSING"],"status":"PREPARED","idempotencyKey":"prep-sf2qqorn","preparedAt":"2026-09-11T21:54:49.250Z","createdAt":"2026-09-11T21:54:49.250Z","updatedAt":"2026-09-11T21:54:49.250Z"}}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > POST /meta/campaigns/:id/creative mediaSelection
+AssertionError: {"queued":true,"jobId":"78b039e9-2530-4e04-857d-a1991f0cc2bb"}: expected 202 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 202
+
+ ❯ src/cross-org-reference.test.ts:450:56
+    448|     const before = await Promise.all(c.tables.map((t) => countInOrg(t,…
+    449|     const attack = await call(B.cookie, 'POST', c.url(B), c.payload(A,…
+    450|     expect(attack.status, JSON.stringify(attack.body)).toBe(404);
+       |                                                        ^
+    451|     expect(attack.body.code).toBe('NOT_FOUND');
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > observação com ambiente/mídia de OUTRA vistoria da mesma org → 404
+AssertionError: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/cross-org-reference.test.ts:476:24
+    474|       description: 'Ambiente de outra vistoria',
+    475|     });
+    476|     expect(res.status).toBe(404);
+       |                        ^
+    477|   });
+    478|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > consentimento LGPD: B não lista nem cria consentimento da pessoa de A (404)
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ src/cross-org-reference.test.ts:481:25
+    479|   it('consentimento LGPD: B não lista nem cria consentimento da pessoa…
+    480|     const list = await call(B.cookie, 'GET', `/parties/${A.partyId}/co…
+    481|     expect(list.status).toBe(404);
+       |                         ^
+    482|     const own = await call(B.cookie, 'GET', `/parties/${B.partyId}/con…
+    483|     expect(own.status).toBe(200);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > consentimento LGPD: agregado da candidatura nunca devolve consentimento de outra org
+AssertionError: expected '{"application":{"id":"6a8bedee-df33-4…' not to contain 'affe80a6-96bc-4450-beed-ebb00bf4009a'
+
+Expected: "affe80a6-96bc-4450-beed-ebb00bf4009a"
+Received: "{"application":{"id":"6a8bedee-df33-49c8-a17e-2517efbe4b42","orgId":"f49505b3-6a98-4900-abcb-734221a320df","leadId":null,"partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","propertyId":"2d70b2c3-c20f-45f0-85b1-703eacc200ff","proposalId":null,"status":"DRAFT","decisionReason":null,"submittedAt":null,"decidedBy":null,"decidedAt":null,"createdAt":"2026-09-11T21:54:49.302Z","updatedAt":"2026-09-11T21:54:49.302Z"},"latestScreeningResult":null,"consent":{"id":"affe80a6-96bc-4450-beed-ebb00bf4009a","partyId":"4045829e-f6c3-496f-88d2-5315cc53c006","purpose":"CREDIT_SCREENING","grantedAt":"2026-09-11T21:54:48.043Z","revokedAt":null}}"
+
+ ❯ src/cross-org-reference.test.ts:506:44
+    504|     try {
+    505|       const res = await call(B.cookie, 'GET', `/rental-applications/${…
+    506|       expect(JSON.stringify(res.body)).not.toContain(A.consentId);
+       |                                            ^
+    507|       if (res.status === 200) {
+    508|         expect(res.body.consent).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > rotas filhas de vistoria de outra org → 404 (não 500)
+AssertionError: rooms: {"error":"InternalServerError","code":"INTERNAL","message":"Erro interno"}: expected 500 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 500
+
+ ❯ src/cross-org-reference.test.ts:541:67
+    539|     for (const [label, method, url, payload] of attempts) {
+    540|       const res = await call(B.cookie, method, url, payload);
+    541|       expect(res.status, `${label}: ${JSON.stringify(res.body)}`).toBe…
+       |                                                                   ^
+    542|     }
+    543|     const media = await app.db.execute(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/27]⎯
+
+ FAIL  src/cross-org-reference.test.ts > P0-05: referência entre organizações é bloqueada > verificação SQL: zero referências entre organizações
+AssertionError: expected [ { …(3) }, { …(3) }, { …(3) }, …(19) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "relation": "inspection_observations.media_id",
++     "sample_row_id": "6e37d7d3-95d6-49ee-9891-19c0e05d742c",
++     "violations": 1,
++   },
++   {
++     "relation": "inspection_observations.room_id",
++     "sample_row_id": "af6a3a3b-9a74-427e-a728-7eef8a41231e",
++     "violations": 2,
++   },
++   {
++     "relation": "inspections.property_id",
++     "sample_row_id": "8ad4f38b-6333-4e37-9e7d-95643e310761",
++     "violations": 1,
++   },
++   {
++     "relation": "lead_property_interests.property_id",
++     "sample_row_id": "558ab4db-ac0a-4765-a9e9-46598ea6fd43",
++     "violations": 1,
++   },
++   {
++     "relation": "leads.party_id",
++     "sample_row_id": "057b363c-1978-444f-8778-69c949ff4a1e",
++     "violations": 1,
++   },
++   {
++     "relation": "meta_ad_profiles.connection_id",
++     "sample_row_id": "a29145b1-f9c1-4530-bc2a-50ac0b78e94e",
++     "violations": 1,
++   },
++   {
++     "relation": "meta_ad_profiles.instagram_asset_id",
++     "sample_row_id": "0db05f34-e6b9-4a82-a535-128efe271740",
++     "violations": 1,
++   },
++   {
++     "relation": "meta_ad_profiles.page_asset_id",
++     "sample_row_id": "d7ed3850-9ff9-4de8-93db-68aee8b6d3c6",
++     "violations": 1,
++   },
++   {
++     "relation": "meta_sync_jobs.payload.mediaRefs[]",
++     "sample_row_id": "78b039e9-2530-4e04-857d-a1991f0cc2bb",
++     "violations": 1,
++   },
++   {
++     "relation": "proposals.lead_id",
++     "sample_row_id": "1b067706-9b02-44d1-86d2-6df671374e39",
++     "violations": 1,
++   },
++   {
++     "relation": "proposals.party_id",
++     "sample_row_id": "987264b0-1e7b-476b-8fcb-7f86020660eb",
++     "violations": 1,
++   },
++   {
++     "relation": "proposals.property_id",
++     "sample_row_id": "25cbe3f1-7263-4562-9e53-33153409cbef",
++     "violations": 1,
++   },
++   {
++     "relation": "rental_applications.lead_id",
++     "sample_row_id": "c0c4512d-0193-45d3-a492-8b936894f42b",
++     "violations": 1,
++   },
++   {
++     "relation": "rental_applications.party_id",
++     "sample_row_id": "f21eaf71-76fd-4d2e-b6f5-5fecf48b15a0",
++     "violations": 1,
++   },
++   {
++     "relation": "rental_applications.property_id",
++     "sample_row_id": "3637b511-a8b4-4706-97b5-0e142da4fda1",
++     "violations": 1,
++   },
++   {
++     "relation": "rental_applications.proposal_id",
++     "sample_row_id": "7a6b9ad4-5187-4fcc-8d02-5804fc3669d1",
++     "violations": 1,
++   },
++   {
++     "relation": "tasks.assignee_user_id (nao-membro)",
++     "sample_row_id": "aeebec61-2d68-47f3-9162-57f938109b50",
++     "violations": 1,
++   },
++   {
++     "relation": "tasks.related_entity_id",
++     "sample_row_id": "7df0e1d9-705d-452c-957f-861beded1174",
++     "violations": 1,
++   },
++   {
++     "relation": "timeline_events.entity_id",
++     "sample_row_id": "75866f02-6b33-4fb3-a036-ef83492e0dcd",
++     "violations": 1,
++   },
++   {
++     "relation": "visits.lead_id",
++     "sample_row_id": "a8b641e5-f195-481a-983b-9b7aeb82e0c6",
++     "violations": 1,
++   },
++   {
++     "relation": "visits.party_id",
++     "sample_row_id": "bd7a6e00-19c8-4d2e-b922-34b66b4a261c",
++     "violations": 1,
++   },
++   {
++     "relation": "visits.property_id",
++     "sample_row_id": "ca7d74c7-26aa-4cec-8e65-d484c71837ba",
++     "violations": 1,
++   },
++ ]
+
+ ❯ src/cross-org-reference.test.ts:564:50
+    562|
+    563|   it('verificação SQL: zero referências entre organizações', async () …
+    564|     expect(await findCrossOrgReferences(app.db)).toEqual([]);
+       |                                                  ^
+    565|   });
+    566| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/27]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  27 failed | 1 passed (28)
+   Start at  18:54:40
+   Duration  9.32s (transform 1.52s, setup 0ms, import 2.96s, tests 6.10s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8d0ae446a924c158\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/cross-org-reference.test.ts
+EXIT=1

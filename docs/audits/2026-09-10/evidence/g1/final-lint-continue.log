@@ -1,0 +1,40 @@
+@aluguei/observability:lint: $ eslint src
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/domain:lint: $ eslint src
+@aluguei/mobile:lint: cache bypass, force executing c451779a6418ad90
+@aluguei/domain:build: cache bypass, force executing 58e6427c6fd07177
+@aluguei/mobile:lint: $ eslint App.tsx index.ts src
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/config:lint: cache bypass, force executing 8a604714bfe6b3f3
+@aluguei/tests-e2e:lint: cache bypass, force executing 45e4df778f2b9df3
+@aluguei/config:lint: $ eslint src
+@aluguei/tests-e2e:lint: $ eslint src
+@aluguei/ui:lint: cache bypass, force executing 09681ee20a1a8974
+@aluguei/ui:build: cache bypass, force executing 0ee4ac0d89a4b71b
+@aluguei/tests-contract:lint: cache bypass, force executing 136bb5ac3c1491b0
+@aluguei/integrations:build: cache bypass, force executing 3b165317d2766691
+@aluguei/integrations:lint: cache bypass, force executing 5f7847744a6bb507
+@aluguei/ui:lint: $ eslint src
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/tests-contract:lint: $ eslint src
+@aluguei/integrations:lint: $ eslint src
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/web:lint: cache bypass, force executing 5b86f5e622a6661a
+@aluguei/web:lint: $ eslint src
+@aluguei/api:lint: cache bypass, force executing dc5a13e89023f43d
+@aluguei/meta-mcp:lint: cache bypass, force executing de644a02f83ed84c
+@aluguei/api:build: cache bypass, force executing 6bd8bf25d97f62ae
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/api:lint: $ eslint src
+@aluguei/meta-mcp:lint: $ eslint src
+@aluguei/worker:build: cache bypass, force executing f46e201cadac3a05
+@aluguei/worker:lint: cache bypass, force executing d7084e281d05e9b2
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/worker:lint: $ eslint src
+@aluguei/tests-integration:lint: cache bypass, force executing b2198c932c1fe7f5
+@aluguei/tests-integration:lint: $ eslint src
+
+ Tasks:    26 successful, 26 total
+Cached:    0 cached, 26 total
+  Time:    2m58.122s 
+
