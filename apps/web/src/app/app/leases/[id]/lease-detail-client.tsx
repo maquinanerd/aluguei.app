@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Badge,
@@ -19,6 +19,7 @@ import {
 import { formatBRL, formatDate, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import {
   label,
   LEASE_STATUS_LABELS,
@@ -78,22 +79,14 @@ function LeaseBody() {
   const [busy, setBusy] = useState(false);
 
   const aggQ = useQuery<LeaseAggregate>(`/leases/${id}`, [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', [id]);
 
   const agg = aggQ.data;
   const lease = agg?.lease ?? null;
 
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
-
-  const property = useMemo(
-    () => propsQ.data?.properties.find((p) => p.id === lease?.propertyId) ?? null,
-    [propsQ.data, lease],
-  );
+  // Locatário, proprietário e imóvel por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>('parties', [lease?.tenantPartyId, lease?.landlordPartyId]).map;
+  const propertyLookup = useLookup<Property>('properties', [lease?.propertyId]);
+  const property = lease ? (propertyLookup.map.get(lease.propertyId) ?? null) : null;
 
   if (aggQ.permissionDenied) return <PermissionDenied title="Sem acesso à locação" />;
 

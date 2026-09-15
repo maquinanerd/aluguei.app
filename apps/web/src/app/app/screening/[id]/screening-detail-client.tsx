@@ -20,6 +20,7 @@ import {
 import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import {
   label,
   APPLICATION_STATUS_LABELS,
@@ -87,25 +88,15 @@ function ScreeningBody() {
   const [confirmApprove, setConfirmApprove] = useState(false);
 
   const appQ = useQuery<Aggregate>(`/rental-applications/${id}`, [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', [id]);
   const proposalsQ = useQuery<{ proposals: Proposal[] }>('/proposals?limit=100', [id]);
 
   const application = appQ.data?.application ?? null;
   const screening = appQ.data?.latestScreeningResult ?? null;
   const consent = appQ.data?.consent ?? null;
 
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
+  // Nome do solicitante e do imóvel por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>('parties', [application?.partyId]).map;
+  const propertyMap = useLookup<Property>('properties', [application?.propertyId]).map;
 
   const proposal = useMemo(
     () => proposalsQ.data?.proposals.find((p) => p.id === application?.proposalId) ?? null,

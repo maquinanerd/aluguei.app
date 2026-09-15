@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Badge,
@@ -65,12 +65,6 @@ interface Property {
   createdAt: string;
 }
 
-interface Party {
-  id: string;
-  name: string;
-  type: string;
-}
-
 interface Listing {
   id: string;
   status: string;
@@ -97,15 +91,11 @@ function PropertyBody() {
   const [busy, setBusy] = useState(false);
 
   const propQ = useQuery<{ property: Property }>(`/properties/${id}`, [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
   const listingsQ = useQuery<{ listings: Listing[] }>('/listings?limit=50', [id]);
 
+  // Os proprietários já vêm com nome no detalhe do imóvel: sem a lista de
+  // pessoas com limit=200, recusada pela API (P1-01).
   const property = propQ.data?.property ?? null;
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
 
   if (propQ.permissionDenied) return <PermissionDenied title="Sem acesso ao imóvel" />;
 
@@ -546,7 +536,7 @@ function PropertyBody() {
           <InspectorSection title="Proprietários">
             <InspectorRows
               rows={property.owners.slice(0, 3).map((o) => ({
-                label: partyMap.get(o.partyId)?.name ?? o.name,
+                label: o.name,
                 value: o.ownershipSharePct !== null ? `${String(o.ownershipSharePct)}%` : '—',
               }))}
             />

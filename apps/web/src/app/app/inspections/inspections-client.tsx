@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  AsyncCombobox,
   Badge,
   Button,
   DataTable,
@@ -14,10 +15,11 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
-import type { Column } from '@aluguei/ui';
+import type { Column, ComboboxOption } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { searchProperties, useLookup } from '@/lib/lookup';
 import { label, INSPECTION_STATUS_LABELS, INSPECTION_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -62,13 +64,11 @@ function InspectionsBody() {
     inspections: Inspection[];
     total: number;
   }>(queryPath, [queryPath]);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
+  // Imóvel das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const propertyMap = useLookup<Property>(
+    'properties',
+    (data?.inspections ?? []).map((i) => i.propertyId),
+  ).map;
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a vistorias" />;
 
@@ -174,7 +174,6 @@ function InspectionsBody() {
         onClose={() => {
           setCreateOpen(false);
         }}
-        properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Vistoria criada');
           setCreateOpen(false);
@@ -188,29 +187,31 @@ function InspectionsBody() {
 function CreateInspectionModal({
   open,
   onClose,
-  properties,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
-  properties: Property[];
   onCreated: () => void;
 }) {
   const toast = useToast();
-  const [propertyId, setPropertyId] = useState('');
+  // Imóvel buscado no servidor: o select com limit=200 ficava vazio (P1-01).
+  const [property, setProperty] = useState<ComboboxOption | null>(null);
   const [type, setType] = useState('CHECKIN');
   const [scheduledAt, setScheduledAt] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    if (!propertyId) return;
+    if (!property) return;
     setBusy(true);
     try {
-      const body: { propertyId: string; type: string; scheduledAt?: string } = { propertyId, type };
+      const body: { propertyId: string; type: string; scheduledAt?: string } = {
+        propertyId: property.value,
+        type,
+      };
       if (scheduledAt) body.scheduledAt = new Date(scheduledAt).toISOString();
       await apiClient('/inspections', { method: 'POST', body });
-      setPropertyId('');
+      setProperty(null);
       setType('CHECKIN');
       setScheduledAt('');
       onCreated();
@@ -245,15 +246,13 @@ function CreateInspectionModal({
           void submit(e);
         }}
       >
-        <Select
+        <AsyncCombobox
           label="Imóvel"
           required
-          value={propertyId}
-          onChange={(e) => {
-            setPropertyId(e.target.value);
-          }}
-          placeholder="Selecione o imóvel…"
-          options={properties.map((p) => ({ value: p.id, label: p.title }))}
+          value={property}
+          onChange={setProperty}
+          loadOptions={searchProperties}
+          placeholder="Buscar imóvel pelo título…"
         />
         <Select
           label="Tipo"

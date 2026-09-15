@@ -16,6 +16,7 @@ import {
 import { cx, formatRelative } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import {
   label,
   FUNNEL_LABELS,
@@ -99,14 +100,13 @@ function InboxBody() {
     selectedId ? `/conversations/${selectedId}/intents` : null,
     [selectedId],
   );
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
   const leadsQ = useQuery<{ leads: Lead[] }>('/leads?limit=100', []);
 
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
+  // Contatos das conversas carregadas, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>(
+    'parties',
+    (convQ.data?.conversations ?? []).map((c) => c.partyId),
+  ).map;
 
   const leadMap = useMemo(() => {
     const m = new Map<string, Lead>();

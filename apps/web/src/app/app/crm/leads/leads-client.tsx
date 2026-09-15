@@ -23,6 +23,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, FUNNEL_LABELS, FUNNEL_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -84,11 +85,15 @@ function LeadsBody() {
   const { data, loading, error, permissionDenied, reload } = useQuery<LeadsResponse>(queryPath, [
     queryPath,
   ]);
-  const parties = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
+  // Contatos das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyLookup = useLookup<Party>(
+    'parties',
+    (data?.leads ?? []).map((l) => l.partyId),
+  );
 
   const partyName = useCallback(
-    (id: string | null) => parties.data?.parties.find((p) => p.id === id)?.name ?? null,
-    [parties.data],
+    (id: string | null) => (id ? (partyLookup.map.get(id)?.name ?? null) : null),
+    [partyLookup.map],
   );
 
   const leads = useMemo(() => {

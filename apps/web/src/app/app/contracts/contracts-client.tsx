@@ -17,6 +17,7 @@ import type { Column } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useAllPages, useLookup } from '@/lib/lookup';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -67,27 +68,29 @@ function ContractsBody() {
     contracts: Contract[];
     total: number;
   }>(queryPath, [queryPath]);
-  const appsQ = useQuery<{ applications: Application[]; total: number }>(
-    '/rental-applications?limit=200',
-    [],
-  );
+  // Candidaturas de todas as páginas, de 100 em 100: a rota não tem `ids` e o
+  // limit=200 anterior era recusado pela API (P1-01).
+  const appsQ = useAllPages<Application>('/rental-applications', 'applications');
   const templatesQ = useQuery<{ templates: Template[]; total: number }>(
     '/contract-templates?limit=100',
     [],
   );
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
-
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
 
   const appMap = useMemo(() => {
     const m = new Map<string, Application>();
-    for (const a of appsQ.data?.applications ?? []) m.set(a.id, a);
+    for (const a of appsQ.rows) m.set(a.id, a);
     return m;
-  }, [appsQ.data]);
+  }, [appsQ.rows]);
+
+  // Locatários das linhas da página e das candidaturas elegíveis, por `ids`.
+  const partyMap = useLookup<Party>('parties', [
+    ...(data?.contracts ?? []).map((c) =>
+      c.applicationId ? appMap.get(c.applicationId)?.partyId : null,
+    ),
+    ...appsQ.rows
+      .filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING')
+      .map((a) => a.partyId),
+  ]).map;
 
   const templateMap = useMemo(() => {
     const m = new Map<string, Template>();
@@ -204,12 +207,14 @@ function ContractsBody() {
         onClose={() => {
           setCreateOpen(false);
         }}
-        applications={appsQ.data?.applications ?? []}
+        applications={appsQ.rows}
+        partyMap={partyMap}
         templates={templatesQ.data?.templates ?? []}
         onCreated={() => {
           toast.success('Contrato criado');
           setCreateOpen(false);
           reload();
+          appsQ.reload();
         }}
       />
     </div>
@@ -220,12 +225,14 @@ function CreateContractModal({
   open,
   onClose,
   applications,
+  partyMap,
   templates,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
   applications: Application[];
+  partyMap: ReadonlyMap<string, Party>;
   templates: Template[];
   onCreated: () => void;
 }) {
@@ -284,7 +291,10 @@ function CreateContractModal({
           placeholder="Selecione a aplicação…"
           options={applications
             .filter((a) => a.status === 'APPROVED' || a.status === 'CONTRACTING')
-            .map((a) => ({ value: a.id, label: `${a.id.slice(0, 8)} · ${a.status}` }))}
+            .map((a) => ({
+              value: a.id,
+              label: `${partyMap.get(a.partyId)?.name ?? a.id.slice(0, 8)} · ${a.status}`,
+            }))}
         />
         <Select
           label="Template"

@@ -16,6 +16,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useAllPages, useLookup } from '@/lib/lookup';
 import { label, LEASE_STATUS_LABELS, LEASE_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -66,21 +67,20 @@ function LeasesBody() {
     leases: Lease[];
     total: number;
   }>(queryPath, [queryPath]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', []);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-  const contractsQ = useQuery<{ contracts: Contract[]; total: number }>('/contracts?limit=100', []);
-
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
+  // Nomes só das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>(
+    'parties',
+    (data?.leases ?? []).map((l) => l.tenantPartyId),
+  ).map;
+  const propertyMap = useLookup<Property>(
+    'properties',
+    (data?.leases ?? []).map((l) => l.propertyId),
+  ).map;
+  // Contratos assinados de todas as páginas, de 100 em 100, só com o modal aberto.
+  const signedContracts = useAllPages<Contract>(
+    createOpen ? '/contracts?status=SIGNED' : null,
+    'contracts',
+  );
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a locações" />;
 
@@ -179,7 +179,7 @@ function LeasesBody() {
         onClose={() => {
           setCreateOpen(false);
         }}
-        contracts={(contractsQ.data?.contracts ?? []).filter((c) => c.status === 'SIGNED')}
+        contracts={signedContracts.rows}
         onCreated={() => {
           toast.success('Locação criada');
           setCreateOpen(false);

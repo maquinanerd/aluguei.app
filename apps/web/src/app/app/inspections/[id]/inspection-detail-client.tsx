@@ -23,6 +23,7 @@ import {
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, INSPECTION_STATUS_LABELS, INSPECTION_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 
@@ -134,14 +135,12 @@ function InspectionBody() {
   const [obsDesc, setObsDesc] = useState('');
 
   const aggQ = useQuery<Aggregate>(`/inspections/${id}`, [id]);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', [id]);
 
   const agg = aggQ.data;
   const inspection = agg?.inspection ?? null;
-  const property = useMemo(
-    () => propsQ.data?.properties.find((p) => p.id === inspection?.propertyId) ?? null,
-    [propsQ.data, inspection],
-  );
+  // Imóvel da vistoria por `ids` (antes limit=200 → 400 — P1-01).
+  const propertyLookup = useLookup<Property>('properties', [inspection?.propertyId]);
+  const property = inspection ? (propertyLookup.map.get(inspection.propertyId) ?? null) : null;
 
   const roomMap = useMemo(() => {
     const m = new Map<string, Room>();

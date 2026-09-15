@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Badge,
@@ -19,6 +19,7 @@ import {
 import { formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 
@@ -84,17 +85,16 @@ function ContractBody() {
   const [showContent, setShowContent] = useState(false);
 
   const aggQ = useQuery<Aggregate>(`/contracts/${id}`, [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
 
   const contract = aggQ.data?.contract ?? null;
   const cParties = aggQ.data?.parties ?? [];
   const envelope = aggQ.data?.envelope ?? null;
 
-  const partyMap = useMemo(() => {
-    const m = new Map<string, Party>();
-    for (const p of partiesQ.data?.parties ?? []) m.set(p.id, p);
-    return m;
-  }, [partiesQ.data]);
+  // Partes do contrato por `ids` (antes limit=200 → 400 — P1-01).
+  const partyMap = useLookup<Party>(
+    'parties',
+    cParties.map((cp) => cp.partyId),
+  ).map;
 
   if (aggQ.permissionDenied) return <PermissionDenied title="Sem acesso ao contrato" />;
 

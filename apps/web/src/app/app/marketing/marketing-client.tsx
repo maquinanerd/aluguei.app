@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Badge,
   Button,
@@ -16,6 +16,7 @@ import {
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import {
   label,
   META_CAMPAIGN_STATUS_LABELS,
@@ -115,20 +116,15 @@ function MarketingBody() {
     '/meta/campaigns?limit=100',
     [],
   );
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
-  const listingsQ = useQuery<{ listings: Listing[]; total: number }>('/listings?limit=200', []);
-
-  const propertyMap = useMemo(() => {
-    const m = new Map<string, Property>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p);
-    return m;
-  }, [propsQ.data]);
-
-  const listingMap = useMemo(() => {
-    const m = new Map<string, Listing>();
-    for (const l of listingsQ.data?.listings ?? []) m.set(l.id, l);
-    return m;
-  }, [listingsQ.data]);
+  // Imóvel e anúncio dos perfis carregados, por `ids` (antes limit=200 → 400 — P1-01).
+  const propertyMap = useLookup<Property>(
+    'properties',
+    (profilesQ.data?.adProfiles ?? []).map((p) => p.propertyId),
+  ).map;
+  const listingMap = useLookup<Listing>(
+    'listings',
+    (profilesQ.data?.adProfiles ?? []).map((p) => p.listingId),
+  ).map;
 
   if (connQ.permissionDenied) return <PermissionDenied title="Sem acesso ao marketing" />;
 

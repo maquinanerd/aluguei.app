@@ -20,6 +20,7 @@ import {
 import { formatBRL, formatDateTime, formatRelative } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
 import { label, FUNNEL_LABELS, FUNNEL_TONES } from '@/lib/labels';
 import { PermissionDenied, ErrorState, EmptyState } from '@aluguei/ui';
 
@@ -81,7 +82,6 @@ function LeadBody() {
   const [busy, setBusy] = useState(false);
 
   const leadsQ = useQuery<{ leads: Lead[] }>('/leads?limit=100', [id]);
-  const partiesQ = useQuery<{ parties: Party[] }>('/parties?limit=200', [id]);
   const convQ = useQuery<{ conversations: Conversation[] }>(`/leads/${id}/conversations`, [id]);
   const timelineQ = useQuery<{ events: TimelineEvent[] }>(
     `/timeline?entityType=LEAD&entityId=${id}`,
@@ -92,11 +92,9 @@ function LeadBody() {
     () => leadsQ.data?.leads.find((l) => l.id === id) ?? null,
     [leadsQ.data, id],
   );
-  const party = useMemo(
-    () =>
-      lead?.partyId ? (partiesQ.data?.parties.find((p) => p.id === lead.partyId) ?? null) : null,
-    [lead, partiesQ.data],
-  );
+  // Contato do lead por `ids` (antes limit=200 → 400 — P1-01).
+  const partyLookup = useLookup<Party>('parties', [lead?.partyId]);
+  const party = lead?.partyId ? (partyLookup.map.get(lead.partyId) ?? null) : null;
 
   if (leadsQ.permissionDenied) return <PermissionDenied title="Sem acesso a leads" />;
 
