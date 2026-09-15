@@ -212,12 +212,22 @@ async function seedOrganization(
     })),
   );
 
+  // Desde a migration 0015 (trilha A do G2, P1-06), APPROVED exige a trilha da
+  // decisão — motivo, data e origem. As contagens do dashboard não dependem disso.
   await db.insert(rentalApplications).values(
     ['DRAFT', 'SUBMITTED', 'SCREENING', 'MANUAL_REVIEW', 'APPROVED'].map((status) => ({
       orgId,
       partyId: party.id,
       propertyId: p1.id,
       status,
+      ...(status === 'APPROVED'
+        ? {
+            decisionReason: 'Renda comprovada (semente do teste)',
+            decisionSource: 'MANUAL',
+            decidedBy: userId,
+            decidedAt: at(now - DAY_MS),
+          }
+        : {}),
     })),
   );
 

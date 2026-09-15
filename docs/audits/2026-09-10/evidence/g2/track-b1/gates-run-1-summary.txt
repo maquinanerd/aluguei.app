@@ -1,0 +1,11 @@
+commit=9b3fbcf branch=g2/track-b1-web inicio=2026-09-15T18:36:16Z
+format # exit=0 fim=18:36:29Z
+lint # exit=0 fim=18:37:43Z
+typecheck # exit=0 fim=18:38:39Z
+test # exit=1 fim=18:41:58Z
+build # exit=0 fim=18:42:42Z
+security-scan # exit=0 fim=18:42:43Z
+security-audit-critical # exit=0 fim=18:42:45Z
+migrations-antes=18 snapshots-antes=18
+db-generate # exit=0 fim=18:42:49Z
+migrations-depois=18 snapshots-depois=18 sem-mudancas=1
