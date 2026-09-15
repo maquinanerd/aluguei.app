@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { Badge, Card, Group, Stack } from '@aluguei/ui';
 import { formatBRL } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
+import { PortalLogoutButton } from '@/components/portal/portal-logout-button';
 
 export const metadata: Metadata = { title: 'Portal do Proprietário | Aluguei.app' };
 export const dynamic = 'force-dynamic';
@@ -67,9 +67,7 @@ export default async function ProprietarioPage() {
         <span className="peg-text-secondary" style={{ fontSize: 13 }}>
           {me.partyName}
         </span>
-        <Link href="/" style={{ fontSize: 13 }}>
-          Sair
-        </Link>
+        <PortalLogoutButton />
       </nav>
       <main className="app-page" style={{ padding: '32px 24px', maxWidth: 900 }}>
         <div>

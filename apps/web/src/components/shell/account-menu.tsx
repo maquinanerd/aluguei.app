@@ -2,28 +2,32 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Avatar, Icon } from '@aluguei/ui';
 import type { Session } from '@/lib/session';
+import { requestLogout } from '@/lib/logout';
 
 export function AccountMenu({ session }: { session: Session }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   function close() {
     setOpen(false);
   }
 
+  /** Só sai depois que a API confirma o fim da sessão (auditoria 2026-09-10, P1-03). */
   async function logout() {
     setLoggingOut(true);
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } finally {
-      router.push('/login');
-      router.refresh();
+    setLogoutError(null);
+    const result = await requestLogout('/api/auth/logout');
+    if (result.ok) {
+      // Recarga completa: nada da sessão encerrada fica em memória no navegador.
+      window.location.assign('/login');
+      return;
     }
+    setLogoutError(result.message);
+    setLoggingOut(false);
   }
 
   return (
@@ -82,6 +86,7 @@ export function AccountMenu({ session }: { session: Session }) {
             role="menuitem"
             className="peg-menu__item peg-menu__item--danger"
             disabled={loggingOut}
+            aria-busy={loggingOut}
             onClick={() => void logout()}
           >
             <span className="peg-menu__icon">
@@ -89,6 +94,11 @@ export function AccountMenu({ session }: { session: Session }) {
             </span>
             Sair
           </button>
+          {logoutError ? (
+            <span className="peg-field__error" role="alert" style={{ padding: '4px 12px 8px' }}>
+              {logoutError}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </div>

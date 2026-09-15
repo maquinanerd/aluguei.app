@@ -10,6 +10,7 @@ import type { Session } from '@/lib/session';
 import { NAV_GROUPS, NAV_ROOT, breadcrumbFor } from '@/lib/navigation';
 import { can, activeRole } from '@/lib/session';
 import { ROLE_LABELS } from '@/lib/labels';
+import { requestLogout } from '@/lib/logout';
 import { AccountMenu } from './account-menu';
 import { OrgSwitcher } from './org-switcher';
 import { GlobalSearch } from './global-search';
@@ -428,6 +429,8 @@ function ProfileMenu({ session }: { session: Session }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -468,12 +471,17 @@ function ProfileMenu({ session }: { session: Session }) {
     };
   }, [open]);
 
+  /** Só sai depois que a API confirma o fim da sessão (auditoria 2026-09-10, P1-03). */
   async function logout() {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } finally {
-      window.location.href = '/login';
+    setLoggingOut(true);
+    setLogoutError(null);
+    const result = await requestLogout('/api/auth/logout');
+    if (result.ok) {
+      window.location.assign('/login');
+      return;
     }
+    setLogoutError(result.message);
+    setLoggingOut(false);
   }
 
   return (
@@ -523,6 +531,8 @@ function ProfileMenu({ session }: { session: Session }) {
             role="menuitem"
             tabIndex={0}
             className="peg-menu__item peg-menu__item--danger"
+            disabled={loggingOut}
+            aria-busy={loggingOut}
             onClick={() => {
               void logout();
             }}
@@ -532,6 +542,11 @@ function ProfileMenu({ session }: { session: Session }) {
             </span>
             Sair
           </button>
+          {logoutError ? (
+            <span className="peg-field__error" role="alert" style={{ padding: '4px 12px 8px' }}>
+              {logoutError}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </div>
