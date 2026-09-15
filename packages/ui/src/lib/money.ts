@@ -14,11 +14,7 @@
 export const MONEY_INPUT_MAX_CENTS = 2_147_483_647;
 
 export type NumberInputErrorCode =
-  | 'INVALID'
-  | 'AMBIGUOUS'
-  | 'TOO_MANY_DECIMALS'
-  | 'NEGATIVE'
-  | 'TOO_LARGE';
+  'INVALID' | 'AMBIGUOUS' | 'TOO_MANY_DECIMALS' | 'NEGATIVE' | 'TOO_LARGE';
 
 export interface NumberInputError {
   ok: false;
