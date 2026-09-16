@@ -1,0 +1,5 @@
+# comando: pnpm security:scan
+# árvore: commit 11fcb2e (g2/integration: main + ops/storage-db + trilhas A e B1 do G2); rodada sem cache iniciada em 2026-09-15T19:36:10Z
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.

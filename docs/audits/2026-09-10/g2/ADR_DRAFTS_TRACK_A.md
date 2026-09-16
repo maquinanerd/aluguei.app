@@ -1,8 +1,8 @@
 # ADRs propostos — Gate G2, trilha A (contratos, crédito, assinatura, vistoria)
 
-> Rascunhos da trilha A. **Não** foram registrados em `docs/DECISIONS.md` (fora do escopo da
-> trilha). Numeração provisória `G2A-n`; o número definitivo (ADR-046 em diante) sai na
-> consolidação do gate, junto com os ADRs das outras trilhas.
+> Rascunhos da trilha A, mantidos como registro. Consolidados em `docs/DECISIONS.md` na
+> integração do G2 (2026-09-16), com numeração definitiva: G2A-1 → ADR-047, G2A-2 → ADR-048,
+> G2A-3 → ADR-049, G2A-4 → ADR-050 e G2A-5 → ADR-051. A versão vigente é a de `DECISIONS.md`.
 
 ## G2A-1 — Contrato: versões imutáveis e texto congelado no envio (P0-04)
 

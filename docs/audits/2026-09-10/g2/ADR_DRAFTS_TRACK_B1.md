@@ -1,8 +1,10 @@
 # ADRs propostos — Gate G2, Track B1 (fundações do frontend)
 
-> Rascunhos da Track B1. **Não** foram registrados em `docs/DECISIONS.md` (fora do escopo da
-> trilha). Numeração provisória `G2B1-n`; o número definitivo sai na consolidação do gate, junto
-> com os ADRs das outras trilhas. Evidências em `docs/audits/2026-09-10/evidence/g2/track-b1/`.
+> Rascunhos da Track B1, mantidos como registro. Consolidados em `docs/DECISIONS.md` na
+> integração do G2 (2026-09-16), com numeração definitiva: G2B1-1 → ADR-052, G2B1-2 → ADR-053,
+> G2B1-3 → ADR-054, G2B1-4 → ADR-055, G2B1-5 → ADR-056, G2B1-6 → ADR-057, G2B1-7 → ADR-058 e
+> G2B1-8 → ADR-059. A versão vigente é a de `DECISIONS.md`. Evidências em
+> `docs/audits/2026-09-10/evidence/g2/track-b1/`.
 
 ## G2B1-1 — Entrada numérica pt-BR: centavos inteiros e ambiguidade recusada (P0-07)
 

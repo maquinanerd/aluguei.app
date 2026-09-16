@@ -1,0 +1,6 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit 11fcb2e (g2/integration: main + ops/storage-db + trilhas A e B1 do G2); rodada sem cache iniciada em 2026-09-15T19:36:10Z
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high

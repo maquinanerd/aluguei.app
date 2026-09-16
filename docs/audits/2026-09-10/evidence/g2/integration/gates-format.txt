@@ -1,0 +1,6 @@
+# comando: pnpm format:check
+# árvore: commit 11fcb2e (g2/integration: main + ops/storage-db + trilhas A e B1 do G2); rodada sem cache iniciada em 2026-09-15T19:36:10Z
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
