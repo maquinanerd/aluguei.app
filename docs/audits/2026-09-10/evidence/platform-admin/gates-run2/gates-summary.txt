@@ -1,0 +1,11 @@
+# resumo: exit code e duração de cada gate, na ordem (cada um só roda se o anterior passar);
+# db-drift = git status --porcelain -- packages/db depois do db:generate (NO = sem mudança)
+commit=27de77d branch=feat/platform-admin date=2026-09-16T20:52:32Z
+install exit=0 dur=1s
+format exit=0 dur=18s
+lint exit=0 dur=113s
+typecheck exit=0 dur=92s
+test exit=0 dur=343s
+build exit=0 dur=187s
+secscan exit=1 dur=4s
+gates-chain exit=1

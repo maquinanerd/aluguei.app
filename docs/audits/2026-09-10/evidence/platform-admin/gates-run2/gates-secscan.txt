@@ -1,0 +1,9 @@
+# comando: pnpm security:scan
+# árvore: commit 27de77d (feat/platform-admin)
+# nota: o valor fictício acusado foi trocado por <senha fictícia de 24 caracteres> neste log, senão o próprio scanner acusaria o arquivo de evidência
+
+$ node scripts/security-scan.mjs
+Secret scan FAILED:
+  tests\e2e\scripts\stack.mjs:322 [generic-secret-assignment] password: '<senha fictícia de 24 caracteres>',
+  tests\e2e\src\g2-b1-support.ts:55 [generic-secret-assignment] password: '<senha fictícia de 24 caracteres>',
+[ELIFECYCLE] Command failed with exit code 1.

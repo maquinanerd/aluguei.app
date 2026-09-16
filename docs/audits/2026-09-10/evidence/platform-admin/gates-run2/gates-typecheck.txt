@@ -1,0 +1,67 @@
+# comando: pnpm typecheck --force
+# árvore: commit 27de77d (feat/platform-admin)
+
+$ turbo run typecheck "--force"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running typecheck in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/storage:typecheck: cache bypass, force executing af9f90c224f2c565
+@aluguei/domain:build: cache bypass, force executing 4b054a2770b33b1a
+@aluguei/observability:build: cache bypass, force executing b1251b5b82200219
+@aluguei/mobile:typecheck: cache bypass, force executing 46b8a17f43dfd396
+@aluguei/contracts:build: cache bypass, force executing f12afc43b0226077
+@aluguei/domain:typecheck: cache bypass, force executing 7343e276bdb89b44
+@aluguei/contracts:typecheck: cache bypass, force executing 70c9f13e21ee9899
+@aluguei/storage:build: cache bypass, force executing 790f1b37752f7581
+@aluguei/config:typecheck: cache bypass, force executing 28202fa456256e5a
+@aluguei/db:typecheck: cache bypass, force executing d4e9cb14e5b5d87c
+@aluguei/storage:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/mobile:typecheck: $ tsc --noEmit
+@aluguei/domain:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/contracts:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/config:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/db:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/db:build: cache bypass, force executing 1684bf6b427b4b1a
+@aluguei/observability:typecheck: cache bypass, force executing cd40be2a69793a9e
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/config:build: cache bypass, force executing 743e3ee10c76b4cf
+@aluguei/observability:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/ui:typecheck: cache bypass, force executing 60dce6532be995a0
+@aluguei/ui:build: cache bypass, force executing 9652155d3e7782d7
+@aluguei/tests-contract:typecheck: cache bypass, force executing c124ecd2bcc33a2c
+@aluguei/ui:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/tests-contract:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/integrations:build: cache bypass, force executing d6c4648102065dd4
+@aluguei/integrations:typecheck: cache bypass, force executing 4f125136644d0442
+@aluguei/tests-e2e:typecheck: cache bypass, force executing c84b5753721159f4
+@aluguei/integrations:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-e2e:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/web:typecheck: cache bypass, force executing 33ee0ee9d2588e0f
+@aluguei/web:typecheck: $ tsc --noEmit
+@aluguei/api:typecheck: cache bypass, force executing 58c813d41ceab2ac
+@aluguei/api:build: cache bypass, force executing df544974c23e78e0
+@aluguei/meta-mcp:typecheck: cache bypass, force executing 6aab39889327237f
+@aluguei/api:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/meta-mcp:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/worker:build: cache bypass, force executing c1c95ee0a4a87a6d
+@aluguei/worker:typecheck: cache bypass, force executing ccb4ad5b19022281
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/worker:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-integration:typecheck: cache bypass, force executing ceaf6f3c43b5a3a8
+@aluguei/tests-integration:typecheck: $ tsc -p tsconfig.json --noEmit
+
+ Tasks:    26 successful, 26 total
+Cached:    0 cached, 26 total
+  Time:    1m30.762s 
+

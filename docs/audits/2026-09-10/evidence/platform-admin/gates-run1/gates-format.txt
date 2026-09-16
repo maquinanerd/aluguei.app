@@ -1,0 +1,9 @@
+# comando: pnpm format:check
+# árvore: commit c16bdaf (feat/platform-admin)
+
+$ prettier --check .
+Checking formatting...
+[warn] tests/integration/src/migrations-platform.test.ts
+[warn] tests/integration/src/platform-admin.test.ts
+[warn] Code style issues found in 2 files. Run Prettier with --write to fix.
+[ELIFECYCLE] Command failed with exit code 1.

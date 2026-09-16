@@ -1,0 +1,6 @@
+# comando: pnpm format:check
+# árvore: commit 27de77d (feat/platform-admin)
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!

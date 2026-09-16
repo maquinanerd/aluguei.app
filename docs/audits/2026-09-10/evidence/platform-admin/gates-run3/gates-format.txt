@@ -1,0 +1,8 @@
+# comando: pnpm format:check
+# árvore: commit 420f436 (feat/platform-admin)
+
+$ prettier --check .
+Checking formatting...
+[warn] docs/audits/2026-09-10/evidence/platform-admin/README.md
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+[ELIFECYCLE] Command failed with exit code 1.
