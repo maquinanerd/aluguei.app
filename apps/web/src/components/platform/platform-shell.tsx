@@ -53,7 +53,7 @@ export function PlatformShell({
           </header>
           <nav className="app-sidebar__body" aria-label="Administração da plataforma">
             <div className="app-sidebar__group">
-              <h2 className="app-sidebar__group-title">Admin da plataforma</h2>
+              <h2 className="app-sidebar__group-title">Administração</h2>
               {NAV.map((item) => {
                 const active = isActive(item.href, pathname);
                 return (
