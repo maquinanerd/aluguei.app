@@ -1,0 +1,62 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/platform-bootstrap.test.ts
+# árvore: commit 6a75b2d (API do admin da plataforma) + teste novo do bootstrap, sem o módulo de bootstrap
+# data (UTC): 2026-09-16T14:07:07Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:7420) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/platform-bootstrap.test.ts (3 tests | 3 failed) 3885ms
+     × cria a conta de um e-mail da allowlist, que entra como admin sem imobiliária 3ms
+     × conta existente não é alterada (a senha continua a mesma) 0ms
+     × recusa e-mail fora da allowlist e senha curta, sem gravar nada 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform-bootstrap.test.ts > bootstrap da conta do admin da plataforma > cria a conta de um e-mail da allowlist, que entra como admin sem imobiliária
+TypeError: createPlatformAdminAccount is not a function
+ ❯ src/platform-bootstrap.test.ts:30:26
+     28| describe('bootstrap da conta do admin da plataforma', () => {
+     29|   it('cria a conta de um e-mail da allowlist, que entra como admin sem…
+     30|     const result = await createPlatformAdminAccount(db, allowlist, {
+       |                          ^
+     31|       email: '  Reservado@Aluguei.test ',
+     32|       name: 'Admin Bootstrap',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/platform-bootstrap.test.ts > bootstrap da conta do admin da plataforma > conta existente não é alterada (a senha continua a mesma)
+TypeError: createPlatformAdminAccount is not a function
+ ❯ src/platform-bootstrap.test.ts:52:26
+     50|
+     51|   it('conta existente não é alterada (a senha continua a mesma)', asyn…
+     52|     const result = await createPlatformAdminAccount(db, allowlist, {
+       |                          ^
+     53|       email: 'reservado@aluguei.test',
+     54|       name: 'Outro nome',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/platform-bootstrap.test.ts > bootstrap da conta do admin da plataforma > recusa e-mail fora da allowlist e senha curta, sem gravar nada
+TypeError: createPlatformAdminAccount is not a function
+ ❯ src/platform-bootstrap.test.ts:67:7
+     65|   it('recusa e-mail fora da allowlist e senha curta, sem gravar nada',…
+     66|     await expect(
+     67|       createPlatformAdminAccount(db, allowlist, {
+       |       ^
+     68|         email: 'intruso@aluguei.test',
+     69|         name: 'Intruso',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  11:07:08
+   Duration  10.40s (transform 3.65s, setup 0ms, import 6.22s, tests 3.88s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/platform-bootstrap.test.ts
+# exit=1
