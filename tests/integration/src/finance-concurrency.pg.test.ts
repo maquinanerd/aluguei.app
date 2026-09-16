@@ -18,6 +18,7 @@ import { runInboxJobs } from '@aluguei/worker';
 import { FakeStorageService } from './fakes.js';
 import { createFinanceFixtures } from './finance-fixtures.js';
 import { testEnv } from './helpers.js';
+import { dropTestDatabase } from './pg-test-database.js';
 import { futurePeriod } from './test-dates.js';
 
 /**
@@ -155,7 +156,7 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
   afterAll(async () => {
     await app.close();
     await Promise.all([db, workerA, workerB].map((pool) => pool.$client.end()));
-    await admin.execute(sql.raw(`drop database if exists ${dbName} with (force)`));
+    await dropTestDatabase(admin, dbName);
     await admin.$client.end();
   });
 

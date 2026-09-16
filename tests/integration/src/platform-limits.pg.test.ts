@@ -9,6 +9,7 @@ import { createDb, properties } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import { FakeStorageService } from './fakes.js';
 import { testEnv } from './helpers.js';
+import { dropTestDatabase } from './pg-test-database.js';
 import { call, platformAdminSession, registerAgency } from './platform-fixtures.js';
 import type { CallResult, RegisteredAgency } from './platform-fixtures.js';
 
@@ -59,7 +60,7 @@ describe('concorrência real (PostgreSQL): limites do plano', () => {
   afterAll(async () => {
     await app.close();
     await db.$client.end();
-    await admin.execute(sql.raw(`drop database if exists ${dbName} with (force)`));
+    await dropTestDatabase(admin, dbName);
     await admin.$client.end();
   });
 
