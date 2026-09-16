@@ -1,0 +1,154 @@
+# comando: WEB_PORT=3301 API_PORT=4301 PG_PORT=5534 pnpm --filter @aluguei/tests-e2e test:e2e platform-admin main-journey
+# árvore: commit 6ec9469 (API, comando de bootstrap e specs E2E do admin da plataforma; SEM a interface web), em worktree temporário; stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-16T14:16:38Z
+$ playwright test "platform-admin" "main-journey"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\f452a3f7fc
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\f452a3f7fc\run-1789568203113\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5534...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4301...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3301...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\f452a3f7fc\run-1789568203113).
+[WebServer] [e2e-stack] web http://localhost:3301 · API http://127.0.0.1:4301 — Ctrl+C para derrubar.
+
+Running 4 tests using 1 worker
+
+  x  1 main-journey.spec.ts:74:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (2.0m)
+  x  2 main-journey.spec.ts:117:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (30ms)
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 94
+  x  3 main-journey.spec.ts:433:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (1.5m)
+  x  4 platform-admin.spec.ts:10:3 › Admin da plataforma › cadastro em análise, aprovação com plano, suspensão com motivo e novo plano (2.0m)
+[e2e-stack] stack run-1789568203113 desligada.
+
+
+  1) main-journey.spec.ts:74:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Telefone com DDD')
+
+
+      78 |     await page.getByLabel('Senha').fill(password);
+      79 |     await page.getByLabel('Nome da imobiliária').fill(orgName);
+    > 80 |     await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
+         |                                               ^
+      81 |     await page.getByRole('button', { name: 'Criar conta' }).click();
+      82 |
+      83 |     // Cadastro aberto nasce em análise (admin da plataforma): aprova pela API e segue.
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\platform-e2e-red\tests\e2e\src\main-journey.spec.ts:80:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\main-journey-Jornada-princ-27db9-e-criação-de-imóvel-pela-UI\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\main-journey-Jornada-princ-27db9-e-criação-de-imóvel-pela-UI\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\main-journey-Jornada-princ-27db9-e-criação-de-imóvel-pela-UI\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) main-journey.spec.ts:117:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+      119 |       cookie,
+      120 |     });
+    > 121 |     const prop = list.body.properties.find((p) => p.title === 'Apartamento E2E Playwright');
+          |                                       ^
+      122 |     expect(prop).toBeTruthy();
+      123 |     propertyId = prop?.id ?? '';
+      124 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\platform-e2e-red\tests\e2e\src\main-journey.spec.ts:121:39
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\main-journey-Jornada-princ-4da40-ra→locação→cobrança→portal-\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\main-journey-Jornada-princ-4da40-ra→locação→cobrança→portal-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) main-journey.spec.ts:433:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados 
+
+    Error: Timed out 15000ms waiting for expect(locator).toHaveURL(expected)
+
+    Locator: locator(':root')
+    Expected pattern: /\/app/
+    Received string:  "http://localhost:3301/login"
+    Call log:
+      - expect.toHaveURL with timeout 15000ms
+      - waiting for locator(':root')
+        18 × locator resolved to <html lang="pt-BR" class="inter_f78823fd-module__vG9ymG__variable">…</html>
+           - unexpected value "http://localhost:3301/login"
+
+
+      444 |       await page.waitForTimeout(61_000); // aguarda a janela do rate limit
+      445 |       await page.getByRole('button', { name: 'Entrar' }).click();
+    > 446 |       await expect(page).toHaveURL(/\/app/, { timeout: 15_000 });
+          |                          ^
+      447 |     }
+      448 |
+      449 |     await page.goto('/app/contracts');
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\platform-e2e-red\tests\e2e\src\main-journey.spec.ts:446:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\main-journey-Jornada-princ-c067d-l-refletem-os-dados-criados\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\main-journey-Jornada-princ-c067d-l-refletem-os-dados-criados\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\main-journey-Jornada-princ-c067d-l-refletem-os-dados-criados\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) platform-admin.spec.ts:10:3 › Admin da plataforma › cadastro em análise, aprovação com plano, suspensão com motivo e novo plano 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Telefone com DDD')
+
+
+      21 |     await page.getByLabel('Senha').fill('e2e-password-123');
+      22 |     await page.getByLabel('Nome da imobiliária').fill(orgName);
+    > 23 |     await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
+         |                                               ^
+      24 |     await page.getByLabel('CNPJ ou CPF').fill('11.222.333/0001-81');
+      25 |     await page.getByLabel('CRECI').fill('J-12345');
+      26 |     await page.getByRole('button', { name: 'Criar conta' }).click();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\platform-e2e-red\tests\e2e\src\platform-admin.spec.ts:23:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\platform-admin-Admin-da-pl-88b96-são-com-motivo-e-novo-plano\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\platform-admin-Admin-da-pl-88b96-são-com-motivo-e-novo-plano\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\platform-admin-Admin-da-pl-88b96-são-com-motivo-e-novo-plano\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: platform-admin.spec.ts (2.0m)
+  Consider splitting slow test files to speed up parallel execution
+  4 failed
+    main-journey.spec.ts:74:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI 
+    main-journey.spec.ts:117:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) 
+    main-journey.spec.ts:433:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados 
+    platform-admin.spec.ts:10:3 › Admin da plataforma › cadastro em análise, aprovação com plano, suspensão com motivo e novo plano 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\platform-e2e-red\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "platform-admin" "main-journey"`
+Exit status 1
+# duração: 370s
+# exit=1

@@ -75,6 +75,14 @@ export function AccountMenu({ session }: { session: Session }) {
             </span>
           </div>
           <div className="peg-menu__separator" />
+          {session.platformAdmin ? (
+            <Link href="/plataforma" className="peg-menu__item" role="menuitem" onClick={close}>
+              <span className="peg-menu__icon">
+                <Icon name="shield" size={14} />
+              </span>
+              Admin da plataforma
+            </Link>
+          ) : null}
           <Link href="/app/settings" className="peg-menu__item" role="menuitem" onClick={close}>
             <span className="peg-menu__icon">
               <Icon name="settings" size={14} />
