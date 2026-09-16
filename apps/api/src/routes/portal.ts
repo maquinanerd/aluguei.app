@@ -25,6 +25,7 @@ import {
   DomainError,
   buildLandlordStatement,
   buildTenantStatement,
+  isOrganizationStatus,
 } from '@aluguei/domain';
 import { initiatePayment } from '../finance/initiation.js';
 import {
@@ -42,6 +43,7 @@ import {
   uuidSchema,
 } from '@aluguei/contracts';
 import {
+  assertOrganizationCanOperate,
   requireAuth,
   requirePermission,
   requirePortalAuth,
@@ -227,6 +229,15 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
       if (!access || !access.oneTimeTokenExpiresAt || access.oneTimeTokenExpiresAt < new Date()) {
         throw new DomainError('UNAUTHORIZED', 'Token de acesso inválido ou expirado');
       }
+      // Imobiliária que não opera não abre sessão de portal, e o token não é gasto.
+      const [accessOrg] = await db
+        .select({ status: organizations.status })
+        .from(organizations)
+        .where(eq(organizations.id, access.orgId))
+        .limit(1);
+      assertOrganizationCanOperate(
+        accessOrg && isOrganizationStatus(accessOrg.status) ? accessOrg.status : 'PENDING_APPROVAL',
+      );
 
       // Consumo único: limpa o hash ANTES de criar a sessão.
       await db

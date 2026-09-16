@@ -6,6 +6,7 @@ import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import { createDbFakePaymentStore } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
+import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
@@ -62,6 +63,7 @@ import { devPaymentRoutes } from './routes/dev-payments.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
+import { platformRoutes } from './routes/platform.js';
 import { dashboardRoutes } from './routes/dashboard.js';
 import { paymentsPlugin } from './plugins/payments.js';
 import { signaturePlugin } from './plugins/signature.js';
@@ -117,6 +119,8 @@ function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
     cookieName: overrides?.cookieName ?? 'aluguei_session',
     appBaseUrl: overrides?.appBaseUrl ?? env.APP_BASE_URL,
     corsOrigins,
+    platformAdminEmails:
+      overrides?.platformAdminEmails ?? parsePlatformAdminEmails(env.PLATFORM_ADMIN_EMAILS),
   };
 }
 
@@ -178,6 +182,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(sessionPlugin, {
     db: app.db,
     cookieName: config.cookieName,
+    platformAdminEmails: config.platformAdminEmails,
   });
   const storageOptions: StoragePluginOptions = {};
   if (opts.storage) {
@@ -343,6 +348,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(portalRoutes);
   await app.register(reportingRoutes);
   await app.register(dashboardRoutes);
+  await app.register(platformRoutes);
 
   return app;
 }

@@ -7,7 +7,8 @@ export type DomainErrorCode =
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'PROVIDER_ERROR'
-  | 'MONEY_OVERFLOW';
+  | 'MONEY_OVERFLOW'
+  | 'PLAN_LIMIT_REACHED';
 
 export class DomainError extends Error {
   readonly code: DomainErrorCode;

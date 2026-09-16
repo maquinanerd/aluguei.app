@@ -400,7 +400,7 @@ describe('Planos com limites, sem cobrança', () => {
     const rows = await db.execute(
       sql`select count(*)::int as n from properties where org_id = ${agency.org.id}`,
     );
-    expect(Number((rows.rows[0] as { n: number }).n)).toBe(2);
+    expect((rows.rows[0] as { n: number }).n).toBe(2);
   });
 
   it('limite de usuários do plano bloqueia um novo membro', async () => {

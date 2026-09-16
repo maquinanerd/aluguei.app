@@ -37,12 +37,12 @@ describe('limites do plano', () => {
   });
 
   it('lista os recursos acima do limite para o admin', () => {
-    expect(planResourcesOverLimit(limits, { users: 3, properties: 3, publishedListings: 50 })).toEqual([
-      'properties',
-    ]);
-    expect(planResourcesOverLimit(limits, { users: 4, properties: 2, publishedListings: 0 })).toEqual([
-      'users',
-    ]);
+    expect(
+      planResourcesOverLimit(limits, { users: 3, properties: 3, publishedListings: 50 }),
+    ).toEqual(['properties']);
+    expect(
+      planResourcesOverLimit(limits, { users: 4, properties: 2, publishedListings: 0 }),
+    ).toEqual(['users']);
     expect(
       planResourcesOverLimit(
         { maxUsers: null, maxProperties: null, maxPublishedListings: null },

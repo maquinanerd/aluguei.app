@@ -2,6 +2,7 @@ import { expect } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { approveAgency } from './platform-fixtures.js';
 
 /**
  * Fixtures dos testes financeiros (auditoria 2026-09-10, P0-01/02/03):
@@ -73,6 +74,8 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       throw new Error(`registro falhou: ${String(res.statusCode)} ${res.body}`);
     }
     const body = res.json() as { org: { id: string }; user: { id: string } };
+    // Cadastro aberto nasce aguardando aprovação; a suíte financeira precisa da imobiliária operando.
+    await approveAgency(app, body.org.id);
     const setCookie = res.headers['set-cookie'];
     const cookie = Array.isArray(setCookie) ? setCookie.join('; ') : (setCookie ?? '');
     return { cookie, orgId: body.org.id, userId: body.user.id };

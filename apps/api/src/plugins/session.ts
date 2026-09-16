@@ -3,25 +3,40 @@ import { randomBytes } from 'node:crypto';
 import fp from 'fastify-plugin';
 import type { FastifyReply } from 'fastify';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import { memberships, userSessions, users } from '@aluguei/db';
+import { memberships, organizations, userSessions, users } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import type { Role } from '@aluguei/domain';
+import { isOrganizationStatus, isPlatformAdminEmail } from '@aluguei/domain';
+import type { OrganizationStatus, Role } from '@aluguei/domain';
 
+/** Usuário numa imobiliária (org ativa da sessão). */
 export interface AuthUser {
   userId: string;
   orgId: string;
   role: Role;
+  /** Só ACTIVE opera: `requireAuth` recusa os demais (admin da plataforma). */
+  orgStatus: OrganizationStatus;
+}
+
+/** Sessão válida, com ou sem imobiliária ativa. */
+export interface SessionUser {
+  userId: string;
+  email: string;
+  sessionId: string;
+  activeOrgId: string | null;
+  platformAdmin: boolean;
 }
 
 declare module 'fastify' {
   interface FastifyRequest {
     auth: AuthUser | null;
+    sessionUser: SessionUser | null;
   }
 }
 
 export interface SessionPluginOptions {
   db: AppDb;
   cookieName: string;
+  platformAdminEmails: ReadonlySet<string>;
 }
 
 export function generateSessionToken(): string {
@@ -50,12 +65,15 @@ export function setSessionCookie(
 
 /**
  * Sessão opaca em DB (SHA-256 do token). Aceita cookie HttpOnly ou
- * `Authorization: Bearer <token>` (mobile). Anexa `request.auth` quando válida.
+ * `Authorization: Bearer <token>` (mobile). Anexa `request.sessionUser` quando a
+ * sessão é válida e `request.auth` quando, além disso, há imobiliária ativa com
+ * vínculo do usuário. Admin da plataforma vem da allowlist de e-mails.
  */
 export const sessionPlugin = fp<SessionPluginOptions>((app, opts) => {
-  const { db, cookieName } = opts;
+  const { db, cookieName, platformAdminEmails } = opts;
 
   app.decorateRequest('auth', null);
+  app.decorateRequest('sessionUser', null);
 
   app.addHook('onRequest', async (request) => {
     const header = request.headers.authorization;
@@ -86,13 +104,24 @@ export const sessionPlugin = fp<SessionPluginOptions>((app, opts) => {
     }
 
     const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
-    if (!user || user.status !== 'ACTIVE' || !session.activeOrgId) {
+    if (!user || user.status !== 'ACTIVE') {
+      return;
+    }
+    request.sessionUser = {
+      userId: user.id,
+      email: user.email,
+      sessionId: session.id,
+      activeOrgId: session.activeOrgId,
+      platformAdmin: isPlatformAdminEmail(platformAdminEmails, user.email),
+    };
+    if (!session.activeOrgId) {
       return;
     }
 
     const [membership] = await db
-      .select()
+      .select({ role: memberships.role, orgStatus: organizations.status })
       .from(memberships)
+      .innerJoin(organizations, eq(organizations.id, memberships.orgId))
       .where(
         and(eq(memberships.orgId, session.activeOrgId), eq(memberships.userId, session.userId)),
       )
@@ -101,7 +130,15 @@ export const sessionPlugin = fp<SessionPluginOptions>((app, opts) => {
       return;
     }
 
-    request.auth = { userId: session.userId, orgId: session.activeOrgId, role: membership.role };
+    request.auth = {
+      userId: session.userId,
+      orgId: session.activeOrgId,
+      role: membership.role,
+      // Status fora do conhecido não opera (o CHECK do banco já o impede).
+      orgStatus: isOrganizationStatus(membership.orgStatus)
+        ? membership.orgStatus
+        : 'PENDING_APPROVAL',
+    };
   });
 
   return Promise.resolve();

@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { auditEvents, memberships, organizations, userSessions, users } from '@aluguei/db';
 import {
@@ -6,12 +6,14 @@ import {
   DomainError,
   hashPassword,
   hashPasswordSync,
+  isPlatformAdminEmail,
   normalizeEmail,
   slugify,
   verifyPassword,
 } from '@aluguei/domain';
 import {
   loginRequestSchema,
+  loginResponseSchema,
   meResponseSchema,
   registerRequestSchema,
   registerResponseSchema,
@@ -19,7 +21,7 @@ import {
   switchOrgResponseSchema,
 } from '@aluguei/contracts';
 import { generateSessionToken, hashSessionToken } from '../plugins/session.js';
-import { requireAuth } from '../plugins/authz.js';
+import { requireSession } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import {
   clearAuthCookie,
@@ -38,9 +40,11 @@ function isUniqueViolation(err: unknown): boolean {
 /** Hash dummy pré-computado para uniformizar tempo de login (anti-enumeração). */
 const DUMMY_PASSWORD_HASH = hashPasswordSync('dummy-password-for-timing');
 
+const REGISTER_CONFLICT_MESSAGE = 'E-mail ou organização já cadastrados';
+
 export const authRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
-  const { sessionTtlSeconds, cookieSecure } = app.config;
+  const { sessionTtlSeconds, cookieSecure, platformAdminEmails } = app.config;
 
   app.post(
     '/auth/register',
@@ -49,6 +53,11 @@ export const authRoutes: FastifyPluginAsync = (app) => {
       const input = registerRequestSchema.parse(request.body);
       const passwordHash = await hashPassword(input.password);
       const email = normalizeEmail(input.email);
+      // E-mail de admin da plataforma só ganha conta pelo servidor: a mesma resposta de
+      // e-mail já cadastrado, depois do hash, para não virar oráculo da allowlist.
+      if (isPlatformAdminEmail(platformAdminEmails, email)) {
+        throw new DomainError('CONFLICT', REGISTER_CONFLICT_MESSAGE);
+      }
       const slug = slugify(input.organizationName);
       const now = new Date();
 
@@ -59,10 +68,18 @@ export const authRoutes: FastifyPluginAsync = (app) => {
           const user = first(
             await tx.insert(users).values({ email, passwordHash, name: input.name }).returning(),
           );
+          // Cadastro aberto: a imobiliária só opera depois da aprovação da plataforma.
           const org = first(
             await tx
               .insert(organizations)
-              .values({ name: input.organizationName, slug })
+              .values({
+                name: input.organizationName,
+                slug,
+                status: 'PENDING_APPROVAL',
+                document: input.document ?? null,
+                phone: input.phone ?? null,
+                creci: input.creci ?? null,
+              })
               .returning(),
           );
           const membership = first(
@@ -95,7 +112,7 @@ export const authRoutes: FastifyPluginAsync = (app) => {
         });
       } catch (err) {
         if (isUniqueViolation(err)) {
-          throw new DomainError('CONFLICT', 'E-mail ou organização já cadastrados');
+          throw new DomainError('CONFLICT', REGISTER_CONFLICT_MESSAGE);
         }
         throw err;
       }
@@ -135,20 +152,17 @@ export const authRoutes: FastifyPluginAsync = (app) => {
       if (!user || user.status !== 'ACTIVE' || !valid) {
         throw new DomainError('UNAUTHORIZED', 'Credenciais inválidas');
       }
+      const platformAdmin = isPlatformAdminEmail(platformAdminEmails, user.email);
 
-      const [membership] = await db
-        .select()
+      // Imobiliária que opera primeiro; sem nenhuma, a mais antiga (a tela mostra o status).
+      const userOrgs = await db
+        .select({ membership: memberships, org: organizations })
         .from(memberships)
+        .innerJoin(organizations, eq(organizations.id, memberships.orgId))
         .where(eq(memberships.userId, user.id))
-        .limit(1);
-      const [org] = membership
-        ? await db
-            .select()
-            .from(organizations)
-            .where(eq(organizations.id, membership.orgId))
-            .limit(1)
-        : [undefined];
-      if (!membership || !org) {
+        .orderBy(asc(memberships.createdAt));
+      const chosen = userOrgs.find((row) => row.org.status === 'ACTIVE') ?? userOrgs[0];
+      if (!chosen && !platformAdmin) {
         throw new DomainError('UNAUTHORIZED', 'Credenciais inválidas');
       }
 
@@ -159,7 +173,7 @@ export const authRoutes: FastifyPluginAsync = (app) => {
           .values({
             userId: user.id,
             tokenHash: hashSessionToken(token),
-            activeOrgId: membership.orgId,
+            activeOrgId: chosen?.org.id ?? null,
             expiresAt: new Date(Date.now() + sessionTtlSeconds * 1000),
             userAgent: request.headers['user-agent'],
             ip: request.ip,
@@ -168,7 +182,7 @@ export const authRoutes: FastifyPluginAsync = (app) => {
       );
 
       await writeAudit(db, {
-        orgId: membership.orgId,
+        orgId: chosen?.org.id ?? null,
         actorUserId: user.id,
         action: AUDIT_ACTIONS.AUTH_LOGIN,
         entityType: 'USER',
@@ -179,67 +193,71 @@ export const authRoutes: FastifyPluginAsync = (app) => {
       setAuthCookie(reply, token, sessionTtlSeconds, cookieSecure);
 
       return reply.send(
-        registerResponseSchema.parse({
+        loginResponseSchema.parse({
           user: toUserDto(user),
-          org: toOrgDto(org),
-          membership: toMembershipDto(membership),
+          org: chosen ? toOrgDto(chosen.org) : null,
+          membership: chosen ? toMembershipDto(chosen.membership) : null,
+          platformAdmin,
         }),
       );
     },
   );
 
   app.post('/auth/logout', async (request, reply) => {
-    const auth = requireAuth(request);
+    const session = requireSession(request);
     await db
       .update(userSessions)
       .set({ revokedAt: new Date() })
       .where(
         and(
-          eq(userSessions.userId, auth.userId),
-          eq(userSessions.activeOrgId, auth.orgId),
+          eq(userSessions.userId, session.userId),
+          session.activeOrgId
+            ? eq(userSessions.activeOrgId, session.activeOrgId)
+            : isNull(userSessions.activeOrgId),
           isNull(userSessions.revokedAt),
         ),
       );
     await writeAudit(db, {
-      orgId: auth.orgId,
-      actorUserId: auth.userId,
+      orgId: session.activeOrgId,
+      actorUserId: session.userId,
       action: AUDIT_ACTIONS.AUTH_LOGOUT,
       entityType: 'USER',
-      entityId: auth.userId,
+      entityId: session.userId,
     });
     clearAuthCookie(reply);
     return { ok: true as const };
   });
 
   app.get('/auth/me', async (request) => {
-    const auth = requireAuth(request);
-    const user = first(await db.select().from(users).where(eq(users.id, auth.userId)).limit(1));
+    const session = requireSession(request);
+    const user = first(await db.select().from(users).where(eq(users.id, session.userId)).limit(1));
     const userMemberships = await db
       .select()
       .from(memberships)
-      .where(eq(memberships.userId, auth.userId));
+      .where(eq(memberships.userId, session.userId));
     const orgIds = userMemberships.map((m) => m.orgId);
     const orgs =
       orgIds.length > 0
         ? await db.select().from(organizations).where(inArray(organizations.id, orgIds))
         : [];
-    const activeOrgRow = orgs.find((o) => o.id === auth.orgId);
+    const activeOrgRow = orgs.find((o) => o.id === session.activeOrgId);
 
     return meResponseSchema.parse({
       user: toUserDto(user),
       activeOrg: activeOrgRow ? toOrgDto(activeOrgRow) : null,
       memberships: userMemberships.map(toMembershipDto),
+      platformAdmin: session.platformAdmin,
     });
   });
 
   app.post('/auth/switch-org', async (request) => {
-    const auth = requireAuth(request);
+    const session = requireSession(request);
     const input = switchOrgRequestSchema.parse(request.body);
 
     const [membership] = await db
       .select()
       .from(memberships)
-      .where(and(eq(memberships.orgId, input.orgId), eq(memberships.userId, auth.userId)))
+      .where(and(eq(memberships.orgId, input.orgId), eq(memberships.userId, session.userId)))
       .limit(1);
     const [org] = membership
       ? await db.select().from(organizations).where(eq(organizations.id, membership.orgId)).limit(1)
@@ -251,14 +269,21 @@ export const authRoutes: FastifyPluginAsync = (app) => {
     await db
       .update(userSessions)
       .set({ activeOrgId: input.orgId })
-      .where(and(eq(userSessions.userId, auth.userId), eq(userSessions.activeOrgId, auth.orgId)));
+      .where(
+        and(
+          eq(userSessions.userId, session.userId),
+          session.activeOrgId
+            ? eq(userSessions.activeOrgId, session.activeOrgId)
+            : isNull(userSessions.activeOrgId),
+        ),
+      );
 
     await writeAudit(db, {
       orgId: input.orgId,
-      actorUserId: auth.userId,
+      actorUserId: session.userId,
       action: AUDIT_ACTIONS.AUTH_SWITCH_ORG,
       entityType: 'USER',
-      entityId: auth.userId,
+      entityId: session.userId,
     });
 
     return switchOrgResponseSchema.parse({ activeOrg: toOrgDto(org) });

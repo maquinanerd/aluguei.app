@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import {
+  check,
   index,
   jsonb,
   pgEnum,
@@ -9,6 +11,8 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
+import { ESSENCIAL_PLAN_ID, plans } from './platform.js';
 
 export const roleEnum = pgEnum('role', [
   'owner',
@@ -19,13 +23,38 @@ export const roleEnum = pgEnum('role', [
   'viewer',
 ]);
 
-export const organizations = pgTable('organizations', {
-  id: uuid('id').primaryKey().$defaultFn(randomUUID),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+export const organizations = pgTable(
+  'organizations',
+  {
+    id: uuid('id').primaryKey().$defaultFn(randomUUID),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    // Admin da plataforma: nasce aguardando aprovação e só opera em ACTIVE.
+    status: text('status').notNull().default('PENDING_APPROVAL'), // PENDING_APPROVAL | ACTIVE | SUSPENDED | REJECTED
+    statusReason: text('status_reason'),
+    statusChangedAt: timestamp('status_changed_at', { withTimezone: true }),
+    statusChangedBy: uuid('status_changed_by').references((): AnyPgColumn => users.id, {
+      onDelete: 'set null',
+    }),
+    planId: uuid('plan_id')
+      .notNull()
+      .default(ESSENCIAL_PLAN_ID)
+      .references(() => plans.id, { onDelete: 'restrict' }),
+    // Dados do cadastro para a análise: CPF/CNPJ e telefone só com dígitos.
+    document: text('document'),
+    phone: text('phone'),
+    creci: text('creci'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('organizations_status_created_idx').on(t.status, t.createdAt),
+    check(
+      'organizations_status_valid',
+      sql`${t.status} in ('PENDING_APPROVAL', 'ACTIVE', 'SUSPENDED', 'REJECTED')`,
+    ),
+  ],
+);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().$defaultFn(randomUUID),

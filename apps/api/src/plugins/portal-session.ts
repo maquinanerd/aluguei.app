@@ -3,13 +3,17 @@ import { randomBytes } from 'node:crypto';
 import fp from 'fastify-plugin';
 import type { FastifyReply } from 'fastify';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import { portalAccess, portalSessions } from '@aluguei/db';
+import { organizations, portalAccess, portalSessions } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
+import { isOrganizationStatus } from '@aluguei/domain';
+import type { OrganizationStatus } from '@aluguei/domain';
 
 export interface PortalAuth {
   partyId: string;
   orgId: string;
   kind: 'LANDLORD' | 'TENANT';
+  /** Só ACTIVE opera: `requirePortalAuth` recusa imobiliária suspensa, recusada ou em análise. */
+  orgStatus: OrganizationStatus;
 }
 
 declare module 'fastify' {
@@ -85,8 +89,9 @@ export const portalSessionPlugin = fp<PortalSessionPluginOptions>((app, opts) =>
       return;
     }
     const [access] = await db
-      .select()
+      .select({ kind: portalAccess.kind, orgStatus: organizations.status })
       .from(portalAccess)
+      .innerJoin(organizations, eq(organizations.id, portalAccess.orgId))
       .where(and(eq(portalAccess.id, session.accessId), isNull(portalAccess.revokedAt)))
       .limit(1);
     if (!access) {
@@ -96,6 +101,7 @@ export const portalSessionPlugin = fp<PortalSessionPluginOptions>((app, opts) =>
       partyId: session.partyId,
       orgId: session.orgId,
       kind: access.kind as 'LANDLORD' | 'TENANT',
+      orgStatus: isOrganizationStatus(access.orgStatus) ? access.orgStatus : 'PENDING_APPROVAL',
     };
   });
 

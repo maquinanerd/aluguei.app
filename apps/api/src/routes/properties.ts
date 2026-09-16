@@ -29,6 +29,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
+import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { assertSizeAllowed, buildStorageKey, isPublicMediaKind } from '../media-rules.js';
 import { enqueueUpdatesForProperty } from './channel-jobs.js';
 import { first } from './helpers.js';
@@ -209,32 +210,35 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const input = createPropertyRequestSchema.parse(request.body);
 
-      const property = first(
-        await db
-          .insert(properties)
-          .values({
-            orgId: auth.orgId,
-            title: input.title,
-            propertyType: input.propertyType,
-            description: input.description ?? null,
-            status: input.status ?? 'ACTIVE',
-            totalAreaSqm: input.totalAreaSqm ?? null,
-            builtAreaSqm: input.builtAreaSqm ?? null,
-            bedrooms: input.bedrooms ?? null,
-            bathrooms: input.bathrooms ?? null,
-            parkingSpots: input.parkingSpots ?? null,
-            furnished: input.furnished ?? false,
-            petsAllowed: input.petsAllowed ?? null,
-          })
-          .returning(),
-      );
-
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.PROPERTY_CREATED,
-        entityType: 'PROPERTY',
-        entityId: property.id,
+      const property = await db.transaction(async (tx) => {
+        await assertPlanAllowsOneMore(tx, auth.orgId, 'properties');
+        const created = first(
+          await tx
+            .insert(properties)
+            .values({
+              orgId: auth.orgId,
+              title: input.title,
+              propertyType: input.propertyType,
+              description: input.description ?? null,
+              status: input.status ?? 'ACTIVE',
+              totalAreaSqm: input.totalAreaSqm ?? null,
+              builtAreaSqm: input.builtAreaSqm ?? null,
+              bedrooms: input.bedrooms ?? null,
+              bathrooms: input.bathrooms ?? null,
+              parkingSpots: input.parkingSpots ?? null,
+              furnished: input.furnished ?? false,
+              petsAllowed: input.petsAllowed ?? null,
+            })
+            .returning(),
+        );
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.PROPERTY_CREATED,
+          entityType: 'PROPERTY',
+          entityId: created.id,
+        });
+        return created;
       });
 
       const loaded = await loadProperty(db, auth.orgId, property.id);

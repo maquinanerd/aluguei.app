@@ -15,6 +15,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
+import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { first, toMembershipDto } from './helpers.js';
 
 /** Valida que o usuário é membro da org alvo e tem a permissão (404/403 se não). */
@@ -94,20 +95,23 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
       throw new DomainError('CONFLICT', 'Usuário já é membro');
     }
 
-    const membership = first(
-      await db
-        .insert(memberships)
-        .values({ orgId, userId: input.userId, role: input.role })
-        .returning(),
-    );
-
-    await writeAudit(db, {
-      orgId,
-      actorUserId: auth.userId,
-      action: AUDIT_ACTIONS.MEMBER_CREATED,
-      entityType: 'MEMBERSHIP',
-      entityId: membership.id,
-      payload: { userId: input.userId, role: input.role },
+    const membership = await db.transaction(async (tx) => {
+      await assertPlanAllowsOneMore(tx, orgId, 'users');
+      const created = first(
+        await tx
+          .insert(memberships)
+          .values({ orgId, userId: input.userId, role: input.role })
+          .returning(),
+      );
+      await writeAudit(tx, {
+        orgId,
+        actorUserId: auth.userId,
+        action: AUDIT_ACTIONS.MEMBER_CREATED,
+        entityType: 'MEMBERSHIP',
+        entityId: created.id,
+        payload: { userId: input.userId, role: input.role },
+      });
+      return created;
     });
 
     return reply

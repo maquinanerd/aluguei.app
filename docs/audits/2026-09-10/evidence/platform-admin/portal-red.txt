@@ -1,0 +1,43 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/portal.test.ts
+# árvore: branch feat/platform-admin com a API do admin da plataforma implementada, SEM a checagem de status no portal (sessão e consumo de token); teste novo do portal
+# data (UTC): 2026-09-16T13:48:59Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:13572) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/portal.test.ts (5 tests | 1 failed) 4805ms
+     × imobiliária suspensa pela plataforma: sessão do portal e consumo de token recusados (403); reativada, voltam 154ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/portal.test.ts > Fase 10: Portal proprietário/locatário (isolamento) > imobiliária suspensa pela plataforma: sessão do portal e consumo de token recusados (403); reativada, voltam
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ src/portal.test.ts:360:23
+    358|
+    359|     const me = await call(app, 'GET', '/portal/me', { cookie: portalCo…
+    360|     expect(me.status).toBe(403);
+       |                       ^
+    361|     expect(me.body.details).toMatchObject({ reason: 'ORG_NOT_ACTIVE', …
+    362|     const statement = await call(app, 'GET', '/portal/tenant/statement…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  10:49:01
+   Duration  8.59s (transform 1.81s, setup 0ms, import 3.54s, tests 4.81s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/portal.test.ts
+# exit=1

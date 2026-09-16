@@ -6,6 +6,8 @@ export interface AppConfig {
   cookieName: string;
   appBaseUrl: string;
   corsOrigins: string[];
+  /** E-mails normalizados de `PLATFORM_ADMIN_EMAILS`; vazio: ninguém é admin da plataforma. */
+  platformAdminEmails: ReadonlySet<string>;
 }
 
 declare module 'fastify' {

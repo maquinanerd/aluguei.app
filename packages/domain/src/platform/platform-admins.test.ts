@@ -3,7 +3,9 @@ import { isPlatformAdminEmail, parsePlatformAdminEmails } from './platform-admin
 
 describe('allowlist de admins da plataforma', () => {
   it('aceita vírgula, ponto e vírgula e espaços; normaliza caixa e espaços', () => {
-    const allowlist = parsePlatformAdminEmails(' Ana@Exemplo.com,bruno@exemplo.com; carla@exemplo.com\n');
+    const allowlist = parsePlatformAdminEmails(
+      ' Ana@Exemplo.com,bruno@exemplo.com; carla@exemplo.com\n',
+    );
     expect([...allowlist].sort()).toEqual([
       'ana@exemplo.com',
       'bruno@exemplo.com',

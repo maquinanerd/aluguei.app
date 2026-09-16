@@ -11,6 +11,7 @@ const DOMAIN_STATUS: Record<string, number> = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   PROVIDER_ERROR: 502,
+  PLAN_LIMIT_REACHED: 409,
 };
 
 /**
