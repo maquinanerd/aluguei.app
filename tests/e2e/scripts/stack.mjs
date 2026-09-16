@@ -319,7 +319,7 @@ async function waitForLog(child, text, timeoutMs = 60_000) {
 export const E2E_PLATFORM_ADMIN = {
   email: 'plataforma@e2e.aluguei.test',
   name: 'Admin da Plataforma E2E',
-  password: 'e2e-plataforma-senha-123',
+  password: 'senha-segura-123',
 };
 
 function stackEnv(databaseUrl) {

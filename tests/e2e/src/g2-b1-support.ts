@@ -52,7 +52,7 @@ export interface Account {
 /** Admin da plataforma criado pela stack (mesmos valores de E2E_PLATFORM_ADMIN em scripts/stack.mjs). */
 export const PLATFORM_ADMIN = {
   email: 'plataforma@e2e.aluguei.test',
-  password: 'e2e-plataforma-senha-123',
+  password: 'senha-segura-123',
 };
 
 let platformAdminCookie: string | null = null;
