@@ -1,0 +1,49 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54330/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/platform-limits.pg.test.ts
+# árvore: commit 66eaa02 + teste novo platform-limits.pg.test.ts, com o 'for update' de assertPlanAllowsOneMore (apps/api/src/platform/usage.ts) removido SÓ durante esta execução e restaurado em seguida
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54330)
+# data (UTC): 2026-09-16T13:53:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:11600) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/platform-limits.pg.test.ts (2 tests | 1 failed) 2524ms
+     × quatro publicações simultâneas com limite 2 de anúncios: exatamente 2 publicados 395ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform-limits.pg.test.ts > concorrência real (PostgreSQL): limites do plano > quatro publicações simultâneas com limite 2 de anúncios: exatamente 2 publicados
+AssertionError: expected { created: 4, refused: +0, other: [] } to deeply equal { created: 2, refused: 2, other: [] }
+
+- Expected
++ Received
+
+  {
+-   "created": 2,
++   "created": 4,
+    "other": [],
+-   "refused": 2,
++   "refused": 0,
+  }
+
+ ❯ src/platform-limits.pg.test.ts:159:30
+    157|     );
+    158|
+    159|     expect(outcome(results)).toEqual({ created: 2, refused: 2, other: …
+       |                              ^
+    160|     const rows = await db.execute(
+    161|       sql`select count(*)::int as n from listings where org_id = ${age…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:53:40
+   Duration  6.37s (transform 1.72s, setup 0ms, import 3.57s, tests 2.52s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/platform-limits.pg.test.ts
+# exit=1

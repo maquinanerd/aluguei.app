@@ -74,6 +74,9 @@ import type { SignaturePluginOptions } from './plugins/signature.js';
 import type { MetaPluginOptions } from './plugins/meta.js';
 import type { PortalSessionPluginOptions } from './plugins/portal-session.js';
 
+/** Trava e contagem do plano — exportadas para a suíte de concorrência real (test:pg). */
+export { assertPlanAllowsOneMore } from './platform/usage.js';
+
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;
   env?: AppEnv;
