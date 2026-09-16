@@ -112,10 +112,15 @@ describe('Admin da plataforma: cadastro aberto com aprovação', () => {
         ...(payload !== undefined ? { payload } : {}),
       });
       expect(res.status, `${method} ${url}: ${JSON.stringify(res.body)}`).toBe(403);
-      expect(res.body.details).toMatchObject({ reason: 'ORG_NOT_ACTIVE', status: 'PENDING_APPROVAL' });
+      expect(res.body.details).toMatchObject({
+        reason: 'ORG_NOT_ACTIVE',
+        status: 'PENDING_APPROVAL',
+      });
     }
     expect(
-      await countRows(sql`select count(*)::int as n from properties where org_id = ${agency.org.id}`),
+      await countRows(
+        sql`select count(*)::int as n from properties where org_id = ${agency.org.id}`,
+      ),
     ).toBe(0);
   });
 
@@ -220,7 +225,17 @@ describe('Admin da plataforma: cadastro aberto com aprovação', () => {
       ['GET', `/platform/organizations/${agency.org.id}`, undefined],
       ['GET', '/platform/plans', undefined],
       ['POST', `/platform/organizations/${agency.org.id}/suspend`, { reason: 'tentativa' }],
-      ['POST', '/platform/plans', { code: 'INVASOR', name: 'Invasor', maxUsers: null, maxProperties: null, maxPublishedListings: null }],
+      [
+        'POST',
+        '/platform/plans',
+        {
+          code: 'INVASOR',
+          name: 'Invasor',
+          maxUsers: null,
+          maxProperties: null,
+          maxPublishedListings: null,
+        },
+      ],
     ];
     for (const [method, url, payload] of attempts) {
       const res = await call(app, method, url, {
@@ -253,7 +268,9 @@ describe('Admin da plataforma: cadastro aberto com aprovação', () => {
 
     const agency: RegisteredAgency = await registerAgency(app);
     const base = `/platform/organizations/${agency.org.id}`;
-    const suspendPending = await adminCall('POST', `${base}/suspend`, { reason: 'antes de aprovar' });
+    const suspendPending = await adminCall('POST', `${base}/suspend`, {
+      reason: 'antes de aprovar',
+    });
     expect(suspendPending.status).toBe(409);
     expect(suspendPending.body.code).toBe('INVALID_TRANSITION');
     expect((await adminCall('POST', `${base}/reactivate`)).status).toBe(409);
@@ -309,7 +326,9 @@ describe('Admin da plataforma: cadastro aberto com aprovação', () => {
     const agency = await registerAgency(app);
     const url = `/public/organizations/${agency.org.slug}/listings`;
     expect((await call(app, 'GET', url)).status).toBe(404);
-    expect((await adminCall('POST', `/platform/organizations/${agency.org.id}/approve`, {})).status).toBe(200);
+    expect(
+      (await adminCall('POST', `/platform/organizations/${agency.org.id}/approve`, {})).status,
+    ).toBe(200);
     expect((await call(app, 'GET', url)).status).toBe(200);
   });
 });

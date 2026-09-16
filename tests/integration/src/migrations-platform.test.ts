@@ -80,9 +80,27 @@ describe('migration do admin da plataforma', () => {
         from plans order by code
       `);
       expect(plans).toEqual([
-        { code: 'ESSENCIAL', max_users: 3, max_properties: 50, max_published_listings: 20, is_active: true },
-        { code: 'ILIMITADO', max_users: null, max_properties: null, max_published_listings: null, is_active: true },
-        { code: 'PROFISSIONAL', max_users: 10, max_properties: 300, max_published_listings: 150, is_active: true },
+        {
+          code: 'ESSENCIAL',
+          max_users: 3,
+          max_properties: 50,
+          max_published_listings: 20,
+          is_active: true,
+        },
+        {
+          code: 'ILIMITADO',
+          max_users: null,
+          max_properties: null,
+          max_published_listings: null,
+          is_active: true,
+        },
+        {
+          code: 'PROFISSIONAL',
+          max_users: 10,
+          max_properties: 300,
+          max_published_listings: 150,
+          is_active: true,
+        },
       ]);
 
       const fresh = randomUUID();
