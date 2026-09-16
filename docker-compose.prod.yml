@@ -136,6 +136,8 @@ services:
       META_APP_SECRET: ${SERVICE_HEX_64_METAAPPSECRET}
       META_WEBHOOK_VERIFY_TOKEN: ${SERVICE_HEX_64_METAVERIFY}
       META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
+      # Admins da plataforma (e-mails separados por vírgula); vazio: ninguém acessa /plataforma.
+      PLATFORM_ADMIN_EMAILS: ${PLATFORM_ADMIN_EMAILS}
     depends_on:
       migrate:
         condition: service_completed_successfully

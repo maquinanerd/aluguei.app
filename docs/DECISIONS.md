@@ -485,3 +485,23 @@ Decisões:
 - Spec que digita em diálogo usa `pressSequentially`, como uma pessoa digita.
 
 Consequências: todo `Modal`, `ConfirmModal` e `Drawer` do web herda a correção sem mudança nas telas; "Nova ocorrência" e os drawers de detalhe não têm spec próprio. Teste permanente: `tests/e2e/src/g2-b1-dialog-focus.spec.ts` (decisão de crédito com Tab e Escape, "Novo contato" e campo controlado no `Drawer` da calibração). Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/dialog-focus-red.txt` (3 de 3 falham), `dialog-focus-green.txt` (3/3) e `e2e-green-r2.txt` (Playwright completo, 18/18).
+
+## ADR-060 — Admin da plataforma: cadastro com aprovação, planos com limites e allowlist de admins (2026-09-16)
+
+Status: Aceito.
+
+Contexto: o Aluguei.app atende várias imobiliárias, mas todo cadastro aberto criava uma imobiliária operando na hora, e ninguém administrava esses cadastros. Em 2026-09-15 o usuário decidiu: cadastro aberto com aprovação, planos sem cobrança, imagens no MinIO e banco separado (ADR-046).
+
+Decisões:
+
+- Situação em `organizations.status`: aprovar leva `PENDING_APPROVAL` (ou `REJECTED`) a `ACTIVE`; recusar, `PENDING_APPROVAL` a `REJECTED`; suspender, `ACTIVE` a `SUSPENDED`; reativar, `SUSPENDED` a `ACTIVE`. Recusar e suspender exigem motivo, que a imobiliária vê. Transição fora da origem responde `409 INVALID_TRANSITION`; a linha é travada e a auditoria entra na mesma transação.
+- Negação por padrão: só `ACTIVE` opera. `requireAuth` (todo o painel, direto ou via `requirePermission`) e `requirePortalAuth` recusam com `403` e `details.reason = ORG_NOT_ACTIVE`; o consumo de token do portal também, sem gastar o token; o site público responde `404`. `/auth/me`, logout e troca de imobiliária usam só a sessão (`requireSession`), para a tela de situação da conta funcionar.
+- Admins da plataforma pela allowlist `PLATFORM_ADMIN_EMAILS` (e-mails separados por vírgula), avaliada a cada requisição sobre o e-mail da sessão. Admin sem imobiliária entra com `org: null`. As rotas `/platform/*` exigem a allowlist (`401` sem sessão, `403` fora dela).
+- A conta do admin só nasce no servidor (`apps/api/src/cli/create-platform-admin.ts`, senha pela entrada padrão, mínimo de 12 caracteres). O cadastro aberto recusa e-mail da allowlist com a mesma resposta de e-mail já cadastrado, dada depois do hash. Sem isso, quem se cadastrasse primeiro com o e-mail listado viraria admin.
+- Planos em `plans`, com limites de usuários, imóveis não arquivados e anúncios publicados (`null` é ilimitado; sem cobrança). A migration 0018 semeia ESSENCIAL (3 usuários, 50 imóveis, 20 anúncios; padrão das novas imobiliárias), PROFISSIONAL (10/300/150) e ILIMITADO. As imobiliárias existentes ficam `ACTIVE` no ILIMITADO. Plano desativado continua onde está, mas não pode ser atribuído. Rebaixar abaixo do uso é permitido: nada é apagado, só novos itens param (`overLimit` na listagem).
+- O limite é checado na transação que acrescenta o item: `SELECT … FOR UPDATE` na linha da imobiliária, leitura do plano, contagem e `409 PLAN_LIMIT_REACHED` (`details`: `resource`, `limit`, `current`) antes de qualquer escrita. Vale para cadastro de imóvel, novo membro e publicação de anúncio, que ganhou compare-and-set de status.
+- Interface: `/situacao-da-conta` (em análise, recusada ou suspensa, com o motivo) e a área `/plataforma` (visão geral com a fila, imobiliárias com busca e abas por situação, detalhe com ações e histórico, planos). A área reaproveita as classes do shell do painel e os componentes de `@aluguei/ui`. O Kal El serviu só de referência de padrão de lista e detalhe, sem código de domínio.
+
+Consequências: não há aviso por e-mail nem WhatsApp (envio real está fora desta fase), então a imobiliária descobre a decisão ao entrar. A suspensão não despublica anúncios em canais externos nem para os jobs do worker, e webhooks de pagamento continuam sendo processados. Trocar os admins exige mudar a variável e reiniciar a API; não há papéis dentro da plataforma nem registro de quem alterou a allowlist. O limite de armazenamento (MinIO) não entrou e fica para quando houver contagem de bytes por imobiliária. As fixtures de teste (`registerUser`, `registerOrg`, `registerViaApi`) aprovam a imobiliária logo depois do cadastro; o fluxo sem aprovação fica em `platform-admin.test.ts` e `platform-admin.spec.ts`. Evidência: `docs/audits/2026-09-10/evidence/platform-admin/`.
+
+Alternativas descartadas: tabela de admins com convite pela interface (mais superfície de escalada de privilégio, sem necessidade atual); admin automático no primeiro cadastro com o e-mail listado (sequestrável); plano escolhido no cadastro (o admin escolhe na aprovação).
