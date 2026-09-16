@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { approveOrganization } from './g2-b1-support';
 
 /**
  * Jornada principal E2E (browser + API, providers FAKE):
- *   register → login(implícito) → property → listing → lead → visita →
+ *   register → aprovação pela plataforma → property → listing → lead → visita →
  *   proposta → candidatura → screening FAKE → contrato → assinatura FAKE →
  *   locação → cobrança → pagamento PIX (FAKE) → portal.
  *
@@ -76,7 +77,21 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     await page.getByLabel('E-mail').fill(email);
     await page.getByLabel('Senha').fill(password);
     await page.getByLabel('Nome da imobiliária').fill(orgName);
+    await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
     await page.getByRole('button', { name: 'Criar conta' }).click();
+
+    // Cadastro aberto nasce em análise (admin da plataforma): aprova pela API e segue.
+    await expect(page).toHaveURL(/\/situacao-da-conta/, { timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Cadastro em análise' })).toBeVisible();
+    const pendingCookie = (await page.context().cookies())
+      .map((c) => `${c.name}=${c.value}`)
+      .join('; ');
+    const me = await api<{ activeOrg: { id: string; status: string } }>('GET', '/auth/me', {
+      cookie: pendingCookie,
+    });
+    expect(me.body.activeOrg.status).toBe('PENDING_APPROVAL');
+    await approveOrganization(me.body.activeOrg.id);
+    await page.goto('/app');
     await expect(page).toHaveURL(/\/app/, { timeout: 20_000 });
 
     await page.goto('/app/properties/new');

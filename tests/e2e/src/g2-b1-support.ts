@@ -46,6 +46,37 @@ export interface Account {
   email: string;
   password: string;
   cookie: string;
+  orgId: string;
+}
+
+/** Admin da plataforma criado pela stack (mesmos valores de E2E_PLATFORM_ADMIN em scripts/stack.mjs). */
+export const PLATFORM_ADMIN = {
+  email: 'plataforma@e2e.aluguei.test',
+  password: 'e2e-plataforma-senha-123',
+};
+
+let platformAdminCookie: string | null = null;
+
+/** Sessão do admin da plataforma na API (login uma vez por processo de teste). */
+export async function platformAdminSession(): Promise<string> {
+  if (platformAdminCookie) return platformAdminCookie;
+  const res = await fetch(`${API}/auth/login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(PLATFORM_ADMIN),
+  });
+  expect(res.status, 'login do admin da plataforma').toBe(200);
+  platformAdminCookie = sessionCookie(res);
+  return platformAdminCookie;
+}
+
+/** Aprova a imobiliária do cadastro aberto (cadastro nasce em análise). */
+export async function approveOrganization(orgId: string): Promise<void> {
+  const res = await api('POST', `/platform/organizations/${orgId}/approve`, {
+    cookie: await platformAdminSession(),
+    json: {},
+  });
+  expect(res.status, 'aprovação da imobiliária').toBe(200);
 }
 
 function sessionCookie(res: Response): string {
@@ -72,7 +103,10 @@ export async function registerViaApi(label: string): Promise<Account> {
     }),
   });
   expect(res.status, 'cadastro na API').toBe(201);
-  return { email, password, cookie: sessionCookie(res) };
+  const body = (await res.json()) as { org: { id: string } };
+  // Estes specs não verificam o cadastro: a imobiliária é aprovada logo em seguida.
+  await approveOrganization(body.org.id);
+  return { email, password, cookie: sessionCookie(res), orgId: body.org.id };
 }
 
 export async function loginViaApi(account: Account): Promise<Account> {
