@@ -1,0 +1,261 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/platform-admin.test.ts src/migrations-platform.test.ts
+# árvore: commit feed20f (g2/integration) + testes novos do admin da plataforma, sem implementação; e-mail reservado do teste sem espaços (a run1 caiu na validação de e-mail)
+# data (UTC): 2026-09-16T13:29:42Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:22896) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/platform-admin.test.ts (12 tests | 12 failed) 4057ms
+     × cadastro aberto cria a imobiliária aguardando aprovação e o painel recusa com ORG_NOT_ACTIVE 93ms
+     × admin da plataforma entra sem imobiliária, vê a fila de pendentes e aprova com plano 84ms
+     × rotas da plataforma exigem sessão (401) e admin da plataforma (403) 5ms
+     × recusa e suspensão exigem motivo; suspensa perde o acesso e reativada volta 62ms
+     × e-mail reservado para admin da plataforma não é aceito no cadastro aberto 36ms
+     × site público só mostra anúncios de imobiliária aprovada 46ms
+     × limite de imóveis do plano bloqueia o cadastro seguinte, sem gravar nada 29ms
+     × limite de usuários do plano bloqueia um novo membro 23ms
+     × limite de anúncios publicados bloqueia a publicação seguinte e libera ao pausar 26ms
+     × trocar para um plano abaixo do uso é permitido, aparece acima do limite e só bloqueia novos cadastros 25ms
+     × plano desativado continua nas imobiliárias que já o usam, mas não pode ser atribuído 26ms
+     × valida os limites do plano e o código único 29ms
+ ❯ src/migrations-platform.test.ts (1 test | 1 failed) 6797ms
+     × imobiliária existente continua ACTIVE no plano ILIMITADO; nova nasce pendente no ESSENCIAL 6783ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/migrations-platform.test.ts > migration do admin da plataforma > imobiliária existente continua ACTIVE no plano ILIMITADO; nova nasce pendente no ESSENCIAL
+Error: Failed query: 
+        select o.status, o.status_reason, p.code
+        from organizations o join plans p on p.id = o.plan_id
+        where o.id = $1
+      
+params: 160ae30d-b111-49cc-a255-63636d22e9cf
+ ❯ PglitePreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ Object.run src/migrations-platform.test.ts:48:32
+     46|   await migrate(db, { migrationsFolder: folder });
+     47|   return {
+     48|     run: async (statement) => (await db.execute(statement)).rows as Ro…
+       |                                ^
+     49|     migrateRest: () => migrate(db, { migrationsFolder: MIGRATIONS }),
+     50|     close: () => client.close(),
+ ❯ src/migrations-platform.test.ts:71:27
+
+Caused by: error: relation "plans" does not exist
+ ❯ pe.Ue ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959
+ ❯ pe.tt ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347
+ ❯ pe.parse ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021
+ ❯ O.qe ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1762
+ ❯ ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5921403
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2615913
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2648399
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2649003
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5569736
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 104, severity: 'ERROR', code: '42P01', detail: undefined, hint: undefined, position: '85', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', routine: 'parserOpenTable', query: '\n        select o.status, o.status_reason, p.code\n        from organizations o join plans p on p.id = o.plan_id\n        where o.id = $1\n      ', params: [ '160ae30d-b111-49cc-a255-63636d22e9cf' ], queryOptions: { rowMode: 'object', parsers: { '1082': 'Function<1082>', '1114': 'Function<1114>', '1115': 'Function<1115>', '1182': 'Function<1182>', '1184': 'Function<1184>', '1185': 'Function<1185>', '1186': 'Function<1186>', '1187': 'Function<1187>', '1231': 'Function<1231>' } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > cadastro aberto cria a imobiliária aguardando aprovação e o painel recusa com ORG_NOT_ACTIVE
+AssertionError: expected undefined to be 'PENDING_APPROVAL' // Object.is equality
+
+- Expected:
+"PENDING_APPROVAL"
+
++ Received:
+undefined
+
+ ❯ src/platform-admin.test.ts:94:31
+     92|   it('cadastro aberto cria a imobiliária aguardando aprovação e o pain…
+     93|     const agency = await registerAgency(app);
+     94|     expect(agency.org.status).toBe('PENDING_APPROVAL');
+       |                               ^
+     95|
+     96|     const me = await call(app, 'GET', '/auth/me', { cookie: agency.coo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > admin da plataforma entra sem imobiliária, vê a fila de pendentes e aprova com plano
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ src/platform-admin.test.ts:128:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > rotas da plataforma exigem sessão (401) e admin da plataforma (403)
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ src/platform-admin.test.ts:212:30
+    210|   it('rotas da plataforma exigem sessão (401) e admin da plataforma (4…
+    211|     const anonymous = await call(app, 'GET', '/platform/organizations'…
+    212|     expect(anonymous.status).toBe(401);
+       |                              ^
+    213|
+    214|     const agency = await registerAgency(app);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > recusa e suspensão exigem motivo; suspensa perde o acesso e reativada volta
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ src/platform-admin.test.ts:239:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > e-mail reservado para admin da plataforma não é aceito no cadastro aberto
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/platform-admin.test.ts:300:24
+    298|       },
+    299|     });
+    300|     expect(res.status).toBe(409);
+       |                        ^
+    301|     expect(
+    302|       await countRows(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Admin da plataforma: cadastro aberto com aprovação > site público só mostra anúncios de imobiliária aprovada
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ src/platform-admin.test.ts:311:50
+    309|     const agency = await registerAgency(app);
+    310|     const url = `/public/organizations/${agency.org.slug}/listings`;
+    311|     expect((await call(app, 'GET', url)).status).toBe(404);
+       |                                                  ^
+    312|     expect((await adminCall('POST', `/platform/organizations/${agency.…
+    313|     expect((await call(app, 'GET', url)).status).toBe(200);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > limite de imóveis do plano bloqueia o cadastro seguinte, sem gravar nada
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ createPlan src/platform-admin.test.ts:324:17
+ ❯ src/platform-admin.test.ts:389:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > limite de usuários do plano bloqueia um novo membro
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ createPlan src/platform-admin.test.ts:324:17
+ ❯ src/platform-admin.test.ts:407:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > limite de anúncios publicados bloqueia a publicação seguinte e libera ao pausar
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ createPlan src/platform-admin.test.ts:324:17
+ ❯ src/platform-admin.test.ts:421:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > trocar para um plano abaixo do uso é permitido, aparece acima do limite e só bloqueia novos cadastros
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ src/platform-admin.test.ts:454:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > plano desativado continua nas imobiliárias que já o usam, mas não pode ser atribuído
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ createPlan src/platform-admin.test.ts:324:17
+ ❯ src/platform-admin.test.ts:486:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  src/platform-admin.test.ts > Planos com limites, sem cobrança > valida os limites do plano e o código único
+Error: login do admin da plataforma falhou: 401 {"error":"DomainError","code":"UNAUTHORIZED","message":"Credenciais inválidas"}
+ ❯ platformAdminSession src/platform-fixtures.ts:133:11
+    131|   });
+    132|   if (res.statusCode !== 200) {
+    133|     throw new Error(`login do admin da plataforma falhou: ${String(res…
+       |           ^
+    134|   }
+    135|   const body = JSON.parse(res.body) as { user: { id: string } };
+ ❯ adminCall src/platform-admin.test.ts:69:17
+ ❯ src/platform-admin.test.ts:503:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  13 failed (13)
+   Start at  10:29:44
+   Duration  16.46s (transform 1.56s, setup 0ms, import 4.46s, tests 10.85s, environment 2ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/platform-admin.test.ts src/migrations-platform.test.ts
+# exit=1

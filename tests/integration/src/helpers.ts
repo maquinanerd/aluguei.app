@@ -34,6 +34,8 @@ export const testEnv: AppEnv = {
   STORAGE_REGION: undefined,
   STORAGE_BUCKET: undefined,
   OTEL_EXPORTER_OTLP_ENDPOINT: undefined,
+  // Admins da plataforma (ver platform-fixtures.ts); o segundo e-mail nunca é cadastrado.
+  PLATFORM_ADMIN_EMAILS: 'plataforma@aluguei.test, reservado@aluguei.test',
 };
 
 let appCache: FastifyInstance | null = null;
