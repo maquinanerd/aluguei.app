@@ -18,7 +18,16 @@ export interface LeaseFixture {
   orgId: string;
   tenantId: string;
   landlordId: string | null;
+  /** Todos os proprietários do imóvel, na ordem de cadastro (coproprietários, P1-08). */
+  landlordIds: string[];
+  propertyId: string;
   leaseId: string;
+}
+
+/** Coproprietário do imóvel: CPF válido e participação (null = não registrada). */
+export interface OwnerSpec {
+  cpf: string;
+  sharePct: number | null;
 }
 
 export interface Initiation {
@@ -114,7 +123,14 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
     return value.id;
   }
 
-  async function setupLease(opts: { rentCents: number; landlord: boolean }): Promise<LeaseFixture> {
+  async function setupLease(opts: {
+    rentCents: number;
+    landlord: boolean;
+    /** Coproprietários com participação; substitui o proprietário único de `landlord`. */
+    owners?: OwnerSpec[];
+    /** Devolve a resposta da criação da locação em vez de exigir 201. */
+    onLease?: (res: { status: number; body: Json }) => void;
+  }): Promise<LeaseFixture> {
     const user = await registerOrg();
     const cookie = user.cookie;
     const property = await call('POST', '/properties', {
@@ -128,23 +144,30 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
     });
     expect(terms.status).toBe(200);
 
-    let landlordId: string | null = null;
-    if (opts.landlord) {
+    const ownerSpecs: OwnerSpec[] =
+      opts.owners ?? (opts.landlord ? [{ cpf: '11144477735', sharePct: null }] : []);
+    const landlordIds: string[] = [];
+    for (const [index, spec] of ownerSpecs.entries()) {
       const owner = await call('POST', '/parties', {
         cookie,
         payload: {
           type: 'PERSON',
-          name: 'Proprietária',
-          identities: [{ kind: 'CPF', value: '11144477735' }],
+          name: `Proprietária ${String(index + 1)}`,
+          identities: [{ kind: 'CPF', value: spec.cpf }],
         },
       });
-      landlordId = idOf(owner.body, 'party');
+      const ownerId = idOf(owner.body, 'party');
       const link = await call('POST', `/properties/${propertyId}/owners`, {
         cookie,
-        payload: { partyId: landlordId },
+        payload:
+          spec.sharePct === null
+            ? { partyId: ownerId }
+            : { partyId: ownerId, ownershipSharePct: spec.sharePct },
       });
       expect(link.status, JSON.stringify(link.body)).toBeLessThan(300);
+      landlordIds.push(ownerId);
     }
+    const landlordId = landlordIds[0] ?? null;
 
     const tenant = await call('POST', '/parties', {
       cookie,
@@ -217,7 +240,7 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
     const envelopeId =
       (send.body.envelope as { providerEnvelopeId?: string } | undefined)?.providerEnvelopeId ?? '';
     expect(envelopeId, JSON.stringify(send.body)).not.toBe('');
-    const signers = opts.landlord ? 2 : 1;
+    const signers = landlordIds.length + 1;
     for (let order = 1; order <= signers; order += 1) {
       await call('POST', '/webhooks/signature', {
         payload: {
@@ -241,12 +264,28 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
     await runWorker();
 
     const lease = await call('POST', '/leases', { cookie, payload: { contractId } });
+    if (opts.onLease) {
+      opts.onLease(lease);
+      if (lease.status !== 201) {
+        return {
+          cookie,
+          orgId: user.orgId,
+          tenantId,
+          landlordId,
+          landlordIds,
+          propertyId,
+          leaseId: '',
+        };
+      }
+    }
     expect(lease.status, JSON.stringify(lease.body)).toBe(201);
     return {
       cookie,
       orgId: user.orgId,
       tenantId,
       landlordId,
+      landlordIds,
+      propertyId,
       leaseId: idOf(lease.body, 'lease'),
     };
   }

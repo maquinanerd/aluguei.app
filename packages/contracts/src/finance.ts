@@ -37,8 +37,96 @@ export const leaseSchema = z.object({
   endDate: z.string().nullable(),
   monthlyRentCents: z.number().int().nonnegative(),
   condoFeeCents: z.number().int().nonnegative().nullable(),
+  /** Multa por atraso em basis points (G3, P1-07). */
+  lateFeeBps: z.number().int().min(0).max(1000),
+  /** Juros de mora ao mês em basis points, pro rata die. */
+  interestMonthlyBps: z.number().int().min(0).max(100),
+  dueDay: z.number().int().min(1).max(28),
+  endReason: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
+});
+
+export const leaseLandlordSchema = z.object({
+  partyId: uuidSchema,
+  shareBps: z.number().int().positive().max(10_000),
+});
+
+export const leaseAmendmentKindSchema = z.enum(['RENEWAL', 'READJUSTMENT', 'TERMINATION']);
+
+export const leaseAmendmentSchema = z.object({
+  id: uuidSchema,
+  kind: leaseAmendmentKindSchema,
+  effectiveFrom: z.string().nullable(),
+  previousEndDate: z.string().nullable(),
+  newEndDate: z.string().nullable(),
+  previousRentCents: z.number().int().nonnegative().nullable(),
+  newRentCents: z.number().int().nonnegative().nullable(),
+  indexName: z.string().nullable(),
+  adjustmentBps: z.number().int().nullable(),
+  reason: z.string().nullable(),
+  createdBy: uuidSchema.nullable(),
+  createdAt: z.string(),
+});
+
+/** Data civil `AAAA-MM-DD` que existe no calendário (2027-02-30 não passa). */
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data no formato AAAA-MM-DD')
+  .refine(
+    (value) => {
+      const date = new Date(`${value}T00:00:00.000Z`);
+      return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    },
+    { message: 'Data inexistente' },
+  );
+const monthStartSchema = isoDateSchema.refine((value) => value.endsWith('-01'), {
+  message: 'O reajuste começa no primeiro dia de um mês',
+});
+
+export const updateLeaseTermsRequestSchema = z
+  .object({
+    lateFeeBps: z.number().int().min(0).max(1000).optional(),
+    interestMonthlyBps: z.number().int().min(0).max(100).optional(),
+    dueDay: z.number().int().min(1).max(28).optional(),
+  })
+  .strict()
+  .refine((value) => Object.keys(value).length > 0, { message: 'Informe ao menos um termo' });
+
+export const renewLeaseRequestSchema = z
+  .object({
+    endDate: isoDateSchema,
+    monthlyRentCents: z.number().int().positive().optional(),
+  })
+  .strict();
+
+export const leaseIndexNameSchema = z.enum(['IGPM', 'IPCA', 'INPC', 'IVAR', 'OUTRO']);
+
+export const readjustLeaseRequestSchema = z
+  .object({
+    effectiveFrom: monthStartSchema,
+    indexName: leaseIndexNameSchema,
+    adjustmentBps: z.number().int().gt(-10_000).max(10_000).optional(),
+    newMonthlyRentCents: z.number().int().positive().optional(),
+  })
+  .strict()
+  .refine(
+    (value) => (value.adjustmentBps === undefined) !== (value.newMonthlyRentCents === undefined),
+    {
+      message: 'Informe o índice em basis points ou o novo aluguel, não os dois',
+    },
+  );
+
+export const endLeaseRequestSchema = z
+  .object({
+    endDate: isoDateSchema,
+    reason: z.string().trim().min(3).max(500),
+  })
+  .strict();
+
+export const leaseMutationResponseSchema = z.object({
+  lease: leaseSchema,
+  amendment: leaseAmendmentSchema.nullable(),
 });
 
 export const chargeSchema = z.object({
@@ -144,6 +232,10 @@ export const leaseAggregateSchema = z.object({
       landlordShareBps: z.number().int(),
     })
     .nullable(),
+  /** Participação de cada proprietário no repasse (G3, P1-08). */
+  landlords: z.array(leaseLandlordSchema),
+  /** Renovações, reajustes e encerramento, do mais recente ao mais antigo (G3, P1-20). */
+  amendments: z.array(leaseAmendmentSchema),
 });
 
 export const listLeasesQuerySchema = paginationQuerySchema.extend({
@@ -157,8 +249,10 @@ export const listLeasesResponseSchema = z.object({
 
 export const createChargeRequestSchema = z.object({
   leaseId: uuidSchema,
-  periodStart: z.string().optional(),
-  dueDate: z.string().optional(),
+  /** Qualquer dia do mês de referência; a cobrança usa o primeiro dia. */
+  periodStart: isoDateSchema.optional(),
+  /** Data civil; sem ela, o dia de vencimento da locação (G3, P1-07). */
+  dueDate: isoDateSchema.optional(),
   amountOverrideCents: z.number().int().positive().optional(),
 });
 

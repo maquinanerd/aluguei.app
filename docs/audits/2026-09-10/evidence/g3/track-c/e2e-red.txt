@@ -1,0 +1,160 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e g3-c
+# árvore: commit 710c7b1 (g3/track-c-finance) — specs novos da trilha C sem a interface (RED); stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 8 entradas
+# data (UTC): 2026-09-17T16:33:26Z
+$ playwright test "g3-c"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789662811206\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789662811206).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 4 tests using 1 worker
+
+  x  1 g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado (1.5m)
+  x  2 g3-c-lease-lifecycle.spec.ts:68:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada (1.2m)
+  x  3 g3-c-lease-lifecycle.spec.ts:139:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel (5.0m)
+  x  4 g3-c-lease-lifecycle.spec.ts:200:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida (6.7m)
+[e2e-stack] stack run-1789662811206 desligada.
+
+
+  1) g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado 
+
+    Error: a assinatura FAKE deve levar o contrato a SIGNED
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       at g2-b1-support.ts:150
+
+      148 |     last = await read();
+      149 |   }
+    > 150 |   expect(done(last), what).toBe(true);
+          |                            ^
+      151 |   return last;
+      152 | }
+      153 |
+        at poll (C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b1-support.ts:150:28)
+        at seedSignedContract (C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-support.ts:172:3)
+        at seedCoOwnedLease (C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-support.ts:83:22)
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-lease-lifecycle.spec.ts:17:18
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-2d540-cobrança-no-dia-configurado\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-c-lease-lifecycle-G3-tr-2d540-cobrança-no-dia-configurado\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g3-c-lease-lifecycle.spec.ts:68:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada 
+
+    Error: Timed out 60000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Histórico da locação' }) }).getByText('Sem renovações, reajustes ou encerramento.')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 60000ms
+      - waiting for locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Histórico da locação' }) }).getByText('Sem renovações, reajustes ou encerramento.')
+
+
+      81 |     await page.goto(`/app/leases/${seed.leaseId}`, { timeout: 240_000 });
+      82 |     const history = card(page, 'Histórico da locação');
+    > 83 |     await expect(history.getByText('Sem renovações, reajustes ou encerramento.')).toBeVisible({
+         |                                                                                   ^
+      84 |       timeout: 60_000,
+      85 |     });
+      86 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-lease-lifecycle.spec.ts:83:83
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-1760b-tórico-e-cobrança-cancelada\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-1760b-tórico-e-cobrança-cancelada\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-c-lease-lifecycle-G3-tr-1760b-tórico-e-cobrança-cancelada\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g3-c-lease-lifecycle.spec.ts:139:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('tab', { name: 'Proprietários' })
+
+
+      151 |     watch.route = 'imóvel';
+      152 |     await page.goto(`/app/properties/${propertyId}`, { timeout: 240_000 });
+    > 153 |     await page.getByRole('tab', { name: 'Proprietários' }).click();
+          |                                                            ^
+      154 |     const owners = card(page, 'Proprietários');
+      155 |     await expect(
+      156 |       owners.getByText('Sem proprietário vinculado, a locação deste imóvel fica sem repasse.'),
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-lease-lifecycle.spec.ts:153:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-a99db-dos-proprietários-no-imóvel\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-a99db-dos-proprietários-no-imóvel\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-c-lease-lifecycle-G3-tr-a99db-dos-proprietários-no-imóvel\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) g3-c-lease-lifecycle.spec.ts:200:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida 
+
+    Test timeout of 400000ms exceeded.
+
+    Error: locator.fill: Test timeout of 400000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Nova cobrança' }).getByLabel('Mês de referência')
+
+
+      213 |     });
+      214 |     await leaseSelect.selectOption(seed.leaseId);
+    > 215 |     await dialog.getByLabel('Mês de referência').fill(spMonth(1));
+          |                                                  ^
+      216 |     await expect(dialog.getByText('Sem data, vence no dia configurado na locação.')).toBeVisible();
+      217 |     await dialog.getByRole('button', { name: 'Criar' }).click();
+      218 |     await expect(dialog).toBeHidden({ timeout: 30_000 });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-lease-lifecycle.spec.ts:215:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-50de3--locação-sem-data-escolhida\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-50de3--locação-sem-data-escolhida\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-c-lease-lifecycle-G3-tr-50de3--locação-sem-data-escolhida\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado 
+    g3-c-lease-lifecycle.spec.ts:68:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada 
+    g3-c-lease-lifecycle.spec.ts:139:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel 
+    g3-c-lease-lifecycle.spec.ts:200:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g3-c"`
+Exit status 1
+# duração: 914s
+# exit=1

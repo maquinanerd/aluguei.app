@@ -431,6 +431,8 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
   });
 
   test('3. telas do painel refletem os dados criados', async ({ page }) => {
+    // A espera pela janela do rate limit cabe no tempo do teste.
+    test.setTimeout(240_000);
     // Contexto de navegador novo por teste — loga novamente. O rate limit de
     // login (10/min/IP, memória) pode estar consumido por execuções anteriores
     // na mesma stack; espera a janela e tenta de novo.
@@ -442,8 +444,12 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
       await expect(page).toHaveURL(/\/app/, { timeout: 10_000 });
     } catch {
       await page.waitForTimeout(61_000); // aguarda a janela do rate limit
-      await page.getByRole('button', { name: 'Entrar' }).click();
-      await expect(page).toHaveURL(/\/app/, { timeout: 15_000 });
+      // Com a máquina carregada, o login pode ter concluído durante a espera: clicar de
+      // novo num botão que já saiu da tela fazia o teste esperar até o timeout.
+      if (!/\/app/.test(page.url())) {
+        await page.getByRole('button', { name: 'Entrar' }).click();
+      }
+      await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
     }
 
     await page.goto('/app/contracts');

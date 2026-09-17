@@ -9,6 +9,7 @@ import {
   Drawer,
   Group,
   Icon,
+  Input,
   Modal,
   Select,
   Stack,
@@ -19,6 +20,8 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useLookup } from '@/lib/lookup';
+import { saoPauloToday } from '@/lib/lease-rules';
 import { chargeActions } from '@/lib/charge-rules';
 import { label, CHARGE_STATUS_LABELS, CHARGE_STATUS_TONES } from './finance-labels';
 import { PageToolbar } from '@/components/page-toolbar';
@@ -69,6 +72,10 @@ function ChargesBody() {
     total: number;
   }>(queryPath, [queryPath]);
   const leasesQ = useQuery<{ leases: Lease[]; total: number }>('/leases?limit=100', []);
+  const leaseProperties = useLookup<{ id: string; title: string }>(
+    'properties',
+    (leasesQ.data?.leases ?? []).map((lease) => lease.propertyId),
+  ).map;
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a cobranças" />;
 
@@ -300,6 +307,7 @@ function ChargesBody() {
           setCreateOpen(false);
         }}
         leases={leasesQ.data?.leases ?? []}
+        propertyTitles={leaseProperties}
         onCreated={() => {
           toast.success('Cobrança criada');
           setCreateOpen(false);
@@ -353,15 +361,20 @@ function CreateChargeModal({
   open,
   onClose,
   leases,
+  propertyTitles,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
   leases: Lease[];
+  propertyTitles: ReadonlyMap<string, { title: string }>;
   onCreated: () => void;
 }) {
   const toast = useToast();
   const [leaseId, setLeaseId] = useState('');
+  // Mês de referência no calendário de São Paulo; sem data escolhida, a API usa o dia de
+  // vencimento da locação (G3, P1-07).
+  const [month, setMonth] = useState(() => saoPauloToday().slice(0, 7));
   const [dueDate, setDueDate] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -370,8 +383,9 @@ function CreateChargeModal({
     if (!leaseId) return;
     setBusy(true);
     try {
-      const body: { leaseId: string; dueDate?: string } = { leaseId };
-      if (dueDate) body.dueDate = new Date(dueDate).toISOString();
+      const body: { leaseId: string; periodStart?: string; dueDate?: string } = { leaseId };
+      if (/^\d{4}-\d{2}$/.test(month)) body.periodStart = `${month}-01`;
+      if (dueDate) body.dueDate = dueDate;
       await apiClient('/charges', { method: 'POST', body });
       setLeaseId('');
       setDueDate('');
@@ -415,32 +429,32 @@ function CreateChargeModal({
             setLeaseId(e.target.value);
           }}
           placeholder="Selecione a locação…"
-          options={leases.map((l) => ({ value: l.id, label: l.id.slice(0, 8) }))}
+          options={leases.map((l) => ({
+            value: l.id,
+            label: propertyTitles.get(l.propertyId)?.title ?? `Locação ${l.id.slice(0, 8)}`,
+          }))}
         />
-        <input type="hidden" name="periodStart" value="" />
-        <input
-          type="date"
-          aria-label="Vencimento (opcional)"
-          value={dueDate}
-          onChange={(e) => {
-            setDueDate(e.target.value);
-          }}
-          style={{ display: 'none' }}
-        />
-        <Button
-          size="sm"
-          variant="tertiary"
-          onClick={() => {
-            setDueDate(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
-          }}
-        >
-          Usar vencimento padrão (+30 dias)
-        </Button>
-        {dueDate ? (
-          <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-            Vencimento: {formatDate(new Date(dueDate).toISOString())}
-          </span>
-        ) : null}
+        <div className="peg-grid cols-2">
+          <Input
+            label="Mês de referência"
+            type="month"
+            required
+            value={month}
+            onChange={(e) => {
+              setMonth(e.target.value);
+            }}
+          />
+          <Input
+            label="Vencimento"
+            optional
+            type="date"
+            value={dueDate}
+            onChange={(e) => {
+              setDueDate(e.target.value);
+            }}
+            helper="Sem data, vence no dia configurado na locação."
+          />
+        </div>
       </form>
     </Modal>
   );

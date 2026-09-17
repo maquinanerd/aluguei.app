@@ -1,0 +1,19 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-leases.test.ts src/g3-c-scheduler.test.ts
+# árvore: g3/track-c-finance 710c7b1 + periodStart e dueDate como data civil no contrato da cobrança
+# data (UTC): 2026-09-17T16:53:06Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:13960) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12776) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  13:53:08
+   Duration  32.61s (transform 2.14s, setup 0ms, import 6.90s, tests 25.04s, environment 0ms)
+
+
+# exit=0

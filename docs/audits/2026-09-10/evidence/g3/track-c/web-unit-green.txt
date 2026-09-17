@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/lease-rules.test.ts src/lib/property-owners.test.ts
+# árvore: g3/track-c-finance 710c7b1 + módulos lease-rules e property-owners
+# data (UTC): 2026-09-17T16:56:58Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  13:57:00
+   Duration  857ms (transform 681ms, setup 0ms, import 969ms, tests 26ms, environment 0ms)
+
+
+# exit=0

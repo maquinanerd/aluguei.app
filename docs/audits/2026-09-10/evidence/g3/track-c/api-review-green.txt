@@ -1,0 +1,19 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-leases.test.ts src/g3-c-scheduler.test.ts
+# árvore: g3/track-c-finance 1210f85 + correção da revisão: ordem do histórico de aluguel, reajuste na vigência, aluguel em vigor na renovação, encerramento cancela abertas
+# data (UTC): 2026-09-17T16:24:33Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:30288) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31108) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  13:24:35
+   Duration  20.76s (transform 1.86s, setup 0ms, import 6.21s, tests 14.04s, environment 0ms)
+
+
+# exit=0

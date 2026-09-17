@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/finance
+# árvore: g3/track-c-finance 1210f85 + correção da revisão: ordem do histórico de aluguel, reajuste na vigência, aluguel em vigor na renovação, encerramento cancela abertas
+# data (UTC): 2026-09-17T16:24:31Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+
+ Test Files  4 passed (4)
+      Tests  63 passed (63)
+   Start at  13:24:32
+   Duration  540ms (transform 370ms, setup 0ms, import 726ms, tests 56ms, environment 1ms)
+
+
+# exit=0

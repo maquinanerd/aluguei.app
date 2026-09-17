@@ -1,4 +1,6 @@
-import { add, mulBpsFloor, sub } from './money.js';
+import { DomainError } from '../errors.js';
+import { daysBetween, nextBusinessDay } from './calendar.js';
+import { add, sub } from './money.js';
 
 export interface ChargeBreakdown {
   rentCents: number;
@@ -10,47 +12,101 @@ export interface ChargeBreakdown {
   amountCents: number;
 }
 
+/** Multa padrão: 2% (auditoria 2026-09-10, P1-07). */
+export const DEFAULT_LATE_FEE_BPS = 200;
+/** Teto da multa configurável por locação: 10%. */
+export const MAX_LATE_FEE_BPS = 1_000;
+/** Juros de mora padrão: 1% ao mês, pro rata die. */
+export const DEFAULT_INTEREST_MONTHLY_BPS = 100;
+/** Teto dos juros de mora configuráveis: 1% ao mês. */
+export const MAX_INTEREST_MONTHLY_BPS = 100;
+/** Mês comercial usado no pro rata die. */
+const DAYS_PER_MONTH = 30;
+
+export interface LateChargeTerms {
+  lateFeeBps: number;
+  interestMonthlyBps: number;
+}
+
 export interface ChargeCalcInput {
   rentCents: number;
   condoFeeCents?: number;
   taxesCents?: number;
   discountCents?: number;
-  lateFeeBps?: number; // default 200 (2%)
-  interestDailyBps?: number; // default 100 (1%/dia)
-  dueDate: string; // ISO date
-  paidOn: string; // ISO date (injetado — determinístico)
+  /** Multa em basis points (padrão 200 = 2%). */
+  lateFeeBps?: number;
+  /** Juros de mora ao mês em basis points, pro rata die (padrão 100 = 1% a.m.). */
+  interestMonthlyBps?: number;
+  dueDate: string; // data civil do vencimento
+  paidOn: string; // data civil do pagamento em São Paulo (injetada — determinístico)
 }
 
-/** Dias inteiros de atraso em calendário UTC (nunca negativo). */
-function daysOverdue(dueDate: string, paidOn: string): number {
-  const due = Date.parse(`${dueDate}T00:00:00.000Z`);
-  const paid = Date.parse(`${paidOn}T00:00:00.000Z`);
-  const diffMs = paid - due;
-  return Math.max(0, Math.floor(diffMs / 86_400_000));
+export function assertLateChargeTerms(terms: LateChargeTerms): void {
+  const { lateFeeBps, interestMonthlyBps } = terms;
+  if (!Number.isInteger(lateFeeBps) || lateFeeBps < 0 || lateFeeBps > MAX_LATE_FEE_BPS) {
+    throw new DomainError('INVALID_INPUT', 'A multa por atraso deve ficar entre 0% e 10%', {
+      lateFeeBps,
+    });
+  }
+  if (
+    !Number.isInteger(interestMonthlyBps) ||
+    interestMonthlyBps < 0 ||
+    interestMonthlyBps > MAX_INTEREST_MONTHLY_BPS
+  ) {
+    throw new DomainError('INVALID_INPUT', 'Os juros de mora devem ficar entre 0% e 1% ao mês', {
+      interestMonthlyBps,
+    });
+  }
+}
+
+/** Vencimento no dia `dueDay` (1 a 28) do mês do período. */
+export function chargeDueDate(periodStart: string, dueDay: number): string {
+  if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 28) {
+    throw new DomainError('INVALID_INPUT', 'O dia de vencimento deve ficar entre 1 e 28', {
+      dueDay,
+    });
+  }
+  return `${periodStart.slice(0, 8)}${String(dueDay).padStart(2, '0')}`;
 }
 
 /**
- * Calcula o breakdown de uma cobrança no momento da iniciação do pagamento.
- * Multa/juros sobre o aluguel; desconto abate; valor nunca negativo.
+ * Vencida depois do vencimento; quando ele cai em fim de semana ou feriado, só depois do próximo
+ * dia útil.
+ */
+export function isChargeOverdue(dueDate: string, today: string): boolean {
+  return today > nextBusinessDay(dueDate);
+}
+
+/**
+ * Calcula a cobrança na data do pagamento (auditoria 2026-09-10, P1-07). Em atraso — depois do
+ * vencimento, ou do próximo dia útil quando ele cai em fim de semana ou feriado —, multa e juros
+ * incidem sobre o valor em atraso (aluguel, condomínio e tributos da cobrança). Os juros são mensais
+ * pro rata die, contados desde o vencimento. O desconto abate no fim; o valor nunca fica negativo.
  */
 export function calculateChargeBreakdown(input: ChargeCalcInput): ChargeBreakdown {
   const { rentCents, dueDate, paidOn } = input;
   const condoFeeCents = input.condoFeeCents ?? 0;
   const taxesCents = input.taxesCents ?? 0;
   const discountCents = input.discountCents ?? 0;
-  const lateFeeBps = input.lateFeeBps ?? 200;
-  const interestDailyBps = input.interestDailyBps ?? 100;
+  const terms: LateChargeTerms = {
+    lateFeeBps: input.lateFeeBps ?? DEFAULT_LATE_FEE_BPS,
+    interestMonthlyBps: input.interestMonthlyBps ?? DEFAULT_INTEREST_MONTHLY_BPS,
+  };
+  assertLateChargeTerms(terms);
 
-  const overdueDays = daysOverdue(dueDate, paidOn);
-  const lateFeeCents = overdueDays > 0 ? mulBpsFloor(rentCents, lateFeeBps) : 0;
-  // Juros simples 1%/dia sobre o aluguel: rent × dailyBps × dias de atraso.
-  const interestCents =
-    overdueDays > 0 ? mulBpsFloor(rentCents, interestDailyBps * overdueDays) : 0;
+  const base = add(add(rentCents, condoFeeCents), taxesCents);
+  const late = isChargeOverdue(dueDate, paidOn);
+  const overdueDays = late ? daysBetween(dueDate, paidOn) : 0;
+  // BigInt: base × bps × dias não passa por float nem estoura inteiro seguro.
+  const lateFeeCents = late ? Number((BigInt(base) * BigInt(terms.lateFeeBps)) / 10_000n) : 0;
+  const interestCents = late
+    ? Number(
+        (BigInt(base) * BigInt(terms.interestMonthlyBps) * BigInt(overdueDays)) /
+          BigInt(10_000 * DAYS_PER_MONTH),
+      )
+    : 0;
 
-  const gross = add(
-    add(add(add(rentCents, condoFeeCents), lateFeeCents), interestCents),
-    taxesCents,
-  );
+  const gross = add(add(base, lateFeeCents), interestCents);
   const amountCents = Math.max(0, sub(gross, discountCents));
 
   return {

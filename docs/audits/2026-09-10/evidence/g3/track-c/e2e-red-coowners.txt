@@ -1,0 +1,65 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e g3-c -g coproprietários e cobrança
+# árvore: commit 710c7b1 (g3/track-c-finance) — semente de coproprietários com as três assinaturas, sem a interface (RED do teste 1); stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 10 entradas
+# data (UTC): 2026-09-17T16:49:32Z
+$ playwright test "g3-c" "-g" "coproprietários e cobrança"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789663776138\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789663776138).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 1 test using 1 worker
+
+  x  1 g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado (1.3m)
+[e2e-stack] stack run-1789663776138 desligada.
+
+
+  1) g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado 
+
+    Error: Timed out 60000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Proprietários' }) }).getByText('Proprietária Maior encargos mu5rmek4b49v')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 60000ms
+      - waiting for locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Proprietários' }) }).getByText('Proprietária Maior encargos mu5rmek4b49v')
+
+
+      22 |
+      23 |     const owners = card(page, 'Proprietários');
+    > 24 |     await expect(owners.getByText(seed.majorityName)).toBeVisible({ timeout: 60_000 });
+         |                                                       ^
+      25 |     await expect(owners.getByText('60%')).toBeVisible();
+      26 |     await expect(owners.getByText(seed.minorityName)).toBeVisible();
+      27 |     await expect(owners.getByText('40%')).toBeVisible();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-c-lease-lifecycle.spec.ts:24:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-2d540-cobrança-no-dia-configurado\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-c-lease-lifecycle-G3-tr-2d540-cobrança-no-dia-configurado\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-c-lease-lifecycle-G3-tr-2d540-cobrança-no-dia-configurado\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: g3-c-lease-lifecycle.spec.ts (1.3m)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    g3-c-lease-lifecycle.spec.ts:15:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g3-c" "-g" "coproprietários e cobrança"`
+Exit status 1
+# duração: 164s
+# exit=1

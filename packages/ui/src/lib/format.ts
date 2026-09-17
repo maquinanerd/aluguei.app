@@ -20,9 +20,23 @@ export function formatBRLShort(cents: number | null | undefined): string {
   return formatBRL(cents);
 }
 
+const CIVIL_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) {
     return '—';
+  }
+  // Data civil (vencimento, início e término) não tem fuso: `new Date('2026-10-10')` é meia-noite
+  // UTC, que em São Paulo ainda é o dia 9 (G3, trilha C).
+  const civil = CIVIL_DATE.exec(iso);
+  if (civil) {
+    const [, year = '', month = '', day = ''] = civil;
+    const check = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    const exists =
+      check.getUTCFullYear() === Number(year) &&
+      check.getUTCMonth() === Number(month) - 1 &&
+      check.getUTCDate() === Number(day);
+    return exists ? `${day}/${month}/${year}` : '—';
   }
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) {

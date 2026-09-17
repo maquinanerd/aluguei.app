@@ -1,0 +1,30 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e g3-c
+# árvore: commit 710c7b1 (g3/track-c-finance) — interface da trilha C aplicada (não commitada): locação, proprietários do imóvel, nova cobrança; datas civis no contrato da cobrança; stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 21 entradas
+# data (UTC): 2026-09-17T16:57:53Z
+$ playwright test "g3-c"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789664278366\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789664278366).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 4 tests using 1 worker
+
+  ok 1 g3-c-lease-lifecycle.spec.ts:21:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado (17.0s)
+  ok 2 g3-c-lease-lifecycle.spec.ts:76:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada (11.6s)
+  ok 3 g3-c-lease-lifecycle.spec.ts:149:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel (4.6s)
+  ok 4 g3-c-lease-lifecycle.spec.ts:208:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida (8.4s)
+[e2e-stack] stack run-1789664278366 desligada.
+
+  Slow test file: g3-c-lease-lifecycle.spec.ts (41.7s)
+  Consider splitting slow test files to speed up parallel execution
+  4 passed (2.3m)
+# duração: 141s
+# exit=0

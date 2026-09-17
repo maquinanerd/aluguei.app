@@ -7,7 +7,10 @@ import {
   AUDIT_ACTIONS,
   DomainError,
   calculateChargeBreakdown,
+  chargeDueDate,
   isChargeStatus,
+  rentForPeriod,
+  saoPauloDate,
   transitionCharge,
 } from '@aluguei/domain';
 import {
@@ -28,6 +31,7 @@ import {
   splitRuleFor,
 } from '../finance/settlement.js';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
+import { rentChangesFor } from './leases.js';
 import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
 
@@ -91,15 +95,15 @@ export const chargeRoutes: FastifyPluginAsync = (app) => {
       if (!lease) {
         throw new DomainError('NOT_FOUND', 'Locação não encontrada');
       }
-      const periodStart = monthStart(input.periodStart ?? new Date().toISOString().slice(0, 10));
-      const dueDate =
-        input.dueDate ??
-        new Date(new Date(`${periodStart}T00:00:00.000Z`).getTime() + 10 * 86_400_000)
-          .toISOString()
-          .slice(0, 10);
+      const periodStart = monthStart(input.periodStart ?? saoPauloDate(new Date()));
+      const dueDate = input.dueDate ?? chargeDueDate(periodStart, lease.dueDay);
       const breakdown = calculateChargeBreakdown({
-        rentCents: input.amountOverrideCents ?? lease.monthlyRentCents,
+        rentCents:
+          input.amountOverrideCents ??
+          rentForPeriod(lease.monthlyRentCents, await rentChangesFor(db, lease.id), periodStart),
         condoFeeCents: lease.condoFeeCents ?? 0,
+        lateFeeBps: lease.lateFeeBps,
+        interestMonthlyBps: lease.interestMonthlyBps,
         dueDate,
         paidOn: dueDate,
       });
