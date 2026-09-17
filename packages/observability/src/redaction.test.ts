@@ -1,6 +1,6 @@
 import { Writable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
-import { pino } from 'pino';
+import { pino, type Logger } from 'pino';
 import { loggerOptions } from './logger.js';
 
 /**
@@ -15,7 +15,7 @@ const PHONE = '+55 11 91234-5678';
 const WA_ID = '5511912345678';
 const COOKIE = 'aluguei_session=sessao-secreta-123';
 
-function capture(): { log: ReturnType<typeof pino>; text: () => string } {
+function capture(): { log: Logger; text: () => string } {
   const chunks: string[] = [];
   const stream = new Writable({
     write(chunk: Buffer, _encoding, callback) {
