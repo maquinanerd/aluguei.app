@@ -1,0 +1,22 @@
+# comando: docker compose -f <a31c88e:docker-compose.prod.yml sem exclude_from_hc> config (--quiet, --services, --volumes, --format json)
+# árvore: main a31c88e (implantado), antes da saída do banco embutido
+# data (UTC): 2026-09-17T13:05:55Z
+# Docker Compose 5.1.4; sem daemon: config só lê e valida o arquivo
+
+OK   compose válido
+serviços: api db-copy migrate minio postgres storage-init web worker 
+volumes no modelo: aluguei-minio-data aluguei-pgdata 
+fatos: {"migrate":"db-copy","api":"migrate,storage-init","worker":"migrate","pgImages":["postgres"],"mounts":["postgres:rw"]}
+FAIL sem o serviço postgres embutido
+FAIL sem o serviço db-copy
+FAIL nenhum serviço com imagem postgres (postgres)
+FAIL sem referência à senha do banco embutido
+FAIL migrate não depende de outro serviço (db-copy)
+OK   api espera migrate
+OK   worker espera migrate
+OK   volume aluguei-pgdata no modelo do compose
+FAIL aluguei-pgdata montado só para leitura (postgres:rw)
+OK   volume aluguei-minio-data no modelo do compose
+
+resultado: 5 ok, 6 falhas
+# exit=1

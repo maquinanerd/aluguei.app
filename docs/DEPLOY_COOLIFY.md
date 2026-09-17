@@ -43,16 +43,15 @@ sem necessidade.
 
 ## Topologia (`docker-compose.prod.yml`)
 
-| Serviço        | Imagem / alvo                              | Papel                                                                                                               |
-| -------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `migrate`      | `Dockerfile` → `server`                    | aplica as migrations no banco próprio e termina                                                                     |
-| `minio`        | `ghcr.io/coollabsio/minio` (versão fixada) | storage compatível com S3, volume `aluguei-minio-data`                                                              |
-| `storage-init` | `Dockerfile` → `server`                    | garante o bucket privado e termina (idempotente)                                                                    |
-| `api`          | `Dockerfile` → `server`                    | Fastify via tsx, porta 4000, healthcheck `/health/ready`; só sobe depois de `migrate` e `storage-init` concluírem   |
-| `worker`       | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta)                                                  |
-| `web`          | `Dockerfile` → `web`                       | Next.js (`next start`), porta 3000, healthcheck `/login`                                                            |
-| `postgres`     | `postgres:17`                              | **transitório** — banco embutido da primeira implantação, só origem da cópia                                        |
-| `db-copy`      | `Dockerfile` → `dbcopy`                    | **transitório** — copiou o banco embutido no corte; nas execuções seguintes vê o destino com tabelas e não faz nada |
+| Serviço         | Imagem / alvo                              | Papel                                                                                                                                                               |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `migrate`       | `Dockerfile` → `server`                    | aplica as migrations no banco próprio e termina                                                                                                                     |
+| `minio`         | `ghcr.io/coollabsio/minio` (versão fixada) | storage compatível com S3, volume `aluguei-minio-data`                                                                                                              |
+| `storage-init`  | `Dockerfile` → `server`                    | garante o bucket privado e termina (idempotente)                                                                                                                    |
+| `api`           | `Dockerfile` → `server`                    | Fastify via tsx, porta 4000, healthcheck `/health/ready`; só sobe depois de `migrate` e `storage-init` concluírem                                                   |
+| `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta)                                                                                                  |
+| `web`           | `Dockerfile` → `web`                       | Next.js (`next start`), porta 3000, healthcheck `/login`                                                                                                            |
+| `legacy-pgdata` | `busybox:1.36`                             | monta só para leitura o volume `aluguei-pgdata` (dados do banco embutido da primeira implantação) e termina; existe só para o volume continuar no recurso (ADR-062) |
 
 API, worker, migrations e `storage-init` rodam TypeScript com tsx: os pacotes do workspace exportam
 `src/*.ts` e o `dist/` do tsc não é executável. Por isso a imagem `server` instala também as
@@ -65,15 +64,26 @@ rota pública da API responde com o erro de domínio `NOT_FOUND` para um slug in
 `organizations` existe no banco que a API usa. Evidência:
 `docs/audits/2026-09-10/evidence/deploy/smoke-2026-09-15.txt`.
 
-`postgres` e `db-copy` saem do compose depois de confirmado que nenhum dado do banco embutido ficou
-para trás. Até lá, o volume `aluguei-pgdata` continua registrado no recurso.
+### Saída do banco embutido (2026-09-17, ADR-062)
+
+`postgres` e `db-copy` saíram do compose. A cópia do corte rodou antes de `migrate`, com o banco
+próprio vazio, e a API só sobe depois de `migrate`; como a API subiu no corte usando o banco próprio,
+a cópia terminou sem erro. Depois do corte nenhum serviço escreveu no banco embutido. O volume
+`aluguei-pgdata` continua no servidor, montado só para leitura pelo serviço `legacy-pgdata`.
+
+- **Voltar a ler os dados antigos**: acrescentar ao compose um serviço `postgres:17` com
+  `aluguei-pgdata:/var/lib/postgresql/data` e a senha da variável `SERVICE_PASSWORD_64_POSTGRES`, se
+  ela ainda existir no recurso; senão, a senha se redefine pelo socket local do contêiner.
+- **Apagar os dados antigos** (irreversível): tirar `legacy-pgdata` e o volume do compose, implantar
+  e apagar o volume em Storages do recurso no painel do Coolify. Só com pedido explícito do usuário.
 
 ## Variáveis
 
 Geradas pelo Coolify (variáveis mágicas, persistem entre deploys, nunca no repositório):
 `SERVICE_USER_MINIO`, `SERVICE_PASSWORD_MINIO`, `SERVICE_HEX_64_SIGNATUREWEBHOOK`,
 `SERVICE_HEX_64_ASAASWEBHOOK`, `SERVICE_HEX_64_METAAPPSECRET`, `SERVICE_HEX_64_METAVERIFY`,
-`SERVICE_HEX_64_METATOKENKEY` e, enquanto o banco embutido existir, `SERVICE_PASSWORD_64_POSTGRES`.
+`SERVICE_HEX_64_METATOKENKEY`. `SERVICE_PASSWORD_64_POSTGRES`, senha do banco embutido, não é mais
+usada pelo compose.
 
 Definidas no recurso:
 

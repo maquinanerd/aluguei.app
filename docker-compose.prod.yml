@@ -1,9 +1,9 @@
 # Homologação do Aluguei.app no Coolify (build pack "Docker Compose").
 #
 # - Banco: recurso PostgreSQL próprio do Coolify, com backup agendado. A URL
-#   (com a senha) existe só na variável DATABASE_URL do recurso. O serviço
-#   `postgres` abaixo é o banco embutido da primeira implantação: fica apenas
-#   como origem da cópia única (`db-copy`) e sai do compose depois do corte.
+#   (com a senha) existe só na variável DATABASE_URL do recurso. O banco embutido
+#   da primeira implantação saiu do compose depois do corte (ADR-062); o volume
+#   `aluguei-pgdata`, com os dados dele, fica guardado pelo serviço `legacy-pgdata`.
 # - Storage: MinIO (build comunitária mantida pelo Coolify) neste compose, com
 #   credenciais geradas pelo Coolify e compartilhadas com a API. O navegador
 #   envia o arquivo direto para o domínio público do MinIO, em path-style.
@@ -22,34 +22,14 @@
 # Ver docs/DEPLOY_COOLIFY.md.
 
 services:
-  # Banco embutido da primeira implantação: só origem da cópia única.
-  postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: aluguei
-      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_64_POSTGRES}
-      POSTGRES_DB: aluguei
+  # Guarda o volume do banco embutido da primeira implantação (ADR-062): monta só para
+  # leitura e termina na hora. Sem um serviço que o use, o Docker Compose descarta o
+  # volume do modelo e ele deixaria de aparecer no recurso do Coolify.
+  legacy-pgdata:
+    image: busybox:1.36
+    command: ['true']
     volumes:
-      - aluguei-pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U aluguei -d aluguei']
-      interval: 5s
-      timeout: 5s
-      retries: 30
-
-  # Copia o banco embutido para o recurso PostgreSQL próprio, uma vez só: se o
-  # destino já tem tabelas, termina sem fazer nada (deploy/db-copy.sh).
-  db-copy:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: dbcopy
-    environment:
-      SOURCE: postgresql://aluguei:${SERVICE_PASSWORD_64_POSTGRES}@postgres:5432/aluguei
-      TARGET: ${DATABASE_URL}
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - aluguei-pgdata:/legacy-pgdata:ro
     restart: 'no'
     exclude_from_hc: true
 
@@ -62,9 +42,6 @@ services:
     command: ['node', 'packages/db/scripts/apply-migrations.mjs']
     environment:
       DATABASE_URL: ${DATABASE_URL}
-    depends_on:
-      db-copy:
-        condition: service_completed_successfully
     restart: 'no'
     exclude_from_hc: true
 
@@ -205,5 +182,7 @@ services:
       start_period: 30s
 
 volumes:
+  # Dados do banco embutido da primeira implantação, copiados para o banco próprio no
+  # corte de 2026-09-15 (ADR-062). Apagar é irreversível e só com pedido explícito do usuário.
   aluguei-pgdata:
   aluguei-minio-data:
