@@ -479,7 +479,7 @@ export async function bootStack({ mode = 'playwright' } = {}) {
     const worker = spawnLogged(
       'worker',
       process.execPath,
-      ['--import', 'tsx', join(ROOT, 'apps/worker/src/index.ts')],
+      ['--import', 'tsx', join(ROOT, 'apps/worker/src/main.ts')],
       { cwd: ROOT, env, logFile: join(runDir, 'worker.log') },
     );
     track(worker);

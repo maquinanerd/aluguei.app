@@ -15,6 +15,7 @@
     "@aluguei/db": "workspace:*",
     "@aluguei/domain": "workspace:*",
     "@aluguei/integrations": "workspace:*",
+    "@aluguei/observability": "workspace:*",
     "@aluguei/storage": "workspace:*",
     "@aluguei/worker": "workspace:*",
     "drizzle-orm": "0.45.2"

@@ -30,6 +30,7 @@ import {
   processReconcileJob,
 } from './paymentJobs.js';
 import { processMetaWebhookJob } from './metaJobs.js';
+import { markSpanError, withSpan } from '@aluguei/observability';
 import { startJobLog } from './job-log.js';
 import type { JobLogger } from './job-log.js';
 
@@ -262,60 +263,71 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         })();
 
   for (const job of jobs) {
-    const jobLog = startJobLog(logger, {
-      queue: 'inbox',
-      jobId: job.id,
-      jobType: job.provider,
-      attempt: job.attempts,
-      orgId: job.orgId,
-    });
-    try {
-      if (job.provider === 'WHATSAPP') {
-        await processWhatsAppInboxJob(db, job, ai, messenger);
-      } else if (job.provider === 'INSPECTION') {
-        await processInspectionJob(db, job, inspectionAi);
-      } else if (job.provider === 'SCREENING') {
-        if (!screeningProvider) {
-          throw new Error('provider de screening não configurado');
-        }
-        await processScreeningJob(db, job, screeningProvider, approveScoreMin);
-      } else if (job.provider === 'SIGNATURE') {
-        await processSignatureJob(db, job);
-      } else if (job.provider === 'PAYMENT') {
-        if (!paymentProvider) {
-          throw new Error('provider de pagamento não configurado');
-        }
-        await processPaymentJob(db, job, paymentProvider);
-      } else if (job.provider === 'PAYMENT_SCHEDULER') {
-        await processPaymentSchedulerJob(db, job);
-      } else if (job.provider === 'PAYMENT_RECONCILE') {
-        await processReconcileJob(db, job, paymentProvider);
-      } else if (job.provider === 'META') {
-        await processMetaWebhookJob(db, job);
-      } else {
-        throw new Error(`provider desconhecido: ${job.provider}`);
-      }
-      // Só conclui quem ainda detém o claim: uma execução expirada e reenfileirada
-      // não sobrescreve o resultado da tentativa seguinte.
-      const finished = await db.execute(sql`
+    // Span do job: as queries e chamadas HTTP do processamento entram no mesmo trace (P2-11).
+    await withSpan(
+      `job ${job.provider}`,
+      {
+        'job.queue': 'inbox',
+        'job.id': job.id,
+        'job.type': job.provider,
+        'job.attempt': job.attempts,
+        'job.org_id': job.orgId,
+      },
+      async (span) => {
+        const jobLog = startJobLog(logger, {
+          queue: 'inbox',
+          jobId: job.id,
+          jobType: job.provider,
+          attempt: job.attempts,
+          orgId: job.orgId,
+        });
+        try {
+          if (job.provider === 'WHATSAPP') {
+            await processWhatsAppInboxJob(db, job, ai, messenger);
+          } else if (job.provider === 'INSPECTION') {
+            await processInspectionJob(db, job, inspectionAi);
+          } else if (job.provider === 'SCREENING') {
+            if (!screeningProvider) {
+              throw new Error('provider de screening não configurado');
+            }
+            await processScreeningJob(db, job, screeningProvider, approveScoreMin);
+          } else if (job.provider === 'SIGNATURE') {
+            await processSignatureJob(db, job);
+          } else if (job.provider === 'PAYMENT') {
+            if (!paymentProvider) {
+              throw new Error('provider de pagamento não configurado');
+            }
+            await processPaymentJob(db, job, paymentProvider);
+          } else if (job.provider === 'PAYMENT_SCHEDULER') {
+            await processPaymentSchedulerJob(db, job);
+          } else if (job.provider === 'PAYMENT_RECONCILE') {
+            await processReconcileJob(db, job, paymentProvider);
+          } else if (job.provider === 'META') {
+            await processMetaWebhookJob(db, job);
+          } else {
+            throw new Error(`provider desconhecido: ${job.provider}`);
+          }
+          // Só conclui quem ainda detém o claim: uma execução expirada e reenfileirada
+          // não sobrescreve o resultado da tentativa seguinte.
+          const finished = await db.execute(sql`
         UPDATE webhook_inbox SET status = 'SUCCESS', finished_at = now()
         WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
         RETURNING id
       `);
-      if (finished.rows.length > 0) {
-        jobLog.finished('SUCCESS');
-      } else {
-        jobLog.finished('IGNORED', { reason: 'concluído fora do claim' });
-      }
-      log?.(
-        finished.rows.length > 0
-          ? `inbox ${job.id} (${job.provider}) OK`
-          : `inbox ${job.id} (${job.provider}) concluído fora do claim — resultado ignorado`,
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      const safe = sanitizeError(message);
-      const failed = await db.execute(sql`
+          if (finished.rows.length > 0) {
+            jobLog.finished('SUCCESS');
+          } else {
+            jobLog.finished('IGNORED', { reason: 'concluído fora do claim' });
+          }
+          log?.(
+            finished.rows.length > 0
+              ? `inbox ${job.id} (${job.provider}) OK`
+              : `inbox ${job.id} (${job.provider}) concluído fora do claim — resultado ignorado`,
+          );
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          const safe = sanitizeError(message);
+          const failed = await db.execute(sql`
         UPDATE webhook_inbox
         SET status = CASE WHEN attempts >= ${maxAttemptsFor(job.provider)} THEN 'DEAD' ELSE 'FAILED' END,
             last_error = ${safe}, finished_at = now(),
@@ -323,21 +335,25 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
         RETURNING status
       `);
-      // `rows` vem como Record<string, unknown>: sem tipar, o status cairia em
-      // "[object Object]" no log em vez de FAILED/DEAD.
-      const [outcome] = failed.rows as Array<{ status?: string } | undefined>;
-      const status = outcome?.status ?? 'FAILED';
-      jobLog.failed(status, safe);
-      log?.(`inbox ${job.id} (${job.provider}) ${status}: ${safe}`);
-      if (status === 'DEAD') {
-        onDeadLetter?.({
-          id: job.id,
-          provider: job.provider,
-          attempts: job.attempts,
-          lastError: safe,
-        });
-      }
-    }
+          // `rows` vem como Record<string, unknown>: sem tipar, o status cairia em
+          // "[object Object]" no log em vez de FAILED/DEAD.
+          const [outcome] = failed.rows as Array<{ status?: string } | undefined>;
+          const status = outcome?.status ?? 'FAILED';
+          jobLog.failed(status, safe, err);
+          markSpanError(span, err);
+          span.setAttribute('job.status', status);
+          log?.(`inbox ${job.id} (${job.provider}) ${status}: ${safe}`);
+          if (status === 'DEAD') {
+            onDeadLetter?.({
+              id: job.id,
+              provider: job.provider,
+              attempts: job.attempts,
+              lastError: safe,
+            });
+          }
+        }
+      },
+    );
   }
 
   return { processed: jobs.length };

@@ -1,13 +1,7 @@
 import { performance } from 'node:perf_hooks';
-import {
-  ConfigError,
-  fakeProvidersInUse,
-  loadEnv,
-  loadRuntimeEnv,
-  resolveMetaMode,
-} from '@aluguei/config';
+import { fakeProvidersInUse, loadEnv, loadRuntimeEnv, resolveMetaMode } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
-import { createLogger } from '@aluguei/observability';
+import { createLogger, withSpan } from '@aluguei/observability';
 import { createDb } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import { getChannelAdapter, getMetaAdsProvider } from '@aluguei/integrations';
@@ -132,6 +126,13 @@ export interface WorkerDeps {
   shutdownTimeoutMs?: number;
   /** Ciclo substituto (testes de shutdown). */
   runCycle?: () => Promise<unknown>;
+  /** Telemetria iniciada no ponto de entrada: o shutdown gracioso a encerra por último. */
+  telemetry?: { shutdown(): Promise<void> };
+}
+
+/** Controle devolvido por `run`: encerra do jeito gracioso (sinal, erro fatal ou teste). */
+export interface WorkerHandle {
+  stop(reason: string): Promise<void>;
 }
 
 /** Fecha o pool (pg) ou o banco em memória (PGlite), sem esperar além do limite. */
@@ -170,7 +171,7 @@ async function closeDb(db: AppDb, timeoutMs: number): Promise<boolean> {
  * espera os em andamento até o limite, fecha health e pool e deixa o processo sair sozinho
  * (auditoria 2026-09-10, P2-10). `process.exit` só depois do limite, se algo ainda o segurar.
  */
-export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> {
+export async function run(argv: string[], deps: WorkerDeps = {}): Promise<WorkerHandle> {
   // Sem NODE_ENV, ou em produção sem banco e providers explícitos, lança ConfigError com a
   // lista do que falta (P1-12) — antes de qualquer ciclo.
   const env = loadRuntimeEnv('worker');
@@ -210,7 +211,7 @@ export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> 
       },
     });
     log.info({ processed }, 'worker run-once completed');
-    return;
+    return { stop: () => Promise.resolve() };
   }
 
   const db = deps.db ?? getWorkerDb(env);
@@ -222,15 +223,18 @@ export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> 
     deps.runCycle ??
     (async () => {
       const startedAt = performance.now();
-      const { processed } = await runOnce({
-        env,
-        ...(db ? { db } : {}),
-        logger: log,
-        onDeadLetter,
-        log: (msg: string) => {
-          log.debug({}, msg);
-        },
-      });
+      // Span do ciclo: as queries do claim e os spans de cada job ficam no mesmo trace (P2-11).
+      const { processed } = await withSpan('worker.cycle', {}, () =>
+        runOnce({
+          env,
+          ...(db ? { db } : {}),
+          logger: log,
+          onDeadLetter,
+          log: (msg: string) => {
+            log.debug({}, msg);
+          },
+        }),
+      );
       log.debug(
         { event: 'worker.cycle', processed, durationMs: Math.round(performance.now() - startedAt) },
         'ciclo de jobs concluído',
@@ -266,7 +270,7 @@ export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> 
     stopping ??= shutdown(signal);
   };
 
-  async function shutdown(signal: NodeJS.Signals): Promise<void> {
+  async function shutdown(signal: string): Promise<void> {
     log.info(
       { event: 'worker.stopping', signal, timeoutMs: shutdownTimeoutMs },
       'worker parando: não pega jobs novos e espera os em andamento',
@@ -279,6 +283,7 @@ export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> 
     if (db === dbSingleton) {
       dbSingleton = null;
     }
+    await deps.telemetry?.shutdown();
     process.off('SIGTERM', onSignal);
     process.off('SIGINT', onSignal);
 
@@ -305,15 +310,11 @@ export async function run(argv: string[], deps: WorkerDeps = {}): Promise<void> 
 
   process.on('SIGTERM', onSignal);
   process.on('SIGINT', onSignal);
-}
 
-const entry = process.argv[1] ?? '';
-if (entry.endsWith('index.ts') || entry.endsWith('index.js')) {
-  try {
-    await run(process.argv.slice(2));
-  } catch (err: unknown) {
-    // Configuração inválida: só a lista do que falta, sem pilha.
-    console.error(err instanceof ConfigError ? err.message : err);
-    process.exitCode = 1;
-  }
+  return {
+    stop: (reason: string) => {
+      stopping ??= shutdown(reason);
+      return stopping;
+    },
+  };
 }

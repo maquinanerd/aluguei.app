@@ -1,4 +1,5 @@
 import { performance } from 'node:perf_hooks';
+import { errorDetails } from '@aluguei/observability';
 
 /**
  * Log estruturado por job (auditoria 2026-09-10, P2-10): início, fim e falha, com fila, id,
@@ -24,8 +25,11 @@ export interface JobRef {
 export interface JobLogHandle {
   /** Job concluído: `SUCCESS`, ou `IGNORED` quando outra execução já detinha o claim. */
   finished(status: string, extra?: Record<string, unknown>): void;
-  /** Job com erro: status gravado na fila (`FAILED` ou `DEAD`) e a mensagem já saneada. */
-  failed(status: string, error: string, extra?: Record<string, unknown>): void;
+  /**
+   * Job com erro: status gravado na fila (`FAILED` ou `DEAD`) e a mensagem já saneada. Com o
+   * erro original, o log leva tipo e pilha (captura de erro, P2-11).
+   */
+  failed(status: string, error: string, cause?: unknown, extra?: Record<string, unknown>): void;
 }
 
 export function startJobLog(logger: JobLogger | undefined, ref: JobRef): JobLogHandle {
@@ -39,9 +43,17 @@ export function startJobLog(logger: JobLogger | undefined, ref: JobRef): JobLogH
         'job concluído',
       );
     },
-    failed(status, error, extra = {}) {
+    failed(status, error, cause, extra = {}) {
       logger?.error(
-        { event: 'job.failed', ...ref, status, durationMs: durationMs(), error, ...extra },
+        {
+          event: 'job.failed',
+          ...ref,
+          status,
+          durationMs: durationMs(),
+          error,
+          ...(cause === undefined ? {} : { err: errorDetails(cause, error) }),
+          ...extra,
+        },
         'job falhou',
       );
     },

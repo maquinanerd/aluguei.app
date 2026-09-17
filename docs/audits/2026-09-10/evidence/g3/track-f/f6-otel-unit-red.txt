@@ -1,0 +1,33 @@
+# comando: pnpm --filter @aluguei/observability exec vitest run src/telemetry.test.ts
+# árvore: commit 9fa305f (testes do F-6; observabilidade sem startTelemetry)
+# data (UTC): 2026-09-17T17:55:24Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability
+
+ ❯ src/telemetry.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/telemetry.test.ts [ src/telemetry.test.ts ]
+Error: Cannot find module './telemetry.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability/src/telemetry.test.ts
+ ❯ src/telemetry.test.ts:4:1
+      2| import { afterAll, beforeAll, beforeEach, describe, expect, it } from …
+      3| import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
+      4| import { InMemorySpanExporter, startTelemetry, tracesUrl, withSpan } f…
+       | ^
+      5| import type { Telemetry } from './telemetry.js';
+      6|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  14:55:28
+   Duration  959ms (transform 133ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\observability:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/telemetry.test.ts
+# exit=1

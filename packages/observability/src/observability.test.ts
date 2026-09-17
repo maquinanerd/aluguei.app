@@ -2,7 +2,6 @@ import { Writable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
 import { pino, type Logger } from 'pino';
 import { createLogger } from './logger.js';
-import { initTracer } from './tracer.js';
 
 function captureLog(level: string): { log: Logger; output: () => string } {
   const chunks: Buffer[] = [];
@@ -50,9 +49,5 @@ describe('createLogger', () => {
   });
 });
 
-describe('initTracer', () => {
-  it('retorna lifecycle noop sem endpoint e nunca lança', async () => {
-    const tracer = initTracer({});
-    await expect(tracer.shutdown()).resolves.toBeUndefined();
-  });
-});
+// O antigo `initTracer` (tracer sem instrumentação) saiu no lugar de `startTelemetry`: o caso
+// "sem endpoint não liga nada e o shutdown não falha" está em telemetry.test.ts.

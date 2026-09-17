@@ -13,6 +13,7 @@ import { AUDIT_ACTIONS, DomainError, transitionCampaign, validateBudget } from '
 import type { IMetaAdsProvider, MetaInsights } from '@aluguei/integrations';
 import { writeAudit } from '@aluguei/api/audit';
 import { webhookInbox } from '@aluguei/db';
+import { markSpanError, withSpan } from '@aluguei/observability';
 import { startJobLog } from './job-log.js';
 import type { JobLogger } from './job-log.js';
 
@@ -416,24 +417,37 @@ export async function runMetaJobs(opts: RunMetaJobsOptions): Promise<{ processed
   const jobs = await claimMetaJobs(db, limit);
   let processed = 0;
   for (const job of jobs) {
-    const jobLog = startJobLog(logger, {
-      queue: 'meta',
-      jobId: job.id,
-      jobType: job.jobType,
-      attempt: job.attempts,
-      orgId: job.orgId,
-    });
-    try {
-      await processMetaJob(db, job, meta);
-      await markMetaJobSuccess(db, job.id);
-      jobLog.finished('SUCCESS');
-      processed += 1;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      await markMetaJobFailed(db, job.id, message);
-      jobLog.failed('FAILED', sanitizeError(message));
-      processed += 1;
-    }
+    // Span do job: as queries e as chamadas à Graph API entram no mesmo trace (P2-11).
+    await withSpan(
+      `job ${job.jobType}`,
+      {
+        'job.queue': 'meta',
+        'job.id': job.id,
+        'job.type': job.jobType,
+        'job.attempt': job.attempts,
+        'job.org_id': job.orgId,
+      },
+      async (span) => {
+        const jobLog = startJobLog(logger, {
+          queue: 'meta',
+          jobId: job.id,
+          jobType: job.jobType,
+          attempt: job.attempts,
+          orgId: job.orgId,
+        });
+        try {
+          await processMetaJob(db, job, meta);
+          await markMetaJobSuccess(db, job.id);
+          jobLog.finished('SUCCESS');
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          await markMetaJobFailed(db, job.id, message);
+          jobLog.failed('FAILED', sanitizeError(message), err);
+          markSpanError(span, err);
+        }
+      },
+    );
+    processed += 1;
   }
   return { processed };
 }

@@ -140,7 +140,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: server
-    command: ['node', '--import', 'tsx', 'apps/worker/src/index.ts']
+    command: ['node', '--import', 'tsx', 'apps/worker/src/main.ts']
     environment:
       NODE_ENV: production
       LOG_LEVEL: info

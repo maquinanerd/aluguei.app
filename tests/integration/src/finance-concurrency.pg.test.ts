@@ -94,7 +94,7 @@ function runWorkerProcess(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       process.execPath,
-      ['--import', 'tsx', 'apps/worker/src/index.ts', '--run-once'],
+      ['--import', 'tsx', 'apps/worker/src/main.ts', '--run-once'],
       { cwd: ROOT, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true },
     );
     let output = '';

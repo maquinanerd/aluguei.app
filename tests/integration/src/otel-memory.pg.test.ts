@@ -87,13 +87,14 @@ describe('OTEL com exportador em memória (PostgreSQL real)', () => {
     expect(server?.attributes['http.route']).toBe('/health/ready');
     expect(server?.attributes['http.response.status_code']).toBe(200);
 
+    // Entre os spans de pg do mesmo trace (há também o `pg-pool.connect`), o da query.
     const query = spans.find(
       (span) =>
+        span.name.startsWith('pg.query') &&
         span.attributes['db.system.name'] === 'postgresql' &&
         span.spanContext().traceId === server?.spanContext().traceId,
     );
     expect(query, names).toBeDefined();
-    expect(query?.name).toMatch(/^pg\.query/);
     expect(query?.attributes['db.namespace']).toBe(dbName);
   });
 

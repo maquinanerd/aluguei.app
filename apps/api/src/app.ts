@@ -7,6 +7,7 @@ import type { AppDb } from '@aluguei/db';
 import { createDbFakePaymentStore } from '@aluguei/db';
 import { resolveMetaMode } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
+import { annotateHttpRoute } from '@aluguei/observability';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { StorageService } from '@aluguei/storage';
 import type {
@@ -156,6 +157,13 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
 
   // Env tipado (AppEnv validado por zod) disponível em rotas/plugins.
   app.decorate('env', env);
+
+  // Span do request com a rota do Fastify (`GET /properties/:id`) e `http.route` — sem
+  // telemetria ligada, não faz nada (auditoria 2026-09-10, P2-11).
+  app.addHook('onRequest', (request, _reply, done) => {
+    annotateHttpRoute(request.method, request.routeOptions.url);
+    done();
+  });
 
   await app.register(helmet);
   await app.register(cookie);
