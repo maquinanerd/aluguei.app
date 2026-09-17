@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import {
+  check,
+  date,
   foreignKey,
   index,
   boolean,
@@ -22,8 +25,9 @@ export const parties = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    type: text('type').notNull(), // PERSON | COMPANY (validação na aplicação)
+    type: text('type').notNull(), // PERSON | COMPANY
     name: text('name').notNull(),
+    // ACTIVE | ARCHIVED — arquivar substitui a exclusão (auditoria 2026-09-10, P2-01).
     status: text('status').notNull().default('ACTIVE'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -32,6 +36,8 @@ export const parties = pgTable(
     index('parties_org_idx').on(t.orgId),
     // Alvo de FK composta: a referência passa a carregar a organização (P0-05).
     unique('parties_org_id_unique').on(t.orgId, t.id),
+    check('parties_type_valid', sql`${t.type} in ('PERSON', 'COMPANY')`),
+    check('parties_status_valid', sql`${t.status} in ('ACTIVE', 'ARCHIVED')`),
   ],
 );
 
@@ -72,9 +78,28 @@ export const partyIdentities = pgTable(
   (t) => [
     uniqueIndex('party_identities_org_kind_value_unique').on(t.orgId, t.kind, t.value),
     index('party_identities_party_idx').on(t.partyId),
+    check(
+      'party_identities_kind_valid',
+      sql`${t.kind} in ('EMAIL', 'PHONE', 'CPF', 'CNPJ', 'PASSPORT')`,
+    ),
   ],
 );
 
+/** Tipos de documento da pessoa (domínio fechado, com CHECK). */
+export const PARTY_DOCUMENT_KINDS = [
+  'IDENTITY',
+  'CPF',
+  'PROOF_OF_INCOME',
+  'PROOF_OF_ADDRESS',
+  'MARITAL_STATUS',
+  'COMPANY_BYLAWS',
+  'OTHER',
+] as const;
+
+/**
+ * Documentos da pessoa. A tabela existia órfã (auditoria 2026-09-10, P2-01: nenhuma rota usava);
+ * a trilha D passa a gravar aqui o objeto confirmado no storage.
+ */
 export const partyDocuments = pgTable(
   'party_documents',
   {
@@ -86,10 +111,18 @@ export const partyDocuments = pgTable(
       .notNull()
       .references(() => parties.id, { onDelete: 'cascade' }),
     kind: text('kind').notNull(),
-    documentKey: text('document_key').notNull(), // chave no storage
+    documentKey: text('document_key').notNull().unique(), // chave no storage (idempotência)
+    mimeType: text('mime_type'),
+    sizeBytes: integer('size_bytes'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('party_documents_party_idx').on(t.partyId)],
+  (t) => [
+    index('party_documents_party_idx').on(t.partyId),
+    check(
+      'party_documents_kind_valid',
+      sql`${t.kind} in ('IDENTITY', 'CPF', 'PROOF_OF_INCOME', 'PROOF_OF_ADDRESS', 'MARITAL_STATUS', 'COMPANY_BYLAWS', 'OTHER')`,
+    ),
+  ],
 );
 
 export const partyAddresses = pgTable(
@@ -230,13 +263,26 @@ export const visits = pgTable(
     partyId: uuid('party_id'),
     propertyId: uuid('property_id'),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
-    status: text('status').notNull().default('SCHEDULED'), // SCHEDULED | CONFIRMED | DONE | CANCELLED | NO_SHOW
+    status: text('status').notNull().default('SCHEDULED'), // ciclo validado no domínio (crm/visit.ts)
     note: text('note'),
+    // Ciclo de vida da visita (auditoria 2026-09-10, P2-02).
+    cancelReason: text('cancel_reason'),
+    statusChangedAt: timestamp('status_changed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('visits_org_scheduled_idx').on(t.orgId, t.scheduledAt),
+    index('visits_org_status_idx').on(t.orgId, t.status),
+    check(
+      'visits_status_valid',
+      sql`${t.status} in ('SCHEDULED', 'CONFIRMED', 'DONE', 'CANCELLED', 'NO_SHOW')`,
+    ),
+    // Cancelada sempre tem motivo (o domínio exige; o banco garante).
+    check(
+      'visits_cancel_reason_required',
+      sql`(${t.status} <> 'CANCELLED') or (${t.cancelReason} is not null)`,
+    ),
     foreignKey({
       name: 'visits_lead_org_fk',
       columns: [t.orgId, t.leadId],
@@ -265,16 +311,35 @@ export const proposals = pgTable(
     leadId: uuid('lead_id'),
     partyId: uuid('party_id'),
     propertyId: uuid('property_id'),
-    status: text('status').notNull().default('DRAFT'), // DRAFT | SENT | ACCEPTED | REJECTED | EXPIRED
+    status: text('status').notNull().default('DRAFT'), // ciclo validado no domínio (crm/proposal.ts)
     monthlyRentCents: integer('monthly_rent_cents').notNull(),
     terms: text('terms'),
-    validUntil: timestamp('valid_until', { withTimezone: true }),
+    // Data civil do último dia de validade: a proposta vale o dia inteiro (P2-02).
+    validUntil: date('valid_until', { mode: 'string' }),
+    // Ciclo de vida da proposta (auditoria 2026-09-10, P2-02).
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    decidedAt: timestamp('decided_at', { withTimezone: true }),
+    decisionReason: text('decision_reason'),
     createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('proposals_org_status_idx').on(t.orgId, t.status),
+    index('proposals_valid_until_idx').on(t.status, t.validUntil),
+    check(
+      'proposals_status_valid',
+      sql`${t.status} in ('DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED')`,
+    ),
+    // Enviada sempre tem validade, e recusada sempre tem motivo.
+    check(
+      'proposals_sent_needs_valid_until',
+      sql`(${t.status} = 'DRAFT') or (${t.validUntil} is not null)`,
+    ),
+    check(
+      'proposals_rejected_needs_reason',
+      sql`(${t.status} <> 'REJECTED') or (${t.decisionReason} is not null)`,
+    ),
     unique('proposals_org_id_unique').on(t.orgId, t.id),
     foreignKey({
       name: 'proposals_lead_org_fk',

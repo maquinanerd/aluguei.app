@@ -134,6 +134,13 @@
       "when": 1789660411441,
       "tag": "0019_lease_terms_landlords_amendments",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1789671273880,
+      "tag": "0020_party_visit_proposal_identity",
+      "breakpoints": true
     }
   ]
 }
