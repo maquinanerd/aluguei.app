@@ -1,0 +1,74 @@
+# comando: pnpm --filter @aluguei/domain test
+# árvore: g3/track-d-registries em 8409420 (origin/main) + testes da trilha D, sem implementação
+# data (UTC): 2026-09-17T18:49:30Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain
+
+ ❯ src/values/documents.test.ts (0 test)
+ ❯ src/auth/recovery.test.ts (0 test)
+ ❯ src/crm/proposal.test.ts (0 test)
+ ❯ src/crm/visit.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/auth/recovery.test.ts [ src/auth/recovery.test.ts ]
+Error: Cannot find module './recovery.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain/src/auth/recovery.test.ts
+ ❯ src/auth/recovery.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   assertNewPassword,
+      5|   assertTokenUsable,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/crm/proposal.test.ts [ src/crm/proposal.test.ts ]
+Error: Cannot find module './proposal.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain/src/crm/proposal.test.ts
+ ❯ src/crm/proposal.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   canTransitionProposal,
+      5|   isProposalExpired,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/crm/visit.test.ts [ src/crm/visit.test.ts ]
+Error: Cannot find module './visit.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain/src/crm/visit.test.ts
+ ❯ src/crm/visit.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   canTransitionVisit,
+      5|   isVisitStatus,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/values/documents.test.ts [ src/values/documents.test.ts ]
+Error: Cannot find module './documents.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain/src/values/documents.test.ts
+ ❯ src/values/documents.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   assertValidIdentityValue,
+      5|   formatDocument,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  4 failed | 21 passed (25)
+      Tests  171 passed (171)
+   Start at  15:49:32
+   Duration  2.38s (transform 1.50s, setup 0ms, import 2.25s, tests 361ms, environment 5ms)
+
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\packages\domain:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/domain@0.2.0 test: `vitest run src`
+Exit status 1
+
+# exit=1
