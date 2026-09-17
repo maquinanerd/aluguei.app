@@ -71,9 +71,14 @@ próprio vazio, e a API só sobe depois de `migrate`; como a API subiu no corte 
 a cópia terminou sem erro. Depois do corte nenhum serviço escreveu no banco embutido. O volume
 `aluguei-pgdata` continua no servidor, montado só para leitura pelo serviço `legacy-pgdata`.
 
+Implantado em 2026-09-17 (deployment `ywliscni4xixfdzkmhllpws3`, merge `0673a54`): o registro do
+volume no recurso é o mesmo de antes, agora montado em `/legacy-pgdata`, e o smoke passou 14/14.
+Evidência: `docs/audits/2026-09-10/evidence/deploy/coolify-mcp-2026-09-17-sem-postgres-embutido.txt`
+e `smoke-2026-09-17-sem-postgres-embutido.txt`.
+
 - **Voltar a ler os dados antigos**: acrescentar ao compose um serviço `postgres:17` com
-  `aluguei-pgdata:/var/lib/postgresql/data` e a senha da variável `SERVICE_PASSWORD_64_POSTGRES`, se
-  ela ainda existir no recurso; senão, a senha se redefine pelo socket local do contêiner.
+  `aluguei-pgdata:/var/lib/postgresql/data` e a senha da variável `SERVICE_PASSWORD_64_POSTGRES`, que
+  continuou no recurso depois da saída (conferido pelo MCP em 2026-09-17).
 - **Apagar os dados antigos** (irreversível): tirar `legacy-pgdata` e o volume do compose, implantar
   e apagar o volume em Storages do recurso no painel do Coolify. Só com pedido explícito do usuário.
 
