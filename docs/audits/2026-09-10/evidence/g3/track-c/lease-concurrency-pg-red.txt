@@ -1,0 +1,44 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54331/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/lease-lifecycle-concurrency.pg.test.ts
+# árvore: g3/track-c-finance 710c7b1 + teste novo de concorrência da locação, com lockLease SEM FOR UPDATE (alteração temporária, desfeita logo depois)
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54331), parado e removido ao final
+# data (UTC): 2026-09-17T17:00:44Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:31728) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/lease-lifecycle-concurrency.pg.test.ts (1 test | 1 failed) 4842ms
+     × encerramento ainda não confirmado: a renovação espera, é recusada e não estende o término 1638ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lease-lifecycle-concurrency.pg.test.ts > concorrência real (PostgreSQL): ciclo da locação > encerramento ainda não confirmado: a renovação espera, é recusada e não estende o término
+AssertionError: {"lease":{"id":"15f4b3f7-1ba5-4f88-9dfe-af3bd261cfdc","orgId":"40597d40-ca68-4a8e-bb66-d5a2106a86e8","contractId":"d49596b9-7dd4-435b-97ec-343c908607f1","tenantPartyId":"57d5e587-d2a0-43a2-8b56-42e7389421eb","landlordPartyId":"883c0e40-38ca-4616-af91-413efd5cead8","propertyId":"bec85376-8de8-4238-b92d-3c0a915cf4e4","status":"TERMINATING","startDate":"2026-09-17","endDate":"2031-12-31","monthlyRentCents":100000,"condoFeeCents":null,"lateFeeBps":200,"interestMonthlyBps":100,"dueDay":10,"endReason":"Acordo","createdAt":"2026-09-17T17:00:54.550Z","updatedAt":"2026-09-17T17:00:54.574Z"},"amendment":{"id":"33f2c55b-899c-490e-a4ac-466039546291","kind":"RENEWAL","effectiveFrom":null,"previousEndDate":null,"newEndDate":"2031-12-31","previousRentCents":null,"newRentCents":null,"indexName":null,"adjustmentBps":null,"reason":null,"createdBy":"a29be0da-f2e4-41a1-9d1c-f7b91bd102bb","createdAt":"2026-09-17T17:00:54.569Z"}}: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/lease-lifecycle-concurrency.pg.test.ts:111:58
+    109|     await inFlight;
+    110|     const renewed = await renewal;
+    111|     expect(renewed.status, JSON.stringify(renewed.body)).toBe(409);
+       |                                                          ^
+    112|
+    113|     const [row] = await fx.rows<{ status: string; endDate: string }>(s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  14:00:45
+   Duration  9.82s (transform 2.35s, setup 0ms, import 4.71s, tests 4.84s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/lease-lifecycle-concurrency.pg.test.ts
+# exit=1

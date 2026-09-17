@@ -105,6 +105,28 @@ describe('G3 trilha C — locação pela API', () => {
       expect(res.body.charge).toMatchObject({ dueDate: `${period.slice(0, 8)}05` });
     });
 
+    it('período e vencimento da cobrança só como data civil AAAA-MM-DD', async () => {
+      const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
+      for (const payload of [
+        { dueDate: 'abc' },
+        { dueDate: '2026-10-17T00:00:00.000Z' },
+        { dueDate: '2027-02-30' },
+        { periodStart: '2026-13-01' },
+      ]) {
+        const refused = await fx.call('POST', '/charges', {
+          cookie: lease.cookie,
+          payload: { leaseId: lease.leaseId, ...payload },
+        });
+        expect(refused.status, JSON.stringify({ payload, body: refused.body })).toBe(400);
+      }
+      const accepted = await fx.call('POST', '/charges', {
+        cookie: lease.cookie,
+        payload: { leaseId: lease.leaseId, periodStart: futurePeriod(), dueDate: '2030-01-15' },
+      });
+      expect(accepted.status, JSON.stringify(accepted.body)).toBe(201);
+      expect(accepted.body.charge).toMatchObject({ dueDate: '2030-01-15' });
+    });
+
     it('pagamento de cobrança vencida usa as taxas da locação e a data de São Paulo', async () => {
       const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
       await fx.call('PATCH', `/leases/${lease.leaseId}/terms`, {

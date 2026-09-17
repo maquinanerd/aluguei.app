@@ -1,0 +1,47 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/lease-rules.test.ts src/lib/property-owners.test.ts
+# árvore: g3/track-c-finance 710c7b1 + testes novos lease-rules e property-owners (sem os módulos)
+# data (UTC): 2026-09-17T16:52:33Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+ ❯ src/lib/property-owners.test.ts (0 test)
+ ❯ src/lib/lease-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/lease-rules.test.ts [ src/lib/lease-rules.test.ts ]
+Error: Cannot find module './lease-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/lease-rules.test.ts
+ ❯ src/lib/lease-rules.test.ts:13:1
+     11|   rentForPeriod,
+     12| } from '@aluguei/domain';
+     13| import {
+       | ^
+     14|   describeAmendment,
+     15|   endOutcome,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/property-owners.test.ts [ src/lib/property-owners.test.ts ]
+Error: Cannot find module './property-owners' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/property-owners.test.ts
+ ❯ src/lib/property-owners.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { assertOwnershipTotal, landlordSharesFromOwners } from '@alugu…
+      3| import { ownershipCheck, ownershipExceedsTotal, parseOwnerSharePct } f…
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  13:52:35
+   Duration  724ms (transform 574ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/lease-rules.test.ts src/lib/property-owners.test.ts
+
+# exit=1
