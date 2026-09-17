@@ -40,6 +40,7 @@ export const AUDIT_ACTIONS = {
   CHANNEL_JOB_FAILED: 'channel.job_failed',
   CONVERSATION_CREATED: 'conversation.created',
   CONVERSATION_HANDOFF_REQUESTED: 'conversation.handoff_requested',
+  CONVERSATION_HANDOFF_RETURNED: 'conversation.handoff_returned',
   CONVERSATION_MESSAGE_SENT: 'conversation.message_sent',
   WHATSAPP_WEBHOOK_RECEIVED: 'whatsapp.webhook_received',
   WHATSAPP_INBOX_PROCESSED: 'whatsapp.inbox_processed',

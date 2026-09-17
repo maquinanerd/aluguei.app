@@ -1,8 +1,8 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { conversations, conversationIntents, messages } from '@aluguei/db';
-import { DomainError } from '@aluguei/domain';
+import { conversations, conversationIntents, messages, timelineEvents } from '@aluguei/db';
+import { AUDIT_ACTIONS, DomainError, transitionConversation } from '@aluguei/domain';
 import {
   conversationIntentSchema,
   conversationSchema,
@@ -15,11 +15,14 @@ import {
   listMessagesQuerySchema,
   listMessagesResponseSchema,
   messageSchema,
+  resumeConversationRequestSchema,
+  resumeConversationResponseSchema,
   sendMessageRequestSchema,
   sendMessageResponseSchema,
   uuidSchema,
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
+import { writeAudit } from '../plugins/audit.js';
 import { sendAgentReply } from '../whatsapp/gateway.js';
 
 function toConversationDto(row: typeof conversations.$inferSelect): unknown {
@@ -209,7 +212,67 @@ export const conversationRoutes: FastifyPluginAsync = (app) => {
       if (!updated) {
         throw new Error('handoff update failed');
       }
+      await writeAudit(db, {
+        orgId: auth.orgId,
+        actorUserId: auth.userId,
+        action: AUDIT_ACTIONS.CONVERSATION_HANDOFF_REQUESTED,
+        entityType: 'CONVERSATION',
+        entityId: row.id,
+        payload: { previousStatus: row.status, source: 'team' },
+      });
       return handoffResponseSchema.parse({ conversation: toConversationDto(updated) });
+    },
+  );
+
+  /**
+   * Devolve a conversa ao atendimento automático (P1-18). Enquanto está com a equipe, mensagem
+   * nova não tira do handoff: só esta rota devolve.
+   */
+  app.post(
+    '/conversations/:id/resume',
+    { onRequest: [requirePermission('conversation:write')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const { id } = z.object({ id: uuidSchema }).parse(request.params);
+      resumeConversationRequestSchema.parse(request.body ?? {});
+      const [row] = await db
+        .select()
+        .from(conversations)
+        .where(and(eq(conversations.id, id), eq(conversations.orgId, auth.orgId)))
+        .limit(1);
+      if (!row) {
+        throw new DomainError('NOT_FOUND', 'Conversa não encontrada');
+      }
+      if (row.status !== 'NEEDS_HUMAN') {
+        throw new DomainError('CONFLICT', 'A conversa não está em atendimento humano', {
+          status: row.status,
+        });
+      }
+      const status = transitionConversation(row.status, 'ACTIVE');
+      const [updated] = await db
+        .update(conversations)
+        .set({ status, updatedAt: new Date() })
+        .where(and(eq(conversations.id, row.id), eq(conversations.status, 'NEEDS_HUMAN')))
+        .returning();
+      if (!updated) {
+        throw new DomainError('CONFLICT', 'A conversa mudou de estado durante a devolução');
+      }
+      await db.insert(timelineEvents).values({
+        orgId: auth.orgId,
+        entityType: 'CONVERSATION',
+        entityId: row.id,
+        eventType: 'HANDOFF_RETURNED',
+        payload: {},
+      });
+      await writeAudit(db, {
+        orgId: auth.orgId,
+        actorUserId: auth.userId,
+        action: AUDIT_ACTIONS.CONVERSATION_HANDOFF_RETURNED,
+        entityType: 'CONVERSATION',
+        entityId: row.id,
+        payload: { previousStatus: row.status, status },
+      });
+      return resumeConversationResponseSchema.parse({ conversation: toConversationDto(updated) });
     },
   );
 
