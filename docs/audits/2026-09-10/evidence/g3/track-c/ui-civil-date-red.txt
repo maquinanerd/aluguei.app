@@ -1,0 +1,56 @@
+# comando: pnpm --filter @aluguei/ui exec vitest run src/lib/format.test.ts
+# árvore: g3/track-c-finance 36528d2 + teste novo de formatDate (sem correção)
+# data (UTC): 2026-09-17T16:27:22Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/ui
+
+ ❯ src/lib/format.test.ts (3 tests | 2 failed) 33ms
+     × data civil AAAA-MM-DD sai no mesmo dia 28ms
+     × data inexistente ou vazia vira travessão 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/format.test.ts > formatDate no fuso de São Paulo > data civil AAAA-MM-DD sai no mesmo dia
+AssertionError: expected '09/10/2026' to be '10/10/2026' // Object.is equality
+
+Expected: "10/10/2026"
+Received: "09/10/2026"
+
+ ❯ src/lib/format.test.ts:25:38
+     23|
+     24|   it('data civil AAAA-MM-DD sai no mesmo dia', () => {
+     25|     expect(formatDate('2026-10-10')).toBe('10/10/2026');
+       |                                      ^
+     26|     expect(formatDate('2027-01-01')).toBe('01/01/2027');
+     27|     expect(formatDate('2028-02-29')).toBe('29/02/2028');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/format.test.ts > formatDate no fuso de São Paulo > data inexistente ou vazia vira travessão
+AssertionError: expected '28/02/2027' to be '—' // Object.is equality
+
+Expected: "—"
+Received: "28/02/2027"
+
+ ❯ src/lib/format.test.ts:37:38
+     35|   it('data inexistente ou vazia vira travessão', () => {
+     36|     expect(formatDate('2026-13-45')).toBe('—');
+     37|     expect(formatDate('2027-02-29')).toBe('—');
+       |                                      ^
+     38|     expect(formatDate('')).toBe('—');
+     39|     expect(formatDate(null)).toBe('—');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  13:27:23
+   Duration  518ms (transform 64ms, setup 0ms, import 96ms, tests 33ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\ui:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/format.test.ts
+
+# exit=1

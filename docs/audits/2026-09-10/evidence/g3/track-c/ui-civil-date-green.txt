@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/ui exec vitest run src
+# árvore: g3/track-c-finance 36528d2 + formatDate trata AAAA-MM-DD como data civil
+# data (UTC): 2026-09-17T16:27:35Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/ui
+
+
+ Test Files  5 passed (5)
+      Tests  90 passed (90)
+   Start at  13:27:37
+   Duration  1.20s (transform 877ms, setup 0ms, import 1.33s, tests 167ms, environment 1ms)
+
+
+# exit=0
