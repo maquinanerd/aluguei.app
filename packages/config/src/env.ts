@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const emptyAsUndefined = (value: unknown): unknown => (value === '' ? undefined : value);
+
 /**
  * Schema de configuração da aplicação. Nunca contenha segredos em valores default.
  *
@@ -62,6 +64,17 @@ export const envSchema = z.object({
   META_AD_ACCOUNT_ID: z.string().optional(),
   META_TOKEN_ENCRYPTION_KEY: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
+  // Worker. Vazio vale como ausente (z.coerce leria "" como 0).
+  /** Porta do health HTTP do worker (`GET /health`); ausente: sem servidor de health. */
+  WORKER_HEALTH_PORT: z.preprocess(
+    emptyAsUndefined,
+    z.coerce.number().int().min(0).max(65_535).optional(),
+  ),
+  /** Espera pelos jobs em andamento no SIGTERM/SIGINT; ausente: 20 s. */
+  WORKER_SHUTDOWN_TIMEOUT_MS: z.preprocess(
+    emptyAsUndefined,
+    z.coerce.number().int().positive().optional(),
+  ),
   // Admins da plataforma (e-mails separados por vírgula). Ausente: ninguém é admin.
   PLATFORM_ADMIN_EMAILS: z.string().optional(),
   // Web (Next.js): lidas por apps/web, que não depende deste pacote. Ficam no schema para o

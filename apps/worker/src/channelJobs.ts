@@ -15,6 +15,8 @@ import { DomainError, normalizeEmail, normalizePhone } from '@aluguei/domain';
 import type { ChannelPublicationStatus } from '@aluguei/domain';
 import type { ChannelLeadInput, IListingChannelAdapter } from '@aluguei/integrations';
 import { buildChannelListingInput } from '@aluguei/api/channel-jobs';
+import { startJobLog } from './job-log.js';
+import type { JobLogger } from './job-log.js';
 
 export interface RunChannelJobsOptions {
   db: AppDb;
@@ -22,6 +24,8 @@ export interface RunChannelJobsOptions {
   adapterFor: (channel: string) => IListingChannelAdapter | null;
   limit?: number;
   log?: (msg: string) => void;
+  /** Log estruturado por job (início, fim, falha). */
+  logger?: JobLogger;
 }
 
 interface ClaimedJob {
@@ -30,6 +34,7 @@ interface ClaimedJob {
   listingId: string | null;
   channel: string;
   jobType: string;
+  attempts: number;
   payload: Record<string, unknown> | null;
 }
 
@@ -51,7 +56,7 @@ async function claimJobs(db: AppDb, limit: number): Promise<ClaimedJob[]> {
       LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, org_id, listing_id, channel, job_type, payload
+    RETURNING id, org_id, listing_id, channel, job_type, attempts, payload
   `);
   return result.rows.map((row) => ({
     id: String(row.id),
@@ -59,6 +64,7 @@ async function claimJobs(db: AppDb, limit: number): Promise<ClaimedJob[]> {
     listingId: row.listing_id === null ? null : (row.listing_id as string),
     channel: String(row.channel),
     jobType: String(row.job_type),
+    attempts: Number(row.attempts),
     payload: row.payload ? (row.payload as Record<string, unknown>) : null,
   }));
 }
@@ -274,14 +280,22 @@ async function importLead(
 
 /** Executa um ciclo de jobs de canal. Retorna quantos foram processados. */
 export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ processed: number }> {
-  const { db, adapterFor, limit = 1, log } = opts;
+  const { db, adapterFor, limit = 1, log, logger } = opts;
   const jobs = await claimJobs(db, limit);
   let processed = 0;
 
   for (const job of jobs) {
+    const jobLog = startJobLog(logger, {
+      queue: 'channel',
+      jobId: job.id,
+      jobType: `${job.channel}:${job.jobType}`,
+      attempt: job.attempts,
+      orgId: job.orgId,
+    });
     const adapter = adapterFor(job.channel);
     if (!adapter) {
       await markJobFailed(db, job.id, 'Canal não configurado');
+      jobLog.failed('FAILED', 'Canal não configurado');
       processed += 1;
       continue;
     }
@@ -372,6 +386,7 @@ export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ pro
           throw new DomainError('INVALID_INPUT', `Job type desconhecido: ${job.jobType}`);
       }
       await markJobSuccess(db, job.id);
+      jobLog.finished('SUCCESS');
       log?.(`job ${job.id} (${job.channel}:${job.jobType}) OK`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -381,6 +396,7 @@ export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ pro
         });
       }
       await markJobFailed(db, job.id, message);
+      jobLog.failed('FAILED', message.replace(/https?:\/\/\S+/g, '[url]').slice(0, 500));
       log?.(`job ${job.id} (${job.channel}:${job.jobType}) FAILED: ${message}`);
     }
     processed += 1;

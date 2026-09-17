@@ -13,6 +13,8 @@ import { AUDIT_ACTIONS, DomainError, transitionCampaign, validateBudget } from '
 import type { IMetaAdsProvider, MetaInsights } from '@aluguei/integrations';
 import { writeAudit } from '@aluguei/api/audit';
 import { webhookInbox } from '@aluguei/db';
+import { startJobLog } from './job-log.js';
+import type { JobLogger } from './job-log.js';
 
 export interface RunMetaJobsOptions {
   db: AppDb;
@@ -20,6 +22,8 @@ export interface RunMetaJobsOptions {
   meta: IMetaAdsProvider | null;
   limit?: number;
   log?: (msg: string) => void;
+  /** Log estruturado por job (início, fim, falha). */
+  logger?: JobLogger;
 }
 
 export interface MetaWebhookInboxJob {
@@ -51,6 +55,7 @@ interface ClaimedMetaJob {
   orgId: string;
   adProfileId: string | null;
   jobType: string;
+  attempts: number;
   payload: Record<string, unknown> | null;
 }
 
@@ -71,13 +76,14 @@ async function claimMetaJobs(db: AppDb, limit: number): Promise<ClaimedMetaJob[]
       LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, org_id, ad_profile_id, job_type, payload
+    RETURNING id, org_id, ad_profile_id, job_type, attempts, payload
   `);
   return result.rows.map((row) => ({
     id: String(row.id),
     orgId: String(row.org_id),
     adProfileId: row.ad_profile_id === null ? null : (row.ad_profile_id as string),
     jobType: String(row.job_type),
+    attempts: Number(row.attempts),
     payload: row.payload ? (row.payload as Record<string, unknown>) : null,
   }));
 }
@@ -372,7 +378,7 @@ export async function processMetaJob(
 
 /** Um ciclo de meta_sync_jobs (testável com PGlite). */
 export async function runMetaJobs(opts: RunMetaJobsOptions): Promise<{ processed: number }> {
-  const { db, meta, limit = 10 } = opts;
+  const { db, meta, limit = 10, logger } = opts;
   if (!meta) {
     // Sem provider (produção sem credencial): marca como FAILED para não re-enfileirar infinito.
     const stuck = await db
@@ -389,19 +395,43 @@ export async function runMetaJobs(opts: RunMetaJobsOptions): Promise<{ processed
           finishedAt: new Date(),
         })
         .where(and(eq(metaSyncJobs.id, job.id), eq(metaSyncJobs.status, 'PENDING')));
+      // Sem claim nem execução: só a falha, para o job não sumir do log.
+      logger?.error(
+        {
+          event: 'job.failed',
+          queue: 'meta',
+          jobId: job.id,
+          jobType: job.jobType,
+          attempt: job.attempts,
+          orgId: job.orgId,
+          status: 'FAILED',
+          durationMs: 0,
+          error: 'provider de meta não configurado',
+        },
+        'job falhou',
+      );
     }
     return { processed: stuck.length };
   }
   const jobs = await claimMetaJobs(db, limit);
   let processed = 0;
   for (const job of jobs) {
+    const jobLog = startJobLog(logger, {
+      queue: 'meta',
+      jobId: job.id,
+      jobType: job.jobType,
+      attempt: job.attempts,
+      orgId: job.orgId,
+    });
     try {
       await processMetaJob(db, job, meta);
       await markMetaJobSuccess(db, job.id);
+      jobLog.finished('SUCCESS');
       processed += 1;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       await markMetaJobFailed(db, job.id, message);
+      jobLog.failed('FAILED', sanitizeError(message));
       processed += 1;
     }
   }

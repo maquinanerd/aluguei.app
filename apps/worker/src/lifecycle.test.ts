@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
 import { createTestDb } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import { run } from './index.js';
@@ -63,7 +64,7 @@ function newListener(signal: 'SIGTERM' | 'SIGINT', before: Listener[]): Listener
 
 describe('ciclo de vida do worker (P2-10)', () => {
   let db: AppDb;
-  let exitSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: MockInstance<typeof process.exit>;
   const originalExitCode = process.exitCode;
   const before: Record<'SIGTERM' | 'SIGINT', Listener[]> = { SIGTERM: [], SIGINT: [] };
 

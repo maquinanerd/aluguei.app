@@ -30,11 +30,15 @@ import {
   processReconcileJob,
 } from './paymentJobs.js';
 import { processMetaWebhookJob } from './metaJobs.js';
+import { startJobLog } from './job-log.js';
+import type { JobLogger } from './job-log.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
   limit?: number;
   log?: (msg: string) => void;
+  /** Log estruturado por job (início, fim, falha). */
+  logger?: JobLogger;
   /** Env tipado (loadEnv) — os valores de provider são lidos daqui quando presente. */
   env?: AppEnv;
   ai?: AiProvider;
@@ -166,7 +170,7 @@ async function claimInboxJobs(db: AppDb, limit: number): Promise<InboxJob[]> {
 
 /** Executa um ciclo de processamento do inbox. */
 export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ processed: number }> {
-  const { db, limit = 10, log, env, onDeadLetter } = opts;
+  const { db, limit = 10, log, logger, env, onDeadLetter } = opts;
   await enqueueSchedulerJobs(db, log);
   for (const dead of await reapStuckJobs(db)) {
     log?.(`inbox ${dead.id} (${dead.provider}) DEAD após ${String(dead.attempts)} tentativas`);
@@ -258,6 +262,13 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         })();
 
   for (const job of jobs) {
+    const jobLog = startJobLog(logger, {
+      queue: 'inbox',
+      jobId: job.id,
+      jobType: job.provider,
+      attempt: job.attempts,
+      orgId: job.orgId,
+    });
     try {
       if (job.provider === 'WHATSAPP') {
         await processWhatsAppInboxJob(db, job, ai, messenger);
@@ -291,6 +302,11 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         WHERE id = ${job.id} AND status = 'RUNNING' AND started_at = ${job.startedAt}
         RETURNING id
       `);
+      if (finished.rows.length > 0) {
+        jobLog.finished('SUCCESS');
+      } else {
+        jobLog.finished('IGNORED', { reason: 'concluído fora do claim' });
+      }
       log?.(
         finished.rows.length > 0
           ? `inbox ${job.id} (${job.provider}) OK`
@@ -311,6 +327,7 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
       // "[object Object]" no log em vez de FAILED/DEAD.
       const [outcome] = failed.rows as Array<{ status?: string } | undefined>;
       const status = outcome?.status ?? 'FAILED';
+      jobLog.failed(status, safe);
       log?.(`inbox ${job.id} (${job.provider}) ${status}: ${safe}`);
       if (status === 'DEAD') {
         onDeadLetter?.({
