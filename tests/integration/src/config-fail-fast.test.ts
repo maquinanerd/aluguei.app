@@ -99,8 +99,14 @@ interface Started {
   exited: Promise<number | null>;
 }
 
+/** Os mesmos pontos de entrada do compose da homologação. */
+const ENTRY = {
+  api: 'apps/api/src/index.ts',
+  worker: 'apps/worker/src/main.ts',
+} as const;
+
 function start(app: 'api' | 'worker', env: NodeJS.ProcessEnv): Started {
-  const child = spawn(process.execPath, ['--import', 'tsx', `apps/${app}/src/index.ts`], {
+  const child = spawn(process.execPath, ['--import', 'tsx', ENTRY[app]], {
     cwd: ROOT,
     env: { ...baseEnv(), ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
