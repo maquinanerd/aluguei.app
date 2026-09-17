@@ -1,0 +1,35 @@
+Saída do PostgreSQL embutido — verificação pelo MCP do Coolify, 2026-09-17 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main
+PR: #7, merge 0673a54 (mesclado às 14:44:07)
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada.
+
+--- Deploy (get_deployment ywliscni4xixfdzkmhllpws3)
+status   finished
+commit   0673a54714b455b83d2c5981dbe3adf29352577b
+criado   14:44:32   terminado 14:46:34
+
+--- Volumes do recurso (list_storages)
+antes do deploy (commit a31c88e implantado):
+  rs1y7dkonj3kn63k8dlxsabl  hvwxasfarzxnpnw4fjoerqws_aluguei-pgdata      mount /var/lib/postgresql/data
+  pcivt0mm0mxy4ng4tunko3tu  hvwxasfarzxnpnw4fjoerqws_aluguei-minio-data  mount /data
+depois do deploy (commit 0673a54):
+  rs1y7dkonj3kn63k8dlxsabl  hvwxasfarzxnpnw4fjoerqws_aluguei-pgdata      mount /legacy-pgdata
+  pcivt0mm0mxy4ng4tunko3tu  hvwxasfarzxnpnw4fjoerqws_aluguei-minio-data  mount /data
+O registro do volume do banco embutido é o mesmo (mesmo uuid e nome); só o ponto de montagem
+mudou para o serviço legacy-pgdata, que o monta só para leitura.
+
+--- Estado geral (get_infrastructure_overview, depois do deploy)
+applications_not_running 0, services_not_running 0, databases_not_running 0, open_deployments 0
+
+--- Variáveis (list_env_keys, só nomes)
+SERVICE_PASSWORD_64_POSTGRES continua no recurso (produção e preview) depois do deploy, embora o
+compose não a use mais: a senha do banco embutido segue disponível para voltar a ler os dados.
+
+--- O que o MCP não permite
+get_logs (application) -> "Missing required permissions: read:sensitive". O token não tem
+read:sensitive: não há log dos contêineres (nem do antigo db-copy) nem leitura do conteúdo dos
+bancos. A saída do contêiner postgres antigo também não é observável por esta via; o volume não é
+apagado por deploy em nenhum caso.
+
+Smoke da homologação depois do deploy: smoke-2026-09-17-sem-postgres-embutido.txt (14/14).

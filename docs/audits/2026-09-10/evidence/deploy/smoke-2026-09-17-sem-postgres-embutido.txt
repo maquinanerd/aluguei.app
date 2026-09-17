@@ -1,0 +1,23 @@
+# smoke da homologação — depois do deploy sem o PostgreSQL embutido (main 0673a54, PR #7; deployment ywliscni4xixfdzkmhllpws3)
+# data (UTC): 2026-09-17T14:48:21Z
+# sem conta, sem login, sem escrita: só respostas públicas e de acesso negado
+
+## já existentes (regressão)
+OK   API /health/ready → 200
+OK   API /auth/me sem sessão → 401
+OK   API /platform/organizations sem sessão → 401
+OK   API site público de imobiliária inexistente → 404
+OK   WEB /login → 200
+OK   WEB /plataforma sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login
+OK   API consumo de token do portal inválido → 401
+
+## Track B2
+OK   API GET /channels sem sessão (rota nova) → 401
+OK   API GET /portal/access sem sessão (rota nova) → 401
+OK   WEB → BFF → API GET /channels sem sessão → 401
+OK   WEB /portal/entrar (página nova) → 200
+OK   WEB /portal/entrar sem Referer (meta referrer no-referrer) → yes
+OK   WEB /portal/entrar fora dos buscadores (robots noindex, nofollow) → yes
+OK   WEB /portal/entrar abre o consumo do link → yes
+
+resultado: 14 ok, 0 falhas
