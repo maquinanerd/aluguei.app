@@ -127,6 +127,13 @@
       "when": 1789565536569,
       "tag": "0018_platform_admin_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1789660411441,
+      "tag": "0019_lease_terms_landlords_amendments",
+      "breakpoints": true
     }
   ]
 }
