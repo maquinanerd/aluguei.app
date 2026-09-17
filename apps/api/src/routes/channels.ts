@@ -6,6 +6,7 @@ import type { channelSyncJobs } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  CHANNEL_TYPES,
   isChannelPublicationStatus,
   transitionChannelPublication,
 } from '@aluguei/domain';
@@ -16,6 +17,7 @@ import {
   channelSummarySchema,
   channelTypeSchema,
   importLeadsRequestSchema,
+  listAvailableChannelsResponseSchema,
   listChannelsResponseSchema,
   publishRequestSchema,
   reconcileRequestSchema,
@@ -123,6 +125,16 @@ async function upsertPublication(
 
 export const channelRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  // Canais que podem receber publicação agora: só os que têm adapter configurado (P1-17).
+  app.get('/channels', { onRequest: [requirePermission('listing:read')] }, () =>
+    listAvailableChannelsResponseSchema.parse({
+      channels: CHANNEL_TYPES.map((channel) => ({
+        channel,
+        available: getChannelAdapter(channel, app.channels) !== null,
+      })),
+    }),
+  );
 
   app.post(
     '/listings/:id/channels/:channel/publish',

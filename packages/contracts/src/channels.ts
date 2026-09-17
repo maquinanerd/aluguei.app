@@ -111,3 +111,8 @@ export const channelSummarySchema = z.object({
     }),
   ),
 });
+
+/** Canais que podem receber publicação agora (adapter configurado) — P1-17. */
+export const listAvailableChannelsResponseSchema = z.object({
+  channels: z.array(z.object({ channel: channelTypeSchema, available: z.boolean() })),
+});

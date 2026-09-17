@@ -9,6 +9,8 @@ import { isOrganizationStatus } from '@aluguei/domain';
 import type { OrganizationStatus } from '@aluguei/domain';
 
 export interface PortalAuth {
+  /** Linha de portal_sessions: o logout a revoga no servidor. */
+  sessionId: string;
   partyId: string;
   orgId: string;
   kind: 'LANDLORD' | 'TENANT';
@@ -98,6 +100,7 @@ export const portalSessionPlugin = fp<PortalSessionPluginOptions>((app, opts) =>
       return;
     }
     request.portalAuth = {
+      sessionId: session.id,
       partyId: session.partyId,
       orgId: session.orgId,
       kind: access.kind as 'LANDLORD' | 'TENANT',

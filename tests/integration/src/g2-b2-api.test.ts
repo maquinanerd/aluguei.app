@@ -116,6 +116,59 @@ describe('P1-16: acessos ao portal de uma pessoa, para a tela de concessão', ()
     const other = await registerUser(app);
     expect((await list(other.cookie)).status).toBe(404);
   });
+
+  // A tela oferece "Gerar link de acesso" e "Revogar acesso" em sequência: a concessão
+  // revogada não pode ser confundida com a ativa, e um link novo invalida o anterior.
+  it('gerar o link de novo depois de revogar mantém uma concessão ativa e invalida o link anterior', async () => {
+    const { cookie } = await registerUser(app);
+    const partyId = await createParty(cookie, 'Locatária Link Renovado', '39053344705');
+    const list = async () =>
+      (await call(app, 'GET', `/portal/access?partyId=${partyId}`, { cookie })).body
+        .accesses as AccessRow[];
+
+    await grantTenantAccess(cookie, partyId);
+    const revokedId = (await list())[0]?.id ?? '';
+    const revoke = await call(app, 'POST', `/portal/access/${revokedId}/revoke`, { cookie });
+    expect(revoke.status).toBe(200);
+
+    const replaced = await grantTenantAccess(cookie, partyId);
+    const current = await grantTenantAccess(cookie, partyId);
+
+    const active = (await list()).filter((a) => a.revokedAt === null);
+    expect(active).toHaveLength(1);
+    expect(active[0]?.id).not.toBe(revokedId);
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/portal/auth/consume',
+      payload: { token: replaced },
+    });
+    expect(stale.statusCode).toBe(401);
+    await consume(current);
+  });
+
+  it('dois pedidos de link ao mesmo tempo resultam em uma concessão ativa e um link válido', async () => {
+    const { cookie } = await registerUser(app);
+    const partyId = await createParty(cookie, 'Locatário Link Simultâneo', '15350946056');
+
+    const tokens = await Promise.all([
+      grantTenantAccess(cookie, partyId),
+      grantTenantAccess(cookie, partyId),
+    ]);
+
+    const accesses = (await call(app, 'GET', `/portal/access?partyId=${partyId}`, { cookie })).body
+      .accesses as AccessRow[];
+    expect(accesses.filter((a) => a.revokedAt === null)).toHaveLength(1);
+    const statuses = [];
+    for (const token of tokens) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/portal/auth/consume',
+        payload: { token },
+      });
+      statuses.push(res.statusCode);
+    }
+    expect(statuses.sort()).toEqual([200, 401]);
+  });
 });
 
 describe('P1-17: busca de pessoas para a candidatura', () => {

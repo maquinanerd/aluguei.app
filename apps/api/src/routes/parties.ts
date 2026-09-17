@@ -1,4 +1,5 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { partyAddresses, partyIdentities, partyRoles, parties } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
@@ -93,6 +94,31 @@ function toPartyDto(loaded: LoadedParty): unknown {
     createdAt: loaded.createdAt.toISOString(),
     updatedAt: loaded.updatedAt.toISOString(),
   });
+}
+
+/** `%`, `_` e `\` do texto de busca viram literais no ILIKE. */
+function escapeLikePattern(text: string): string {
+  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/**
+ * Busca de pessoa por trecho do nome, do e-mail ou dos dígitos de CPF, CNPJ ou telefone
+ * (identidades já normalizadas) — combobox da candidatura (P1-17).
+ */
+function partySearch(orgId: string, text: string): SQL | undefined {
+  const pattern = `%${escapeLikePattern(text)}%`;
+  const matches: SQL[] = [
+    ilike(parties.name, pattern),
+    sql`exists (select 1 from ${partyIdentities} pi
+      where pi.party_id = ${parties.id} and pi.org_id = ${orgId} and pi.value ilike ${pattern})`,
+  ];
+  const digits = text.replace(/\D/g, '');
+  if (digits.length >= 3) {
+    matches.push(sql`exists (select 1 from ${partyIdentities} pi
+      where pi.party_id = ${parties.id} and pi.org_id = ${orgId}
+        and pi.kind in ('CPF', 'CNPJ', 'PHONE') and pi.value like ${`%${digits}%`})`);
+  }
+  return or(...matches);
 }
 
 export const partyRoutes: FastifyPluginAsync = (app) => {
@@ -205,7 +231,11 @@ export const partyRoutes: FastifyPluginAsync = (app) => {
       .select()
       .from(parties)
       .where(
-        and(eq(parties.orgId, auth.orgId), query.ids ? inArray(parties.id, query.ids) : undefined),
+        and(
+          eq(parties.orgId, auth.orgId),
+          query.ids ? inArray(parties.id, query.ids) : undefined,
+          query.q ? partySearch(auth.orgId, query.q) : undefined,
+        ),
       )
       .orderBy(desc(parties.createdAt))
       .limit(query.limit)

@@ -4,6 +4,25 @@ import { paymentInitiationResponseSchema } from './finance.js';
 
 export const portalKindSchema = z.enum(['LANDLORD', 'TENANT']);
 
+/** Concessões de acesso ao portal de uma pessoa, para a tela de concessão (P1-16). */
+export const listPortalAccessQuerySchema = z.object({ partyId: uuidSchema });
+
+export const portalAccessSummarySchema = z.object({
+  id: uuidSchema,
+  partyId: uuidSchema,
+  kind: portalKindSchema,
+  createdAt: z.string(),
+  revokedAt: z.string().nullable(),
+  /** Há link de uso único ainda não consumido e dentro da validade. */
+  linkActive: z.boolean(),
+  linkExpiresAt: z.string().nullable(),
+  activeSessions: z.number().int().nonnegative(),
+});
+
+export const listPortalAccessResponseSchema = z.object({
+  accesses: z.array(portalAccessSummarySchema),
+});
+
 export const createPortalAccessRequestSchema = z
   .object({
     partyId: uuidSchema,
