@@ -7,7 +7,8 @@ import type { AppEnv } from '@aluguei/config';
  * `TypeError: this.redis.defineCommand is not a function` — o rate limit recebia o
  * adapter get/set/del em vez de um client ioredis. Nenhum teste conecta num Redis de
  * verdade: o ioredis é substituído por um duplo em memória que executa os comandos Lua
- * do @fastify/rate-limit (contador por chave com janela).
+ * do @fastify/rate-limit (contador por chave com janela). O mock usa o caminho do ioredis
+ * resolvido a partir de @aluguei/integrations, que é quem o importa.
  */
 const redis = vi.hoisted(() => {
   interface Call {
@@ -78,7 +79,10 @@ const redis = vi.hoisted(() => {
   return { FakeRedis };
 });
 
-vi.mock('ioredis', () => ({ default: redis.FakeRedis, Redis: redis.FakeRedis }));
+vi.mock('../../../packages/integrations/node_modules/ioredis', () => ({
+  default: redis.FakeRedis,
+  Redis: redis.FakeRedis,
+}));
 
 const { buildApp } = await import('./app.js');
 
@@ -119,6 +123,8 @@ describe('rate limit com REDIS_URL (P1-14)', () => {
       expect(redis.FakeRedis.instances).toHaveLength(1);
       const client = redis.FakeRedis.instances[0];
       expect(client?.url).toBe('redis://redis.interno:6379');
+      // Nenhuma requisição espera pelo Redis: sem fila offline e uma tentativa por comando.
+      expect(client?.options).toMatchObject({ enableOfflineQueue: false, maxRetriesPerRequest: 1 });
       expect(client?.calls.map((c) => c.command)).toEqual(['rateLimit']);
     } finally {
       await app.close();
@@ -164,7 +170,9 @@ describe('rate limit com REDIS_URL (P1-14)', () => {
   it('fechar a API encerra o client do Redis', async () => {
     const app = await buildApp({ env });
     const client = redis.FakeRedis.instances[0];
+    expect(client).toBeDefined();
     await app.close();
-    expect(client?.closedBy).not.toBeNull();
+    // Nunca conectou (duplo em memória): encerra sem abrir conexão só para sair.
+    expect(client?.closedBy).toBe('disconnect');
   });
 });
