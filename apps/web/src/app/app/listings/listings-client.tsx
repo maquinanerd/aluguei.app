@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  AsyncCombobox,
   Badge,
   Button,
   DataTable,
@@ -15,10 +16,11 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
-import type { Column } from '@aluguei/ui';
+import type { Column, ComboboxOption } from '@aluguei/ui';
 import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { searchProperties, useLookup } from '@/lib/lookup';
 import { label, LISTING_STATUS_LABELS, LISTING_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -59,13 +61,17 @@ function ListingsBody() {
     listings: Listing[];
     total: number;
   }>(queryPath, [queryPath]);
-  const propsQ = useQuery<{ properties: Property[]; total: number }>('/properties?limit=200', []);
+  // Imóvel das linhas da página, por `ids` (antes limit=200 → 400 — P1-01).
+  const propertyLookup = useLookup<Property>(
+    'properties',
+    (data?.listings ?? []).map((l) => l.propertyId),
+  );
 
   const propertyTitle = useMemo(() => {
     const m = new Map<string, string>();
-    for (const p of propsQ.data?.properties ?? []) m.set(p.id, p.title);
+    for (const p of propertyLookup.map.values()) m.set(p.id, p.title);
     return m;
-  }, [propsQ.data]);
+  }, [propertyLookup.map]);
 
   const listings = useMemo(() => {
     const rows = data?.listings ?? [];
@@ -238,7 +244,6 @@ function ListingsBody() {
         onClose={() => {
           setCreateOpen(false);
         }}
-        properties={propsQ.data?.properties ?? []}
         onCreated={() => {
           toast.success('Listing criado');
           setCreateOpen(false);
@@ -252,32 +257,31 @@ function ListingsBody() {
 function CreateListingModal({
   open,
   onClose,
-  properties,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
-  properties: Property[];
   onCreated: () => void;
 }) {
   const toast = useToast();
-  const [propertyId, setPropertyId] = useState('');
+  // Imóvel buscado no servidor: o select com limit=200 ficava vazio (P1-01).
+  const [property, setProperty] = useState<ComboboxOption | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.SyntheticEvent) {
     e.preventDefault();
-    if (!propertyId || !title.trim()) return;
+    if (!property || !title.trim()) return;
     setBusy(true);
     try {
       const body: { propertyId: string; title: string; description?: string } = {
-        propertyId,
+        propertyId: property.value,
         title: title.trim(),
       };
       if (description.trim()) body.description = description.trim();
       await apiClient('/listings', { method: 'POST', body });
-      setPropertyId('');
+      setProperty(null);
       setTitle('');
       setDescription('');
       onCreated();
@@ -312,15 +316,13 @@ function CreateListingModal({
           void submit(e);
         }}
       >
-        <Select
+        <AsyncCombobox
           label="Imóvel"
           required
-          value={propertyId}
-          onChange={(e) => {
-            setPropertyId(e.target.value);
-          }}
-          placeholder="Selecione o imóvel…"
-          options={properties.map((p) => ({ value: p.id, label: p.title }))}
+          value={property}
+          onChange={setProperty}
+          loadOptions={searchProperties}
+          placeholder="Buscar imóvel pelo título…"
         />
         <Input
           label="Título do anúncio"

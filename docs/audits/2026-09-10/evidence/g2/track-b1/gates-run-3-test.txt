@@ -1,0 +1,394 @@
+# comando: pnpm test --force
+# árvore: commit a089f5e (g2/track-b1-web, rodada 3 dos gates, sem cache)
+# data (UTC): 2026-09-15T19:25:48Z
+$ turbo run test "--force"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running test in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/domain:build: cache bypass, force executing e20cc2725d67ab61
+@aluguei/db:build: cache bypass, force executing eb1f1f2375c83db8
+@aluguei/config:build: cache bypass, force executing d1711655a1b636d6
+@aluguei/contracts:build: cache bypass, force executing 7ca088c02ac91d4f
+@aluguei/storage:build: cache bypass, force executing 49f45905d1725690
+@aluguei/contracts:test: cache bypass, force executing 294b2d485afceb18
+@aluguei/domain:test: cache bypass, force executing 056efdbfdea314bd
+@aluguei/observability:build: cache bypass, force executing b1251b5b82200219
+@aluguei/config:test: cache bypass, force executing 9db3592c8ab9971f
+@aluguei/observability:test: cache bypass, force executing 628e14b3b163dd07
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/domain:test: $ vitest run src
+@aluguei/contracts:test: $ vitest run src
+@aluguei/observability:test: $ vitest run src
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/config:test: $ vitest run src
+@aluguei/domain:test: 
+@aluguei/domain:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/domain
+@aluguei/domain:test: 
+@aluguei/contracts:test: 
+@aluguei/contracts:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/contracts
+@aluguei/contracts:test: 
+@aluguei/observability:test: 
+@aluguei/observability:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/observability
+@aluguei/observability:test: 
+@aluguei/config:test: 
+@aluguei/config:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/config
+@aluguei/config:test: 
+@aluguei/contracts:test:  ✓ src/meta.test.ts (4 tests) 16ms
+@aluguei/domain:test:  ✓ src/auth/password.test.ts (2 tests) 231ms
+@aluguei/domain:test:  ✓ src/property/listing.test.ts (6 tests) 8ms
+@aluguei/domain:test:  ✓ src/inspection/inspection.test.ts (9 tests) 11ms
+@aluguei/domain:test:  ✓ src/rental/rental.test.ts (17 tests) 17ms
+@aluguei/domain:test:  ✓ src/finance/finance.test.ts (12 tests) 13ms
+@aluguei/config:test:  ✓ src/env.test.ts (4 tests) 30ms
+@aluguei/config:test: 
+@aluguei/config:test:  Test Files  1 passed (1)
+@aluguei/config:test:       Tests  4 passed (4)
+@aluguei/config:test:    Start at  16:25:55
+@aluguei/config:test:    Duration  1.48s (transform 91ms, setup 0ms, import 270ms, tests 30ms, environment 0ms)
+@aluguei/config:test: 
+@aluguei/mobile:test: cache bypass, force executing 8ab6b4ec7c7db0bb
+@aluguei/domain:test:  ✓ src/crm/dedupe.test.ts (4 tests) 10ms
+@aluguei/domain:test:  ✓ src/whatsapp/intents.test.ts (5 tests) 11ms
+@aluguei/domain:test:  ✓ src/authz/rbac.test.ts (5 tests) 8ms
+@aluguei/domain:test:  ✓ src/meta/meta.test.ts (16 tests) 13ms
+@aluguei/domain:test:  ✓ src/portal/portal.test.ts (9 tests) 53ms
+@aluguei/contracts:test:  ✓ src/contracts.test.ts (3 tests) 12ms
+@aluguei/contracts:test: 
+@aluguei/contracts:test:  Test Files  2 passed (2)
+@aluguei/contracts:test:       Tests  7 passed (7)
+@aluguei/contracts:test:    Start at  16:25:53
+@aluguei/contracts:test:    Duration  4.11s (transform 1.79s, setup 0ms, import 2.37s, tests 27ms, environment 14ms)
+@aluguei/contracts:test: 
+@aluguei/storage:test: cache bypass, force executing 876c6c30eb523b48
+@aluguei/domain:test:  ✓ src/channel/publication.test.ts (5 tests) 8ms
+@aluguei/domain:test:  ✓ src/crm/funnel.test.ts (6 tests) 9ms
+@aluguei/domain:test:  ✓ src/contract/variables.test.ts (5 tests) 9ms
+@aluguei/domain:test:  ✓ src/rental/screening.test.ts (2 tests) 7ms
+@aluguei/domain:test:  ✓ src/values/identifiers.test.ts (4 tests) 7ms
+@aluguei/domain:test: 
+@aluguei/domain:test:  Test Files  15 passed (15)
+@aluguei/domain:test:       Tests  107 passed (107)
+@aluguei/domain:test:    Start at  16:25:52
+@aluguei/domain:test:    Duration  5.33s (transform 9.85s, setup 0ms, import 11.29s, tests 412ms, environment 3ms)
+@aluguei/domain:test: 
+@aluguei/mobile:test: $ vitest run src
+@aluguei/observability:test: {"level":30,"time":1789500359563,"pid":19904,"hostname":"DESKTOP-STB662P","probe":true,"msg":"logger ok"}
+@aluguei/observability:test:  ✓ src/observability.test.ts (4 tests) 33ms
+@aluguei/observability:test: 
+@aluguei/observability:test:  Test Files  1 passed (1)
+@aluguei/observability:test:       Tests  4 passed (4)
+@aluguei/observability:test:    Start at  16:25:54
+@aluguei/observability:test:    Duration  5.00s (transform 691ms, setup 0ms, import 3.44s, tests 33ms, environment 0ms)
+@aluguei/observability:test: 
+@aluguei/storage:test: $ vitest run src
+@aluguei/integrations:build: cache bypass, force executing 2b6b9b233427c580
+@aluguei/integrations:test: cache bypass, force executing 996d4e8720d88151
+@aluguei/mobile:test: (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+@aluguei/mobile:test:   - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+@aluguei/mobile:test: Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+@aluguei/mobile:test: 
+@aluguei/mobile:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/mobile
+@aluguei/mobile:test: 
+@aluguei/ui:build: cache bypass, force executing 0c22cd13647363ac
+@aluguei/ui:test: cache bypass, force executing 5bee4da85ea06e81
+@aluguei/tests-contract:test: cache bypass, force executing b9c0b012ed0edf19
+@aluguei/mobile:test:  ✓ src/api.test.ts (5 tests) 12ms
+@aluguei/mobile:test: 
+@aluguei/mobile:test:  Test Files  1 passed (1)
+@aluguei/mobile:test:       Tests  5 passed (5)
+@aluguei/mobile:test:    Start at  16:26:00
+@aluguei/mobile:test:    Duration  593ms (transform 61ms, setup 0ms, import 94ms, tests 12ms, environment 0ms)
+@aluguei/mobile:test: 
+@aluguei/storage:test: 
+@aluguei/storage:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/storage
+@aluguei/storage:test: 
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/integrations:test: $ vitest run src
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/storage:test:  ✓ src/s3.adapter.test.ts (8 tests) 89ms
+@aluguei/ui:test: $ vitest run src
+@aluguei/storage:test: 
+@aluguei/storage:test:  Test Files  1 passed (1)
+@aluguei/storage:test:       Tests  8 passed (8)
+@aluguei/storage:test:    Start at  16:26:01
+@aluguei/storage:test:    Duration  1.09s (transform 74ms, setup 0ms, import 458ms, tests 89ms, environment 0ms)
+@aluguei/storage:test: 
+@aluguei/tests-contract:test: $ vitest run src
+@aluguei/integrations:test: 
+@aluguei/integrations:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/integrations
+@aluguei/integrations:test: 
+@aluguei/ui:test: 
+@aluguei/ui:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/ui
+@aluguei/ui:test: 
+@aluguei/tests-contract:test: 
+@aluguei/tests-contract:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/tests/contract
+@aluguei/tests-contract:test: 
+@aluguei/integrations:test:  ✓ src/geocoding/google.test.ts (3 tests) 108ms
+@aluguei/integrations:test:  ✓ src/signature/clicksign.test.ts (14 tests) 127ms
+@aluguei/ui:test:  ✓ src/lib/money.test.ts (63 tests) 25ms
+@aluguei/ui:test:  ✓ src/components/MoneyInput.test.tsx (4 tests) 25ms
+@aluguei/ui:test:  ✓ src/components/AsyncCombobox.test.tsx (14 tests) 27ms
+@aluguei/integrations:test:  ✓ src/signature/document.test.ts (4 tests) 364ms
+@aluguei/integrations:test:  ✓ src/ai/openai.test.ts (9 tests) 127ms
+@aluguei/integrations:test:  ✓ src/inspection-ai/openai.test.ts (10 tests) 283ms
+@aluguei/integrations:test:  ✓ src/whatsapp/whatsapp.test.ts (17 tests) 156ms
+@aluguei/integrations:test:  ✓ src/payments/asaas.test.ts (25 tests) 130ms
+@aluguei/integrations:test:  ✓ src/meta-ads/graph.test.ts (23 tests) 1258ms
+@aluguei/integrations:test:      ✓ 429 é retryable com backoff simples (segunda tentativa ok)  1002ms
+@aluguei/ui:test:  ✓ src/ui.test.tsx (6 tests) 67ms
+@aluguei/ui:test: 
+@aluguei/ui:test:  Test Files  4 passed (4)
+@aluguei/ui:test:       Tests  87 passed (87)
+@aluguei/ui:test:    Start at  16:26:04
+@aluguei/ui:test:    Duration  3.03s (transform 3.23s, setup 0ms, import 3.91s, tests 144ms, environment 1ms)
+@aluguei/ui:test: 
+@aluguei/tests-contract:test:  ✓ src/boundaries.test.ts (10 tests) 24ms
+@aluguei/tests-contract:test: 
+@aluguei/tests-contract:test:  Test Files  1 passed (1)
+@aluguei/tests-contract:test:       Tests  10 passed (10)
+@aluguei/tests-contract:test:    Start at  16:26:04
+@aluguei/tests-contract:test:    Duration  2.46s (transform 1.06s, setup 0ms, import 1.50s, tests 24ms, environment 0ms)
+@aluguei/tests-contract:test: 
+@aluguei/integrations:test:  ✓ src/places/places.test.ts (12 tests) 169ms
+@aluguei/integrations:test:  ✓ src/ai/gemini.test.ts (7 tests) 119ms
+@aluguei/integrations:test:  ✓ src/geocoding/mock.test.ts (3 tests) 11ms
+@aluguei/integrations:test:  ✓ src/screening/serasa.test.ts (7 tests) 18ms
+@aluguei/integrations:test:  ✓ src/redis/adapter.test.ts (3 tests) 9ms
+@aluguei/integrations:test:  ✓ src/ai/registry.test.ts (7 tests) 8ms
+@aluguei/integrations:test:  ✓ src/inspection-ai/registry.test.ts (5 tests) 9ms
+@aluguei/integrations:test:  ✓ src/meta-ads/meta-ads.test.ts (9 tests) 15ms
+@aluguei/integrations:test: 
+@aluguei/integrations:test:  Test Files  16 passed (16)
+@aluguei/integrations:test:       Tests  158 passed (158)
+@aluguei/integrations:test:    Start at  16:26:03
+@aluguei/integrations:test:    Duration  5.18s (transform 7.97s, setup 0ms, import 13.01s, tests 2.91s, environment 5ms)
+@aluguei/integrations:test: 
+@aluguei/web:test: cache bypass, force executing 609782d22bfbb546
+@aluguei/meta-mcp:test: cache bypass, force executing e692cc589795d63b
+@aluguei/api:build: cache bypass, force executing 72839e79fb34d05f
+@aluguei/api:test: cache bypass, force executing 5ba7d38d6eb50bd0
+@aluguei/web:test: $ vitest run src
+@aluguei/meta-mcp:test: $ vitest run src
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/web:test: 
+@aluguei/web:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+@aluguei/web:test: 
+@aluguei/api:test: $ vitest run src
+@aluguei/web:test:  ✓ src/lib/logout.test.ts (5 tests) 50ms
+@aluguei/web:test:  ✓ src/lib/money-parsing-guard.test.ts (1 test) 41ms
+@aluguei/web:test:  ✓ src/lib/api-server.test.ts (10 tests) 28ms
+@aluguei/web:test:  ✓ src/app/api/backend/[...path]/route.test.ts (6 tests) 27ms
+@aluguei/meta-mcp:test: 
+@aluguei/meta-mcp:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/meta-mcp
+@aluguei/meta-mcp:test: 
+@aluguei/api:test: 
+@aluguei/api:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/api
+@aluguei/api:test: 
+@aluguei/web:test:  ✓ src/lib/credit-decision.test.ts (15 tests) 10ms
+@aluguei/web:test:  ✓ src/components/page-toolbar.test.tsx (1 test) 15ms
+@aluguei/web:test:  ✓ src/app/app/properties/new/address-search.test.tsx (4 tests) 21ms
+@aluguei/web:test:  ✓ src/app/dev/calibration/page.test.tsx (2 tests) 20ms
+@aluguei/web:test:  ✓ src/app/page.test.tsx (1 test) 20ms
+@aluguei/web:test:  ✓ src/app/imoveis/page.test.tsx (1 test) 57ms
+@aluguei/web:test:  ✓ src/lib/api-limits.test.ts (3 tests) 10ms
+@aluguei/web:test:  ✓ src/lib/inspection-suggestions.test.ts (10 tests) 9ms
+@aluguei/web:test:  ✓ src/lib/labels.test.ts (3 tests) 6ms
+@aluguei/web:test:  ✓ src/lib/contract-template-hints.test.ts (3 tests) 8ms
+@aluguei/web:test:  ✓ src/lib/contract-rules.test.ts (9 tests) 9ms
+@aluguei/web:test: 
+@aluguei/web:test:  Test Files  15 passed (15)
+@aluguei/web:test:       Tests  74 passed (74)
+@aluguei/web:test:    Start at  16:26:11
+@aluguei/web:test:    Duration  3.65s (transform 7.03s, setup 0ms, import 10.25s, tests 332ms, environment 5ms)
+@aluguei/web:test: 
+@aluguei/api:test:  ✓ src/routes/properties-dto.test.ts (4 tests) 16ms
+@aluguei/api:test: (node:10736) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/api:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/api:test:  ✓ src/app.test.ts (1 test) 360ms
+@aluguei/api:test:      ✓ responde 200 com body válido pelo contrato  357ms
+@aluguei/api:test: 
+@aluguei/api:test:  Test Files  2 passed (2)
+@aluguei/api:test:       Tests  5 passed (5)
+@aluguei/api:test:    Start at  16:26:13
+@aluguei/api:test:    Duration  5.17s (transform 2.43s, setup 0ms, import 6.33s, tests 376ms, environment 0ms)
+@aluguei/api:test: 
+@aluguei/meta-mcp:test:  ✓ src/stdio.test.ts (7 tests) 3422ms
+@aluguei/meta-mcp:test: 
+@aluguei/meta-mcp:test:  Test Files  1 passed (1)
+@aluguei/meta-mcp:test:       Tests  7 passed (7)
+@aluguei/meta-mcp:test:    Start at  16:26:12
+@aluguei/meta-mcp:test:    Duration  7.61s (transform 993ms, setup 0ms, import 3.26s, tests 3.42s, environment 0ms)
+@aluguei/meta-mcp:test: 
+@aluguei/worker:test: cache bypass, force executing f71566f5e55102fd
+@aluguei/worker:build: cache bypass, force executing 1a9d1935fe027abf
+@aluguei/worker:test: $ vitest run src
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/worker:test: 
+@aluguei/worker:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/worker
+@aluguei/worker:test: 
+@aluguei/worker:test:  ✓ src/channelJobs.test.ts (2 tests) 3038ms
+@aluguei/tests-integration:test: cache bypass, force executing 82b54f7bad00cb4a
+@aluguei/tests-integration:test: $ vitest run src
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test:  RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/tests/integration
+@aluguei/tests-integration:test: 
+@aluguei/worker:test:  ✓ src/metaJobs.test.ts (5 tests) 3403ms
+@aluguei/worker:test: {"level":30,"time":1789500396926,"pid":5732,"hostname":"DESKTOP-STB662P","runOnce":true,"msg":"worker started"}
+@aluguei/worker:test: {"level":30,"time":1789500396927,"pid":5732,"hostname":"DESKTOP-STB662P","msg":"DATABASE_URL ausente — pulando ciclo de jobs"}
+@aluguei/worker:test: {"level":30,"time":1789500396928,"pid":5732,"hostname":"DESKTOP-STB662P","processed":0,"msg":"worker run-once completed"}
+@aluguei/worker:test:  ✓ src/index.test.ts (1 test) 10ms
+@aluguei/worker:test:  ✓ src/heartbeat.test.ts (1 test) 6ms
+@aluguei/worker:test: 
+@aluguei/worker:test:  Test Files  4 passed (4)
+@aluguei/worker:test:       Tests  9 passed (9)
+@aluguei/worker:test:    Start at  16:26:24
+@aluguei/worker:test:    Duration  12.21s (transform 960ms, setup 0ms, import 4.73s, tests 6.46s, environment 0ms)
+@aluguei/worker:test: 
+@aluguei/tests-integration:test:  ✓ src/migrations-track-a.test.ts (4 tests) 8677ms
+@aluguei/tests-integration:test:      ✓ 0014 (P0-04): contrato assinado e depois regenerado aborta; contrato íntegro vira versão 1  2999ms
+@aluguei/tests-integration:test:      ✓ 0015 (P1-06): crédito aprovado sem análise aborta; decisão do worker ganha origem e contrato ativo leva a CONTRACTING  2067ms
+@aluguei/tests-integration:test:      ✓ 0016 (P1-11): envelope gravado como FAKE com id de provider real aborta; envelope FAKE legítimo segue  1822ms
+@aluguei/tests-integration:test:      ✓ 0017 (P1-05): sugestão gravada com a ação vira ACCEPTED/REJECTED/EDITED; status desconhecido aborta  1765ms
+@aluguei/tests-integration:test: (node:24940) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/cross-org-reference.test.ts (30 tests) 3389ms
+@aluguei/tests-integration:test: (node:14304) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/dedupe.test.ts (3 tests) 2679ms
+@aluguei/tests-integration:test: (node:26012) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/rbac.test.ts (3 tests) 2768ms
+@aluguei/tests-integration:test: (node:24620) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/cross-org.test.ts (3 tests) 2791ms
+@aluguei/tests-integration:test: (node:25996) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test: (node:25996) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test:  ✓ src/finance-integrity.test.ts (14 tests) 7559ms
+@aluguei/tests-integration:test:      ✓ P0-01: dois processamentos simultâneos do mesmo pagamento → um crédito, um split, um repasse  393ms
+@aluguei/tests-integration:test:      ✓ P0-03: reemissão reaproveita a tentativa pendente e o QR substituído, se pago, não se perde  307ms
+@aluguei/tests-integration:test:      ✓ produção sem ASAAS_WEBHOOK_TOKEN → 500 (configuração incorreta) e nada enfileirado  1824ms
+@aluguei/tests-integration:test: (node:26400) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/auth.flow.test.ts (7 tests) 2870ms
+@aluguei/tests-integration:test: (node:15936) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/reporting.test.ts (5 tests) 2954ms
+@aluguei/tests-integration:test: (node:26940) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/webhook-security.test.ts (14 tests) 2964ms
+@aluguei/tests-integration:test: (node:13848) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/meta.test.ts (7 tests) 3584ms
+@aluguei/tests-integration:test: (node:27424) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/whatsapp.test.ts (6 tests) 3106ms
+@aluguei/tests-integration:test: (node:19188) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test: stdout | src/screening-contracts.test.ts > Fase 07: Screening + Contracts + Signature > fluxo completo: consent → submit → screening APPROVE → contract → generate → SIGNED
+@aluguei/tests-integration:test: APPROVE: 200 {"template":{"id":"289cf1f9-ee95-4d96-a697-1ecfb3ca02d9","orgId":"6d846224-50ac-4c13-801e-3d505f7b107b","name":"Contrato Locação","version":1,"status"
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/screening-contracts.test.ts > Fase 07: Screening + Contracts + Signature > fluxo completo: consent → submit → screening APPROVE → contract → generate → SIGNED
+@aluguei/tests-integration:test: GEN: 200 {"contract":{"contract":{"id":"1fe0372d-3699-4f8a-bddb-35a40a4db212","orgId":"6d846224-50ac-4c13-801e-3d505f7b107b","templateId":"289cf1f9-ee95-4d96-a697-1ecfb3ca02d9","applicationId":"bf296345-7268-4
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/screening-contracts.test.ts > Fase 07: Screening + Contracts + Signature > fluxo completo: consent → submit → screening APPROVE → contract → generate → SIGNED
+@aluguei/tests-integration:test: SEND: 201 {"envelope":{"id":"ff1cc3f8-b348-4754-ba26-e9563fc68a15","contractId":"1fe0372d-3699-4f8a-bddb-35a40a4db212","provider":"FAKE","providerEnvelopeId":"e
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/screening-contracts.test.ts > Fase 07: Screening + Contracts + Signature > template APPROVED imutável: geração usa variáveis e hash confere
+@aluguei/tests-integration:test: GEN: 200 {"contract":{"contract":{"id":"3d91e098-d9e1-452c-9e42-ebf5a9132d49","orgId":"cf1803ff-35f0-4d72-a765-059a292bd7a7","templateId":"4af33aba-a6b7-4718-b0fb-d2639a70bd45","applicationId":"3177e852-3642-4
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test:  ✓ src/screening-contracts.test.ts (5 tests) 3533ms
+@aluguei/tests-integration:test:      ✓ fluxo completo: consent → submit → screening APPROVE → contract → generate → SIGNED  333ms
+@aluguei/tests-integration:test: (node:23692) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/finance.test.ts (3 tests) 3251ms
+@aluguei/tests-integration:test:      ✓ fluxo R$1000 com comissão 10%: lease→charge→payment→webhook→ledger balanceado→payout  385ms
+@aluguei/tests-integration:test: (node:20036) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/crm.flow.test.ts (5 tests) 2877ms
+@aluguei/tests-integration:test: (node:25424) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/e2e-critical.test.ts (1 test) 3021ms
+@aluguei/tests-integration:test:      ✓ imóvel → anúncio → lead → contrato → locação → cobrança → pagamento → portal  456ms
+@aluguei/tests-integration:test: (node:9396) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/properties.test.ts (8 tests) 3597ms
+@aluguei/tests-integration:test: (node:26080) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/credit-decision.test.ts (8 tests) 3612ms
+@aluguei/tests-integration:test: (node:13988) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/contract-immutability.test.ts (8 tests) 4159ms
+@aluguei/tests-integration:test:      ✓ SIGNED: regenerar → 409; status, conteúdo, hash e assinatura intactos  356ms
+@aluguei/tests-integration:test: (node:20268) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/dashboard-summary.test.ts (4 tests) 2938ms
+@aluguei/tests-integration:test: (node:25808) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/channels.test.ts (7 tests) 3316ms
+@aluguei/tests-integration:test: (node:25052) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: INBOX: scheduler jobs enqueued
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: INBOX: inbox ece01a4f-23c5-4f87-938a-8846f456864b (PAYMENT_RECONCILE) OK
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: INBOX: inbox 53e086ea-c07c-4dc4-befe-6f38fca3b2fc (PAYMENT_SCHEDULER) OK
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: INBOX: inbox da1e9af8-5a53-4368-bf52-3cd704de23b3 (INSPECTION) OK
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: INBOX result: {"processed":3}
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > ciclo completo: create→rooms→media→process→REVIEW→observações→COMPLETED
+@aluguei/tests-integration:test: AGG status: REVIEW | transcripts: ["PROCESSED"] | suggestions: 1
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > comparação entrada×saída produz differences
+@aluguei/tests-integration:test: compare status codes: 200 200 200 200
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > comparação entrada×saída produz differences
+@aluguei/tests-integration:test: compare status codes: 200 200 200 200
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test: stdout | src/inspections.test.ts > Fase 06: Inspections + AI > comparação entrada×saída produz differences
+@aluguei/tests-integration:test: COMPARE: 201 {"id":"3cb65fb7-3de9-447f-ab6a-fac335387848","checkinInspectionId":"86e59c47-eb33-4a5b-a19c-2db3190c1adf","checkoutInspectionId":"bd6462fe-7695-4d29-b26c-a3a2bf02c308","status":"COMPLETED","difference
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test:  ✓ src/inspections.test.ts (6 tests) 3272ms
+@aluguei/tests-integration:test: (node:14240) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/contract-document-events.test.ts (4 tests) 3688ms
+@aluguei/tests-integration:test:      ✓ PATCH /contracts/:id/status VOID → 200 com o agregado; transição inválida → 409 sem escrita  376ms
+@aluguei/tests-integration:test: (node:16340) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/signature-provider.test.ts (2 tests) 3076ms
+@aluguei/tests-integration:test:      ✓ envelope gravado com o provider configurado (CLICKSIGN) e o PDF da versão enviada  321ms
+@aluguei/tests-integration:test: (node:20616) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/portal.test.ts (4 tests) 2932ms
+@aluguei/tests-integration:test: (node:18328) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/hardening.test.ts (7 tests) 3012ms
+@aluguei/tests-integration:test: (node:25172) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+@aluguei/tests-integration:test: (Use `node --trace-warnings ...` to show where the warning was created)
+@aluguei/tests-integration:test:  ✓ src/list-search.test.ts (11 tests) 2834ms
+@aluguei/tests-integration:test: 
+@aluguei/tests-integration:test:  Test Files  26 passed (26)
+@aluguei/tests-integration:test:       Tests  179 passed (179)
+@aluguei/tests-integration:test:    Start at  16:26:31
+@aluguei/tests-integration:test:    Duration  138.82s (transform 2.04s, setup 0ms, import 40.47s, tests 92.46s, environment 3ms)
+@aluguei/tests-integration:test: 
+
+ Tasks:    24 successful, 24 total
+Cached:    0 cached, 24 total
+  Time:    3m2.034s 
+
+# exit=0

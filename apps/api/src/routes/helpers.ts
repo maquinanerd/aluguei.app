@@ -120,8 +120,14 @@ export function toUserDto(u: UserRow): { id: string; email: string; name: string
   return { id: u.id, email: u.email, name: u.name };
 }
 
-export function toOrgDto(o: OrgRow): { id: string; name: string; slug: string } {
-  return { id: o.id, name: o.name, slug: o.slug };
+export function toOrgDto(o: OrgRow): {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  statusReason: string | null;
+} {
+  return { id: o.id, name: o.name, slug: o.slug, status: o.status, statusReason: o.statusReason };
 }
 
 export function toMembershipDto(m: MembershipRow): {

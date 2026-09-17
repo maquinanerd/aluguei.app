@@ -1,0 +1,78 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/api-limits.test.ts
+# base: 0585fc6 + teste novo, sem correção (RED)
+# data (UTC): 2026-09-14T18:54:26Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+ ❯ src/lib/api-limits.test.ts (3 tests | 1 failed) 51ms
+     × todo limit literal é aceito pelo paginationQuerySchema da API 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/api-limits.test.ts > P1-01: nenhuma chamada do web pede limit acima do aceito pela API > todo limit literal é aceito pelo paginationQuerySchema da API
+AssertionError: expected [ …(37) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/app/contracts/contracts-client.tsx:71 limit=200",
++   "app/app/contracts/contracts-client.tsx:78 limit=200",
++   "app/app/contracts/[id]/contract-detail-client.tsx:87 limit=200",
++   "app/app/crm/leads/leads-client.tsx:86 limit=200",
++   "app/app/crm/leads/[id]/lead-detail-client.tsx:84 limit=200",
++   "app/app/crm/pipeline/pipeline-client.tsx:70 limit=200",
++   "app/app/inbox/inbox-client.tsx:102 limit=200",
++   "app/app/inspections/inspections-client.tsx:65 limit=200",
++   "app/app/inspections/[id]/inspection-detail-client.tsx:137 limit=200",
++   "app/app/leases/leases-client.tsx:69 limit=200",
++   "app/app/leases/leases-client.tsx:70 limit=200",
++   "app/app/leases/[id]/lease-detail-client.tsx:81 limit=200",
++   "app/app/leases/[id]/lease-detail-client.tsx:82 limit=200",
++   "app/app/listings/listings-client.tsx:62 limit=200",
++   "app/app/marketing/marketing-client.tsx:118 limit=200",
++   "app/app/marketing/marketing-client.tsx:119 limit=200",
++   "app/app/page.tsx:124 limit=200",
++   "app/app/page.tsx:125 limit=200",
++   "app/app/page.tsx:127 limit=200",
++   "app/app/page.tsx:130 limit=200",
++   "app/app/page.tsx:133 limit=200",
++   "app/app/page.tsx:136 limit=200",
++   "app/app/page.tsx:139 limit=200",
++   "app/app/page.tsx:142 limit=200",
++   "app/app/page.tsx:146 limit=200",
++   "app/app/page.tsx:149 limit=200",
++   "app/app/page.tsx:152 limit=200",
++   "app/app/page.tsx:155 limit=200",
++   "app/app/properties/[id]/property-detail-client.tsx:99 limit=200",
++   "app/app/proposals/proposals-client.tsx:65 limit=200",
++   "app/app/proposals/proposals-client.tsx:66 limit=200",
++   "app/app/screening/screening-client.tsx:50 limit=200",
++   "app/app/screening/screening-client.tsx:51 limit=200",
++   "app/app/screening/[id]/screening-detail-client.tsx:90 limit=200",
++   "app/app/screening/[id]/screening-detail-client.tsx:91 limit=200",
++   "app/app/visits/visits-client.tsx:63 limit=200",
++   "app/app/visits/visits-client.tsx:64 limit=200",
++ ]
+
+ ❯ src/lib/api-limits.test.ts:79:22
+     77|       .filter((hit) => !paginationQuerySchema.safeParse({ limit: hit.l…
+     78|       .map((hit) => `${hit.where} limit=${String(hit.limit)}`);
+     79|     expect(rejected).toEqual([]);
+       |                      ^
+     80|   });
+     81|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  15:54:31
+   Duration  2.41s (transform 798ms, setup 0ms, import 1.47s, tests 51ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/api-limits.test.ts
+# exit=1

@@ -92,7 +92,8 @@ function runLogged(cmd, args, logFile, opts = {}) {
   const fd = openSync(logFile, 'a');
   try {
     execFileSync(cmd, args, {
-      stdio: ['ignore', fd, fd],
+      // `input` vai pela entrada padrão (senha do admin da plataforma nunca em argumento).
+      stdio: [opts.input === undefined ? 'ignore' : 'pipe', fd, fd],
       windowsHide: true,
       timeout: 180_000,
       ...opts,
@@ -311,6 +312,16 @@ async function waitForLog(child, text, timeoutMs = 60_000) {
   throw new Error(`timeout esperando "${text}" em ${child.label}.\n${tail(child.logFile)}`);
 }
 
+/**
+ * Admin da plataforma do E2E (mesmos valores em src/g2-b1-support.ts): a conta é criada
+ * pelo comando de servidor, como na homologação — o cadastro aberto recusa este e-mail.
+ */
+export const E2E_PLATFORM_ADMIN = {
+  email: 'plataforma@e2e.aluguei.test',
+  name: 'Admin da Plataforma E2E',
+  password: 'senha-segura-123',
+};
+
 function stackEnv(databaseUrl) {
   const env = { ...process.env };
   // REDIS_URL derruba a API no boot (P1-14, Fase 6) — nunca herdar no E2E.
@@ -329,6 +340,7 @@ function stackEnv(databaseUrl) {
     SCREENING_PROVIDER: 'FAKE',
     LOG_LEVEL: 'info',
     NEXT_TELEMETRY_DISABLED: '1',
+    PLATFORM_ADMIN_EMAILS: E2E_PLATFORM_ADMIN.email,
   };
 }
 
@@ -428,6 +440,27 @@ export async function bootStack({ mode = 'playwright' } = {}) {
       { cwd: ROOT, env: { ...process.env, DATABASE_URL: databaseUrl } },
     );
     const env = stackEnv(databaseUrl);
+
+    log('conta do admin da plataforma...');
+    runLogged(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        join(ROOT, 'apps/api/src/cli/create-platform-admin.ts'),
+        '--email',
+        E2E_PLATFORM_ADMIN.email,
+        '--name',
+        E2E_PLATFORM_ADMIN.name,
+      ],
+      join(runDir, 'platform-admin.log'),
+      {
+        cwd: ROOT,
+        env,
+        input: `${E2E_PLATFORM_ADMIN.password}
+`,
+      },
+    );
 
     log(`API em :${PORTS.api}...`);
     const api = spawnLogged(

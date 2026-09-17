@@ -1112,3 +1112,20 @@ body {
     padding: var(--peg-space-5);
   }
 }
+
+/* Admin da plataforma: seções no topo quando a barra lateral some (< 1024px). */
+.platform-topnav {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .platform-topnav {
+    display: flex;
+    gap: var(--peg-space-3);
+    overflow-x: auto;
+    font-size: 13px;
+  }
+  .platform-topnav a[aria-current='page'] {
+    font-weight: 600;
+  }
+}

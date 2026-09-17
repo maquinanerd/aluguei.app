@@ -1,0 +1,15 @@
+# item: P1-06 — GREEN domínio (testes permanentes depois da correção)
+# commit: 3ef5f35
+# diretório: packages/domain
+# comando: pnpm exec vitest run src/rental/rental.test.ts src/rental/screening.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/packages/domain
+
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  16:06:21
+   Duration  1.41s (transform 147ms, setup 0ms, import 261ms, tests 23ms, environment 0ms)
+
+# exit=0

@@ -1,0 +1,6 @@
+# comando: pnpm security:scan
+# árvore: commit a089f5e (g2/track-b1-web, rodada 3 dos gates, sem cache)
+# data (UTC): 2026-09-15T19:29:23Z
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.
+# exit=0

@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/app/dev/calibration/page.test.tsx
+# base: 9bfcde2 + guarda de produção em apps/web/src/app/dev/calibration/page.tsx (GREEN)
+# data (UTC): 2026-09-15T18:00:25Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:00:27
+   Duration  1.05s (transform 549ms, setup 0ms, import 697ms, tests 14ms, environment 0ms)
+
+# exit=0

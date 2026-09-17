@@ -98,7 +98,8 @@ export const publicRoutes: FastifyPluginAsync = (app) => {
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.slug, orgSlug))
+      // Só imobiliária aprovada e ativa aparece no site (admin da plataforma).
+      .where(and(eq(organizations.slug, orgSlug), eq(organizations.status, 'ACTIVE')))
       .limit(1);
     if (!org) {
       throw new DomainError('NOT_FOUND', 'Organização não encontrada');
@@ -130,7 +131,7 @@ export const publicRoutes: FastifyPluginAsync = (app) => {
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.slug, params.orgSlug))
+      .where(and(eq(organizations.slug, params.orgSlug), eq(organizations.status, 'ACTIVE')))
       .limit(1);
     if (!org) {
       throw new DomainError('NOT_FOUND', 'Organização não encontrada');

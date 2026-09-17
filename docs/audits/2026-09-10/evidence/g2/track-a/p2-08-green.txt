@@ -1,0 +1,17 @@
+# item: P2-08 — GREEN integração (teste permanente depois da correção)
+# commit: 37dfb3c
+# diretório: tests/integration
+# comando: pnpm exec vitest run src/contract-document-events.test.ts
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/tests/integration
+
+(node:26384) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:18:13
+   Duration  9.70s (transform 1.96s, setup 0ms, import 4.27s, tests 5.17s, environment 0ms)
+
+# exit=0

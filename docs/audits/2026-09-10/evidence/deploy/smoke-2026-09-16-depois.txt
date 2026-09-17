@@ -1,0 +1,15 @@
+# smoke da homologação — admin da plataforma
+# data (UTC): 2026-09-16T21:59:01Z
+# sem conta, sem login, sem escrita: só respostas públicas e de acesso negado
+
+OK   API /health/ready → 200 
+OK   API /auth/me sem sessão → 401 
+OK   API /platform/organizations sem sessão (rota nova existe) → 401 
+OK   API /platform/plans sem sessão → 401 
+OK   API site público de imobiliária inexistente → 404 
+OK   WEB /login → 200 
+OK   WEB /register com o campo novo de telefone → yes 
+OK   WEB /plataforma sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login 
+OK   WEB /situacao-da-conta sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login 
+
+resultado: 9 ok, 0 falhas

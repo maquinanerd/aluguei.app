@@ -1,0 +1,19 @@
+# origem: GitHub Actions, PR #4 (feat/platform-admin), run 35154725961, job check, passo "Test (PostgreSQL real — concorrência de dinheiro e fila)"
+# commit: 9a12910; trecho do log com cores removidas e o objeto serializado do cliente pg cortado
+# o que prova: os 7 testes passam, mas o teardown de platform-limits.pg.test.ts derruba uma conexão que ainda fechava (57P01) e o Vitest falha o job por erro não tratado
+
+ ✓ src/finance-concurrency.pg.test.ts (4 tests) 13284ms
+     ✓ P0-01: dois workers (conexões distintas) com eventos distintos do mesmo pagamento → um crédito, um split, um repasse  396ms
+     ✓ P1-13: API e worker em processos separados liquidam o pagamento (FAKE compartilhado em tabela)  12049ms
+ ✓ src/platform-limits.pg.test.ts (3 tests) 1629ms
+     ✓ trava da imobiliária: quem conta enquanto outra transação está no limite espera e é recusado  627ms
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+Vitest caught 1 unhandled error during the test run.
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+error: terminating connection due to administrator command
+Serialized Error: { length: 116, severity: 'FATAL', code: '57P01', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataTy
+This error originated in "src/platform-limits.pg.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+     Errors  1 error
+[ELIFECYCLE] Command failed with exit code 1.

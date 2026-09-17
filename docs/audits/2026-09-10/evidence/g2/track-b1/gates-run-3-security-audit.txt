@@ -1,0 +1,7 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit a089f5e (g2/track-b1-web, rodada 3 dos gates, sem cache)
+# data (UTC): 2026-09-15T19:29:24Z
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high
+# exit=0

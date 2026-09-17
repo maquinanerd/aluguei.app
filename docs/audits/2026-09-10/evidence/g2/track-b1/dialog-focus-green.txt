@@ -1,0 +1,24 @@
+# comando: WEB_PORT=3320 API_PORT=4320 PG_PORT=5553 pnpm --filter @aluguei/tests-e2e exec playwright test g2-b1-dialog-focus
+# árvore: conteúdo do commit a089f5e (hook useDialogFocus em Modal e Drawer), stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-15T19:19:06Z
+$ playwright test g2-b1-dialog-focus
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789499949145\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\4efe706654\run-1789499949145).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 3 tests using 1 worker
+
+  ok 1 g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado (7.8s)
+  ok 2 g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado (2.5s)
+  ok 3 g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho (2.4s)
+[e2e-stack] stack run-1789499949145 desligada.
+
+  3 passed (30.5s)
+# exit=0

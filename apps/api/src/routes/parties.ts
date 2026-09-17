@@ -204,7 +204,9 @@ export const partyRoutes: FastifyPluginAsync = (app) => {
     const rows = await db
       .select()
       .from(parties)
-      .where(eq(parties.orgId, auth.orgId))
+      .where(
+        and(eq(parties.orgId, auth.orgId), query.ids ? inArray(parties.id, query.ids) : undefined),
+      )
       .orderBy(desc(parties.createdAt))
       .limit(query.limit)
       .offset(query.offset);

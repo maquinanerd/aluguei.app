@@ -1,0 +1,438 @@
+# comando: pnpm --filter @aluguei/ui exec vitest run src/lib/money.test.ts
+# base: 0585fc6 + testes novos; packages/ui/src/lib/money.ts = extração do algoritmo legado parseFloat(v.replace(',', '.')) — controle negativo (RED)
+# data (UTC): 2026-09-14T18:53:51Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/ui
+
+ ❯ src/lib/money.test.ts (63 tests | 47 failed) 89ms
+     × "3.500" → 350000 centavos 19ms
+     × "3.500,00" → 350000 centavos 2ms
+     × "3.500,50" → 350050 centavos 4ms
+     × "3.500,5" → 350050 centavos 1ms
+     × "3.500," → 350000 centavos 1ms
+     × "1.234.567,89" → 123456789 centavos 1ms
+     × "R$ 3.500,00" → 350000 centavos 1ms
+     × "R$3.500" → 350000 centavos 5ms
+     × "R$ 3.500,00" → 350000 centavos 5ms
+     × "  3.500  " → 350000 centavos 2ms
+     × "21.474.836,47" → 2147483647 centavos 1ms
+     × "3.5" usa ponto como decimal: ambíguo, recusado com orientação 6ms
+     × "3.50" usa ponto como decimal: ambíguo, recusado com orientação 1ms
+     × "35.00" usa ponto como decimal: ambíguo, recusado com orientação 1ms
+     × "1234.56" usa ponto como decimal: ambíguo, recusado com orientação 1ms
+     × "3500.00" usa ponto como decimal: ambíguo, recusado com orientação 1ms
+     × "0.500" usa ponto como decimal: ambíguo, recusado com orientação 2ms
+     × "3,555" é recusado com código TOO_MANY_DECIMALS 1ms
+     × "3.500,505" é recusado com código TOO_MANY_DECIMALS 1ms
+     × "-3.500" é recusado com código NEGATIVE 1ms
+     × "- 10" é recusado com código NEGATIVE 1ms
+     × "abc" é recusado com código INVALID 1ms
+     × "," é recusado com código INVALID 1ms
+     × "3,5,0" é recusado com código INVALID 1ms
+     × "3,50.0" é recusado com código INVALID 1ms
+     × "3.500.5" é recusado com código INVALID 1ms
+     × "12.34,56" é recusado com código INVALID 1ms
+     × "1e3" é recusado com código INVALID 1ms
+     × "3 500" é recusado com código INVALID 1ms
+     × "3.500,00 reais" é recusado com código INVALID 1ms
+     × "21.474.836,48" é recusado com código TOO_LARGE 1ms
+     × "99999999999999999999" é recusado com código TOO_LARGE 1ms
+     × respeita um limite menor informado pelo campo 3ms
+     × "1.200" com 2 casas decimais → 120000 unidades 1ms
+     × "1.234,5" com 2 casas decimais → 123450 unidades 2ms
+     × "85.5" com 2 casas decimais é recusado com código AMBIGUOUS 1ms
+     × "2,5" com 0 casas decimais é recusado com código TOO_MANY_DECIMALS 0ms
+     × "85,555" com 2 casas decimais é recusado com código TOO_MANY_DECIMALS 1ms
+     × "R$ 10" com 2 casas decimais é recusado com código INVALID 1ms
+     × "-1" com 0 casas decimais é recusado com código NEGATIVE 0ms
+     × 350000 → "3.500,00" 4ms
+     × 350050 → "3.500,50" 1ms
+     × 5 → "0,05" 1ms
+     × 0 → "0,00" 1ms
+     × 123456789 → "1.234.567,89" 1ms
+     × 2147483647 → "21.474.836,47" 1ms
+     × recusa centavos negativos ou fracionários 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 47 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500" → 350000 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500,00" → 350000 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500," → 350000 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "  3.500  " → 350000 centavos
+AssertionError: expected { ok: true, cents: 350 } to deeply equal { ok: true, cents: 350000 }
+
+- Expected
++ Received
+
+  {
+-   "cents": 350000,
++   "cents": 350,
+    "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:36:36
+     34|     ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+     35|   ])('"%s" → %i centavos', (input, cents) => {
+     36|     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
+       |                                    ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500,50" → 350050 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500,5" → 350050 centavos
+AssertionError: expected { ok: true, cents: 350 } to deeply equal { ok: true, cents: 350050 }
+
+- Expected
++ Received
+
+  {
+-   "cents": 350050,
++   "cents": 350,
+    "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:36:36
+     34|     ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+     35|   ])('"%s" → %i centavos', (input, cents) => {
+     36|     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
+       |                                    ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "1.234.567,89" → 123456789 centavos
+AssertionError: expected { ok: true, cents: 123 } to deeply equal { ok: true, cents: 123456789 }
+
+- Expected
++ Received
+
+  {
+-   "cents": 123456789,
++   "cents": 123,
+    "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:36:36
+     34|     ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+     35|   ])('"%s" → %i centavos', (input, cents) => {
+     36|     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
+       |                                    ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "R$ 3.500,00" → 350000 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "R$3.500" → 350000 centavos
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "R$ 3.500,00" → 350000 centavos
+AssertionError: expected { ok: true, cents: null } to deeply equal { ok: true, cents: 350000 }
+
+- Expected
++ Received
+
+  {
+-   "cents": 350000,
++   "cents": null,
+    "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:36:36
+     34|     ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+     35|   ])('"%s" → %i centavos', (input, cents) => {
+     36|     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
+       |                                    ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "21.474.836,47" → 2147483647 centavos
+AssertionError: expected { ok: true, cents: 2147 } to deeply equal { ok: true, cents: 2147483647 }
+
+- Expected
++ Received
+
+  {
+-   "cents": 2147483647,
++   "cents": 2147,
+    "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:36:36
+     34|     ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+     35|   ])('"%s" → %i centavos', (input, cents) => {
+     36|     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
+       |                                    ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.5" usa ponto como decimal: ambíguo, recusado com orientação
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.50" usa ponto como decimal: ambíguo, recusado com orientação
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "35.00" usa ponto como decimal: ambíguo, recusado com orientação
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "1234.56" usa ponto como decimal: ambíguo, recusado com orientação
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3500.00" usa ponto como decimal: ambíguo, recusado com orientação
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "0.500" usa ponto como decimal: ambíguo, recusado com orientação
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/money.test.ts:47:25
+     45|     (input) => {
+     46|       const result = parseMoneyInput(input);
+     47|       expect(result.ok).toBe(false);
+       |                         ^
+     48|       if (!result.ok) {
+     49|         expect(result.code).toBe('AMBIGUOUS');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3,555" é recusado com código TOO_MANY_DECIMALS
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500,505" é recusado com código TOO_MANY_DECIMALS
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "-3.500" é recusado com código NEGATIVE
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "- 10" é recusado com código NEGATIVE
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "abc" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "," é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3,5,0" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3,50.0" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500.5" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "12.34,56" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "1e3" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3 500" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "3.500,00 reais" é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "21.474.836,48" é recusado com código TOO_LARGE
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > "99999999999999999999" é recusado com código TOO_LARGE
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/money.test.ts:73:23
+     71|   ])('"%s" é recusado com código %s', (input, code) => {
+     72|     const result = parseMoneyInput(input);
+     73|     expect(result.ok).toBe(false);
+       |                       ^
+     74|     if (!result.ok) {
+     75|       expect(result.code).toBe(code);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseMoneyInput — pt-BR para centavos inteiros > respeita um limite menor informado pelo campo
+AssertionError: expected { ok: true, cents: 10000 } to match object { ok: false, code: 'TOO_LARGE' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "TOO_LARGE",
+-   "ok": false,
++   "ok": true,
+  }
+
+ ❯ src/lib/money.test.ts:81:60
+     79|
+     80|   it('respeita um limite menor informado pelo campo', () => {
+     81|     expect(parseMoneyInput('100,00', { maxCents: 9_999 })).toMatchObje…
+       |                                                            ^
+     82|       ok: false,
+     83|       code: 'TOO_LARGE',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "1.200" com 2 casas decimais → 120000 unidades
+AssertionError: expected { ok: true, units: 120 } to deeply equal { ok: true, units: 120000 }
+
+- Expected
++ Received
+
+  {
+    "ok": true,
+-   "units": 120000,
++   "units": 120,
+  }
+
+ ❯ src/lib/money.test.ts:103:58
+    101|     ['12', 0, 12],
+    102|   ])('"%s" com %i casas decimais → %i unidades', (input, fractionDigit…
+    103|     expect(parseDecimalInput(input, { fractionDigits })).toEqual({ ok:…
+       |                                                          ^
+    104|   });
+    105|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "1.234,5" com 2 casas decimais → 123450 unidades
+AssertionError: expected { ok: true, units: 123 } to deeply equal { ok: true, units: 123450 }
+
+- Expected
++ Received
+
+  {
+    "ok": true,
+-   "units": 123450,
++   "units": 123,
+  }
+
+ ❯ src/lib/money.test.ts:103:58
+    101|     ['12', 0, 12],
+    102|   ])('"%s" com %i casas decimais → %i unidades', (input, fractionDigit…
+    103|     expect(parseDecimalInput(input, { fractionDigits })).toEqual({ ok:…
+       |                                                          ^
+    104|   });
+    105|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/47]⎯
+
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "85.5" com 2 casas decimais é recusado com código AMBIGUOUS
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "2,5" com 0 casas decimais é recusado com código TOO_MANY_DECIMALS
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "85,555" com 2 casas decimais é recusado com código TOO_MANY_DECIMALS
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "R$ 10" com 2 casas decimais é recusado com código INVALID
+ FAIL  src/lib/money.test.ts > parseDecimalInput — números pt-BR (área, contagens) > "-1" com 0 casas decimais é recusado com código NEGATIVE
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/money.test.ts:118:23
+    116|   ])('"%s" com %i casas decimais é recusado com código %s', (input, fr…
+    117|     const result = parseDecimalInput(input, { fractionDigits });
+    118|     expect(result.ok).toBe(false);
+       |                       ^
+    119|     if (!result.ok) {
+    120|       expect(result.code).toBe(code);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 350000 → "3.500,00"
+AssertionError: expected '3500' to be '3.500,00' // Object.is equality
+
+Expected: "3.500,00"
+Received: "3500"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 350050 → "3.500,50"
+AssertionError: expected '3500.5' to be '3.500,50' // Object.is equality
+
+Expected: "3.500,50"
+Received: "3500.5"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 5 → "0,05"
+AssertionError: expected '0.05' to be '0,05' // Object.is equality
+
+Expected: "0,05"
+Received: "0.05"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 0 → "0,00"
+AssertionError: expected '0' to be '0,00' // Object.is equality
+
+Expected: "0,00"
+Received: "0"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 123456789 → "1.234.567,89"
+AssertionError: expected '1234567.89' to be '1.234.567,89' // Object.is equality
+
+Expected: "1.234.567,89"
+Received: "1234567.89"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > 2147483647 → "21.474.836,47"
+AssertionError: expected '21474836.47' to be '21.474.836,47' // Object.is equality
+
+Expected: "21.474.836,47"
+Received: "21474836.47"
+
+ ❯ src/lib/money.test.ts:135:40
+    133|     [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    134|   ])('%i → "%s"', (cents, text) => {
+    135|     expect(formatCentsForInput(cents)).toBe(text);
+       |                                        ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/47]⎯
+
+ FAIL  src/lib/money.test.ts > formatCentsForInput — centavos para o texto do campo > recusa centavos negativos ou fracionários
+AssertionError: expected function to throw an error, but it didn't
+ ❯ src/lib/money.test.ts:145:43
+    143|
+    144|   it('recusa centavos negativos ou fracionários', () => {
+    145|     expect(() => formatCentsForInput(-1)).toThrow(RangeError);
+       |                                           ^
+    146|     expect(() => formatCentsForInput(1.5)).toThrow(RangeError);
+    147|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/47]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  47 failed | 16 passed (63)
+   Start at  15:53:57
+   Duration  1.71s (transform 79ms, setup 0ms, import 127ms, tests 89ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\packages\ui:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/money.test.ts
+# exit=1

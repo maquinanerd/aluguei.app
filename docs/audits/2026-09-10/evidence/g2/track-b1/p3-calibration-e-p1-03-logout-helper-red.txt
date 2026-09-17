@@ -1,0 +1,55 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/app/dev/calibration/page.test.tsx src/lib/logout.test.ts
+# base: 0585fc6 + testes novos, sem correção (RED)
+# data (UTC): 2026-09-14T18:54:37Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web
+
+ ❯ src/lib/logout.test.ts (0 test)
+ ❯ src/app/dev/calibration/page.test.tsx (2 tests | 1 failed) 31ms
+     × em produção responde notFound 26ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/logout.test.ts [ src/lib/logout.test.ts ]
+Error: Cannot find module './logout' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/apps/web/src/lib/logout.test.ts
+ ❯ src/lib/logout.test.ts:2:1
+      1| import { describe, expect, it, vi } from 'vitest';
+      2| import { requestLogout } from './logout';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/dev/calibration/page.test.tsx > /dev/calibration > em produção responde notFound
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/app/dev/calibration/page.test.tsx:28:61
+     26|   it('em produção responde notFound', () => {
+     27|     vi.stubEnv('NODE_ENV', 'production');
+     28|     expect(() => renderToStaticMarkup(<CalibrationPage />)).toThrow('N…
+       |                                                             ^
+     29|   });
+     30|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 1 passed (2)
+   Start at  15:54:43
+   Duration  2.46s (transform 1.49s, setup 0ms, import 1.76s, tests 31ms, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-ac277422131ea0f3d\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/app/dev/calibration/page.test.tsx src/lib/logout.test.ts
+# exit=1

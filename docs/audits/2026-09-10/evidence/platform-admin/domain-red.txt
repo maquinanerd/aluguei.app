@@ -1,0 +1,58 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/platform
+# árvore: commit feed20f (g2/integration) + testes novos do admin da plataforma, sem implementação
+# data (UTC): 2026-09-16T13:29:00Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+ ❯ src/platform/organization-status.test.ts (0 test)
+ ❯ src/platform/platform-admins.test.ts (0 test)
+ ❯ src/platform/plan-limits.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/organization-status.test.ts [ src/platform/organization-status.test.ts ]
+Error: Cannot find module './organization-status.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain/src/platform/organization-status.test.ts
+ ❯ src/platform/organization-status.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   ORGANIZATION_STATUSES,
+      5|   isOrganizationStatus,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/platform/plan-limits.test.ts [ src/platform/plan-limits.test.ts ]
+Error: Cannot find module './plan-limits.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain/src/platform/plan-limits.test.ts
+ ❯ src/platform/plan-limits.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import { assertWithinPlanLimit, planResourcesOverLimit } from './plan-…
+       | ^
+      4| import type { PlanLimits } from './plan-limits.js';
+      5|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/platform/platform-admins.test.ts [ src/platform/platform-admins.test.ts ]
+Error: Cannot find module './platform-admins.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain/src/platform/platform-admins.test.ts
+ ❯ src/platform/platform-admins.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { isPlatformAdminEmail, parsePlatformAdminEmails } from './plat…
+       | ^
+      3|
+      4| describe('allowlist de admins da plataforma', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  no tests
+   Start at  10:29:02
+   Duration  494ms (transform 82ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\domain:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/platform
+# exit=1

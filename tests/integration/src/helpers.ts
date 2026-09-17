@@ -11,6 +11,7 @@ import {
   MockAiProvider,
 } from '@aluguei/integrations';
 import { FakeStorageService } from './fakes.js';
+import { approveAgency } from './platform-fixtures.js';
 
 export const fakeStorage = new FakeStorageService();
 export const fakeChannel = new FakeChannel();
@@ -34,6 +35,8 @@ export const testEnv: AppEnv = {
   STORAGE_REGION: undefined,
   STORAGE_BUCKET: undefined,
   OTEL_EXPORTER_OTLP_ENDPOINT: undefined,
+  // Admins da plataforma (ver platform-fixtures.ts); o segundo e-mail nunca é cadastrado.
+  PLATFORM_ADMIN_EMAILS: 'plataforma@aluguei.test, reservado@aluguei.test',
 };
 
 let appCache: FastifyInstance | null = null;
@@ -69,6 +72,11 @@ export interface RegisteredUser {
   };
 }
 
+/**
+ * Cadastra uma imobiliária e a aprova pela API da plataforma: o cadastro aberto nasce
+ * aguardando aprovação (admin da plataforma), e as suítes de negócio precisam dela operando.
+ * O fluxo sem aprovação é coberto em platform-admin.test.ts.
+ */
 export async function registerUser(
   app: FastifyInstance,
   overrides: Partial<{
@@ -94,5 +102,7 @@ export async function registerUser(
   }
   const setCookie = res.headers['set-cookie'];
   const cookie = Array.isArray(setCookie) ? setCookie.join('; ') : (setCookie ?? '');
-  return { cookie, body: res.json() as RegisteredUser['body'] };
+  const body = res.json() as RegisteredUser['body'];
+  await approveAgency(app, body.org.id);
+  return { cookie, body };
 }

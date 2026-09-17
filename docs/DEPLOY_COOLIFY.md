@@ -77,13 +77,14 @@ Geradas pelo Coolify (variáveis mágicas, persistem entre deploys, nunca no rep
 
 Definidas no recurso:
 
-| Variável           | Valor                                                              |
-| ------------------ | ------------------------------------------------------------------ |
-| `DATABASE_URL`     | URL interna do banco próprio, com a senha — existe só no Coolify   |
-| `APP_BASE_URL`     | URL do web (também usada como `CORS_ORIGINS`)                      |
-| `API_BASE_URL`     | URL da API — precisa ser `https://`                                |
-| `STORAGE_ENDPOINT` | URL pública do MinIO — o navegador envia o arquivo direto para ela |
-| `PUBLIC_ORG_SLUG`  | opcional (vitrine pública)                                         |
+| Variável                | Valor                                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`          | URL interna do banco próprio, com a senha — existe só no Coolify                             |
+| `APP_BASE_URL`          | URL do web (também usada como `CORS_ORIGINS`)                                                |
+| `API_BASE_URL`          | URL da API — precisa ser `https://`                                                          |
+| `STORAGE_ENDPOINT`      | URL pública do MinIO — o navegador envia o arquivo direto para ela                           |
+| `PUBLIC_ORG_SLUG`       | opcional (vitrine pública)                                                                   |
+| `PLATFORM_ADMIN_EMAILS` | e-mails dos admins da plataforma, separados por vírgula; vazio: ninguém acessa `/plataforma` |
 
 Fixas no compose: `NODE_ENV=production`, `COOKIE_SECURE=true`, `STORAGE_BUCKET=aluguei-private`,
 `STORAGE_REGION=us-east-1`, `STORAGE_FORCE_PATH_STYLE=true`, `PAYMENT_PROVIDER=FAKE`,
@@ -102,12 +103,39 @@ a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não a
 | Arquivos do MinIO sem backup                                                                                                                                                                | Fase 6                                       |
 | MinIO comunitário: a MinIO deixou de publicar imagens da edição comunitária; a imagem usada é a build mantida pelo Coolify, com versão fixada. Reavaliar storage gerenciado antes do piloto | ADR-046                                      |
 | Existência do bucket só inferida (a API depende de `storage-init`); a prova direta é o primeiro upload autenticado                                                                          | deploy de 2026-09-15                         |
-| Cadastro de imobiliária aberto, sem aprovação e sem admin da plataforma                                                                                                                     | próximo trabalho (decisão de 2026-09-14)     |
+| Aprovação do cadastro sem aviso: a imobiliária só descobre a aprovação, a recusa ou a suspensão ao entrar (envio real de e-mail ou WhatsApp está fora desta fase)                           | ADR-060 (Fase 7)                             |
+| Suspensão fecha painel, portal e site público, mas não despublica anúncios já enviados a canais externos nem para jobs do worker (webhooks de pagamento seguem sendo processados)           | ADR-060                                      |
 | Pagamento FAKE não pode ser simulado: a rota `/dev/fake-payments` só existe fora de produção, então cobranças ficam `PENDING`                                                               | `apps/api/src/app.ts` (proteção intencional) |
 | Sem Redis: rate limit em memória por processo; preencher `REDIS_URL` derruba a API                                                                                                          | P1-14 (Fase 6)                               |
 | Todos os clientes dividem o mesmo limite de requisições: `trustProxy: 'loopback'` e o web chama a API pelo proxy, então a API vê um único IP (10/min nas rotas de login)                    | Fase 6                                       |
 | O web chama a API pelo domínio público, não pela rede interna: `API_BASE_URL` sem https é recusada                                                                                          | P1-15 (Fase 6)                               |
 | Web sem `Strict-Transport-Security`; CSP com `'unsafe-inline'` e `'unsafe-eval'`                                                                                                            | Fase 6                                       |
+
+## Admin da plataforma
+
+Cadastro aberto de imobiliária nasce **em análise** e só opera depois de aprovado em `/plataforma`
+(ADR-060). Quem acessa a área é definido pela variável `PLATFORM_ADMIN_EMAILS`:
+
+1. Painel do Coolify → `aluguei-app` → Environment Variables → `PLATFORM_ADMIN_EMAILS` com o seu
+   e-mail (vários separados por vírgula) → Redeploy.
+2. Conta com esse e-mail:
+   - **Já existe** (por exemplo, a sua imobiliária cadastrada antes): nada a fazer. Ao entrar, o menu
+     da conta mostra "Admin da plataforma".
+   - **Não existe**: o cadastro aberto recusa e-mails da lista, então a conta nasce no servidor.
+     Painel do Coolify → `aluguei-app` → Terminal → container `api`:
+
+     ```bash
+     node --import tsx apps/api/src/cli/create-platform-admin.ts --email voce@exemplo.com --name "Seu nome"
+     ```
+
+     A senha é pedida sem eco (mínimo de 12 caracteres) e nunca vai em argumento ou log.
+
+3. Entrar em `/login`: sem imobiliária, a pessoa cai direto em `/plataforma`.
+
+Na área: fila de cadastros em análise, busca por nome, e-mail do responsável ou CNPJ, aprovar
+(escolhendo o plano), recusar e suspender com motivo (a imobiliária vê o motivo), reativar, trocar
+plano e criar ou editar planos. Imobiliárias que já existiam antes da migration 0018 continuam ativas,
+no plano ILIMITADO.
 
 ## Operação
 

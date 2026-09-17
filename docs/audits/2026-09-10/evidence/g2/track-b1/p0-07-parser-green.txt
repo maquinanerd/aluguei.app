@@ -1,0 +1,13 @@
+# comando: pnpm --filter @aluguei/ui exec vitest run src/lib/money.test.ts
+# base: 24b3772 + packages/ui/src/lib/money.ts implementado (GREEN)
+# data (UTC): 2026-09-14T19:17:35Z
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-ac277422131ea0f3d/packages/ui
+
+
+ Test Files  1 passed (1)
+      Tests  63 passed (63)
+   Start at  16:17:44
+   Duration  2.27s (transform 69ms, setup 0ms, import 127ms, tests 32ms, environment 0ms)
+
+# exit=0

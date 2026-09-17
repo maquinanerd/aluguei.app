@@ -76,12 +76,15 @@ export type {
   SignatureProviderErrorCode,
 } from './signature/clicksign.js';
 export { getSignatureProvider } from './signature/registry.js';
+export { renderContractPdf } from './signature/document.js';
+export type { ContractPdfInput } from './signature/document.js';
 export type {
   ISignatureProvider,
   CreateEnvelopeInput,
   CreateEnvelopeResult,
   EnvelopeParty,
   EnvelopeStatus,
+  SignatureProviderName,
 } from './signature/types.js';
 
 export { FakeScreeningProvider } from './screening/fake.js';

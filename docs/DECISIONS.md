@@ -291,3 +291,217 @@ Decisões:
 - Evidência: exceção explícita no `.gitignore` para `docs/audits/**/evidence/**/*.log`.
 
 Consequências: backups e arquivos ficam no mesmo VPS — protegem contra erro humano e corrupção, não contra perda do servidor; falta uma cópia fora dele (Fase 6). A existência do bucket só está inferida até o primeiro upload autenticado. O MinIO comunitário é um risco de manutenção: reavaliar storage gerenciado (R2/S3) antes do piloto. Evidência: `docs/audits/2026-09-10/evidence/ops/` e `docs/audits/2026-09-10/evidence/deploy/smoke-2026-09-15.txt`.
+
+## ADR-047 — Contrato: versões imutáveis e texto congelado no envio (Gate G2, 2026-09-14)
+
+Status: Aceito.
+
+Contexto: P0-04 — `POST /contracts/:id/generate` só barrava `GENERATED` e validava a transição a partir do literal `DRAFT`: um contrato `SIGNED` voltava a `GENERATED` com conteúdo e hash reescritos, `signed_at` preservado e a locação `ACTIVE` apontando para ele. Não havia versão anterior do texto.
+
+Decisões:
+
+- O texto só é gerado em `DRAFT` ou, com pedido explícito (`{ "regenerate": true }`), em `GENERATED` sem envelope. Em `SENT_FOR_SIGNATURE`, `PARTIALLY_SIGNED`, `SIGNED` e `VOID` a resposta é `409` sem nenhuma escrita, com ou sem `regenerate`.
+- Cada geração grava uma linha em `contract_versions` (versão, conteúdo, hash SHA-256, template e versão do template, autor). `contracts.content`, `content_hash` e `current_version` espelham a versão vigente. Repetir `generate` em `GENERATED` é idempotente; regenerar o mesmo texto não cria versão.
+- O envelope registra a versão enviada (`signature_envelopes.contract_version`). `send-for-signature` grava envelope e status numa transação, com trava da linha e compare-and-set de versão e hash: se outra requisição regenerou o contrato durante a chamada ao provider, nada é gravado (`409`).
+- Defesa no banco (migration 0014, gatilhos `BEFORE UPDATE`, `check_violation` 23514): texto, hash e versão imutáveis a partir do envio; status não regride (`SIGNED` e `VOID` terminais, `SENT_FOR_SIGNATURE` não volta a `DRAFT` ou `GENERATED`, `PARTIALLY_SIGNED` não volta); `signed_at` imutável em `SIGNED`; linhas de `contract_versions` imutáveis. `UNIQUE (org_id, id)` em `contracts` e FK composta de `contract_versions`, no padrão do ADR-045.
+- Pré-voo da 0014 aborta com `RAISE EXCEPTION` se já houver contrato corrompido pelo defeito: `signed_at` com status fora de `SIGNED`/`VOID`, `contract.generated` depois de `contract.sent_for_signature` na auditoria, conteúdo ausente fora de `DRAFT` ou hash que não confere com o conteúdo.
+
+Consequências: a UI regera contrato `GENERATED` enviando `regenerate: true` (ADR-058). Cancelar (`VOID`) um contrato já enviado não cancela o envelope no provider — pendência da Fase 7.3 (Clicksign). A exclusão física de contrato não existe na API e não foi coberta pelos gatilhos. Evidência: `docs/audits/2026-09-10/evidence/g2/track-a/p0-04-red.txt` (8 de 8 falham antes da correção) e `p0-04-green.txt` (8/8 depois).
+
+Alternativas descartadas: histórico em coluna `jsonb` (sem unicidade nem gatilho por versão); trava só na API (sem defesa contra escrita direta ou rota futura).
+
+## ADR-048 — Decisão de crédito com origem obrigatória e trilha auditável (Gate G2, 2026-09-14)
+
+Status: Aceito.
+
+Contexto: P1-06 — `SUBMITTED → SCREENING → APPROVED` por `PATCH`, sem screening, sem motivo e com `decided_by` nulo; o worker decidia sem registrar a origem; `CONTRACTING` nunca era gravado.
+
+Decisões:
+
+- A máquina de estados recebe a origem da transição (`ApplicationTransitionSource`). `SUBMITTED → SCREENING` só pelo pedido de screening. `SCREENING → APPROVED`, `REJECTED` ou `MANUAL_REVIEW` só pelo resultado do provider, com resultado gravado. `MANUAL_REVIEW → APPROVED` ou `REJECTED` só por uma pessoa, com motivo, responsável e resultado existente. `APPROVED → CONTRACTING` só pela criação do contrato; `CONTRACTING → APPROVED` só pelo cancelamento do último contrato ativo.
+- Nova coluna `rental_applications.decision_source` (`MANUAL` | `AUTOMATIC`). Em `APPROVED`, `REJECTED` e `CONTRACTING`, motivo não vazio, `decided_at` e origem são obrigatórios (CHECK na migration 0015). `decided_by` fica fora do CHECK porque a FK é `ON DELETE SET NULL`.
+- Decisão automática: `decided_by` nulo (não há pessoa), motivo gerado pelo domínio (`Decisão automática (<provider>): <decisão> — <regra>: <detalhe>`), auditoria `rental_application.decided` com `source: AUTOMATIC` e o id do resultado de screening; resultado, decisão, timeline e auditoria numa transação, com a chamada ao provider fora dela.
+- API: aprovação ou rejeição sem motivo → `400` (validação do contrato da API); transição fora da origem → `409`; destino repetido → `200` sem reescrever a decisão; compare-and-set em toda mudança de status. `POST /screening` é idempotente com pedido pendente, recusa (`409`) fora de `SUBMITTED` e cria um job de inbox por pedido (antes a chave por candidatura descartava um segundo pedido).
+- Pré-voo da 0015 aborta se houver candidatura decidida sem motivo, sem data, sem responsável nem motivo `auto:` do worker antigo; candidatura em `MANUAL_REVIEW`, `APPROVED` ou `REJECTED` sem resultado de screening; ou em `SCREENING` sem pedido. Backfill: `decision_source` pela presença de `decided_by`; `APPROVED` com contrato não cancelado vira `CONTRACTING`.
+
+Consequências: a UI de crédito oferece decisão só em `MANUAL_REVIEW`, com motivo digitado (não fixo), e pedido de screening só em `SUBMITTED`; a tela de contratos deixa de listar `CONTRACTING` como elegível (ADR-058). Candidaturas legadas sem trilha bloqueiam a migration até revisão humana — decisão deliberada: aprovação de crédito sem análise não é reclassificada como aceitável. Evidência: `docs/audits/2026-09-10/evidence/g2/track-a/p1-06-red.txt` (7 de 8 falham), `p1-06-red-domain.txt` (8 de 19), `p1-06-green.txt` (8/8) e `p1-06-green-domain.txt` (19/19); `p1-06-red-run1.txt` guarda a primeira execução do RED, quebrada por erro do próprio teste.
+
+## ADR-049 — Texto do contrato em R$ e trilha de eventos de assinatura (Gate G2, 2026-09-14)
+
+Status: Aceito.
+
+Contexto: P2-08 — o corpo do contrato saía com o aluguel em centavos crus ("ALUGUEL 250000"); o template era obrigado a usar todas as variáveis oferecidas; `signature_events` nunca era gravada; `PATCH /contracts/:id/status` gravava `VOID` e respondia `400` (schema de resposta errado).
+
+Decisões:
+
+- A geração oferece um conjunto fixo de variáveis (`CONTRACT_TEMPLATE_VARIABLES`: `tenantName`, `landlordName`, `propertyTitle`, `monthlyRent`, `monthlyRentCents`). Valor monetário é formatado no domínio (`formatCentsBRL`: centavos inteiros, sem ponto flutuante e sem depender de ICU, `R$ 2.500,00`); dado ausente vira `—`, nunca `R$ 0,00`.
+- `monthlyRentCents` fica como nome legado e renderiza o mesmo valor em R$: templates aprovados são imutáveis (mudar exige nova versão e nova aprovação) e nenhum contrato deve exibir centavos crus. Templates novos devem usar `monthlyRent`.
+- `renderTemplate` deixa de recusar variável oferecida e não usada; continua recusando placeholder sem variável (erro de digitação) e passa a usar `Object.hasOwn`, para que `{{constructor}}` não resolva para o protótipo do objeto.
+- `POST /webhooks/signature` grava `signature_events` na chegada, na mesma transação do inbox, com dedup por `UNIQUE (provider, provider_event_id)`; envelope desconhecido continua ignorado (`200`) e sem linha.
+- `PATCH /contracts/:id/status` responde `{ contract: agregado }`, no mesmo formato de `generate`.
+
+Consequências: os placeholders ainda não são validados no cadastro ou na aprovação do template — o erro aparece só ao gerar (`400`). `occurred_at` do evento é a hora do recebimento: o contrato atual do webhook não traz a hora do evento no provider. Evidência: `docs/audits/2026-09-10/evidence/g2/track-a/p2-08-red.txt` (4 de 4 falham), `p2-08-red-domain.txt`, `p2-08-green.txt` (4/4) e `p2-08-green-domain.txt` (22/22).
+
+## ADR-050 — Documento de assinatura em PDF (pdf-lib) e provider real no envelope (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P1-11 (parte interna) — `send-for-signature` mandava `content_hash` como documento e gravava `provider: 'FAKE'` fixo. O adapter Clicksign v3 só aceita arquivo em base64 e recusava o envio (a API respondia `500`); e, como o webhook localiza o envelope por `(provider, provider_envelope_id)`, um evento `CLICKSIGN` nunca casaria com um envelope gravado como `FAKE`.
+
+Decisões:
+
+- Dependência nova: `pdf-lib` 1.17.1 (MIT), versão fixa, em `@aluguei/integrations`. JavaScript puro, sem binário nativo nem script de instalação; transitivas `pako` (MIT AND Zlib), `tslib` (0BSD), `@pdf-lib/standard-fonts` e `@pdf-lib/upng` (MIT). Sem advisory crítico (gate `security:audit --audit-level=critical`).
+- `renderContractPdf` (`packages/integrations/src/signature/document.ts`): A4 com cabeçalho (contrato e versão), texto quebrado por largura e paginado, rodapé com o SHA-256 do texto; título e assunto nos metadados. Determinístico: `updateMetadata: false` (sem datas nem produtor automático) e sem identificador aleatório — a mesma versão gera os mesmos bytes.
+- Fonte padrão Helvetica (WinAnsi): cobre os acentos do português; caractere fora dela vira `?` em vez de derrubar a geração.
+- `ISignatureProvider.name` (`CLICKSIGN | D4SIGN | FAKE`): o envelope grava o nome do provider que o criou. O documento segue como data URI `application/pdf`; o envelope guarda `document_hash` (SHA-256 dos bytes enviados) ao lado de `contract_version`.
+- Migration 0016: coluna `document_hash`; pré-voo aborta se houver envelope gravado como `FAKE` com id que não é do provider FAKE, ou com provider desconhecido.
+
+Consequências: o PDF enviado não é armazenado — é reproduzível byte a byte a partir de `contract_versions` enquanto o renderizador (layout e versão da `pdf-lib`) não mudar; mudar um dos dois exige antes armazenar o documento enviado (Storage, Fase 7.1) ou versionar o renderizador. O arquivo assinado devolvido pelo provider fica para a Fase 7.3, assim como HMAC do webhook e URL base de produção da Clicksign. Nome com caractere fora do WinAnsi sai com `?`; embutir fonte TTF (fontkit) foi adiado por peso e por falta de caso real. Todo `ISignatureProvider` precisa declarar `name`. Evidência: `docs/audits/2026-09-10/evidence/g2/track-a/p1-11-red.txt` (2 de 2 falham: com o adapter Clicksign a API responde 500), `p1-11-red-document.txt`, `p1-11-green.txt` (2/2) e `p1-11-green-document.txt` (18/18).
+
+Alternativas descartadas: `pdfkit` (mais pesado, depende de fontkit e streams), Chromium/Puppeteer (binário nativo), armazenar só o hash sem gerar documento (o provider exige o arquivo).
+
+## ADR-051 — Sugestão de IA: status é o resultado, nunca a ação (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P1-05 — resolver uma sugestão gravava a ação (`ACCEPT | REJECT | EDIT`) na coluna `status`, que a leitura valida como `PENDING | ACCEPTED | REJECTED | EDITED`: depois da primeira resolução, `GET /inspections/:id`, `/report` e `/review` respondiam `400`. O critério do G2 lista P1-01..05, mas o plano de continuação agenda o P1-05 na Fase 5; ele foi fechado no G2 porque quebra a leitura da vistoria que a Fase 4 precisa entregar.
+
+Decisões:
+
+- `SUGGESTION_STATUS_BY_ACTION` (`packages/contracts/src/inspections.ts`) mapeia a ação para o status; `suggestionStatusSchema` é a fonte única dos valores válidos.
+- Resolução numa transação: compare-and-set sobre `status = 'PENDING'` (segunda resolução → `409`), observação e auditoria juntas — não sobra observação sem sugestão resolvida.
+- Banco: `CHECK (status in ('PENDING', 'ACCEPTED', 'REJECTED', 'EDITED'))`. A migration 0017 converte as linhas legadas (`ACCEPT → ACCEPTED`, `REJECT → REJECTED`, `EDIT → EDITED`) antes do CHECK; o pré-voo aborta se houver status fora desses sete valores.
+
+Consequências: o contrato de entrada da API não muda (a UI continua enviando a ação); a resposta e as leituras passam a trazer o status. Os testes de pré-voo das migrations 0014 a 0016 foram escritos depois da implementação das migrations e não têm RED próprio. Evidência: `docs/audits/2026-09-10/evidence/g2/track-a/p1-05-red.txt` (releitura 400, `ACCEPT` no lugar de `ACCEPTED`, migration 0017 inexistente) e `p1-05-green.txt` (10/10, com a migração de dados e os quatro pré-voos).
+
+## ADR-052 — Entrada numérica pt-BR: centavos inteiros e ambiguidade recusada (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P0-07 — "3.500", o próprio placeholder, era gravado como R$ 3,50. Três formulários convertiam com `parseFloat(v.replace(',', '.'))`, que lê o ponto de milhar como decimal; a área do cadastro de imóvel tinha o mesmo defeito.
+
+Decisões:
+
+- Um único parser em `packages/ui/src/lib/money.ts`: ponto separa milhares, vírgula separa decimais, resultado inteiro na menor unidade (centavos). Sem ponto flutuante na conversão.
+- Texto que só faz sentido em outro formato (`3.50`, `1234.56`, `0.500`) é recusado com mensagem (`AMBIGUOUS`), nunca adivinhado: um valor digitado errado não pode virar outro valor gravado. Também recusados: mais de 2 casas, negativo, lixo, milhar mal agrupado (`12.34,56`).
+- Teto padrão `2.147.483.647` centavos: as colunas de dinheiro são `integer` (int4).
+- `MoneyInput` emite `number | null` e usa `setCustomValidity`: texto inválido bloqueia o envio nativo do formulário, com a mensagem no campo.
+- Estrutura rótulo/ajuda/erro no padrão `FieldShell` do Kal El, reimplementada sobre `.peg-field`/`.peg-input` e os tokens do Aluguei (o CSS do Kal El não é carregado).
+
+Consequências: formulários novos de dinheiro devem usar `MoneyInput`; a guarda `apps/web/src/lib/money-parsing-guard.test.ts` falha se `parseFloat`/`Number` sobre `replace(',', '.')` voltar ao web. Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/p0-07-parser-red.txt` (o parsing antigo falha 47 de 63 casos), `p0-07-parser-green.txt` (63/63), `p0-07-parsing-guard-red.txt` e `p0-07-parsing-guard-green.txt`; no navegador, `e2e-red.txt` e `e2e-green.txt` ("3.500" e "3.500,50" persistidos em centavos).
+
+## ADR-053 — BFF transparente: content-type só com corpo e resposta repassada como veio (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P1-02 — `apiFetch` e `apiProxy` definiam `content-type: application/json` sempre: mutação sem corpo virava 400 `FST_ERR_CTP_EMPTY_JSON_BODY` (logout, gerar e enviar contrato, cancelar cobrança, remover característica) — e `apiProxy` convertia toda resposta em JSON (CSV virava `{}`).
+
+Decisões:
+
+- `content-type: application/json` só quando há corpo; o proxy genérico repassa o content-type do navegador quando há corpo.
+- `apiProxy` devolve status e bytes intactos (vazio em 204 e 304) e uma lista fechada de headers de conteúdo — `content-type`, `content-disposition`, `cache-control` — além de todos os `Set-Cookie`. `content-length` e `content-encoding` ficam de fora: o corpo é reenviado já decodificado.
+- `apiFetch` só interpreta JSON quando a API declara JSON.
+
+Consequências: evidência em `docs/audits/2026-09-10/evidence/g2/track-b1/p1-02-bff-red.txt` (7 de 16 falham; os controles passam) e `p1-02-bff-green.txt` (16/16); no navegador, `e2e-green.txt` (CSV e mutação sem corpo).
+
+## ADR-054 — `GET /dashboard/summary`: agregação no banco, por organização e por permissão (Gate G2, 2026-09-14)
+
+Status: Aceito.
+
+Contexto: P1-01 — a Visão Geral buscava 12 listagens com `limit=200` (a API aceita até 100) e mostrava tudo zerado; mesmo com `limit=100`, os números seriam o tamanho de uma página.
+
+Decisões:
+
+- Rota de leitura nova em `apps/api/src/routes/dashboard.ts`: `count(*) filter (where …)` por seção, sempre com `org_id` da sessão. Sem migration e sem mudança de rota existente.
+- Cada seção só é calculada com a permissão de leitura correspondente (`lead:read`, `finance:read`…); sem ela vem `null` e a tela mostra "—", nunca um zero inventado.
+- "Hoje" é o dia civil de `America/Sao_Paulo`, calculado pelo banco de fusos do ICU; todas as comparações usam o mesmo instante, devolvido em `generatedAt`, e o teste de integração compara com contagens SQL independentes nesse instante.
+- Filas (tarefas atrasadas e de hoje, cobranças vencidas, visitas) limitadas a 8 ou 6 itens; as contagens são totais.
+
+Consequências: evidência em `docs/audits/2026-09-10/evidence/g2/track-b1/p1-01-dashboard-summary-red.txt` (4 de 4 falham), `p1-01-dashboard-summary-green.txt` (4/4) e `p1-01-dashboard-summary-green-pos-merge.txt` (4/4 depois do merge da trilha A, com a semente gravando a trilha de decisão exigida pelo ADR-048 e nenhuma asserção alterada).
+
+Alternativas descartadas: aumentar o limite da API (proibido pelo plano e não resolve contagens); paginar as 12 listas no servidor do Next (N chamadas por visita e contagens ainda erradas).
+
+## ADR-055 — Referências sem carregar a organização inteira: `ids`, `q` e combobox assíncrono (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P1-01 — 37 chamadas `limit=200` montavam selects e resolviam nomes carregando todas as pessoas e imóveis da organização.
+
+Decisões:
+
+- Listagens de `properties`, `parties` e `listings` aceitam `ids` (1 a 100 uuids, separados por vírgula) e `properties` aceita `q` (trecho do título, `ILIKE` com `%`, `_` e `\` escapados). Id de outra organização some da resposta, igual a id inexistente. Testes de isolamento em `tests/integration/src/list-search.test.ts`.
+- `apps/web/src/lib/lookup.ts`: `useLookup` resolve só os ids da página (lotes de 100); `useAllPages` percorre, de 100 em 100 e com teto de 50 páginas marcado como `truncated`, as listagens sem `ids` (`rental-applications`, `contracts`), sem alterar essas rotas.
+- `AsyncCombobox` (padrão combobox + listbox do WAI-ARIA) substitui os selects de imóvel dos modais de anúncio, proposta e vistoria; a lista fica no fluxo, abaixo do campo, para não ser cortada pelo corpo rolável do modal. Referência Kal El: `TokenPicker`, reimplementado para seleção única assíncrona.
+- Guarda permanente `apps/web/src/lib/api-limits.test.ts`: todo `limit` literal do web é validado contra o `paginationQuerySchema` real da API, e `limit` calculado em tempo de execução é proibido.
+
+Consequências: `leads?limit=100` (detalhe do lead, inbox) e `proposals?limit=100` (detalhe da candidatura) continuam válidos, mas só enxergam os 100 mais recentes — pendência P2-03. Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/p1-01-busca-q-red.txt` (10 de 11 falham), `p1-01-busca-q-green.txt` (11/11), `p1-01-limit-guard-red.txt` (37 chamadas com `limit=200`) e `p1-01-limit-guard-green.txt` (3/3).
+
+## ADR-056 — Logout só conclui com confirmação da API (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: P1-03 — "Sair" não encerrava a sessão: a mutação sem corpo recebia 400 (P1-02) e a tela redirecionava mesmo assim; no portal, "Sair" era só um link.
+
+Decisões:
+
+- `requestLogout` considera a saída concluída com 2xx ou 401 (sessão que já não existe); qualquer outra resposta, ou falha de rede, mantém a pessoa na página com a mensagem.
+- Sucesso faz recarga completa (`window.location.assign`), para nada da sessão encerrada ficar em memória no navegador.
+- Portais: "Sair" deixa de ser link e chama `/api/portal/auth/logout`.
+
+Consequências: `POST /portal/auth/logout` (`apps/api/src/routes/portal.ts`) só limpa o cookie e não revoga a linha de `portal_sessions`: um cookie copiado antes do "Sair" segue válido até expirar. O P1-03 continua aberto no portal até essa revogação existir. No painel, o logout revoga todas as sessões do usuário na organização ativa (P2-23), comportamento da API mantido. Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/p3-calibration-e-p1-03-logout-helper-red.txt` (helper inexistente), `p1-03-logout-helper-green.txt` (5/5) e `e2e-green.txt` (dois menus e portal).
+
+## ADR-057 — Rotas `/dev` do web fora de produção (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Decisão: `/dev/calibration` chama `notFound()` quando `NODE_ENV === 'production'`, o mesmo critério da API (`apps/api/src/app.ts` só registra rotas `/dev` fora de produção). No build de produção a rota é pré-renderizada como 404.
+
+Consequências: evidência em `docs/audits/2026-09-10/evidence/g2/track-b1/p3-calibration-e-p1-03-logout-helper-red.txt` (a página renderiza em produção) e `p3-calibration-green.txt` (2/2).
+
+## ADR-058 — Regras dos contratos e do crédito na interface: módulos puros testados, domínio fora do bundle do cliente (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: os ADRs 047, 048, 049 e 051 mudaram regras que a interface precisa refletir: crédito só decidido em `MANUAL_REVIEW` com motivo; contrato imutável após o envio e regeneração explícita; `VOID` só a partir de `GENERATED`; variáveis de template; status da sugestão de IA.
+
+Decisões:
+
+- As decisões de tela ficam em módulos puros em `apps/web/src/lib` (`credit-decision`, `contract-rules`, `contract-template-hints`, `inspection-suggestions`), cobertos por testes unitários; os componentes só os consomem.
+- Os módulos não importam `@aluguei/domain` em tempo de execução: o pacote traz `node:crypto` e quebraria o bundle do cliente (mesma cautela de `apps/web/src/lib/rbac.ts`). A consistência com o domínio é garantida nos testes, que rodam no Node e comparam com `canTransitionContract`, `CONTRACT_TEMPLATE_VARIABLES`, `renderTemplate` e `suggestionStatusSchema`.
+
+Consequências: regenerar, listar versões, enviar envelope e cancelar contrato, assim como os status de sugestão, estão cobertos por testes unitários desses módulos e pela jornada principal do Playwright, não por um spec de interface para cada ação. Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/track-a-ui-red.txt` (30 de 37 falham contra o comportamento anterior das telas) e `track-a-ui-green.txt` (37/37).
+
+## ADR-059 — Foco de `Modal` e `Drawer` não depende de `onClose` (Gate G2, 2026-09-15)
+
+Status: Aceito.
+
+Contexto: na revisão final da Track B1, o diálogo da decisão de crédito (motivo digitado, ADR-058) perdia o foco a cada tecla. `Modal` e `Drawer` de `packages/ui` rodavam o efeito de foco com `[open, onClose]`, e as telas passam uma função nova a cada render: cada tecla num campo controlado re-executava o efeito, que devolvia o foco ao botão que abriu o diálogo e o levava para "Fechar" — o espaço seguinte fechava o diálogo. O `fill` do Playwright troca o valor de uma vez e escondia o defeito. Reproduzido também em "Novo contato" (CRM) e no `Drawer` da página de calibração; pelo código, "Nova ocorrência" (detalhe da vistoria) tem a mesma causa.
+
+Decisões:
+
+- Um hook compartilhado, `packages/ui/src/lib/use-dialog-focus.ts`, usado por `Modal` e `Drawer`: o efeito depende só de `open`; uma referência guarda o `onClose` mais recente. Padrão do `Modal` de `packages/design-system/src/components/Overlays.tsx` do Kal El, reimplementado — o CSS e o restante do componente do Kal El não foram trazidos.
+- A lista de focáveis é lida a cada Tab, sem elementos desabilitados ou invisíveis, porque o conteúdo do diálogo muda enquanto ele está aberto.
+- O listener de teclado continua na fase de bolha (o Kal El usa captura): o `AsyncCombobox` para a propagação do Escape para fechar só a lista de opções, sem fechar o modal.
+- Spec que digita em diálogo usa `pressSequentially`, como uma pessoa digita.
+
+Consequências: todo `Modal`, `ConfirmModal` e `Drawer` do web herda a correção sem mudança nas telas; "Nova ocorrência" e os drawers de detalhe não têm spec próprio. Teste permanente: `tests/e2e/src/g2-b1-dialog-focus.spec.ts` (decisão de crédito com Tab e Escape, "Novo contato" e campo controlado no `Drawer` da calibração). Evidência: `docs/audits/2026-09-10/evidence/g2/track-b1/dialog-focus-red.txt` (3 de 3 falham), `dialog-focus-green.txt` (3/3) e `e2e-green-r2.txt` (Playwright completo, 18/18).
+
+## ADR-060 — Admin da plataforma: cadastro com aprovação, planos com limites e allowlist de admins (2026-09-16)
+
+Status: Aceito.
+
+Contexto: o Aluguei.app atende várias imobiliárias, mas todo cadastro aberto criava uma imobiliária operando na hora, e ninguém administrava esses cadastros. Em 2026-09-15 o usuário decidiu: cadastro aberto com aprovação, planos sem cobrança, imagens no MinIO e banco separado (ADR-046).
+
+Decisões:
+
+- Situação em `organizations.status`: aprovar leva `PENDING_APPROVAL` (ou `REJECTED`) a `ACTIVE`; recusar, `PENDING_APPROVAL` a `REJECTED`; suspender, `ACTIVE` a `SUSPENDED`; reativar, `SUSPENDED` a `ACTIVE`. Recusar e suspender exigem motivo, que a imobiliária vê. Transição fora da origem responde `409 INVALID_TRANSITION`; a linha é travada e a auditoria entra na mesma transação.
+- Negação por padrão: só `ACTIVE` opera. `requireAuth` (todo o painel, direto ou via `requirePermission`) e `requirePortalAuth` recusam com `403` e `details.reason = ORG_NOT_ACTIVE`; o consumo de token do portal também, sem gastar o token; o site público responde `404`. `/auth/me`, logout e troca de imobiliária usam só a sessão (`requireSession`), para a tela de situação da conta funcionar.
+- Admins da plataforma pela allowlist `PLATFORM_ADMIN_EMAILS` (e-mails separados por vírgula), avaliada a cada requisição sobre o e-mail da sessão. Admin sem imobiliária entra com `org: null`. As rotas `/platform/*` exigem a allowlist (`401` sem sessão, `403` fora dela).
+- A conta do admin só nasce no servidor (`apps/api/src/cli/create-platform-admin.ts`, senha pela entrada padrão, mínimo de 12 caracteres). O cadastro aberto recusa e-mail da allowlist com a mesma resposta de e-mail já cadastrado, dada depois do hash. Sem isso, quem se cadastrasse primeiro com o e-mail listado viraria admin.
+- Planos em `plans`, com limites de usuários, imóveis não arquivados e anúncios publicados (`null` é ilimitado; sem cobrança). A migration 0018 semeia ESSENCIAL (3 usuários, 50 imóveis, 20 anúncios; padrão das novas imobiliárias), PROFISSIONAL (10/300/150) e ILIMITADO. As imobiliárias existentes ficam `ACTIVE` no ILIMITADO. Plano desativado continua onde está, mas não pode ser atribuído. Rebaixar abaixo do uso é permitido: nada é apagado, só novos itens param (`overLimit` na listagem).
+- O limite é checado na transação que acrescenta o item: `SELECT … FOR UPDATE` na linha da imobiliária, leitura do plano, contagem e `409 PLAN_LIMIT_REACHED` (`details`: `resource`, `limit`, `current`) antes de qualquer escrita. Vale para cadastro de imóvel, novo membro e publicação de anúncio, que ganhou compare-and-set de status.
+- Interface: `/situacao-da-conta` (em análise, recusada ou suspensa, com o motivo) e a área `/plataforma` (visão geral com a fila, imobiliárias com busca e abas por situação, detalhe com ações e histórico, planos). A área reaproveita as classes do shell do painel e os componentes de `@aluguei/ui`. O Kal El serviu só de referência de padrão de lista e detalhe, sem código de domínio.
+
+Consequências: não há aviso por e-mail nem WhatsApp (envio real está fora desta fase), então a imobiliária descobre a decisão ao entrar. A suspensão não despublica anúncios em canais externos nem para os jobs do worker, e webhooks de pagamento continuam sendo processados. Trocar os admins exige mudar a variável e reiniciar a API; não há papéis dentro da plataforma nem registro de quem alterou a allowlist. O limite de armazenamento (MinIO) não entrou e fica para quando houver contagem de bytes por imobiliária. As fixtures de teste (`registerUser`, `registerOrg`, `registerViaApi`) aprovam a imobiliária logo depois do cadastro; o fluxo sem aprovação fica em `platform-admin.test.ts` e `platform-admin.spec.ts`. Evidência: `docs/audits/2026-09-10/evidence/platform-admin/`.
+
+Alternativas descartadas: tabela de admins com convite pela interface (mais superfície de escalada de privilégio, sem necessidade atual); admin automático no primeiro cadastro com o e-mail listado (sequestrável); plano escolhido no cadastro (o admin escolhe na aprovação).

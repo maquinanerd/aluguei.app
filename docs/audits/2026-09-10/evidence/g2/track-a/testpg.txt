@@ -1,0 +1,22 @@
+# Gate G2 — trilha A: test:pg em PostgreSQL real (extra ao pedido)
+# commit: 53cbc93 (código); execução 2026-09-15, depois do E2E
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 55443), removido ao final; o serviço local da porta 5432 exige senha e não foi usado
+# motivo: a trilha A mudou tests/integration/src/finance-fixtures.ts (setupLease), usado por finance-concurrency.pg.test.ts
+# resultado: exit 0 — 4 passed
+
+# comando: pnpm test:pg (cluster descartável na porta 55443)
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a0ec0674f2455dc73/tests/integration
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  10:37:20
+   Duration  43.60s (transform 24.20s, setup 0ms, import 26.73s, tests 16.52s, environment 0ms)
+
+$ pnpm --filter @aluguei/tests-integration test:pg
+$ vitest run --config vitest.pg.config.ts
+(node:21776) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21776) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.

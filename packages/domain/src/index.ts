@@ -33,6 +33,9 @@ export * from './meta/budget.js';
 export * from './meta/stateMachine.js';
 export * from './meta/campaignFlow.js';
 export * from './portal/portal.js';
+export * from './platform/organization-status.js';
+export * from './platform/plan-limits.js';
+export * from './platform/platform-admins.js';
 
 export {
   LISTING_STATUSES,
@@ -94,6 +97,7 @@ export { computeInspectionDifferences } from './inspection/compare.js';
 
 export {
   RENTAL_APPLICATION_STATUSES,
+  CREDIT_DECISION_SOURCES,
   isRentalApplicationStatus,
   canTransitionRentalApplication,
   applicationTransitionIssues,
@@ -102,9 +106,11 @@ export {
 export type {
   RentalApplicationStatus,
   ApplicationTransitionContext,
+  ApplicationTransitionSource,
+  CreditDecisionSource,
 } from './rental/application.js';
 
-export { decideApplication } from './rental/screening.js';
+export { decideApplication, describeScreeningDecision } from './rental/screening.js';
 export type {
   ScreeningDecision,
   ScreeningDecisionInput,
@@ -115,14 +121,23 @@ export type {
 
 export {
   CONTRACT_STATUSES,
+  CONTRACT_CONTENT_WRITABLE_STATUSES,
   isContractStatus,
   canTransitionContract,
+  canWriteContractContent,
+  assertContractContentWritable,
   transitionContract,
   sha256Hex,
 } from './contract/contract.js';
 export type { ContractStatus, ContractTransitionContext } from './contract/contract.js';
 
 export { renderTemplate } from './contract/template.js';
+export {
+  CONTRACT_TEMPLATE_VARIABLES,
+  buildContractVariables,
+  formatCentsBRL,
+} from './contract/variables.js';
+export type { ContractTemplateVariable, ContractVariableSource } from './contract/variables.js';
 
 export { add, sub, negate, mulBpsFloor, splitAmount } from './finance/money.js';
 export { calculateChargeBreakdown } from './finance/chargeCalc.js';

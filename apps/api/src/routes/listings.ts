@@ -33,6 +33,7 @@ import {
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
+import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { enqueueChannelJob } from './channel-jobs.js';
 import { first } from './helpers.js';
 
@@ -227,6 +228,7 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
     const where = and(
       eq(listings.orgId, auth.orgId),
       query.status ? eq(listings.status, query.status) : undefined,
+      query.ids ? inArray(listings.id, query.ids) : undefined,
     );
     const rows = await db
       .select()
@@ -380,30 +382,42 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
       if (nextStatus === 'PUBLISHED' && listing.publishedAt === null) {
         patch.publishedAt = new Date();
       }
-      const updated = first(
-        await db
+      const updated = await db.transaction(async (tx) => {
+        // Publicar ocupa uma vaga de anúncio publicado do plano (trava a imobiliária).
+        if (nextStatus === 'PUBLISHED' && listing.status !== 'PUBLISHED') {
+          await assertPlanAllowsOneMore(tx, auth.orgId, 'publishedListings');
+        }
+        // Compare-and-set: outra mudança de status no meio do caminho não é sobrescrita.
+        const [row] = await tx
           .update(listings)
           .set(patch as never)
-          .where(eq(listings.id, listing.id))
-          .returning(),
-      );
+          .where(and(eq(listings.id, listing.id), eq(listings.status, listing.status)))
+          .returning();
+        if (!row) {
+          throw new DomainError(
+            'CONFLICT',
+            'O anúncio mudou de status; recarregue e tente de novo',
+          );
+        }
 
-      await db.insert(timelineEvents).values({
-        orgId: auth.orgId,
-        entityType: 'LISTING',
-        entityId: listing.id,
-        eventType: 'LISTING_STATUS_CHANGED',
-        payload: { from: listing.status, to: nextStatus, reason: input.reason ?? null },
-        actorUserId: auth.userId,
-      });
+        await tx.insert(timelineEvents).values({
+          orgId: auth.orgId,
+          entityType: 'LISTING',
+          entityId: listing.id,
+          eventType: 'LISTING_STATUS_CHANGED',
+          payload: { from: listing.status, to: nextStatus, reason: input.reason ?? null },
+          actorUserId: auth.userId,
+        });
 
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.LISTING_STATUS_CHANGED,
-        entityType: 'LISTING',
-        entityId: listing.id,
-        payload: { from: listing.status, to: nextStatus },
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.LISTING_STATUS_CHANGED,
+          entityType: 'LISTING',
+          entityId: listing.id,
+          payload: { from: listing.status, to: nextStatus },
+        });
+        return row;
       });
 
       const detail = await loadListingDetail(db, auth.orgId, updated.id);

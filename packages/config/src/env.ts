@@ -55,6 +55,8 @@ export const envSchema = z.object({
   META_AD_ACCOUNT_ID: z.string().optional(),
   META_TOKEN_ENCRYPTION_KEY: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
+  // Admins da plataforma (e-mails separados por vírgula). Ausente: ninguém é admin.
+  PLATFORM_ADMIN_EMAILS: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

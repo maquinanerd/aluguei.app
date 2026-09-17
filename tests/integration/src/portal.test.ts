@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { charges, leases, portalAccess, portalSessions, splitRules } from '@aluguei/db';
 import { buildTestApp, registerUser } from './helpers.js';
+import { call, platformAdminSession } from './platform-fixtures.js';
 
 interface PartyBody {
   party: { id: string };
@@ -328,5 +329,49 @@ describe('Fase 10: Portal proprietário/locatário (isolamento)', () => {
     expect(contractBody.contracts.length).toBeGreaterThan(0);
     expect(contractBody.contracts[0]?.status).toBe('SIGNED');
     expect(contractBody.contracts[0]?.content).toBeNull(); // content só no detalhe
+  });
+  it('imobiliária suspensa pela plataforma: sessão do portal e consumo de token recusados (403); reativada, voltam', async () => {
+    const { cookie, orgId, tenantId, landlordId } = await setupPortalScenario();
+    const tenantAccess = await app.inject({
+      method: 'POST',
+      url: '/portal/access',
+      headers: { cookie },
+      payload: { partyId: tenantId, kind: 'TENANT' },
+    });
+    expect(tenantAccess.statusCode).toBe(201);
+    const portalCookie = await consumeToken(app, (tenantAccess.json() as AccessBody).oneTimeToken);
+    const landlordAccess = await app.inject({
+      method: 'POST',
+      url: '/portal/access',
+      headers: { cookie },
+      payload: { partyId: landlordId, kind: 'LANDLORD' },
+    });
+    expect(landlordAccess.statusCode).toBe(201);
+    const landlordToken = (landlordAccess.json() as AccessBody).oneTimeToken;
+
+    const admin = await platformAdminSession(app);
+    const suspend = await call(app, 'POST', `/platform/organizations/${orgId}/suspend`, {
+      cookie: admin.cookie,
+      payload: { reason: 'Inadimplência com a plataforma' },
+    });
+    expect(suspend.status).toBe(200);
+
+    const me = await call(app, 'GET', '/portal/me', { cookie: portalCookie });
+    expect(me.status).toBe(403);
+    expect(me.body.details).toMatchObject({ reason: 'ORG_NOT_ACTIVE', status: 'SUSPENDED' });
+    const statement = await call(app, 'GET', '/portal/tenant/statement', { cookie: portalCookie });
+    expect(statement.status).toBe(403);
+    const consume = await call(app, 'POST', '/portal/auth/consume', {
+      payload: { token: landlordToken },
+    });
+    expect(consume.status).toBe(403);
+
+    const reactivate = await call(app, 'POST', `/platform/organizations/${orgId}/reactivate`, {
+      cookie: admin.cookie,
+    });
+    expect(reactivate.status).toBe(200);
+    expect((await call(app, 'GET', '/portal/me', { cookie: portalCookie })).status).toBe(200);
+    // O token não foi gasto durante a suspensão.
+    await consumeToken(app, landlordToken);
   });
 });

@@ -1,0 +1,91 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54330/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/platform-limits.pg.test.ts
+# árvore: commit 66eaa02 + teste novo platform-limits.pg.test.ts, com o 'for update' de assertPlanAllowsOneMore (apps/api/src/platform/usage.ts) removido SÓ durante esta execução e restaurado em seguida
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54330)
+# data (UTC): 2026-09-16T13:59:02Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:25784) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/platform-limits.pg.test.ts (3 tests | 3 failed) 3448ms
+     × trava da imobiliária: quem conta enquanto outra transação está no limite espera e é recusado 712ms
+     × vinte cadastros simultâneos de imóvel com limite 3: exatamente 3 gravados e 17 recusados 235ms
+     × quatro publicações simultâneas com limite 2 de anúncios: exatamente 2 publicados 298ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform-limits.pg.test.ts > concorrência real (PostgreSQL): limites do plano > trava da imobiliária: quem conta enquanto outra transação está no limite espera e é recusado
+AssertionError: expected 'fulfilled' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "fulfilled"
+
+ ❯ src/platform-limits.pg.test.ts:127:33
+    125|     const [firstResult, secondResult] = await Promise.allSettled([firs…
+    126|     expect(firstResult.status).toBe('fulfilled');
+    127|     expect(secondResult.status).toBe('rejected');
+       |                                 ^
+    128|     if (secondResult.status === 'rejected') {
+    129|       expect(secondResult.reason).toMatchObject({ code: 'PLAN_LIMIT_RE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/platform-limits.pg.test.ts > concorrência real (PostgreSQL): limites do plano > vinte cadastros simultâneos de imóvel com limite 3: exatamente 3 gravados e 17 recusados
+AssertionError: expected { created: 4, refused: 16, other: [] } to deeply equal { created: 3, refused: 17, other: [] }
+
+- Expected
++ Received
+
+  {
+-   "created": 3,
++   "created": 4,
+    "other": [],
+-   "refused": 17,
++   "refused": 16,
+  }
+
+ ❯ src/platform-limits.pg.test.ts:149:30
+    147|     );
+    148|
+    149|     expect(outcome(results)).toEqual({ created: 3, refused: 17, other:…
+       |                              ^
+    150|     const rows = await db.execute(
+    151|       sql`select count(*)::int as n from properties where org_id = ${a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/platform-limits.pg.test.ts > concorrência real (PostgreSQL): limites do plano > quatro publicações simultâneas com limite 2 de anúncios: exatamente 2 publicados
+AssertionError: expected { created: 4, refused: +0, other: [] } to deeply equal { created: 2, refused: 2, other: [] }
+
+- Expected
++ Received
+
+  {
+-   "created": 2,
++   "created": 4,
+    "other": [],
+-   "refused": 2,
++   "refused": 0,
+  }
+
+ ❯ src/platform-limits.pg.test.ts:198:30
+    196|     );
+    197|
+    198|     expect(outcome(results)).toEqual({ created: 2, refused: 2, other: …
+       |                              ^
+    199|     const rows = await db.execute(
+    200|       sql`select count(*)::int as n from listings where org_id = ${age…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  10:59:04
+   Duration  8.10s (transform 2.01s, setup 0ms, import 4.21s, tests 3.45s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/platform-limits.pg.test.ts
+# exit=1

@@ -1,4 +1,5 @@
 import { hasPermission } from './rbac';
+import type { OrganizationStatus } from './account-status';
 import type { Permission, Role } from '@aluguei/domain';
 
 /** Sessão do painel (shape de /auth/me). */
@@ -12,6 +13,8 @@ export interface SessionOrg {
   id: string;
   name: string;
   slug: string;
+  status: OrganizationStatus;
+  statusReason: string | null;
 }
 
 export interface SessionMembership {
@@ -25,6 +28,8 @@ export interface Session {
   user: SessionUser;
   activeOrg: SessionOrg | null;
   memberships: SessionMembership[];
+  /** E-mail na allowlist PLATFORM_ADMIN_EMAILS da API. */
+  platformAdmin: boolean;
 }
 
 /** Função do usuário na org ativa (fallback: viewer). */

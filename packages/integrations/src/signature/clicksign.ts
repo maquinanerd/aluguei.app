@@ -6,6 +6,7 @@ import type {
   EnvelopeParty,
   EnvelopeStatus,
   ISignatureProvider,
+  SignatureProviderName,
 } from './types.js';
 
 export type SignatureProviderErrorCode =
@@ -136,6 +137,7 @@ function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown, context: string):
  * assinado precisam ser confirmados no sandbox.
  */
 export class ClicksignSignatureProvider implements ISignatureProvider {
+  readonly name: SignatureProviderName = 'CLICKSIGN';
   private readonly token: string;
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;

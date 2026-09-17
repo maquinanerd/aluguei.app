@@ -1,0 +1,13 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 11fcb2e (g2/integration: main + ops/storage-db + trilhas A e B1 do G2); rodada sem cache iniciada em 2026-09-15T19:36:10Z
+
+Scope: all 17 workspace projects
+✓ Lockfile passes supply-chain policies (verified 6h ago)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +5
++++++
+Progress: resolved 5, reused 5, downloaded 0, added 4
+Progress: resolved 5, reused 5, downloaded 0, added 5, done
+
+Done in 3s using pnpm v11.15.1

@@ -37,6 +37,7 @@ import {
   inspectionMediaUploadUrlRequestSchema,
   listInspectionsQuerySchema,
   resolveSuggestionRequestSchema,
+  SUGGESTION_STATUS_BY_ACTION,
   updateInspectionStatusRequestSchema,
   uuidSchema,
   inspectionUploadUrlResponseSchema,
@@ -531,40 +532,52 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
         description?: string;
       };
 
-      let observation: typeof inspectionObservations.$inferSelect | null = null;
-      if (input.action === 'ACCEPT' || input.action === 'EDIT') {
-        const [created] = await db
-          .insert(inspectionObservations)
-          .values({
-            orgId: auth.orgId,
-            inspectionId: inspection.id,
-            mediaId: suggestion.mediaId,
-            category: payload.category ?? 'OTHER',
-            severity: payload.severity ?? 'NONE',
-            description: input.description ?? payload.description ?? '',
-            source: 'AI',
-            status: input.action === 'EDIT' ? 'EDITED' : 'CONFIRMED',
-            aiSuggestionId: suggestion.id,
-            createdBy: auth.userId,
-          })
+      // P1-05: grava o STATUS resultante da ação (ACCEPT → ACCEPTED…). Antes a ação
+      // ia direto para a coluna e toda leitura da vistoria respondia 400.
+      const status = SUGGESTION_STATUS_BY_ACTION[input.action];
+      const { updated, observation } = await db.transaction(async (tx) => {
+        // Compare-and-set: resolvida uma vez só, com status e observação juntos.
+        const [resolved] = await tx
+          .update(inspectionAiSuggestions)
+          .set({ status, updatedAt: new Date() })
+          .where(
+            and(
+              eq(inspectionAiSuggestions.id, suggestion.id),
+              eq(inspectionAiSuggestions.status, 'PENDING'),
+            ),
+          )
           .returning();
-        observation = created ?? null;
-      }
-      const [updated] = await db
-        .update(inspectionAiSuggestions)
-        .set({ status: input.action, updatedAt: new Date() })
-        .where(eq(inspectionAiSuggestions.id, suggestion.id))
-        .returning();
-      if (!updated) {
-        throw new Error('suggestion update failed');
-      }
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.INSPECTION_SUGGESTION_RESOLVED,
-        entityType: 'INSPECTION',
-        entityId: inspection.id,
-        payload: { suggestionId: suggestion.id, action: input.action },
+        if (!resolved) {
+          throw new DomainError('CONFLICT', 'Sugestão já resolvida');
+        }
+        let created: typeof inspectionObservations.$inferSelect | null = null;
+        if (input.action === 'ACCEPT' || input.action === 'EDIT') {
+          const [row] = await tx
+            .insert(inspectionObservations)
+            .values({
+              orgId: auth.orgId,
+              inspectionId: inspection.id,
+              mediaId: suggestion.mediaId,
+              category: payload.category ?? 'OTHER',
+              severity: payload.severity ?? 'NONE',
+              description: input.description ?? payload.description ?? '',
+              source: 'AI',
+              status: input.action === 'EDIT' ? 'EDITED' : 'CONFIRMED',
+              aiSuggestionId: suggestion.id,
+              createdBy: auth.userId,
+            })
+            .returning();
+          created = row ?? null;
+        }
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.INSPECTION_SUGGESTION_RESOLVED,
+          entityType: 'INSPECTION',
+          entityId: inspection.id,
+          payload: { suggestionId: suggestion.id, action: input.action, status },
+        });
+        return { updated: resolved, observation: created };
       });
       return {
         suggestion: {

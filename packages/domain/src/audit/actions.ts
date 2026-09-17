@@ -100,6 +100,14 @@ export const AUDIT_ACTIONS = {
   PORTAL_LOGOUT: 'portal.logout',
   REPORT_VIEWED: 'report.viewed',
   REPORT_EXPORTED: 'report.exported',
+  PLATFORM_ORG_APPROVED: 'platform.organization.approved',
+  PLATFORM_ORG_REJECTED: 'platform.organization.rejected',
+  PLATFORM_ORG_SUSPENDED: 'platform.organization.suspended',
+  PLATFORM_ORG_REACTIVATED: 'platform.organization.reactivated',
+  PLATFORM_ORG_PLAN_CHANGED: 'platform.organization.plan_changed',
+  PLATFORM_PLAN_CREATED: 'platform.plan.created',
+  PLATFORM_PLAN_UPDATED: 'platform.plan.updated',
+  PLATFORM_ADMIN_BOOTSTRAPPED: 'platform.admin.bootstrapped',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

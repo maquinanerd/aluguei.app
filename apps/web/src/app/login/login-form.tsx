@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Icon } from '@aluguei/ui';
+import { destinationFor } from '@/lib/account-status';
+import type { AccountSnapshot } from '@/lib/account-status';
 
 export function LoginForm() {
   const router = useRouter();
@@ -30,7 +32,10 @@ export function LoginForm() {
         setError(message);
         return;
       }
-      router.push('/app');
+      const session = data as { org: AccountSnapshot['activeOrg']; platformAdmin?: boolean };
+      router.push(
+        destinationFor({ activeOrg: session.org, platformAdmin: session.platformAdmin === true }),
+      );
       router.refresh();
     } finally {
       setSubmitting(false);

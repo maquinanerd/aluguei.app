@@ -2,6 +2,7 @@ import { expect } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { approveAgency } from './platform-fixtures.js';
 
 /**
  * Fixtures dos testes financeiros (auditoria 2026-09-10, P0-01/02/03):
@@ -73,6 +74,8 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       throw new Error(`registro falhou: ${String(res.statusCode)} ${res.body}`);
     }
     const body = res.json() as { org: { id: string }; user: { id: string } };
+    // Cadastro aberto nasce aguardando aprovação; a suíte financeira precisa da imobiliária operando.
+    await approveAgency(app, body.org.id);
     const setCookie = res.headers['set-cookie'];
     const cookie = Array.isArray(setCookie) ? setCookie.join('; ') : (setCookie ?? '');
     return { cookie, orgId: body.org.id, userId: body.user.id };
@@ -162,23 +165,35 @@ export function createFinanceFixtures(app: FastifyInstance, runWorker: () => Pro
       payload: { partyId: tenantId, propertyId },
     });
     const applicationId = idOf(application.body, 'application');
-    await call('PATCH', `/rental-applications/${applicationId}/status`, {
+    const submit = await call('PATCH', `/rental-applications/${applicationId}/status`, {
       cookie,
       payload: { status: 'SUBMITTED' },
     });
-    await call('POST', `/rental-applications/${applicationId}/screening`, {
+    expect(submit.status, JSON.stringify(submit.body)).toBe(200);
+    // A análise começa pelo pedido de screening e o resultado do provider decide
+    // (auditoria 2026-09-10, P1-06) — nunca um PATCH direto para APPROVED.
+    const screening = await call('POST', `/rental-applications/${applicationId}/screening`, {
       cookie,
       payload: { provider: 'FAKE' },
     });
+    expect(screening.status, JSON.stringify(screening.body)).toBe(202);
     await runWorker();
-    const current = await call('GET', `/rental-applications/${applicationId}`, { cookie });
-    const status = (current.body.application as { status?: string } | undefined)?.status;
-    if (status === 'MANUAL_REVIEW') {
-      await call('PATCH', `/rental-applications/${applicationId}/status`, {
+    const applicationStatus = async (): Promise<string | undefined> => {
+      const current = await call('GET', `/rental-applications/${applicationId}`, { cookie });
+      return (current.body.application as { status?: string } | undefined)?.status;
+    };
+    if ((await applicationStatus()) === 'MANUAL_REVIEW') {
+      // Revisão manual: uma pessoa decide, com motivo registrado.
+      const decided = await call('PATCH', `/rental-applications/${applicationId}/status`, {
         cookie,
-        payload: { status: 'APPROVED', decisionReason: 'Aprovação manual (teste)' },
+        payload: {
+          status: 'APPROVED',
+          decisionReason: 'Renda e documentos conferidos pela equipe (teste)',
+        },
       });
+      expect(decided.status, JSON.stringify(decided.body)).toBe(200);
     }
+    expect(await applicationStatus()).toBe('APPROVED');
 
     const template = await call('POST', '/contract-templates', {
       cookie,
