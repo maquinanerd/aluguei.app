@@ -12,7 +12,12 @@ import { startHeartbeat } from './heartbeat.js';
 import { getMetaAdsProvider } from '@aluguei/integrations';
 
 export { runChannelJobs, runInboxJobs, runMetaJobs };
-export { processPaymentJob } from './paymentJobs.js';
+export {
+  advanceBillingLifecycle,
+  processPaymentJob,
+  processPaymentSchedulerJob,
+  processReconcileJob,
+} from './paymentJobs.js';
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const JOB_POLL_INTERVAL_MS = 5_000;
