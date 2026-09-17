@@ -28,7 +28,7 @@ import {
   uuidSchema,
 } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
-import { writeAudit } from '../plugins/audit.js';
+import { auditDiff, writeAudit } from '../plugins/audit.js';
 import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { assertSizeAllowed, buildStorageKey, isPublicMediaKind } from '../media-rules.js';
 import { enqueueUpdatesForProperty } from './channel-jobs.js';
@@ -325,6 +325,8 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
             : AUDIT_ACTIONS.PROPERTY_UPDATED,
         entityType: 'PROPERTY',
         entityId: updated.id,
+        // O que mudou, sem dado pessoal (auditoria 2026-09-10, P2-11).
+        payload: auditDiff(property as Record<string, unknown>, patch),
       });
 
       const loaded = await loadProperty(db, auth.orgId, updated.id);

@@ -14,7 +14,7 @@ import {
   updateMemberRoleResponseSchema,
 } from '@aluguei/contracts';
 import { requireAuth } from '../plugins/authz.js';
-import { writeAudit } from '../plugins/audit.js';
+import { auditDiff, writeAudit } from '../plugins/audit.js';
 import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { first, toMembershipDto } from './helpers.js';
 
@@ -158,7 +158,8 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
       action: AUDIT_ACTIONS.MEMBER_ROLE_CHANGED,
       entityType: 'MEMBERSHIP',
       entityId: membership.id,
-      payload: { userId, role: input.role },
+      // Papel antes e depois; do usuário, só o id (auditoria 2026-09-10, P2-11).
+      payload: { userId, ...auditDiff({ role: membership.role }, { role: input.role }) },
     });
 
     return updateMemberRoleResponseSchema.parse({ membership: toMembershipDto(updated) });

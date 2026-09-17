@@ -1,0 +1,125 @@
+# comando: pnpm --filter @aluguei/api exec vitest run src/audit-diff.test.ts
+# árvore: commit a63b480 (teste do F-9 na API; auditDiff inexistente)
+# data (UTC): 2026-09-17T18:35:38Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/api
+
+ ❯ src/audit-diff.test.ts (8 tests | 8 failed) 12ms
+     × só os campos alterados, com antes e depois 6ms
+     × ignora carimbos e identificadores 1ms
+     × campo novo (antes ausente) e campo apagado aparecem como mudança 1ms
+     × campo pessoal vira marca, nunca valor 0ms
+     × texto livre com CPF, e-mail ou telefone é redigido 0ms
+     × objetos e listas entram pelo conteúdo, não pela referência 0ms
+     × texto longo é truncado 0ms
+     × campos pessoais extras podem ser declarados por quem chama 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > só os campos alterados, com antes e depois
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:11:18
+      9| describe('auditDiff', () => {
+     10|   it('só os campos alterados, com antes e depois', () => {
+     11|     const diff = auditDiff(
+       |                  ^
+     12|       { title: 'Casa velha', bedrooms: 2, status: 'AVAILABLE' },
+     13|       { title: 'Casa nova', bedrooms: 2 },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > ignora carimbos e identificadores
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:22:18
+     20|
+     21|   it('ignora carimbos e identificadores', () => {
+     22|     const diff = auditDiff(
+       |                  ^
+     23|       { title: 'Casa', updatedAt: new Date('2026-01-01'), id: 'a', org…
+     24|       { title: 'Casa', updatedAt: new Date('2026-09-17'), id: 'a', org…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > campo novo (antes ausente) e campo apagado aparecem como mudança
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:30:18
+     28|
+     29|   it('campo novo (antes ausente) e campo apagado aparecem como mudança…
+     30|     const diff = auditDiff({ description: null }, { description: 'Refo…
+       |                  ^
+     31|     expect(diff.fields).toEqual(['bedrooms', 'description']);
+     32|     expect(diff.changes.description).toEqual({ from: null, to: 'Reform…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > campo pessoal vira marca, nunca valor
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:37:18
+     35|
+     36|   it('campo pessoal vira marca, nunca valor', () => {
+     37|     const diff = auditDiff(
+       |                  ^
+     38|       { name: 'Maria Souza', email: 'maria@exemplo.com', phone: '11912…
+     39|       { name: 'Maria de Souza', email: 'maria.souza@exemplo.com', phon…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > texto livre com CPF, e-mail ou telefone é redigido
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:50:18
+     48|
+     49|   it('texto livre com CPF, e-mail ou telefone é redigido', () => {
+     50|     const diff = auditDiff(
+       |                  ^
+     51|       { description: 'Sem contato' },
+     52|       { description: 'Falar com 11912345678 ou maria@exemplo.com, CPF …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > objetos e listas entram pelo conteúdo, não pela referência
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:61:18
+     59|
+     60|   it('objetos e listas entram pelo conteúdo, não pela referência', () …
+     61|     const diff = auditDiff(
+       |                  ^
+     62|       { features: ['piscina'], terms: { rentCents: 250000 } },
+     63|       { features: ['piscina'], terms: { rentCents: 300000 } },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > texto longo é truncado
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:73:18
+     71|
+     72|   it('texto longo é truncado', () => {
+     73|     const diff = auditDiff({ description: 'a' }, { description: 'b'.re…
+       |                  ^
+     74|     expect(String(diff.changes.description?.to)).toHaveLength(200);
+     75|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/audit-diff.test.ts > auditDiff > campos pessoais extras podem ser declarados por quem chama
+TypeError: auditDiff is not a function
+ ❯ src/audit-diff.test.ts:78:18
+     76|
+     77|   it('campos pessoais extras podem ser declarados por quem chama', () …
+     78|     const diff = auditDiff({ apelido: 'Mari' }, { apelido: 'Maria' }, …
+       |                  ^
+     79|     expect(diff.changes.apelido).toEqual({ from: '[REDACTED]', to: '[R…
+     80|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  15:35:40
+   Duration  1.67s (transform 294ms, setup 0ms, import 1.26s, tests 12ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/audit-diff.test.ts
+# exit=1
