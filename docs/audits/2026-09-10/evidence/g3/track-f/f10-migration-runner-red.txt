@@ -1,0 +1,104 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54332/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/migration-runner.pg.test.ts
+# árvore: commit d86a125 (g3/track-f-ops: main 3aa922b + teste do F-10, runner sem trava)
+# data (UTC): 2026-09-17T16:08:34Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+ ❯ src/migration-runner.pg.test.ts (5 tests | 1 failed) 8252ms
+     × duas execuções simultâneas terminam bem e cada migration é aplicada uma vez 2361ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/migration-runner.pg.test.ts > runner de migrations (PostgreSQL real) > duas execuções simultâneas terminam bem e cada migration é aplicada uma vez
+AssertionError: segunda execução:
+file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:41
+        throw new DrizzleQueryError(queryString, params, e);
+              ^
+
+DrizzleQueryError: Failed query: CREATE TABLE "app_metadata" (
+	"key" text PRIMARY KEY NOT NULL,
+	"value" jsonb NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+params: 
+    at NodePgPreparedQuery.queryWithCache (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/dialect.js:64:13
+    ... 3 lines matching cause stack trace ...
+    at async file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/db/scripts/apply-migrations.mjs:33:3 {
+  query: 'CREATE TABLE "app_metadata" (\n' +
+    '\t"key" text PRIMARY KEY NOT NULL,\n' +
+    '\t"value" jsonb NOT NULL,\n' +
+    '\t"updated_at" timestamp with time zone DEFAULT now() NOT NULL\n' +
+    ');\n',
+  params: [],
+  cause: error: duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+      at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\node_modules\.pnpm\pg@8.23.0\node_modules\pg\lib\client.js:694:17
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:113:20
+      at async NodePgPreparedQuery.queryWithCache (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/dialect.js:64:13
+      at async NodePgSession.transaction (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:186:22)
+      at async PgDialect.migrate (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/dialect.js:60:5)
+      at async migrate (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/migrator.js:4:3)
+      at async file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/db/scripts/apply-migrations.mjs:33:3 {
+    length: 252,
+    severity: 'ERROR',
+    code: '23505',
+    detail: 'Key (typname, typnamespace)=(app_metadata, 2200) already exists.',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'pg_catalog',
+    table: 'pg_type',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'pg_type_typname_nsp_index',
+    file: 'nbtinsert.c',
+    line: '673',
+    routine: '_bt_check_unique'
+  }
+}
+
+Node.js v24.19.0
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/dialect.ts:102:6
+ ❯ ../../node_modules/.pnpm/pg@8.23.0/node_modules/pg/lib/client.js:694:17
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/node-postgres/session.ts:149:13
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:71:11
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/dialect.ts:102:6
+ ❯ NodePgSession.transaction ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/node-postgres/session.ts:259:18
+ ❯ PgDialect.migrate ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/dialect.ts:95:2
+ ❯ migrate ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/node-postgres/migrator.ts:10:1
+ ❯ src/migration-runner.pg.test.ts:140:56
+    138|       const [a, b] = await Promise.all([first, second]);
+    139|       expect(a.code, `primeira execução:\n${a.output}`).toBe(0);
+    140|       expect(b.code, `segunda execução:\n${b.output}`).toBe(0);
+       |                                                        ^
+    141|
+    142|       const applied = await target.execute(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  13:08:36
+   Duration  9.74s (transform 277ms, setup 0ms, import 1.18s, tests 8.25s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/migration-runner.pg.test.ts
+# exit=1

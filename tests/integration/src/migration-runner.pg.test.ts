@@ -188,7 +188,9 @@ describe('runner de migrations (PostgreSQL real)', () => {
     });
 
     it('URL malformada: falha sem a senha', async () => {
-      const result = await runRunner(`postgresql://postgres:${PASSWORD}@localhost:porta/${secretDb}`);
+      const result = await runRunner(
+        `postgresql://postgres:${PASSWORD}@localhost:porta/${secretDb}`,
+      );
       expect(result.code).not.toBe(0);
       assertNoSecret(result);
     });
