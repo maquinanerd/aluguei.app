@@ -69,7 +69,17 @@ export const leaseAmendmentSchema = z.object({
   createdAt: z.string(),
 });
 
-const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data no formato AAAA-MM-DD');
+/** Data civil `AAAA-MM-DD` que existe no calendário (2027-02-30 não passa). */
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data no formato AAAA-MM-DD')
+  .refine(
+    (value) => {
+      const date = new Date(`${value}T00:00:00.000Z`);
+      return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    },
+    { message: 'Data inexistente' },
+  );
 const monthStartSchema = isoDateSchema.refine((value) => value.endsWith('-01'), {
   message: 'O reajuste começa no primeiro dia de um mês',
 });
@@ -239,8 +249,10 @@ export const listLeasesResponseSchema = z.object({
 
 export const createChargeRequestSchema = z.object({
   leaseId: uuidSchema,
-  periodStart: z.string().optional(),
-  dueDate: z.string().optional(),
+  /** Qualquer dia do mês de referência; a cobrança usa o primeiro dia. */
+  periodStart: isoDateSchema.optional(),
+  /** Data civil; sem ela, o dia de vencimento da locação (G3, P1-07). */
+  dueDate: isoDateSchema.optional(),
   amountOverrideCents: z.number().int().positive().optional(),
 });
 
