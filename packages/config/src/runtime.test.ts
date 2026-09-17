@@ -12,7 +12,7 @@ const HEX_64 = 'a'.repeat(64);
 /** Variáveis da API na homologação (docker-compose.prod.yml), com valores fictícios. */
 const HOMOLOGATION_API: NodeJS.ProcessEnv = {
   NODE_ENV: 'production',
-  DATABASE_URL: 'postgresql://aluguei:segredo-do-banco@aluguei-postgres:5432/aluguei',
+  DATABASE_URL: 'postgresql://aluguei:segredo-do-banco@localhost:5432/aluguei',
   APP_BASE_URL: 'https://aluguei.example.com',
   COOKIE_SECURE: 'true',
   PAYMENT_PROVIDER: 'FAKE',
@@ -30,7 +30,7 @@ const HOMOLOGATION_API: NodeJS.ProcessEnv = {
 /** Variáveis do worker na homologação. */
 const HOMOLOGATION_WORKER: NodeJS.ProcessEnv = {
   NODE_ENV: 'production',
-  DATABASE_URL: 'postgresql://aluguei:segredo-do-banco@aluguei-postgres:5432/aluguei',
+  DATABASE_URL: 'postgresql://aluguei:segredo-do-banco@localhost:5432/aluguei',
   PAYMENT_PROVIDER: 'FAKE',
   SIGNATURE_PROVIDER: 'FAKE',
   SCREENING_PROVIDER: 'FAKE',
@@ -195,7 +195,7 @@ describe('loadRuntimeEnv: API em produção', () => {
     const message = messageOf(() =>
       loadRuntimeEnv('api', {
         ...HOMOLOGATION_API,
-        DATABASE_URL: 'mysql://root:senha-que-nao-pode-vazar@db/aluguei',
+        DATABASE_URL: 'mysql://root:senha-que-nao-pode-vazar@localhost/aluguei',
         META_TOKEN_ENCRYPTION_KEY: 'chave-que-nao-pode-vazar',
       }),
     );

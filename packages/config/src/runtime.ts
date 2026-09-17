@@ -72,7 +72,7 @@ function productionProblems(
   if (!env.DATABASE_URL) {
     missing('DATABASE_URL', 'URL do PostgreSQL');
   } else if (!/^postgres(ql)?:\/\//i.test(env.DATABASE_URL)) {
-    problems.push('DATABASE_URL inválida: use postgresql://usuário:senha@host:porta/banco');
+    problems.push('DATABASE_URL inválida: precisa começar com postgresql:// ou postgres://');
   }
 
   if (service === 'api') {
