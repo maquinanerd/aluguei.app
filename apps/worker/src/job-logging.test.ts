@@ -115,6 +115,14 @@ describe('log estruturado por job (P2-10)', () => {
       error: 'provider de pagamento não configurado',
     });
     expect(logged[1]?.obj.durationMs).toBeGreaterThanOrEqual(0);
+    // Captura de erro (F-7): tipo e pilha, com a mensagem já saneada.
+    expect(logged[1]?.obj.err).toMatchObject({
+      type: 'Error',
+      message: 'provider de pagamento não configurado',
+    });
+    expect((logged[1]?.obj.err as { stack?: string }).stack).toContain(
+      'Error: provider de pagamento não configurado',
+    );
   });
 
   it('fila de canais: job concluído e job com canal sem integração', async () => {
