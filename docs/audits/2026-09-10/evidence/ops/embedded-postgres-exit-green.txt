@@ -1,0 +1,22 @@
+# comando: docker compose -f <docker-compose.prod.yml (árvore de trabalho) sem exclude_from_hc> config (--quiet, --services, --volumes, --format json)
+# árvore: branch ops/remove-embedded-postgres sobre main a31c88e: postgres e db-copy fora do compose, volume guardado por legacy-pgdata (só leitura)
+# data (UTC): 2026-09-17T13:07:40Z
+# Docker Compose 5.1.4; sem daemon: config só lê e valida o arquivo
+
+OK   compose válido
+serviços: api legacy-pgdata migrate minio storage-init web worker 
+volumes no modelo: aluguei-minio-data aluguei-pgdata 
+fatos: {"migrate":"","api":"migrate,storage-init","worker":"migrate","pgImages":[],"mounts":["legacy-pgdata:ro"]}
+OK   sem o serviço postgres embutido
+OK   sem o serviço db-copy
+OK   nenhum serviço com imagem postgres
+OK   sem referência à senha do banco embutido
+OK   migrate não depende de outro serviço
+OK   api espera migrate
+OK   worker espera migrate
+OK   volume aluguei-pgdata no modelo do compose
+OK   aluguei-pgdata montado só para leitura (legacy-pgdata:ro)
+OK   volume aluguei-minio-data no modelo do compose
+
+resultado: 11 ok, 0 falhas
+# exit=0

@@ -527,3 +527,23 @@ Decisões:
 - Acentuação: as mensagens de `apps/api/src/routes/properties.ts` e `places.ts` (e os nomes de `webhook-security.test.ts`) estavam com UTF-8 decodificado duas vezes — a tela mostrava "Imóvel não encontrado" corrompido (P3 da auditoria). Corrigidas, com a guarda `tests/integration/src/source-text-encoding.test.ts` sobre o código do monorepo; as evidências da auditoria ficam como foram gravadas.
 
 Consequências: o índice `portal_access_org_party_kind_active_unique` inclui `revoked_at`, e o PostgreSQL trata nulos como distintos: o banco não impede duas concessões ativas, e a garantia é a trava da rota (provada em `portal-access-concurrency.pg.test.ts`). Trocar por índice parcial (`WHERE revoked_at IS NULL`) exige migration com limpeza de duplicatas e fica registrado como pendência de banco (P2-12). Arquivar não despublica anúncios nem mexe em contratos e locações do imóvel. As telas não escondem ações por permissão (o servidor responde 403 e a tela mostra o erro), como nas demais telas do painel. Evidência: `docs/audits/2026-09-10/evidence/g2/track-b2/`.
+
+## ADR-062 — Saída do banco embutido da primeira implantação (2026-09-17)
+
+Status: Aceito com o merge do PR, que é a confirmação do usuário pedida no ADR-046.
+
+Contexto: o ADR-046 manteve no compose o PostgreSQL embutido (`postgres`) e a cópia única (`db-copy`) até o usuário confirmar que nenhum dado ficou para trás. A confirmação direta seria o log do `db-copy`, mas o token do Coolify não tem `read:sensitive`: pelo MCP, `get_logs` responde "Missing required permissions: read:sensitive" (verificado em 2026-09-17), nenhuma ferramenta lê o conteúdo dos bancos e não há SSH.
+
+Decisões:
+
+- A cópia está provada, de forma indireta, pela ordem do compose e pelo que se observou no corte:
+  - o banco próprio estava vazio até o corte (backups de 836 bytes em 14/09 às 19:12 e em 15/09 às 05:00);
+  - `db-copy` só copia com o destino vazio e termina com erro se a restauração falhar (`set -eu`, `pg_restore --exit-on-error`);
+  - `migrate` só roda se `db-copy` terminar com sucesso, e a API só sobe depois de `migrate`;
+  - na troca, o Docker Compose recria o contêiner da API antes de esperar as dependências. Se a cópia tivesse falhado, a API teria ficado fora do ar, mas ela respondeu no smoke de 15/09;
+  - depois do corte, nenhum serviço usa o banco embutido: a única referência a ele era a origem do `db-copy`.
+- Saem do repositório os serviços `postgres` e `db-copy`, o alvo `dbcopy` do `Dockerfile` e `deploy/db-copy.sh`.
+- O volume `aluguei-pgdata` fica, montado só para leitura pelo serviço `legacy-pgdata` (`busybox:1.36`, executa `true` e termina). Sem um serviço que o use, o Docker Compose descarta o volume do modelo (`docker compose config --volumes` deixa de listá-lo) e ele sumiria do recurso no Coolify; aí só daria para apagá-lo direto no servidor.
+- Apagar o volume é irreversível e depende de pedido explícito do usuário. O procedimento, e o de voltar a ler os dados antigos, está em `docs/DEPLOY_COOLIFY.md`.
+
+Consequências: o servidor deixa de manter um PostgreSQL ocioso. A prova da cópia continua indireta; os dados originais seguem no volume até a decisão de apagá-lo. Evidência: `docs/audits/2026-09-10/evidence/ops/embedded-postgres-exit-red.txt` (compose de `main` em `a31c88e`: 6 falhas) e `embedded-postgres-exit-green.txt` (11/11).
