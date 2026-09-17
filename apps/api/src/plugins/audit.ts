@@ -99,7 +99,8 @@ export interface AuditInput {
   action: string;
   entityType: string;
   entityId: string;
-  payload?: Record<string, unknown>;
+  /** Qualquer objeto (inclusive o `AuditDiff`); as chaves de segredo saem redigidas. */
+  payload?: object;
 }
 
 /**
@@ -110,7 +111,7 @@ export async function writeAudit(db: DbExecutor, input: AuditInput): Promise<voi
   const { orgId, actorUserId, action, entityType, entityId, payload } = input;
 
   // Redação preventiva: nunca persistir credenciais/segredos em audit.
-  const safePayload: Record<string, unknown> = { ...(payload ?? {}) };
+  const safePayload = { ...(payload ?? {}) } as Record<string, unknown>;
   for (const key of Object.keys(safePayload)) {
     if (/password|token|secret|authorization|api_?key/i.test(key)) {
       safePayload[key] = '[REDACTED]';
