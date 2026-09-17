@@ -26,6 +26,7 @@ import {
   DomainError,
   buildLandlordStatement,
   buildTenantStatement,
+  canPortalSeeInspection,
   isOrganizationStatus,
 } from '@aluguei/domain';
 import { initiatePayment } from '../finance/initiation.js';
@@ -452,10 +453,10 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
         .orderBy(desc(charges.dueDate))
         .limit(query.limit)
         .offset(query.offset);
-      const [totalRow] = await db.select({ count: charges.id }).from(charges).where(where);
+      const [totalRow] = await db.select({ count: count() }).from(charges).where(where);
       return {
         charges: rows.map((row) => toPortalChargeDto(row)),
-        total: (totalRow as unknown as { count: number } | undefined)?.count ?? rows.length,
+        total: totalRow?.count ?? rows.length,
       };
     },
   );
@@ -526,7 +527,17 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
           and(eq(inspections.orgId, portal.orgId), inArray(inspections.propertyId, propertyIds)),
         )
         .orderBy(desc(inspections.createdAt));
-      return { inspections: await Promise.all(rows.map((row) => toPortalInspection(db, row))) };
+      // Só vistoria de entrada ou saída já concluída (P2-05): rascunho e intermediária ficam fora.
+      const visible = rows.filter((row) =>
+        canPortalSeeInspection({
+          portalKind: portal.kind,
+          inspectionType: row.type,
+          inspectionStatus: row.status,
+        }),
+      );
+      return {
+        inspections: await Promise.all(visible.map((row) => toPortalInspection(db, row))),
+      };
     },
   );
 
@@ -550,14 +561,15 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
       if (!paymentProvider) {
         throw new DomainError('INVALID_INPUT', 'Pagamento não configurado');
       }
-      // Mesma iniciação do backoffice (idempotente, sem recálculo de multa/juros):
+      // Mesma iniciação do backoffice (idempotente, com multa e juros recalculados):
       // o QR devolvido é o emitido pelo provider, não um texto fabricado (P0-03).
       const result = await initiatePayment(db, paymentProvider, {
         orgId: portal.orgId,
         chargeId: charge.id,
         method: 'PIX',
         actorUserId: null,
-        recalculate: false,
+        // Multa e juros do atraso entram no valor a pagar, como no backoffice (G3, trilha C).
+        recalculate: true,
         via: 'portal',
       });
       return reply.status(result.reused ? 200 : 201).send({
@@ -769,7 +781,17 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
           and(eq(inspections.orgId, portal.orgId), inArray(inspections.propertyId, propertyIds)),
         )
         .orderBy(desc(inspections.createdAt));
-      return { inspections: await Promise.all(rows.map((row) => toPortalInspection(db, row))) };
+      // Só vistoria de entrada ou saída já concluída (P2-05): rascunho e intermediária ficam fora.
+      const visible = rows.filter((row) =>
+        canPortalSeeInspection({
+          portalKind: portal.kind,
+          inspectionType: row.type,
+          inspectionStatus: row.status,
+        }),
+      );
+      return {
+        inspections: await Promise.all(visible.map((row) => toPortalInspection(db, row))),
+      };
     },
   );
 
