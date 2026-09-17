@@ -9,6 +9,7 @@ import {
   inspectionMedia,
   inspectionObservations,
   inspectionRooms,
+  leaseLandlords,
   leases,
   organizations,
   parties,
@@ -82,6 +83,15 @@ async function loadPartyName(db: AppDb, partyId: string): Promise<string> {
 
 export const portalRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  /** Locações em que a pessoa tem participação no repasse (coproprietários, P1-08). */
+  async function landlordLeaseIds(orgId: string, partyId: string): Promise<string[]> {
+    const rows = await db
+      .select({ leaseId: leaseLandlords.leaseId })
+      .from(leaseLandlords)
+      .where(and(eq(leaseLandlords.orgId, orgId), eq(leaseLandlords.partyId, partyId)));
+    return rows.map((row) => row.leaseId);
+  }
 
   // ---- Concessão de acesso (RBAC interno) ----
 
@@ -622,16 +632,21 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
         });
       }
 
-      const leaseRows = await db
-        .select()
-        .from(leases)
-        .where(
-          and(
-            eq(leases.orgId, portal.orgId),
-            eq(leases.landlordPartyId, portal.partyId),
-            inArray(leases.propertyId, targetPropertyIds),
-          ),
-        );
+      // Coproprietário vê as locações em que tem participação, não só as do principal (P1-08).
+      const participation = await landlordLeaseIds(portal.orgId, portal.partyId);
+      const leaseRows =
+        participation.length === 0
+          ? []
+          : await db
+              .select()
+              .from(leases)
+              .where(
+                and(
+                  eq(leases.orgId, portal.orgId),
+                  inArray(leases.id, participation),
+                  inArray(leases.propertyId, targetPropertyIds),
+                ),
+              );
       const leaseIds = leaseRows.map((l) => l.id);
       if (leaseIds.length === 0) {
         return landlordStatementSchema.parse({
@@ -709,10 +724,14 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
     { onRequest: [requirePortalKind('LANDLORD')] },
     async (request) => {
       const portal = requirePortalAuth(request);
-      const leaseRows = await db
-        .select()
-        .from(leases)
-        .where(and(eq(leases.orgId, portal.orgId), eq(leases.landlordPartyId, portal.partyId)));
+      const participation = await landlordLeaseIds(portal.orgId, portal.partyId);
+      const leaseRows =
+        participation.length === 0
+          ? []
+          : await db
+              .select()
+              .from(leases)
+              .where(and(eq(leases.orgId, portal.orgId), inArray(leases.id, participation)));
       const contractIds = leaseRows.map((l) => l.contractId).filter(Boolean);
       if (contractIds.length === 0) {
         return { contracts: [] };

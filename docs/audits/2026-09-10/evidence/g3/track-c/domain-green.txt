@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/finance
+# árvore: main 3aa922b + trilha C do G3 aplicada (não commitada): calendar.ts, chargeCalc.ts, leaseLifecycle.ts
+# data (UTC): 2026-09-17T16:15:54Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+
+ Test Files  4 passed (4)
+      Tests  61 passed (61)
+   Start at  13:15:56
+   Duration  766ms (transform 304ms, setup 0ms, import 652ms, tests 56ms, environment 1ms)
+
+
+# exit=0

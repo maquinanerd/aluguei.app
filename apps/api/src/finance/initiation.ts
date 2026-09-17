@@ -1,11 +1,12 @@
 import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import { charges, payments } from '@aluguei/db';
+import { charges, leases, payments } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
   calculateChargeBreakdown,
   isChargeStatus,
+  saoPauloDate,
   transitionCharge,
 } from '@aluguei/domain';
 import type { ChargeStatus } from '@aluguei/domain';
@@ -71,14 +72,25 @@ export async function initiatePayment(
   }
   assertPayable(charge);
 
+  // Multa e juros da locação, na data de São Paulo (auditoria 2026-09-10, P1-07).
+  const [terms] = input.recalculate
+    ? await db
+        .select({ lateFeeBps: leases.lateFeeBps, interestMonthlyBps: leases.interestMonthlyBps })
+        .from(leases)
+        .where(and(eq(leases.id, charge.leaseId), eq(leases.orgId, charge.orgId)))
+        .limit(1)
+    : [];
   const breakdown = input.recalculate
     ? calculateChargeBreakdown({
         rentCents: charge.rentCents,
         condoFeeCents: charge.condoFeeCents,
         taxesCents: charge.taxesCents,
         discountCents: charge.discountCents,
+        ...(terms
+          ? { lateFeeBps: terms.lateFeeBps, interestMonthlyBps: terms.interestMonthlyBps }
+          : {}),
         dueDate: charge.dueDate,
-        paidOn: new Date().toISOString().slice(0, 10),
+        paidOn: saoPauloDate(new Date()),
       })
     : null;
   const amountCents = breakdown?.amountCents ?? charge.amountCents;
