@@ -14,6 +14,7 @@ export {
   annotateHttpRoute,
   InMemorySpanExporter,
   markSpanError,
+  SpanKind,
   startTelemetry,
   tracesUrl,
   withSpan,

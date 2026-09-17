@@ -130,10 +130,10 @@ function startProcess(
     windowsHide: true,
   });
   let output = '';
-  child.stdout?.on('data', (chunk: Buffer) => {
+  child.stdout.on('data', (chunk: Buffer) => {
     output += chunk.toString();
   });
-  child.stderr?.on('data', (chunk: Buffer) => {
+  child.stderr.on('data', (chunk: Buffer) => {
     output += chunk.toString();
   });
   return { child, output: () => output };

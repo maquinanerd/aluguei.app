@@ -9,6 +9,9 @@ import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
+/** Reexportado para quem lê spans nos testes sem depender do @opentelemetry/api. */
+export { SpanKind } from '@opentelemetry/api';
+
 /** Exportador em memória e tipos de span usados nos testes (sem depender do SDK direto). */
 export const InMemorySpanExporter = tracing.InMemorySpanExporter;
 export type ReadableSpan = tracing.ReadableSpan;

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { AppDb } from '@aluguei/db';
+import { SpanKind } from '@aluguei/observability';
 import type { ReadableSpan, Telemetry } from '@aluguei/observability';
 
 /**
@@ -26,18 +27,18 @@ function databaseUrl(name: string): string {
   return url.toString();
 }
 
-const SPAN_KIND_SERVER = 1;
-
 describe('OTEL com exportador em memória (PostgreSQL real)', () => {
   const dbName = `aluguei_ot_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
   let telemetry: Telemetry;
   let exporter: { getFinishedSpans(): ReadableSpan[]; reset(): void };
+
   let admin: AppDb;
   let db: AppDb;
   let app: FastifyInstance;
 
   beforeAll(async () => {
     const observability = await import('@aluguei/observability');
+
     const memory = new observability.InMemorySpanExporter();
     exporter = memory;
     telemetry = observability.startTelemetry({
@@ -80,7 +81,7 @@ describe('OTEL com exportador em memória (PostgreSQL real)', () => {
     const spans = exporter.getFinishedSpans();
     const names = JSON.stringify(spans.map((span) => span.name));
     const server = spans.find(
-      (span) => span.kind === SPAN_KIND_SERVER && span.attributes['url.path'] === '/health/ready',
+      (span) => span.kind === SpanKind.SERVER && span.attributes['url.path'] === '/health/ready',
     );
     expect(server, names).toBeDefined();
     expect(server?.name).toBe('GET /health/ready');

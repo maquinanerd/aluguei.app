@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 /**
  * P1-12 (auditoria 2026-09-10) no processo real: API e worker subiam em produção sem banco,
  * sem segredos de webhook e com providers FAKE por omissão. Os pontos de entrada rodam como
- * na homologação (`node --import tsx apps/<app>/src/index.ts`), com ambiente limpo, e precisam
+ * na homologação (`node --import tsx <ponto de entrada>`), com ambiente limpo, e precisam
  * terminar sozinhos com uma mensagem que diga o que falta. A configuração da homologação com
  * `ALLOW_FAKE_PROVIDERS=true` continua subindo.
  */
@@ -113,10 +113,10 @@ function start(app: 'api' | 'worker', env: NodeJS.ProcessEnv): Started {
     windowsHide: true,
   });
   let output = '';
-  child.stdout?.on('data', (chunk: Buffer) => {
+  child.stdout.on('data', (chunk: Buffer) => {
     output += chunk.toString();
   });
-  child.stderr?.on('data', (chunk: Buffer) => {
+  child.stderr.on('data', (chunk: Buffer) => {
     output += chunk.toString();
   });
   const exited = new Promise<number | null>((resolve) => {
