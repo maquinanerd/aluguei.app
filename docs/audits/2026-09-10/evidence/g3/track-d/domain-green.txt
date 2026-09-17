@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/domain test
+# árvore: g3/track-d-registries com o domínio da trilha D implementado
+# data (UTC): 2026-09-17T18:51:18Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/domain
+
+
+ Test Files  25 passed (25)
+      Tests  203 passed (203)
+   Start at  15:51:22
+   Duration  17.69s (transform 81.85s, setup 0ms, import 85.80s, tests 1.09s, environment 6ms)
+
+
+# exit=0

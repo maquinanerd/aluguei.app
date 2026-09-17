@@ -9,11 +9,30 @@ export {
 } from './values/identifiers.js';
 
 export {
+  assertValidIdentityValue,
+  formatDocument,
+  isValidCnpj,
+  isValidCpf,
+} from './values/documents.js';
+
+export {
   hashPassword,
   hashPasswordSync,
   verifyPassword,
   verifyPasswordSync,
 } from './auth/password.js';
+
+export {
+  assertNewPassword,
+  assertTokenUsable,
+  expiresAt,
+  MEMBER_INVITE_TTL_HOURS,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RESET_TTL_MINUTES,
+  tokenUsable,
+} from './auth/recovery.js';
+export type { OneTimeToken } from './auth/recovery.js';
 
 export { ALL_PERMISSIONS, ROLE_PERMISSIONS, hasPermission } from './authz/rbac.js';
 export type { Role, Permission } from './authz/rbac.js';
@@ -23,6 +42,25 @@ export type { FunnelStatus, FunnelTransitionContext } from './crm/funnel.js';
 
 export { findDedupeMatches } from './crm/dedupe.js';
 export type { IdentityKind, DedupeMatch } from './crm/dedupe.js';
+
+export {
+  canTransitionVisit,
+  isVisitStatus,
+  transitionVisit,
+  VISIT_STATUSES,
+  visitReschedulable,
+} from './crm/visit.js';
+export type { VisitStatus, VisitTransitionContext } from './crm/visit.js';
+
+export {
+  canTransitionProposal,
+  isProposalExpired,
+  isProposalStatus,
+  PROPOSAL_STATUSES,
+  proposalEditable,
+  transitionProposal,
+} from './crm/proposal.js';
+export type { ProposalStatus, ProposalTransitionContext } from './crm/proposal.js';
 
 export { AUDIT_ACTIONS } from './audit/actions.js';
 export type { AuditAction } from './audit/actions.js';
