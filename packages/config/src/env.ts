@@ -64,6 +64,14 @@ export const envSchema = z.object({
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
   // Admins da plataforma (e-mails separados por vírgula). Ausente: ninguém é admin.
   PLATFORM_ADMIN_EMAILS: z.string().optional(),
+  // Web (Next.js): lidas por apps/web, que não depende deste pacote. Ficam no schema para o
+  // `.env.example` e a documentação das variáveis estarem num lugar só (env-example.test.ts).
+  /** URL da API usada pelo BFF; em produção, https (ou http interno com a permissão abaixo). */
+  API_BASE_URL: z.string().optional(),
+  /** Permite `API_BASE_URL` http em produção, só para endereço da rede interna (P1-15). */
+  API_BASE_URL_ALLOW_HTTP: z.enum(['true', 'false']).optional(),
+  /** Slug da imobiliária exibida na vitrine pública. */
+  PUBLIC_ORG_SLUG: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
