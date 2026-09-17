@@ -1,0 +1,41 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-e-whatsapp.test.ts
+# árvore: main 8409420 + teste novo do handoff do WhatsApp (sem correção)
+# data (UTC): 2026-09-17T19:00:00Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:11712) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-e-whatsapp.test.ts (1 test | 1 failed) 6256ms
+     × conversa em atendimento humano não volta ao bot na mensagem seguinte 276ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-e-whatsapp.test.ts > G3 trilha E — handoff do WhatsApp > conversa em atendimento humano não volta ao bot na mensagem seguinte
+AssertionError: a conversa continua com a equipe: expected 'ACTIVE' to be 'NEEDS_HUMAN' // Object.is equality
+
+Expected: "NEEDS_HUMAN"
+Received: "ACTIVE"
+
+ ❯ src/g3-e-whatsapp.test.ts:80:68
+     78|       .from(conversations)
+     79|       .where(eq(conversations.id, conversation?.id ?? ''));
+     80|     expect(stillHuman?.status, 'a conversa continua com a equipe').toB…
+       |                                                                    ^
+     81|     expect(fakeWhatsApp.outbox, 'o bot não responde em atendimento hum…
+     82|     const botMessages = await app.db
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  16:00:03
+   Duration  20.36s (transform 8.07s, setup 0ms, import 13.70s, tests 6.26s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-e-whatsapp.test.ts
+
+# exit=1
