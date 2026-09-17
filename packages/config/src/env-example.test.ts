@@ -34,14 +34,11 @@ describe('.env.example × envSchema', () => {
   it('toda chave do schema está no exemplo e toda chave do exemplo está no schema', () => {
     const schemaKeys = Object.keys(envSchema.shape).sort();
     const exampleKeys = [...new Set(parseExample().keys)].sort();
-    expect(
-      schemaKeys.filter((key) => !exampleKeys.includes(key)),
-      'no schema e fora do .env.example',
-    ).toEqual([]);
-    expect(
-      exampleKeys.filter((key) => !schemaKeys.includes(key)),
-      'no .env.example e fora do schema',
-    ).toEqual([]);
+    // Os dois lados numa asserção só: a falha mostra a diferença inteira.
+    expect({
+      noSchemaForaDoExemplo: schemaKeys.filter((key) => !exampleKeys.includes(key)),
+      noExemploForaDoSchema: exampleKeys.filter((key) => !schemaKeys.includes(key)),
+    }).toEqual({ noSchemaForaDoExemplo: [], noExemploForaDoSchema: [] });
   });
 
   it('nenhuma chave aparece duas vezes', () => {
