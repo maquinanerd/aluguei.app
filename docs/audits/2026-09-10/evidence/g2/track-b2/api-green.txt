@@ -1,0 +1,18 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g2-b2-api.test.ts src/portal.test.ts
+# árvore: commit 3a69397 + implementação na API: GET /portal/access, logout do portal revoga a sessão, q em /parties, GET /channels
+# data (UTC): 2026-09-17T04:21:40Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:16892) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17848) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  01:21:43
+   Duration  16.81s (transform 1.90s, setup 0ms, import 6.80s, tests 9.21s, environment 0ms)
+
+# exit=0

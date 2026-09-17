@@ -1,0 +1,35 @@
+# comando: WEB_PORT=3300 API_PORT=4300 PG_PORT=5533 pnpm --filter @aluguei/tests-e2e test:e2e g2-b2
+# árvore: commit 3a69397 — Track B2 completa na árvore de trabalho (API, telas, concessão do portal com trava, DataTable, pagamento com estado próprio, navegação após criar contrato), antes do commit; stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-17T05:01:04Z
+$ playwright test "g2-b2"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789621267906\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5533...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4300...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3300...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789621267906).
+[WebServer] [e2e-stack] web http://localhost:3300 · API http://127.0.0.1:4300 — Ctrl+C para derrubar.
+
+Running 9 tests using 1 worker
+
+  ok 1 g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise (6.6s)
+  ok 2 g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela (4.2s)
+  ok 3 g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito (2.3s)
+  ok 4 g2-b2-crawler.spec.ts:115:3 › Crawler: todas as telas sem 4xx inesperado nem erro de página › painel, portais e visitante (1.1m)
+  ok 5 g2-b2-creation-flows.spec.ts:22:3 › Fluxos de criação pela interface › cria anúncio, proposta e vistoria pelos modais (4.7s)
+  ok 6 g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura (8.5s)
+  ok 7 g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela (9.2s)
+  ok 8 g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão (5.6s)
+  ok 9 g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário (2.3s)
+[e2e-stack] stack run-1789621267906 desligada.
+
+  Slow test file: g2-b2-crawler.spec.ts (1.1m)
+  Slow test file: g2-b2-creation-flows.spec.ts (22.4s)
+  Consider splitting slow test files to speed up parallel execution
+  9 passed (2.5m)
+# duração: 151s
+# exit=0

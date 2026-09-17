@@ -1,0 +1,260 @@
+# comando: WEB_PORT=3300 API_PORT=4300 PG_PORT=5533 pnpm --filter @aluguei/tests-e2e test:e2e g2-b2
+# árvore: commit 3a69397 — main + specs g2-b2-*, sem implementação da Track B2; stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-17T01:12:48Z
+$ playwright test "g2-b2"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789607628874\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5533...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4300...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3300...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789607628874).
+[WebServer] [e2e-stack] web http://localhost:3300 · API http://127.0.0.1:4300 — Ctrl+C para derrubar.
+
+Running 9 tests using 1 worker
+
+  x  1 g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise (5.0m)
+  x  2 g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela (5.0m)
+  x  3 g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito (5.0m)
+  ok 4 g2-b2-crawler.spec.ts:115:3 › Crawler: todas as telas sem 4xx inesperado nem erro de página › painel, portais e visitante (2.8m)
+  ok 5 g2-b2-creation-flows.spec.ts:22:3 › Fluxos de criação pela interface › cria anúncio, proposta e vistoria pelos modais (12.7s)
+  x  6 g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura (48.0s)
+  x  7 g2-b2-creation-flows.spec.ts:130:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela (6.7m)
+  x  8 g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão (5.0m)
+  x  9 g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário (5.0m)
+[e2e-stack] stack run-1789607628874 desligada.
+
+
+  1) g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Nova candidatura' })
+
+
+      31 |   watch.route = 'crédito';
+      32 |   await page.goto('/app/screening', { timeout: 240_000 });
+    > 33 |   await page.getByRole('button', { name: 'Nova candidatura' }).click();
+         |                                                                ^
+      34 |   const dialog = page.getByRole('dialog', { name: 'Nova candidatura' });
+      35 |   await pickComboboxOption(dialog, 'Solicitante', 'Solicitante Candidatura', tenantName);
+      36 |   await pickComboboxOption(dialog, 'Imóvel', 'Imóvel Candidatura', propertyTitle);
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-application-channel-archive.spec.ts:33:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--4d4ac-mento-LGPD-entra-em-análise\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--4d4ac-mento-LGPD-entra-em-análise\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-application-channel--4d4ac-mento-LGPD-entra-em-análise\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Publicar anúncio' })
+
+
+      79 |   watch.route = 'canais';
+      80 |   await page.goto('/app/channels', { timeout: 240_000 });
+    > 81 |   await page.getByRole('button', { name: 'Publicar anúncio' }).click();
+         |                                                                ^
+      82 |   const dialog = page.getByRole('dialog', { name: 'Publicar anúncio em canal' });
+      83 |   await dialog.getByLabel('Anúncio', { exact: true }).selectOption({ label: title });
+      84 |   const channel = dialog.getByLabel('Canal', { exact: true });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-application-channel-archive.spec.ts:81:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--a427f--anúncio-em-canal-pela-tela\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--a427f--anúncio-em-canal-pela-tela\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-application-channel--a427f--anúncio-em-canal-pela-tela\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Arquivar imóvel' })
+
+
+      115 |   watch.route = 'detalhe do imóvel';
+      116 |   await page.goto(`/app/properties/${propertyId}`, { timeout: 240_000 });
+    > 117 |   await page.getByRole('button', { name: 'Arquivar imóvel' }).click();
+          |                                                               ^
+      118 |   const dialog = page.getByRole('dialog', { name: 'Arquivar imóvel' });
+      119 |   await dialog.getByRole('button', { name: 'Arquivar' }).click();
+      120 |   await expect(page.getByText('Imóvel arquivado')).toBeVisible({ timeout: 30_000 });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-application-channel-archive.spec.ts:117:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--081ec-ela-API-e-pode-ser-desfeito\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-application-channel--081ec-ela-API-e-pode-ser-desfeito\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-application-channel--081ec-ela-API-e-pode-ser-desfeito\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura 
+
+    Error: o worker deve aprovar a candidatura com screening FAKE
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       at g2-b1-support.ts:150
+
+      148 |     last = await read();
+      149 |   }
+    > 150 |   expect(done(last), what).toBe(true);
+          |                            ^
+      151 |   return last;
+      152 | }
+      153 |
+        at poll (C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b1-support.ts:150:28)
+        at seedApprovedApplication (C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-support.ts:101:3)
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-creation-flows.spec.ts:90:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) g2-b2-creation-flows.spec.ts:130:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela 
+
+    Test timeout of 400000ms exceeded.
+
+    Error: locator.click: Test timeout of 400000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Cancelar' }).first()
+
+
+      142 |     watch.route = 'cobranças';
+      143 |     await page.goto('/app/charges', { timeout: 240_000 });
+    > 144 |     await page.getByRole('button', { name: 'Cancelar' }).first().click();
+          |                                                                  ^
+      145 |     const dialog = page.getByRole('dialog', { name: 'Cancelar cobrança' });
+      146 |     await dialog.getByRole('button', { name: 'Cancelar cobrança' }).click();
+      147 |     await poll(
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-creation-flows.spec.ts:144:66
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Acesso ao portal de Inquilina B2 portal mu4v5qr7rzy4' })
+
+
+      28 |     await page.goto(`/app/leases/${seed.leaseId}`, { timeout: 240_000 });
+      29 |
+    > 30 |     await page.getByRole('button', { name: `Acesso ao portal de ${seed.tenantName}` }).click();
+         |                                                                                        ^
+      31 |     const dialog = page.getByRole('dialog', { name: 'Acesso ao portal' });
+      32 |     await expect(dialog.getByText(seed.tenantName)).toBeVisible();
+      33 |     await dialog.getByRole('button', { name: 'Gerar link de acesso' }).click();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-portal-access.spec.ts:30:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-portal-access-P1-16--99204-ovo-e-Sair-encerra-a-sessão\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-portal-access-P1-16--99204-ovo-e-Sair-encerra-a-sessão\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-portal-access-P1-16--99204-ovo-e-Sair-encerra-a-sessão\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Acesso ao portal de Proprietário B2 portal mu4vcdg6pp0w' })
+
+
+      81 |     await useSession(page, seed.cookie);
+      82 |     await page.goto(`/app/leases/${seed.leaseId}`, { timeout: 240_000 });
+    > 83 |     await page.getByRole('button', { name: `Acesso ao portal de ${seed.landlordName}` }).click();
+         |                                                                                          ^
+      84 |     const dialog = page.getByRole('dialog', { name: 'Acesso ao portal' });
+      85 |     await dialog.getByRole('button', { name: 'Gerar link de acesso' }).click();
+      86 |     const link = await dialog.getByRole('textbox', { name: 'Link de acesso' }).inputValue();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-portal-access.spec.ts:83:90
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-portal-access-P1-16--85069-a-no-portal-do-proprietário\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-portal-access-P1-16--85069-a-no-portal-do-proprietário\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-portal-access-P1-16--85069-a-no-portal-do-proprietário\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: g2-b2-crawler.spec.ts (2.8m)
+  Consider splitting slow test files to speed up parallel execution
+  7 failed
+    g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise 
+    g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela 
+    g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito 
+    g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura 
+    g2-b2-creation-flows.spec.ts:130:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela 
+    g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão 
+    g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário 
+  2 passed (38.0m)
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g2-b2"`
+Exit status 1
+# duração: 2335s
+# exit=1

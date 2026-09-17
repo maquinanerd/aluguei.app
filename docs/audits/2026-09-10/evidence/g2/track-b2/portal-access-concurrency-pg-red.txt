@@ -1,0 +1,64 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54331/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/portal-access-concurrency.pg.test.ts
+# árvore: commit 3a69397 + API da Track B2 (não commitada) + testes novos de concorrência da concessão do portal, sem correção da rota POST /portal/access
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54331), parado e removido ao final
+# data (UTC): 2026-09-17T04:49:23Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:6568) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/portal-access-concurrency.pg.test.ts (2 tests | 2 failed) 3091ms
+     × concessão ainda não confirmada por outra transação: o pedido espera e reaproveita, sem criar a segunda 683ms
+     × dez pedidos de link simultâneos: uma concessão ativa e um único link válido 181ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/portal-access-concurrency.pg.test.ts > concorrência real (PostgreSQL): concessão de acesso ao portal > concessão ainda não confirmada por outra transação: o pedido espera e reaproveita, sem criar a segunda
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/portal-access-concurrency.pg.test.ts:111:49
+    109|       where party_id = ${partyId} and kind = 'TENANT' and revoked_at i…
+    110|     `);
+    111|     expect((active.rows[0] as { n: number }).n).toBe(1);
+       |                                                 ^
+    112|   });
+    113|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/portal-access-concurrency.pg.test.ts > concorrência real (PostgreSQL): concessão de acesso ao portal > dez pedidos de link simultâneos: uma concessão ativa e um único link válido
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/portal-access-concurrency.pg.test.ts:129:49
+    127|       where party_id = ${partyId} and kind = 'TENANT' and revoked_at i…
+    128|     `);
+    129|     expect((active.rows[0] as { n: number }).n).toBe(1);
+       |                                                 ^
+    130|
+    131|     const statuses: number[] = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  01:49:24
+   Duration  6.56s (transform 1.62s, setup 0ms, import 3.22s, tests 3.09s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/portal-access-concurrency.pg.test.ts
+# exit=1

@@ -1,0 +1,46 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/source-text-encoding.test.ts
+# árvore: commit 3a69397 + Track B2 em andamento (não commitada) + teste novo de codificação, sem a correção dos arquivos
+# data (UTC): 2026-09-17T04:42:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+ ❯ src/source-text-encoding.test.ts (2 tests | 1 failed) 579ms
+     × nenhum arquivo de código tem texto decodificado duas vezes 571ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/source-text-encoding.test.ts > texto do código-fonte em UTF-8 sem dupla decodificação > nenhum arquivo de código tem texto decodificado duas vezes
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/api/src/routes/places.ts:7,8,9,18,31",
++   "apps/api/src/routes/properties.ts:131,145,146,282,303,353,452,506,514,527,568,605,655,691,700,724,733,735,737,742,744,747,819,858",
++   "tests/integration/src/webhook-security.test.ts:22,23,43,68,95,106,117,132,148,167,183,200,220,235,244,262,276,278,279,294",
++ ]
+
+ ❯ src/source-text-encoding.test.ts:75:22
+     73|     }
+     74|     expect(scanned).toBeGreaterThan(200);
+     75|     expect(findings).toEqual([]);
+       |                      ^
+     76|   });
+     77| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  01:42:43
+   Duration  3.54s (transform 657ms, setup 0ms, import 767ms, tests 579ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/source-text-encoding.test.ts
+
+# exit=1

@@ -1,0 +1,17 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54331/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/portal-access-concurrency.pg.test.ts
+# árvore: commit 3a69397 + API da Track B2 (não commitada) com POST /portal/access corrigido (transação, trava da pessoa, só concessão não revogada)
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54331), parado e removido ao final
+# data (UTC): 2026-09-17T04:54:50Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:2892) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  01:54:52
+   Duration  6.87s (transform 1.86s, setup 0ms, import 3.76s, tests 2.87s, environment 0ms)
+
+# exit=0
