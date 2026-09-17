@@ -1,0 +1,67 @@
+# comando: pnpm lint --force --continue
+# árvore: commit afd59c8 (g3/track-c-finance)
+
+$ turbo run lint "--force" "--continue"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running lint in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/db:build: cache bypass, force executing a818456594444a30
+@aluguei/config:lint: cache bypass, force executing c52cd231e72fe0f0
+@aluguei/db:lint: cache bypass, force executing 822b26ad4de26cbc
+@aluguei/observability:build: cache bypass, force executing b1251b5b82200219
+@aluguei/storage:build: cache bypass, force executing 790f1b37752f7581
+@aluguei/config:build: cache bypass, force executing 743e3ee10c76b4cf
+@aluguei/contracts:build: cache bypass, force executing f6718a62d710beb2
+@aluguei/domain:lint: cache bypass, force executing b3a32f811ff2d0b7
+@aluguei/contracts:lint: cache bypass, force executing 573ed9468a7c06e3
+@aluguei/storage:lint: cache bypass, force executing 64c9969df41477e3
+@aluguei/config:lint: $ eslint src
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/db:lint: $ eslint src
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/domain:lint: $ eslint src
+@aluguei/storage:lint: $ eslint src
+@aluguei/contracts:lint: $ eslint src
+@aluguei/domain:build: cache bypass, force executing a61e3d9f8547627c
+@aluguei/mobile:lint: cache bypass, force executing c451779a6418ad90
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/mobile:lint: $ eslint App.tsx index.ts src
+@aluguei/observability:lint: cache bypass, force executing c6ad7fe8436be353
+@aluguei/tests-e2e:lint: cache bypass, force executing 47bf5163e208aba5
+@aluguei/observability:lint: $ eslint src
+@aluguei/tests-e2e:lint: $ eslint src
+@aluguei/ui:build: cache bypass, force executing 8c8a57afd3e9f898
+@aluguei/ui:lint: cache bypass, force executing 08af9f05e6d5a1a9
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/integrations:lint: cache bypass, force executing 9b64da1f94afde34
+@aluguei/ui:lint: $ eslint src
+@aluguei/integrations:lint: $ eslint src
+@aluguei/tests-contract:lint: cache bypass, force executing 788ea3909d95c102
+@aluguei/integrations:build: cache bypass, force executing 6c22aa2ca620ba28
+@aluguei/tests-contract:lint: $ eslint src
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/web:lint: cache bypass, force executing a4d71685a6372360
+@aluguei/web:lint: $ eslint src
+@aluguei/api:lint: cache bypass, force executing 7a96a27d6dbd05cc
+@aluguei/api:build: cache bypass, force executing 2fbc1123fd4def3f
+@aluguei/meta-mcp:lint: cache bypass, force executing ac6e4615d5cce794
+@aluguei/api:lint: $ eslint src
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/meta-mcp:lint: $ eslint src
+@aluguei/worker:lint: cache bypass, force executing a8540d2fbd052e48
+@aluguei/worker:build: cache bypass, force executing c20451bd3272b22a
+@aluguei/worker:lint: $ eslint src
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/tests-integration:lint: cache bypass, force executing e025428cfefc4282
+@aluguei/tests-integration:lint: $ eslint src
+
+ Tasks:    26 successful, 26 total
+Cached:    0 cached, 26 total
+  Time:    2m16.987s 
+
