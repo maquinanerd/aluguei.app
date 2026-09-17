@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/api-base-security.test.ts
+# árvore: commit 5ed2bde + assertSecureApiBase com API_BASE_URL_ALLOW_HTTP (apps/web/src/lib/api-server.ts), antes do commit
+# data (UTC): 2026-09-17T16:18:37Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  13:18:38
+   Duration  458ms (transform 63ms, setup 0ms, import 178ms, tests 16ms, environment 0ms)
+
+# exit=0
