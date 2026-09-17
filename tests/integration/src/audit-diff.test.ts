@@ -33,7 +33,7 @@ describe('audit_events.payload com diff (P2-11)', () => {
       .select()
       .from(auditEvents)
       .where(and(eq(auditEvents.action, action), eq(auditEvents.entityId, entityId)))
-      .orderBy(desc(auditEvents.createdAt))
+      .orderBy(desc(auditEvents.occurredAt))
       .limit(1);
     if (!row) {
       throw new Error(`nenhum audit_event ${action} para ${entityId}`);
@@ -69,7 +69,7 @@ describe('audit_events.payload com diff (P2-11)', () => {
     expect(payload.fields).toEqual(['bedrooms', 'description', 'title']);
     expect(payload.changes?.title).toEqual({ from: 'Casa Antiga', to: 'Casa Reformada' });
     expect(payload.changes?.bedrooms).toEqual({ from: 2, to: 3 });
-    expect(payload.changes?.description?.to).toBe('Falar com [REDACTED:PHONE] ou [REDACTED:EMAIL]');
+    expect(payload.changes?.description?.to).toBe('Falar com [REDACTED:DOC] ou [REDACTED:EMAIL]');
     const asText = JSON.stringify(payload);
     expect(asText).not.toContain('11912345678');
     expect(asText).not.toContain('maria@exemplo.com');

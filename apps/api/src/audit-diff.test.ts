@@ -52,7 +52,8 @@ describe('auditDiff', () => {
       { description: 'Falar com 11912345678 ou maria@exemplo.com, CPF 529.982.247-25' },
     );
     expect(diff.changes.description?.to).toBe(
-      'Falar com [REDACTED:PHONE] ou [REDACTED:EMAIL], CPF [REDACTED:CPF]',
+      // 11 dígitos soltos são ambíguos (CPF sem máscara ou celular com DDD): marca genérica.
+      'Falar com [REDACTED:DOC] ou [REDACTED:EMAIL], CPF [REDACTED:CPF]',
     );
   });
 
