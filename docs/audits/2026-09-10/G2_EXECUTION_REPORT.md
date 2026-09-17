@@ -80,7 +80,20 @@ vencida deixou de oferecer (a API responde 409).
 | `leads?limit=100` e `proposals?limit=100` só enxergam os 100 mais recentes (ADR-055)                                                                  | P2-03              |
 | As telas não escondem ações por permissão; o servidor responde 403                                                                                    | Fase 5 (UX)        |
 
-## 5. Próximo passo
+## 5. Implantação na homologação (2026-09-17)
 
-Depois do merge do PR da Track B2: implantar `main` na homologação (Coolify) e repetir o smoke.
-Em seguida, G3 (Fases 5 e 6: regras e ciclos de vida, operação mínima).
+O usuário mesclou o PR #5 (`a31c88e`). O app `aluguei-app` do Coolify, que acompanha `main`, foi
+implantado pelo deployment `vsl4ewzg5oapqyjarz0szbmc` (12:41–12:47 UTC). A Track B2 não trouxe
+migration, então o serviço de migração não tinha o que aplicar.
+
+| Smoke                                         | Resultado                                                                                                                                                                                                         |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `evidence/deploy/smoke-2026-09-17-antes.txt`  | Com `db3f95f` implantado: as 7 checagens já existentes passam; as 7 da Track B2 falham (`GET /channels` e `GET /portal/access` respondem 404, `/portal/entrar` não existe)                                        |
+| `evidence/deploy/smoke-2026-09-17-depois.txt` | 14/14: saúde, sessão, plataforma e site público continuam; rotas novas respondem 401 sem sessão, também pelo BFF do web; `/portal/entrar` responde 200 com `no-referrer`, `noindex, nofollow` e o consumo do link |
+
+O smoke não cria conta nem faz login: os fluxos com sessão ficam cobertos pelo Playwright
+(`track-b2/e2e-full.txt`).
+
+## 6. Próximo passo
+
+G3 (Fases 5 e 6: regras e ciclos de vida, operação mínima).
