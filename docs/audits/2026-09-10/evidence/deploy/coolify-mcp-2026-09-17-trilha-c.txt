@@ -1,0 +1,41 @@
+Trilha C do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-17 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado
+PR: #10, merge 8409420 ("G3 trilha C: multa, juros e vencimento por locação, coproprietários e
+ciclo da locação")
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+
+--- Deploy (deploy + get_deployment hvau435f11817www8noqqxsm)
+status   finished
+commit   84094201bcd123996b5a60e3e6bae58ee1ebd342
+criado   18:30:32   terminado 18:32:30   (pedido pela API, sem force rebuild, sem rollback)
+
+--- Migration 0019 (termos da locação, lease_landlords e lease_amendments)
+Não há acesso ao log do contêiner (get_logs -> "Missing required permissions: read:sensitive"),
+então a prova é a ordem do compose: `migrate` roda antes e a API e o worker só sobem com
+`depends_on: migrate: service_completed_successfully`. A API responde 200 em /health/ready depois
+do deploy (smoke-depois.txt), o que só acontece se a migration terminou com sucesso.
+
+--- Aplicação depois do deploy (get_application)
+status              running:unknown (health check HTTP desligado no recurso, como antes)
+container_present   true
+updated_at          2026-09-17T18:32:53Z
+domínios            web https://aluguei.62.171.164.224.sslip.io
+                    api https://api.aluguei.62.171.164.224.sslip.io
+                    minio https://s3.aluguei.62.171.164.224.sslip.io
+
+--- Volumes do recurso (list_storages, depois do deploy)
+  rs1y7dkonj3kn63k8dlxsabl  hvwxasfarzxnpnw4fjoerqws_aluguei-pgdata      mount /legacy-pgdata
+  pcivt0mm0mxy4ng4tunko3tu  hvwxasfarzxnpnw4fjoerqws_aluguei-minio-data  mount /data
+Mesmo registro de antes (ADR-062): o volume do banco embutido continua guardado e montado só para
+leitura; nada foi apagado.
+
+--- Estado geral (get_infrastructure_overview, depois do deploy)
+applications_not_running 0, services_not_running 0, databases_not_running 0, open_deployments 0
+O projeto CMS Kal-El e o Máquina Nerd, no mesmo servidor, não foram tocados.
+
+--- Smoke da homologação
+antes  smoke-antes.txt  (docs/audits/2026-09-10/evidence/g3/track-c/): 11 ok, 4 falhas — as rotas
+       novas da locação respondiam 404
+depois smoke-depois.txt: 15 ok, 0 falhas — PATCH /leases/:id/terms, POST /leases/:id/renew,
+       /readjust e /end respondem 401 sem sessão, e a regressão das rotas antigas continua de pé
