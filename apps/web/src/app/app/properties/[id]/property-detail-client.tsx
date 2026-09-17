@@ -27,6 +27,7 @@ import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { label, PROPERTY_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/lib/labels';
 import { PermissionDenied, EmptyState, ErrorState } from '@aluguei/ui';
+import { PropertyOwnersCard } from './property-owners-card';
 
 interface Property {
   id: string;
@@ -75,7 +76,7 @@ const TABS = [
   { value: 'overview', label: 'Visão geral' },
   { value: 'dados', label: 'Dados' },
   { value: 'midia', label: 'Mídia' },
-  { value: 'proprietario', label: 'Proprietário' },
+  { value: 'proprietario', label: 'Proprietários' },
   { value: 'financeiro', label: 'Financeiro' },
   { value: 'historico', label: 'Histórico' },
 ];
@@ -428,34 +429,11 @@ function PropertyBody() {
           ) : null}
 
           {tab === 'proprietario' ? (
-            <Card title="Proprietários" padless>
-              {property.owners.length === 0 ? (
-                <div className="peg-empty" style={{ padding: 24 }}>
-                  <span className="peg-empty__body">Nenhum proprietário vinculado.</span>
-                </div>
-              ) : (
-                <Stack gap={0}>
-                  {property.owners.map((o) => (
-                    <Group
-                      key={o.partyId}
-                      gap={3}
-                      style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}
-                    >
-                      <Icon name="user" size={14} />
-                      <span className="peg-grow" style={{ fontSize: 13 }}>
-                        {o.name}
-                      </span>
-                      {o.ownershipSharePct !== null ? (
-                        <span
-                          className="peg-text-tertiary"
-                          style={{ fontSize: 12 }}
-                        >{`${String(o.ownershipSharePct)}%`}</span>
-                      ) : null}
-                    </Group>
-                  ))}
-                </Stack>
-              )}
-            </Card>
+            <PropertyOwnersCard
+              propertyId={property.id}
+              owners={property.owners}
+              onChanged={propQ.reload}
+            />
           ) : null}
 
           {tab === 'financeiro' ? (
