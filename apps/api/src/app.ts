@@ -197,6 +197,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.STORAGE_SECRET_ACCESS_KEY) {
     storageOptions.secretAccessKey = env.STORAGE_SECRET_ACCESS_KEY;
   }
+  if (env.STORAGE_FORCE_PATH_STYLE === 'true') {
+    storageOptions.forcePathStyle = true;
+  }
   await app.register(storagePlugin, storageOptions);
 
   const geocodingOptions: GeocodingPluginOptions = { nodeEnv: env.NODE_ENV };

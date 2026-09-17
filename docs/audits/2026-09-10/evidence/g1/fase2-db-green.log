@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:15848) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  30 passed (30)
+   Start at  19:40:41
+   Duration  7.08s (transform 1.53s, setup 0ms, import 2.86s, tests 3.96s, environment 0ms)
+

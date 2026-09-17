@@ -275,3 +275,19 @@ Decisões:
 - MATCH SIMPLE (padrão do Postgres): referência nula continua permitida — a FK só age quando há vínculo.
 
 Consequências: a aplicação continua respondendo `404 NOT_FOUND` (sem oráculo de existência) — a FK é segunda linha, não a mensagem de erro do usuário. Se ela disparar, é defeito de programação (a rota deixou de checar o dono): sobe como falha de servidor com `pgCode` no log estruturado. Cobertura residual, que continua só na aplicação e na query permanente `CROSS_ORG_VERIFY_SQL`: ids polimórficos (`tasks.related_entity_id`, `timeline_events.entity_id`), ids dentro de jsonb (`meta_ad_profiles.media_selection`, `meta_creative_links.media_refs`, `meta_sync_jobs.payload.mediaRefs`) e referências cujo alvo não ganhou `UNIQUE (org_id, id)` (`listings`, `property_media`, `party_consents`, `contract_templates`). Evidência: `fase2-db-red.log` (sem a 0013, o insert direto de `leads.party_id` com id de outra organização é aceito) e `fase2-db-green.log` (10 inserts recusados com 23503).
+
+## ADR-046 — Banco separado, storage MinIO e evidência versionada na homologação (2026-09-15)
+
+Status: Aceito.
+
+Contexto: a primeira homologação no Coolify (2026-09-14) rodava o PostgreSQL dentro do compose da aplicação, sem backup, e sem storage — o upload de mídia estava desligado. No mesmo dia o usuário decidiu: banco separado com backup e MinIO no próprio Coolify. Nessa execução apareceu também que a regra `*.log` do `.gitignore` tinha deixado fora do repositório as evidências RED/GREEN citadas pelo relatório do G1.
+
+Decisões:
+
+- Banco: recurso PostgreSQL 17 próprio do Coolify, sem porta pública, com backup diário e 14 cópias retidas. A senha é gerada na criação e existe só no Coolify, dentro da variável `DATABASE_URL` da aplicação.
+- Corte: o serviço de execução única `db-copy` copia o banco embutido para o novo e não faz nada se o destino já tiver tabelas; `migrate` só roda depois dele. O banco embutido e o volume ficam até o usuário confirmar que nenhum dado ficou para trás.
+- Storage: MinIO no compose da aplicação, com a build comunitária mantida pelo Coolify em versão fixada (a MinIO deixou de publicar imagens da edição comunitária). As credenciais são variáveis mágicas compartilhadas entre `minio` e `api`; o console não tem domínio público.
+- Path-style: `STORAGE_FORCE_PATH_STYLE=true` liga `forcePathStyle` no adapter S3 — atrás de domínio próprio, o bucket no host não tem rota nem certificado no proxy. O `storage-init` garante o bucket de forma idempotente antes de a API subir.
+- Evidência: exceção explícita no `.gitignore` para `docs/audits/**/evidence/**/*.log`.
+
+Consequências: backups e arquivos ficam no mesmo VPS — protegem contra erro humano e corrupção, não contra perda do servidor; falta uma cópia fora dele (Fase 6). A existência do bucket só está inferida até o primeiro upload autenticado. O MinIO comunitário é um risco de manutenção: reavaliar storage gerenciado (R2/S3) antes do piloto. Evidência: `docs/audits/2026-09-10/evidence/ops/` e `docs/audits/2026-09-10/evidence/deploy/smoke-2026-09-15.txt`.

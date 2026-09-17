@@ -21,6 +21,8 @@ export const envSchema = z.object({
   STORAGE_BUCKET: z.string().optional(),
   STORAGE_ACCESS_KEY_ID: z.string().optional(),
   STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
+  // MinIO e outros S3 atrás de domínio próprio: bucket no caminho, não no host.
+  STORAGE_FORCE_PATH_STYLE: z.enum(['true', 'false']).optional(),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
   AI_PROVIDER: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
