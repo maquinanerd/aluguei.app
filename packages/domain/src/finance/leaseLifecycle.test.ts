@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { DomainError } from '../errors.js';
 import {
   assertOwnershipTotal,
+  assertReadjustmentWithinLease,
   assertRenewal,
+  assertRentChangeAfterHistory,
   BILLABLE_LEASE_STATUSES,
   landlordSharesFromOwners,
   planLeaseEnd,
@@ -124,6 +126,44 @@ describe('renovação e reajuste', () => {
     expect(rentForPeriod(115_000, changes, '2027-06-01')).toBe(110_000);
     expect(rentForPeriod(115_000, changes, '2027-12-01')).toBe(115_000);
     expect(rentForPeriod(90_000, [], '2027-12-01')).toBe(90_000);
+  });
+
+  it('mudança de aluguel nova não começa antes da última registrada; no mesmo mês vale a mais recente', () => {
+    const changes = [
+      { effectiveFrom: '2027-03-01', previousRentCents: 100_000, newRentCents: 105_000 },
+    ];
+    expect(() => {
+      assertRentChangeAfterHistory(changes, '2027-02-01');
+    }).toThrow(DomainError);
+    expect(() => {
+      assertRentChangeAfterHistory(changes, '2027-03-01');
+    }).not.toThrow();
+    expect(() => {
+      assertRentChangeAfterHistory([], '2020-01-01');
+    }).not.toThrow();
+    const corrected = [
+      ...changes,
+      { effectiveFrom: '2027-03-01', previousRentCents: 105_000, newRentCents: 104_000 },
+    ];
+    expect(rentForPeriod(104_000, corrected, '2027-04-01')).toBe(104_000);
+    expect(rentForPeriod(104_000, corrected, '2027-02-01')).toBe(100_000);
+  });
+
+  it('reajuste começa num mês da vigência', () => {
+    const lease = { startDate: '2026-09-17', endDate: '2027-01-31' };
+    for (const effectiveFrom of ['2026-09-01', '2026-12-01', '2027-01-01']) {
+      expect(() => {
+        assertReadjustmentWithinLease({ ...lease, effectiveFrom });
+      }).not.toThrow();
+    }
+    for (const effectiveFrom of ['2026-08-01', '2027-02-01']) {
+      expect(() => {
+        assertReadjustmentWithinLease({ ...lease, effectiveFrom });
+      }).toThrow(DomainError);
+    }
+    expect(() => {
+      assertReadjustmentWithinLease({ ...lease, endDate: null, effectiveFrom: '2040-01-01' });
+    }).not.toThrow();
   });
 });
 

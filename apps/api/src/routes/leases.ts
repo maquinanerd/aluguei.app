@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, notExists } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, notExists } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
@@ -20,7 +20,10 @@ import {
   DomainError,
   addDays,
   assertLateChargeTerms,
+  assertReadjustmentWithinLease,
   assertRenewal,
+  assertRentChangeAfterHistory,
+  isChargeStatus,
   isLeaseStatus,
   landlordSharesFromOwners,
   monthStartOf,
@@ -190,6 +193,35 @@ async function lockLease(tx: DbExecutor, orgId: string, leaseId: string): Promis
     throw new DomainError('NOT_FOUND', 'Locação não encontrada');
   }
   return lease;
+}
+
+/**
+ * Aluguel em vigor depois de uma mudança registrada: quando ela já começou (neste mês ou antes),
+ * a locação passa a mostrar o novo valor sem esperar a varredura diária.
+ */
+async function applyCurrentRent(
+  tx: DbExecutor,
+  lease: LeaseRow,
+  effectiveFrom: string | null,
+): Promise<LeaseRow> {
+  const currentMonth = monthStartOf(saoPauloDate(new Date()));
+  if (effectiveFrom === null || effectiveFrom > currentMonth) {
+    return lease;
+  }
+  return first(
+    await tx
+      .update(leases)
+      .set({
+        monthlyRentCents: rentForPeriod(
+          lease.monthlyRentCents,
+          await rentChangesFor(tx, lease.id),
+          currentMonth,
+        ),
+        updatedAt: new Date(),
+      })
+      .where(eq(leases.id, lease.id))
+      .returning(),
+  );
 }
 
 export const leaseRoutes: FastifyPluginAsync = (app) => {
@@ -403,11 +435,9 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
           effectiveFrom = lease.endDate
             ? monthStartOf(addDays(lease.endDate, 1))
             : nextMonthStart(today);
-          previousRentCents = rentForPeriod(
-            lease.monthlyRentCents,
-            await rentChangesFor(tx, lease.id),
-            effectiveFrom,
-          );
+          const changes = await rentChangesFor(tx, lease.id);
+          assertRentChangeAfterHistory(changes, effectiveFrom);
+          previousRentCents = rentForPeriod(lease.monthlyRentCents, changes, effectiveFrom);
           newRentCents = input.monthlyRentCents;
         }
         const amendment = first(
@@ -426,13 +456,14 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
             })
             .returning(),
         );
-        const row = first(
+        const extended = first(
           await tx
             .update(leases)
             .set({ endDate: input.endDate, updatedAt: new Date() })
             .where(eq(leases.id, lease.id))
             .returning(),
         );
+        const row = await applyCurrentRent(tx, extended, effectiveFrom);
         await writeAudit(tx, {
           orgId: auth.orgId,
           actorUserId: auth.userId,
@@ -473,9 +504,16 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
             status: lease.status,
           });
         }
+        assertReadjustmentWithinLease({
+          startDate: lease.startDate,
+          endDate: lease.endDate,
+          effectiveFrom: input.effectiveFrom,
+        });
+        const changes = await rentChangesFor(tx, lease.id);
+        assertRentChangeAfterHistory(changes, input.effectiveFrom);
         const previousRentCents = rentForPeriod(
           lease.monthlyRentCents,
-          await rentChangesFor(tx, lease.id),
+          changes,
           input.effectiveFrom,
         );
         const newRentCents =
@@ -498,25 +536,7 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
             })
             .returning(),
         );
-        // Aluguel em vigor muda já quando o reajuste começa neste mês ou antes.
-        const currentMonth = monthStartOf(saoPauloDate(new Date()));
-        const row =
-          input.effectiveFrom <= currentMonth
-            ? first(
-                await tx
-                  .update(leases)
-                  .set({
-                    monthlyRentCents: rentForPeriod(
-                      lease.monthlyRentCents,
-                      await rentChangesFor(tx, lease.id),
-                      currentMonth,
-                    ),
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(leases.id, lease.id))
-                  .returning(),
-              )
-            : lease;
+        const row = await applyCurrentRent(tx, lease, input.effectiveFrom);
         await writeAudit(tx, {
           orgId: auth.orgId,
           actorUserId: auth.userId,
@@ -570,14 +590,15 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
           status = transitionLease(status, next);
         }
 
-        // Cobranças agendadas para depois do mês do término, sem tentativa de pagamento, saem.
+        // Cobranças agendadas ou já abertas de meses depois do término, sem tentativa de
+        // pagamento, saem. Vencidas e com pagamento ficam para a equipe resolver.
         const afterEnd = await tx
           .select()
           .from(charges)
           .where(
             and(
               eq(charges.leaseId, lease.id),
-              eq(charges.status, 'SCHEDULED'),
+              inArray(charges.status, ['SCHEDULED', 'OPEN']),
               gt(charges.periodStart, monthStartOf(input.endDate)),
               notExists(
                 tx
@@ -589,11 +610,14 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
           )
           .for('update');
         for (const charge of afterEnd) {
-          transitionCharge('SCHEDULED', 'CANCELLED');
+          if (!isChargeStatus(charge.status)) {
+            throw new Error(`status de cobrança inválido: ${charge.status}`);
+          }
+          transitionCharge(charge.status, 'CANCELLED');
           await tx
             .update(charges)
             .set({ status: 'CANCELLED', updatedAt: new Date() })
-            .where(and(eq(charges.id, charge.id), eq(charges.status, 'SCHEDULED')));
+            .where(and(eq(charges.id, charge.id), eq(charges.status, charge.status)));
           await postChargeCancellation(tx, charge);
           await writeAudit(tx, {
             orgId: auth.orgId,

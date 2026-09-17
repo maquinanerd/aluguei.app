@@ -1,0 +1,84 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-leases.test.ts -t antes de uma mudança|já vencida|retroativo
+# árvore: g3/track-c-finance 1210f85 + 3 testes novos de revisão (ordem do reajuste, renovação vencida, encerramento retroativo)
+# data (UTC): 2026-09-17T16:22:34Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:29416) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-c-leases.test.ts (13 tests | 3 failed | 10 skipped) 5696ms
+       × reajuste antes de uma mudança de aluguel já registrada, ou depois do término, é recusado 503ms
+       × renovação de locação já vencida com aluguel novo atualiza o aluguel em vigor 325ms
+       × encerramento retroativo cancela a cobrança já aberta do mês seguinte ao término, sem pagamento 446ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > reajuste antes de uma mudança de aluguel já registrada, ou depois do término, é recusado
+AssertionError: {"lease":{"id":"26cdb216-4f64-4443-a581-7796b0d5bf6c","orgId":"db63e427-24ed-47c7-bbb3-aff6bdf57d36","contractId":"29e8dbfe-a156-4439-a02a-228a447056f2","tenantPartyId":"96bb27ee-48c3-4922-98f5-3d027a234c2f","landlordPartyId":"20d64adc-473b-41ad-b91a-bbd861dc25a7","propertyId":"94a43c35-08d3-4f73-bf92-c16a6246f3c9","status":"ACTIVE","startDate":"2026-09-17","endDate":null,"monthlyRentCents":100000,"condoFeeCents":null,"lateFeeBps":200,"interestMonthlyBps":100,"dueDay":10,"endReason":null,"createdAt":"2026-09-17T16:22:45.917Z","updatedAt":"2026-09-17T16:22:45.917Z"},"amendment":{"id":"d993c076-52aa-4a2a-9e43-e7d7495360a5","kind":"READJUSTMENT","effectiveFrom":"2026-11-01","previousEndDate":null,"newEndDate":null,"previousRentCents":100000,"newRentCents":103000,"indexName":"IPCA","adjustmentBps":300,"reason":null,"createdBy":"6bc28876-d962-4a5e-b7d7-0de18c44c9cb","createdAt":"2026-09-17T16:22:45.937Z"}}: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/g3-c-leases.test.ts:329:60
+    327|         payload: { effectiveFrom: futurePeriod(2), adjustmentBps: 300,…
+    328|       });
+    329|       expect(earlier.status, JSON.stringify(earlier.body)).toBe(409);
+       |                                                            ^
+    330|       const renewalBefore = await fx.call('POST', `/leases/${lease.lea…
+    331|         cookie: lease.cookie,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > renovação de locação já vencida com aluguel novo atualiza o aluguel em vigor
+AssertionError: expected { …(17) } to match object { monthlyRentCents: 120000 }
+(16 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "monthlyRentCents": 120000,
++   "monthlyRentCents": 100000,
+  }
+
+ ❯ src/g3-c-leases.test.ts:369:34
+    367|       expect(renewal.status, JSON.stringify(renewal.body)).toBe(201);
+    368|       expect(renewal.body.amendment).toMatchObject({ effectiveFrom: mo…
+    369|       expect(renewal.body.lease).toMatchObject({ monthlyRentCents: 120…
+       |                                  ^
+    370|     });
+    371|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > encerramento retroativo cancela a cobrança já aberta do mês seguinte ao término, sem pagamento
+AssertionError: expected 'OPEN' to be 'CANCELLED' // Object.is equality
+
+Expected: "CANCELLED"
+Received: "OPEN"
+
+ ❯ src/g3-c-leases.test.ts:449:71
+    447|       // O mês do término continua devido; o mês seguinte, sem tentati…
+    448|       expect(statuses.find((c) => c.id === lastMonth.chargeId)?.status…
+    449|       expect(statuses.find((c) => c.id === current.chargeId)?.status).…
+       |                                                                       ^
+    450|       const [receivable] = await fx.rows<{ total: number }>(sql`
+    451|         select coalesce(sum(e.amount_cents), 0)::int as total
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 10 skipped (13)
+   Start at  13:22:36
+   Duration  10.18s (transform 1.84s, setup 0ms, import 4.17s, tests 5.70s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-c-leases.test.ts -t "antes de uma mudança|já vencida|retroativo"
+
+# exit=1

@@ -69,14 +69,14 @@ export function chargeDueDate(periodStart: string, dueDay: number): string {
   return `${periodStart.slice(0, 8)}${String(dueDay).padStart(2, '0')}`;
 }
 
-/** Vencida só depois do dia útil seguinte ao vencimento (fim de semana e feriado dão carência). */
+/** Vencida depois do vencimento; quando ele cai em fim de semana ou feriado, depois do próximo dia útil. */
 export function isChargeOverdue(dueDate: string, today: string): boolean {
   return today > nextBusinessDay(dueDate);
 }
 
 /**
- * Calcula a cobrança na data do pagamento (auditoria 2026-09-10, P1-07). Em atraso — depois do dia
- * útil seguinte ao vencimento —, multa e juros incidem sobre o valor em atraso (aluguel, condomínio
+ * Calcula a cobrança na data do pagamento (auditoria 2026-09-10, P1-07). Em atraso — depois do
+ * vencimento, ou do próximo dia útil quando ele cai em fim de semana ou feriado —, multa e juros incidem sobre o valor em atraso (aluguel, condomínio
  * e tributos da cobrança). Os juros são mensais pro rata die, contados desde o vencimento. O desconto
  * abate no fim; o valor nunca fica negativo.
  */

@@ -164,7 +164,9 @@ export {
 } from './finance/calendar.js';
 export {
   assertOwnershipTotal,
+  assertReadjustmentWithinLease,
   assertRenewal,
+  assertRentChangeAfterHistory,
   BILLABLE_LEASE_STATUSES,
   landlordSharesFromOwners,
   planLeaseEnd,

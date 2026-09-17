@@ -124,6 +124,57 @@ export function rentForPeriod(
   return rent;
 }
 
+/**
+ * Mudança de aluguel nova não começa antes da última registrada: cada mudança guarda o aluguel
+ * anterior a ela, e uma mudança intercalada deixaria as seguintes calculadas sobre um valor velho.
+ * No mesmo mês vale a mais recente (correção).
+ */
+export function assertRentChangeAfterHistory(
+  changes: readonly RentChange[],
+  effectiveFrom: string,
+): void {
+  const latest = changes.reduce<string | null>(
+    (max, change) => (max === null || change.effectiveFrom > max ? change.effectiveFrom : max),
+    null,
+  );
+  if (latest !== null && effectiveFrom < latest) {
+    throw new DomainError(
+      'CONFLICT',
+      `Já existe mudança de aluguel a partir de ${latest}; a nova precisa começar nesse mês ou depois`,
+      { latestEffectiveFrom: latest, effectiveFrom },
+    );
+  }
+}
+
+/** O reajuste começa num mês da vigência: não antes do mês de início nem depois do mês de término. */
+export function assertReadjustmentWithinLease(input: {
+  startDate: string;
+  endDate: string | null;
+  effectiveFrom: string;
+}): void {
+  const period = monthStartOf(input.effectiveFrom);
+  if (period < monthStartOf(input.startDate)) {
+    throw new DomainError(
+      'INVALID_INPUT',
+      'O reajuste não pode começar antes do início da locação',
+      {
+        startDate: input.startDate,
+        effectiveFrom: input.effectiveFrom,
+      },
+    );
+  }
+  if (input.endDate !== null && period > monthStartOf(input.endDate)) {
+    throw new DomainError(
+      'INVALID_INPUT',
+      'O reajuste não pode começar depois do término da locação',
+      {
+        endDate: input.endDate,
+        effectiveFrom: input.effectiveFrom,
+      },
+    );
+  }
+}
+
 export interface OwnerShareInput {
   partyId: string;
   ownershipSharePct: number | null;

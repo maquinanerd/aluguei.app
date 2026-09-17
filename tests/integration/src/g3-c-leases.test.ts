@@ -312,6 +312,63 @@ describe('G3 trilha C — locação pela API', () => {
       expect(backwards.status).toBe(400);
     });
 
+    it('reajuste antes de uma mudança de aluguel já registrada, ou depois do término, é recusado', async () => {
+      const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
+      const later = await fx.call('POST', `/leases/${lease.leaseId}/readjust`, {
+        cookie: lease.cookie,
+        payload: { effectiveFrom: futurePeriod(3), adjustmentBps: 500, indexName: 'IPCA' },
+      });
+      expect(later.status, JSON.stringify(later.body)).toBe(201);
+
+      // O reajuste de março foi calculado sobre o aluguel anterior; um reajuste de fevereiro
+      // gravado depois deixaria março com um valor que ignora fevereiro.
+      const earlier = await fx.call('POST', `/leases/${lease.leaseId}/readjust`, {
+        cookie: lease.cookie,
+        payload: { effectiveFrom: futurePeriod(2), adjustmentBps: 300, indexName: 'IPCA' },
+      });
+      expect(earlier.status, JSON.stringify(earlier.body)).toBe(409);
+      const renewalBefore = await fx.call('POST', `/leases/${lease.leaseId}/renew`, {
+        cookie: lease.cookie,
+        payload: { endDate: addDays(futurePeriod(2), -1), monthlyRentCents: 110_000 },
+      });
+      expect(renewalBefore.status, JSON.stringify(renewalBefore.body)).toBe(409);
+
+      const bounded = await fx.setupLease({ rentCents: 100_000, landlord: true });
+      const renewal = await fx.call('POST', `/leases/${bounded.leaseId}/renew`, {
+        cookie: bounded.cookie,
+        payload: { endDate: addDays(futurePeriod(2), -1) },
+      });
+      expect(renewal.status, JSON.stringify(renewal.body)).toBe(201);
+      const afterEnd = await fx.call('POST', `/leases/${bounded.leaseId}/readjust`, {
+        cookie: bounded.cookie,
+        payload: { effectiveFrom: futurePeriod(2), adjustmentBps: 500, indexName: 'IPCA' },
+      });
+      expect(afterEnd.status, JSON.stringify(afterEnd.body)).toBe(400);
+      const beforeStart = await fx.call('POST', `/leases/${bounded.leaseId}/readjust`, {
+        cookie: bounded.cookie,
+        payload: { effectiveFrom: '2020-01-01', adjustmentBps: 500, indexName: 'IPCA' },
+      });
+      expect(beforeStart.status, JSON.stringify(beforeStart.body)).toBe(400);
+      expect((await leaseOf(bounded)).amendments).toHaveLength(1);
+    });
+
+    it('renovação de locação já vencida com aluguel novo atualiza o aluguel em vigor', async () => {
+      const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
+      const today = saoPauloDate(new Date());
+      const previousMonthEnd = addDays(monthsAgo(0), -1);
+      await app.db.execute(sql`
+        update leases set start_date = ${addDays(today, -400)}, end_date = ${previousMonthEnd}
+        where id = ${lease.leaseId}
+      `);
+      const renewal = await fx.call('POST', `/leases/${lease.leaseId}/renew`, {
+        cookie: lease.cookie,
+        payload: { endDate: '2030-12-31', monthlyRentCents: 120_000 },
+      });
+      expect(renewal.status, JSON.stringify(renewal.body)).toBe(201);
+      expect(renewal.body.amendment).toMatchObject({ effectiveFrom: monthsAgo(0) });
+      expect(renewal.body.lease).toMatchObject({ monthlyRentCents: 120_000 });
+    });
+
     it('encerramento com data futura: em encerramento, e cobranças agendadas depois do fim são canceladas', async () => {
       const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
       const later = await fx.issueCharge(lease, futurePeriod(3));
@@ -361,6 +418,41 @@ describe('G3 trilha C — locação pela API', () => {
         payload: { endDate: addDays(today, -1), reason: 'Data antes do início' },
       });
       expect(refused.status).toBe(400);
+    });
+
+    it('encerramento retroativo cancela a cobrança já aberta do mês seguinte ao término, sem pagamento', async () => {
+      const lease = await fx.setupLease({ rentCents: 100_000, landlord: true });
+      const today = saoPauloDate(new Date());
+      await app.db.execute(
+        sql`update leases set start_date = ${addDays(today, -400)} where id = ${lease.leaseId}`,
+      );
+      const current = await fx.issueCharge(lease, monthsAgo(0));
+      const lastMonth = await fx.issueCharge(lease, monthsAgo(1));
+      // A varredura diária já abriu as cobranças dos meses que começaram.
+      await app.db.execute(sql`
+        update charges set status = 'OPEN'
+        where id in (${current.chargeId}, ${lastMonth.chargeId})
+      `);
+
+      const ended = await fx.call('POST', `/leases/${lease.leaseId}/end`, {
+        cookie: lease.cookie,
+        payload: { endDate: addDays(monthsAgo(0), -1), reason: 'Chaves entregues no mês passado' },
+      });
+      expect(ended.status, JSON.stringify(ended.body)).toBe(200);
+      expect(ended.body.lease).toMatchObject({ status: 'ENDED' });
+
+      const statuses = await fx.rows<{ id: string; status: string }>(sql`
+        select id, status from charges where lease_id = ${lease.leaseId}
+      `);
+      // O mês do término continua devido; o mês seguinte, sem tentativa de pagamento, sai.
+      expect(statuses.find((c) => c.id === lastMonth.chargeId)?.status).toBe('OPEN');
+      expect(statuses.find((c) => c.id === current.chargeId)?.status).toBe('CANCELLED');
+      const [receivable] = await fx.rows<{ total: number }>(sql`
+        select coalesce(sum(e.amount_cents), 0)::int as total
+        from ledger_entries e join ledger_accounts a on a.id = e.account_id
+        where e.org_id = ${lease.orgId} and a.code = 'AR_RECEIVABLE'
+      `);
+      expect(receivable?.total).toBe(lastMonth.amountCents);
     });
   });
 });
