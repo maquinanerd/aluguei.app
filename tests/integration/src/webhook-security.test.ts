@@ -19,8 +19,8 @@ import { FakeStorageService } from './fakes.js';
 import { registerUser, testEnv } from './helpers.js';
 
 /**
- * Fase 03 â€” Hardening de webhooks (P1 da auditoria final):
- * assinatura/token obrigatÃ³rios + idempotÃªncia + replay.
+ * Fase 03 — Hardening de webhooks (P1 da auditoria final):
+ * assinatura/token obrigatórios + idempotência + replay.
  */
 const SECRETS_ENV: AppEnv = {
   ...testEnv,
@@ -40,7 +40,7 @@ const sigWebhookBearer = SECRETS_ENV.SIGNATURE_WEBHOOK_TOKEN ?? '';
 const asaasWebhookBearer = SECRETS_ENV.ASAAS_WEBHOOK_TOKEN ?? '';
 const metaHubVerify = SECRETS_ENV.META_WEBHOOK_VERIFY_TOKEN ?? '';
 
-describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
+describe('Fase 03: segurança de webhooks (assinaturas e tokens)', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
@@ -65,7 +65,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
 
   // ---------- WhatsApp (X-Hub-Signature-256) ----------
 
-  it('whatsapp: assinatura vÃ¡lida â†’ aceita', async () => {
+  it('whatsapp: assinatura válida → aceita', async () => {
     const payload = {
       object: 'whatsapp_business_account',
       entry: [
@@ -92,7 +92,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  it('whatsapp: assinatura invÃ¡lida â†’ 401', async () => {
+  it('whatsapp: assinatura inválida → 401', async () => {
     const payload = { object: 'whatsapp_business_account', entry: [] };
     const res = await app.inject({
       method: 'POST',
@@ -103,7 +103,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('whatsapp: sem assinatura com secret configurado â†’ 401', async () => {
+  it('whatsapp: sem assinatura com secret configurado → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/whatsapp',
@@ -114,7 +114,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
 
   // ---------- Signature (Bearer token) ----------
 
-  it('signature: sem token â†’ 401', async () => {
+  it('signature: sem token → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/signature',
@@ -129,7 +129,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('signature: token errado â†’ 401', async () => {
+  it('signature: token errado → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/signature',
@@ -145,7 +145,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('signature: token vÃ¡lido + envelope desconhecido â†’ 200 ignored (sem enfileirar)', async () => {
+  it('signature: token válido + envelope desconhecido → 200 ignored (sem enfileirar)', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/signature',
@@ -164,7 +164,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
 
   // ---------- Payments (asaas-webhook-token) ----------
 
-  it('payments: sem token â†’ 401', async () => {
+  it('payments: sem token → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/payments',
@@ -180,7 +180,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('payments: token errado â†’ 401', async () => {
+  it('payments: token errado → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/payments',
@@ -197,7 +197,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('payments: token vÃ¡lido + charge desconhecida â†’ 200 ignored', async () => {
+  it('payments: token válido + charge desconhecida → 200 ignored', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/payments',
@@ -217,7 +217,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
 
   // ---------- Meta (X-Hub-Signature-256) ----------
 
-  it('meta: assinatura invÃ¡lida â†’ 401', async () => {
+  it('meta: assinatura inválida → 401', async () => {
     const payload = {
       adAccountId: 'act_unknown',
       eventType: 'AD_ACCOUNT_UPDATE',
@@ -232,7 +232,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('meta: sem assinatura com secret â†’ 401', async () => {
+  it('meta: sem assinatura com secret → 401', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/webhooks/meta',
@@ -241,7 +241,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('meta: assinatura vÃ¡lida + ad account desconhecido â†’ 200 ignored', async () => {
+  it('meta: assinatura válida + ad account desconhecido → 200 ignored', async () => {
     const payload = {
       provider: 'META',
       adAccountId: 'act_unknown',
@@ -259,7 +259,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(res.json()).toEqual({ status: 'ignored' });
   });
 
-  it('meta: GET verify token errado â†’ 403; certo â†’ challenge', async () => {
+  it('meta: GET verify token errado → 403; certo → challenge', async () => {
     const bad = await app.inject({
       method: 'GET',
       url: '/webhooks/meta?hub.mode=subscribe&hub.verify_token=errado&hub.challenge=abc',
@@ -273,10 +273,10 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
     expect(ok.body).toBe('abc');
   });
 
-  // ---------- IdempotÃªncia / replay ----------
+  // ---------- Idempotência / replay ----------
 
-  it('signature: evento duplicado â†’ idempotente (1 linha no inbox)', async () => {
-    // Cria envelope real via fluxo de contrato para resoluÃ§Ã£o por envelope.
+  it('signature: evento duplicado → idempotente (1 linha no inbox)', async () => {
+    // Cria envelope real via fluxo de contrato para resolução por envelope.
     const { cookie } = await registerUser(app);
     const prop = await app.inject({
       method: 'POST',
@@ -291,7 +291,7 @@ describe('Fase 03: seguranÃ§a de webhooks (assinaturas e tokens)', () => {
       headers: { cookie },
       payload: {
         type: 'PERSON',
-        name: 'LocatÃ¡rio Webhook',
+        name: 'Locatário Webhook',
         identities: [{ kind: 'CPF', value: '52998224725' }],
       },
     });
