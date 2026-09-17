@@ -1,5 +1,7 @@
 export { createRedisClient } from './redis/adapter.js';
 export type { RedisAdapter } from './redis/adapter.js';
+export { closeRateLimitRedis, createRateLimitRedis } from './redis/rate-limit.js';
+export type { RateLimitRedisOptions } from './redis/rate-limit.js';
 export { GoogleMapsGeocodingAdapter } from './geocoding/google.js';
 export type { GoogleMapsGeocodingOptions } from './geocoding/google.js';
 export { GeocodingMockService } from './geocoding/mock.js';

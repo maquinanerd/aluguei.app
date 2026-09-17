@@ -1,0 +1,42 @@
+# comando: pnpm --filter @aluguei/api exec vitest run src/rate-limit-redis.test.ts
+# árvore: commit eb8aed8 (teste do F-3 com o mock corrigido; app.ts ainda passa o adapter ao rate limit)
+# data (UTC): 2026-09-17T16:15:13Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/api
+
+(node:32024) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32024) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(node:32024) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(node:32024) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+ ❯ src/rate-limit-redis.test.ts (4 tests | 4 failed) 194ms
+     × a API sobe e o limite global é contado no Redis 147ms
+     × o limite de rota sensível (cadastro: 10/min) é aplicado pelo Redis 4ms
+     × Redis fora do ar não derruba as requisições e o erro de conexão vai para o log 38ms
+     × fechar a API encerra o client do Redis 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/rate-limit-redis.test.ts > rate limit com REDIS_URL (P1-14) > a API sobe e o limite global é contado no Redis
+ FAIL  src/rate-limit-redis.test.ts > rate limit com REDIS_URL (P1-14) > o limite de rota sensível (cadastro: 10/min) é aplicado pelo Redis
+ FAIL  src/rate-limit-redis.test.ts > rate limit com REDIS_URL (P1-14) > Redis fora do ar não derruba as requisições e o erro de conexão vai para o log
+ FAIL  src/rate-limit-redis.test.ts > rate limit com REDIS_URL (P1-14) > fechar a API encerra o client do Redis
+TypeError: this.redis.defineCommand is not a function
+ ❯ new RedisStore ../../node_modules/.pnpm/@fastify+rate-limit@11.2.0/node_modules/@fastify/rate-limit/store/RedisStore.js:65:16
+ ❯ fastifyRateLimit ../../node_modules/.pnpm/@fastify+rate-limit@11.2.0/node_modules/@fastify/rate-limit/index.js:150:31
+ ❯ Plugin.exec ../../node_modules/.pnpm/avvio@9.3.0/node_modules/avvio/lib/plugin.js:125:28
+ ❯ Boot._loadPlugin ../../node_modules/.pnpm/avvio@9.3.0/node_modules/avvio/index.js:446:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  13:15:14
+   Duration  3.97s (transform 1.70s, setup 0ms, import 3.47s, tests 194ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/rate-limit-redis.test.ts
+# exit=1

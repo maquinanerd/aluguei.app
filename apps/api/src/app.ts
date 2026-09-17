@@ -171,8 +171,22 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     keyGenerator: defaultKeyGenerator,
   };
   if (env.REDIS_URL) {
-    const { createRedisClient } = await import('@aluguei/integrations');
-    rateLimitOptions.redis = createRedisClient(env.REDIS_URL);
+    // O store Redis do plugin registra comandos Lua (`defineCommand`): precisa do client
+    // ioredis, não do adapter get/set/del (auditoria 2026-09-10, P1-14).
+    const { closeRateLimitRedis, createRateLimitRedis } = await import('@aluguei/integrations');
+    const redis = createRateLimitRedis(env.REDIS_URL, {
+      onError: (err) => {
+        app.log.warn({ err }, 'rate limit: falha na conexão com o Redis');
+      },
+    });
+    app.addHook('onClose', async () => {
+      await closeRateLimitRedis(redis);
+    });
+    rateLimitOptions.redis = redis;
+    rateLimitOptions.nameSpace = 'aluguei:rate-limit:';
+    // Redis fora do ar não derruba a API: a requisição passa sem contar (e o erro de
+    // conexão fica no log). Decisão registrada no rascunho de ADR da Trilha F.
+    rateLimitOptions.skipOnError = true;
   }
   await app.register(rateLimit, rateLimitOptions);
   await app.register(configPlugin, { config });
