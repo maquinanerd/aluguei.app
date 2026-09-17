@@ -14,6 +14,7 @@ import { apiClient } from './api-client';
  *  - `useAllPages`: para listagens sem `ids` (candidaturas, contratos), percorre
  *    as páginas de 100 em 100, com teto explícito de páginas.
  *  - `searchProperties`: busca do combobox de imóvel (`q`, 20 resultados).
+ *  - `searchParties`: busca do combobox de pessoa (`q`, 20 resultados).
  */
 
 export type LookupResource = 'parties' | 'properties' | 'listings';
@@ -176,5 +177,31 @@ export async function searchProperties(
     p.status === 'ARCHIVED'
       ? { value: p.id, label: p.title, description: 'Arquivado' }
       : { value: p.id, label: p.title },
+  );
+}
+
+interface PartyOptionRow {
+  id: string;
+  name: string;
+  type: string;
+}
+
+/**
+ * Opções do combobox de pessoa: busca por trecho do nome, do e-mail ou dos dígitos
+ * de CPF, CNPJ ou telefone (P1-17).
+ */
+export async function searchParties(query: string, signal: AbortSignal): Promise<ComboboxOption[]> {
+  const params = new URLSearchParams({ limit: '20' });
+  const text = query.trim();
+  if (text !== '') {
+    params.set('q', text);
+  }
+  const data = await apiClient<{ parties: PartyOptionRow[] }>(`/parties?${params.toString()}`, {
+    signal,
+  });
+  return data.parties.map((p) =>
+    p.type === 'COMPANY'
+      ? { value: p.id, label: p.name, description: 'Empresa' }
+      : { value: p.id, label: p.name },
   );
 }

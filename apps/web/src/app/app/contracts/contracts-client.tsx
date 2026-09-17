@@ -54,7 +54,6 @@ interface Party {
 
 function ContractsBody() {
   const router = useRouter();
-  const toast = useToast();
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
@@ -209,11 +208,10 @@ function ContractsBody() {
         applications={appsQ.rows}
         partyMap={partyMap}
         templates={templatesQ.data?.templates ?? []}
-        onCreated={() => {
-          toast.success('Contrato criado');
+        onCreated={(contractId) => {
+          // Os próximos passos (gerar o texto e enviar para assinatura) ficam no detalhe (P1-17).
           setCreateOpen(false);
-          reload();
-          appsQ.reload();
+          router.push(`/app/contracts/${contractId}`);
         }}
       />
     </div>
@@ -233,7 +231,7 @@ function CreateContractModal({
   applications: Application[];
   partyMap: ReadonlyMap<string, Party>;
   templates: Template[];
-  onCreated: () => void;
+  onCreated: (contractId: string) => void;
 }) {
   const toast = useToast();
   const [applicationId, setApplicationId] = useState('');
@@ -245,10 +243,13 @@ function CreateContractModal({
     if (!applicationId || !templateId) return;
     setBusy(true);
     try {
-      await apiClient('/contracts', { method: 'POST', body: { applicationId, templateId } });
+      const created = await apiClient<{ contract: { id: string } }>('/contracts', {
+        method: 'POST',
+        body: { applicationId, templateId },
+      });
       setApplicationId('');
       setTemplateId('');
-      onCreated();
+      onCreated(created.contract.id);
     } catch (err) {
       toast.error('Falha ao criar', err instanceof Error ? err.message : undefined);
     } finally {

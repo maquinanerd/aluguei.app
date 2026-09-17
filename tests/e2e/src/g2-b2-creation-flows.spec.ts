@@ -86,7 +86,7 @@ test.describe('Fluxos de criação pela interface', () => {
     const id = uniq();
     const propertyId = await seedReadyProperty(cookie, `Imóvel Contrato ${id}`);
     const tenantName = `Locatária Contrato ${id}`;
-    const tenantId = await seedParty(cookie, tenantName, VALID_CPFS[3]);
+    const tenantId = await seedParty(cookie, tenantName, VALID_CPFS[0]);
     const applicationId = await seedApprovedApplication(cookie, propertyId, tenantId);
     const templateName = `Template Contrato ${id}`;
     await seedApprovedTemplate(cookie, templateName);
@@ -127,6 +127,9 @@ test.describe('Fluxos de criação pela interface', () => {
     expect(watch.pageErrors).toEqual([]);
   });
 
+  // A cobrança nasce agendada. As ações da linha abrem só o próprio diálogo: o clique
+  // não pode chegar à linha e abrir o detalhe por cima (o painel lateral cobria a
+  // confirmação e ninguém conseguia confirmar).
   test('cancela uma cobrança pela tela', async ({ page }) => {
     test.setTimeout(400_000);
     const seed = await seedLease('cobranca');
@@ -141,8 +144,30 @@ test.describe('Fluxos de criação pela interface', () => {
     const watch = watchPage(page);
     watch.route = 'cobranças';
     await page.goto('/app/charges', { timeout: 240_000 });
+    const detail = page.getByRole('dialog', { name: 'Detalhe da cobrança' });
+
+    // A linha carregada (a tabela mostra linhas de carregamento antes dos dados).
+    await page
+      .locator('tbody tr', { hasText: 'Agendada' })
+      .first()
+      .click({ position: { x: 16, y: 16 } });
+    await expect(detail).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(detail).toBeHidden();
+
+    const receive = page.getByRole('button', { name: 'Receber' }).first();
+    await expect(receive).toBeVisible();
+    await receive.click();
+    const payment = page.getByRole('dialog', { name: /^Receber R\$/ });
+    await expect(payment).toBeVisible();
+    await expect(detail).toBeHidden();
+    await payment.getByRole('button', { name: 'Cancelar' }).click();
+    await expect(payment).toBeHidden();
+
     await page.getByRole('button', { name: 'Cancelar' }).first().click();
     const dialog = page.getByRole('dialog', { name: 'Cancelar cobrança' });
+    await expect(dialog).toBeVisible();
+    await expect(detail).toBeHidden();
     await dialog.getByRole('button', { name: 'Cancelar cobrança' }).click();
     await poll(
       () =>

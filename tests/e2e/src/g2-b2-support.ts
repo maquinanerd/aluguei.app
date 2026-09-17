@@ -12,6 +12,7 @@ export interface IdBody {
   id: string;
 }
 
+/** CPFs válidos. Score do screening FAKE: 792, 726, 709 e 432 — o último não é aprovado (mínimo 700). */
 export const VALID_CPFS = ['52998224725', '11144477735', '39053344705', '15350946056'] as const;
 
 export function nextMonthStart(): string {

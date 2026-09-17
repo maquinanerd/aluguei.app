@@ -61,7 +61,7 @@ test('P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análi
   expect(consents.body.consents).toEqual([
     expect.objectContaining({ purpose: 'CREDIT_SCREENING', revokedAt: null }),
   ]);
-  await expect(page.getByRole('button', { name: 'Solicitar análise' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Solicitar screening' })).toBeVisible();
   expect(watch.backendFailures).toEqual([]);
   expect(watch.pageErrors).toEqual([]);
 });
@@ -83,7 +83,7 @@ test('P1-17: primeira publicação de um anúncio em canal pela tela', async ({ 
   await dialog.getByLabel('Anúncio', { exact: true }).selectOption({ label: title });
   const channel = dialog.getByLabel('Canal', { exact: true });
   await expect(channel.locator('option', { hasText: 'OLX (sem integração)' })).toBeDisabled();
-  await channel.selectOption({ label: 'Portal de teste (FAKE)' });
+  await channel.selectOption({ label: 'Canal de teste' });
   await dialog.getByRole('button', { name: 'Publicar' }).click();
   await expect(page.getByText('Publicação enviada ao canal')).toBeVisible({ timeout: 30_000 });
 
