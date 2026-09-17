@@ -100,13 +100,13 @@ describe('audit_events.payload com diff (P2-11)', () => {
       method: 'PATCH',
       url: `/organizations/${owner.body.org.id}/members/${member.body.user.id}`,
       headers: { cookie: owner.cookie },
-      payload: { role: 'manager' },
+      payload: { role: 'finance' },
     });
     expect(changed.statusCode, JSON.stringify(changed.json())).toBe(200);
 
     const payload = await lastPayload(AUDIT_ACTIONS.MEMBER_ROLE_CHANGED, membershipId);
     expect(payload.fields).toEqual(['role']);
-    expect(payload.changes?.role).toEqual({ from: 'agent', to: 'manager' });
+    expect(payload.changes?.role).toEqual({ from: 'agent', to: 'finance' });
     expect(payload.userId).toBe(member.body.user.id);
     const asText = JSON.stringify(payload);
     expect(asText).not.toContain(`membro-audit-${suffix}@example.com`);
