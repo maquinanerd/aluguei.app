@@ -128,7 +128,7 @@ export function toPropertyDto(loaded: LoadedProperty): unknown {
 }
 
 /**
- * NormalizaÃ§Ã£o de boundary DB â†’ DTO de API.
+ * Normalização de boundary DB → DTO de API.
  *
  * Drizzle/node-postgres entrega `Date` para colunas timestamp, mas os schemas
  * Zod de contrato (`z.string()`) definem o formato de fio como ISO 8601.
@@ -142,8 +142,8 @@ function toDtoValue(value: unknown): unknown {
 
 /**
  * Remove apenas colunas internas (orgId/propertyId/createdAt/updatedAt/storageKey)
- * e lat/lng (nunca expostos). MantÃ©m `id` e nulls (schemas usam `.nullable()`).
- * Valores `Date` sÃ£o normalizados para ISO 8601 (ver `toDtoValue`).
+ * e lat/lng (nunca expostos). Mantém `id` e nulls (schemas usam `.nullable()`).
+ * Valores `Date` são normalizados para ISO 8601 (ver `toDtoValue`).
  */
 export function toAddressDto(address: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -279,7 +279,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       const { id } = z.object({ id: uuidSchema }).parse(request.params);
       const loaded = await loadProperty(db, auth.orgId, id);
       if (!loaded) {
-        throw new DomainError('NOT_FOUND', 'ImÃ³vel nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Imóvel não encontrado');
       }
       return { property: toPropertyDto(loaded) };
     },
@@ -300,7 +300,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const patch: Record<string, unknown> = { updatedAt: new Date() };
       for (const [key, value] of Object.entries(input)) {
@@ -350,7 +350,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
 
       const apply = async (isPublic: boolean): Promise<void> => {
@@ -449,7 +449,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [existing] = await db
         .select()
@@ -503,7 +503,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [party] = await db
         .select()
@@ -511,7 +511,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(parties.id, input.partyId), eq(parties.orgId, auth.orgId)))
         .limit(1);
       if (!party) {
-        throw new DomainError('NOT_FOUND', 'Parte nÃ£o encontrada');
+        throw new DomainError('NOT_FOUND', 'Parte não encontrada');
       }
       const [existing] = await db
         .select()
@@ -524,7 +524,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         )
         .limit(1);
       if (existing) {
-        throw new DomainError('CONFLICT', 'ProprietÃ¡rio jÃ¡ vinculado');
+        throw new DomainError('CONFLICT', 'Proprietário já vinculado');
       }
       await db.insert(propertyOwners).values({
         orgId: auth.orgId,
@@ -565,7 +565,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [owner] = await db
         .select()
@@ -602,7 +602,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [existing] = await db
         .select()
@@ -652,7 +652,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [existing] = await db
         .select()
@@ -688,7 +688,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       const input = requestUploadUrlRequestSchema.parse(request.body);
 
       if (!app.storage) {
-        throw new DomainError('INVALID_INPUT', 'Storage nÃ£o configurado');
+        throw new DomainError('INVALID_INPUT', 'Storage não configurado');
       }
       const [property] = await db
 
@@ -697,7 +697,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       assertSizeAllowed(input.kind, input.sizeBytes);
       const key = buildStorageKey(auth.orgId, property.id, input.kind, input.mimeType);
@@ -721,7 +721,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       const input = confirmMediaRequestSchema.parse(request.body);
 
       if (!app.storage) {
-        throw new DomainError('INVALID_INPUT', 'Storage nÃ£o configurado');
+        throw new DomainError('INVALID_INPUT', 'Storage não configurado');
       }
       const [property] = await db
 
@@ -730,21 +730,21 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
-      // key gerada pelo servidor: prefixo obrigatÃ³rio da org/property
+      // key gerada pelo servidor: prefixo obrigatório da org/property
       if (!input.key.startsWith(`orgs/${auth.orgId}/properties/${property.id}/`)) {
-        throw new DomainError('INVALID_INPUT', 'Chave de storage invÃ¡lida');
+        throw new DomainError('INVALID_INPUT', 'Chave de storage inválida');
       }
       const kind = inferKindFromKey(input.key);
       const head = await app.storage.headObject(input.key);
       if (!head) {
-        throw new DomainError('INVALID_INPUT', 'Objeto nÃ£o encontrado no storage');
+        throw new DomainError('INVALID_INPUT', 'Objeto não encontrado no storage');
       }
-      // Revalida o tamanho REAL do objeto (presigned PUT nÃ£o limita o upload).
+      // Revalida o tamanho REAL do objeto (presigned PUT não limita o upload).
       assertSizeAllowed(kind, head.size);
 
-      // IdempotÃªncia: mesma storageKey jÃ¡ confirmada â†’ retorna a mÃ­dia existente.
+      // Idempotência: mesma storageKey já confirmada → retorna a mídia existente.
       const [existing] = await db
         .select()
         .from(propertyMedia)
@@ -816,7 +816,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
         .limit(1);
       if (!property) {
-        throw new DomainError('NOT_FOUND', 'Recurso nÃ£o encontrado');
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const [media] = await db
         .select()
@@ -855,7 +855,7 @@ function inferKindFromKey(key: string): 'PHOTO' | 'DOCUMENT' | 'FLOORPLAN' {
   if (segment === 'photo') {
     return 'PHOTO';
   }
-  throw new DomainError('INVALID_INPUT', 'Chave de storage invÃ¡lida');
+  throw new DomainError('INVALID_INPUT', 'Chave de storage inválida');
 }
 
 function summaryOf(row: typeof properties.$inferSelect): Record<string, unknown> {

@@ -1,0 +1,88 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/rental-application.test.ts src/lib/charge-rules.test.ts src/lib/channel-publish.test.ts src/lib/lookup.test.ts
+# árvore: commit 3a69397 + API da Track B2 (não commitada) + testes unitários novos do web, sem implementação
+# data (UTC): 2026-09-17T04:34:14Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+ ❯ src/lib/rental-application.test.ts (0 test)
+ ❯ src/lib/channel-publish.test.ts (0 test)
+ ❯ src/lib/lookup.test.ts (2 tests | 2 failed) 12ms
+     × busca pelo texto digitado, sem espaços nas pontas, e devolve nome como rótulo 8ms
+     × sem texto: lista as primeiras pessoas sem filtro 1ms
+ ❯ src/lib/charge-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/channel-publish.test.ts [ src/lib/channel-publish.test.ts ]
+Error: Cannot find module './channel-publish' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/channel-publish.test.ts
+ ❯ src/lib/channel-publish.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { channelSelectOptions } from './channel-publish';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/lib/charge-rules.test.ts [ src/lib/charge-rules.test.ts ]
+Error: Cannot find module './charge-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/charge-rules.test.ts
+ ❯ src/lib/charge-rules.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { canTransitionCharge, CHARGE_STATUSES } from '@aluguei/domain';
+      3| import { chargeActions } from './charge-rules';
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/lib/rental-application.test.ts [ src/lib/rental-application.test.ts ]
+Error: Cannot find module './rental-application' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/rental-application.test.ts
+ ❯ src/lib/rental-application.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   CREDIT_CONSENT_REQUIRED_MESSAGE,
+      4|   activeCreditConsent,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/lookup.test.ts > searchParties > busca pelo texto digitado, sem espaços nas pontas, e devolve nome como rótulo
+TypeError: searchParties is not a function
+ ❯ src/lib/lookup.test.ts:27:27
+     25|       { id: 'p2', name: 'Souza Imóveis Ltda', type: 'COMPANY' },
+     26|     ]);
+     27|     const options = await searchParties('  souza ', new AbortControlle…
+       |                           ^
+     28|     expect(fetchMock).toHaveBeenCalledTimes(1);
+     29|     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/backend/parties?li…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/lib/lookup.test.ts > searchParties > sem texto: lista as primeiras pessoas sem filtro
+TypeError: searchParties is not a function
+ ❯ src/lib/lookup.test.ts:38:11
+     36|   it('sem texto: lista as primeiras pessoas sem filtro', async () => {
+     37|     const fetchMock = stubParties([]);
+     38|     await searchParties('   ', new AbortController().signal);
+       |           ^
+     39|     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/backend/parties?li…
+     40|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  2 failed (2)
+   Start at  01:34:16
+   Duration  1.19s (transform 633ms, setup 0ms, import 177ms, tests 12ms, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/rental-application.test.ts src/lib/charge-rules.test.ts src/lib/channel-publish.test.ts src/lib/lookup.test.ts
+
+# exit=1

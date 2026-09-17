@@ -1,0 +1,5 @@
+# comando: pnpm security:scan
+# árvore: commit c96d6c6 (g2/track-b2)
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.

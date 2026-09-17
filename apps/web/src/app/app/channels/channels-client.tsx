@@ -1,9 +1,24 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Badge, Button, Card, Group, Icon, Stack, Tag, ToastProvider, useToast } from '@aluguei/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Group,
+  Icon,
+  Modal,
+  Select,
+  Stack,
+  Tag,
+  ToastProvider,
+  useToast,
+} from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { useAllPages } from '@/lib/lookup';
+import { channelSelectOptions } from '@/lib/channel-publish';
+import type { AvailableChannel } from '@/lib/channel-publish';
 import {
   label,
   CHANNEL_STATUS_LABELS,
@@ -34,6 +49,7 @@ const ALL_CHANNELS = ['fake', 'canalpro', 'vivareal', 'zap', 'olx', 'imovelweb']
 function ChannelsBody() {
   const toast = useToast();
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const { data, loading, error, permissionDenied, reload } = useQuery<ChannelSummary>(
     '/channels/summary',
@@ -108,6 +124,16 @@ function ChannelsBody() {
         description="Distribuição dos anúncios para portais e integrações."
         actions={
           <Group gap={2}>
+            <Button
+              size="sm"
+              variant="brand"
+              icon={<Icon name="send" size={14} />}
+              onClick={() => {
+                setPublishOpen(true);
+              }}
+            >
+              Publicar anúncio
+            </Button>
             <Button
               size="sm"
               variant="secondary"
@@ -264,7 +290,134 @@ function ChannelsBody() {
           </div>
         )}
       </Card>
+
+      <PublishListingModal
+        open={publishOpen}
+        onClose={() => {
+          setPublishOpen(false);
+        }}
+        onPublished={() => {
+          setPublishOpen(false);
+          reload();
+        }}
+      />
     </div>
+  );
+}
+
+/**
+ * Primeira publicação de um anúncio em canal (auditoria 2026-09-10, P1-17): a tela
+ * só republicava o que já estava em algum canal. Lista os anúncios publicados
+ * (todas as páginas) e os canais de `GET /channels`; canal sem integração aparece
+ * desabilitado.
+ */
+function PublishListingModal({
+  open,
+  onClose,
+  onPublished,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onPublished: () => void;
+}) {
+  const toast = useToast();
+  const listingsQ = useAllPages<{ id: string; title: string }>(
+    open ? '/listings?status=PUBLISHED' : null,
+    'listings',
+  );
+  const channelsQ = useQuery<{ channels: AvailableChannel[] }>(open ? '/channels' : null, [open]);
+  const [listingId, setListingId] = useState('');
+  const [channel, setChannel] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  function close() {
+    setListingId('');
+    setChannel('');
+    onClose();
+  }
+
+  async function submit(e: React.SyntheticEvent) {
+    e.preventDefault();
+    if (!listingId || !channel) return;
+    setBusy(true);
+    try {
+      await apiClient(`/listings/${listingId}/channels/${channel}/publish`, {
+        method: 'POST',
+        body: {},
+      });
+      toast.success('Publicação enviada ao canal', label(CHANNEL_TYPE_LABELS, channel));
+      setListingId('');
+      setChannel('');
+      onPublished();
+    } catch (err) {
+      toast.error('Não foi possível publicar', err instanceof Error ? err.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const noListings = !listingsQ.loading && !listingsQ.error && listingsQ.rows.length === 0;
+
+  return (
+    <Modal
+      open={open}
+      onClose={close}
+      title="Publicar anúncio em canal"
+      footer={
+        <>
+          <Button variant="tertiary" onClick={close}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            form="publish-listing-form"
+            loading={busy}
+            disabled={noListings}
+          >
+            Publicar
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="publish-listing-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <Select
+          label="Anúncio"
+          required
+          value={listingId}
+          onChange={(e) => {
+            setListingId(e.target.value);
+          }}
+          placeholder={listingsQ.loading ? 'Carregando anúncios…' : 'Selecione o anúncio'}
+          options={listingsQ.rows.map((l) => ({ value: l.id, label: l.title }))}
+          {...(listingsQ.error
+            ? { error: listingsQ.error }
+            : noListings
+              ? { helper: 'Nenhum anúncio publicado. Publique o anúncio em Anúncios antes.' }
+              : listingsQ.truncated
+                ? { helper: 'Lista parcial: há mais anúncios publicados do que a tela carrega.' }
+                : {})}
+        />
+        <Select
+          label="Canal"
+          required
+          value={channel}
+          onChange={(e) => {
+            setChannel(e.target.value);
+          }}
+          placeholder={channelsQ.loading ? 'Carregando canais…' : 'Selecione o canal'}
+          options={channelSelectOptions(channelsQ.data?.channels ?? [])}
+          {...(channelsQ.error ? { error: channelsQ.error } : {})}
+        />
+      </form>
+    </Modal>
   );
 }
 

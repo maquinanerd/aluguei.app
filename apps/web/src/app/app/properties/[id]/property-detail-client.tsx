@@ -86,7 +86,7 @@ function PropertyBody() {
   const toast = useToast();
   const [tab, setTab] = useState('overview');
   const [featureInput, setFeatureInput] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(false);
   const [termOpen, setTermOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -146,17 +146,22 @@ function PropertyBody() {
     }
   }
 
-  async function removeProperty() {
+  // A API não apaga imóvel (anúncios, contratos e auditoria dependem dele): arquiva e
+  // reativa pelo status (auditoria 2026-09-10, P1-17).
+  async function setPropertyStatus(status: 'ACTIVE' | 'ARCHIVED') {
     setBusy(true);
     try {
-      await apiClient(`/properties/${id}`, { method: 'DELETE' });
-      toast.success('Imóvel removido');
-      router.push('/app/properties');
+      await apiClient(`/properties/${id}`, { method: 'PATCH', body: { status } });
+      toast.success(status === 'ARCHIVED' ? 'Imóvel arquivado' : 'Imóvel reativado');
+      propQ.reload();
     } catch (err) {
-      toast.error('Falha ao remover', err instanceof Error ? err.message : undefined);
+      toast.error(
+        status === 'ARCHIVED' ? 'Não foi possível arquivar' : 'Não foi possível reativar',
+        err instanceof Error ? err.message : undefined,
+      );
     } finally {
       setBusy(false);
-      setConfirmDelete(false);
+      setConfirmArchive(false);
     }
   }
 
@@ -212,16 +217,30 @@ function PropertyBody() {
             >
               Termos financeiros
             </Button>
-            <Button
-              variant="danger-subtle"
-              size="sm"
-              icon={<Icon name="trash" size={14} />}
-              onClick={() => {
-                setConfirmDelete(true);
-              }}
-            >
-              Remover
-            </Button>
+            {property.status === 'ARCHIVED' ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<Icon name="refresh" size={14} />}
+                loading={busy}
+                onClick={() => {
+                  void setPropertyStatus('ACTIVE');
+                }}
+              >
+                Reativar imóvel
+              </Button>
+            ) : (
+              <Button
+                variant="danger-subtle"
+                size="sm"
+                icon={<Icon name="package" size={14} />}
+                onClick={() => {
+                  setConfirmArchive(true);
+                }}
+              >
+                Arquivar imóvel
+              </Button>
+            )}
           </Group>
         </Group>
       </div>
@@ -547,16 +566,16 @@ function PropertyBody() {
       {propQ.error ? <ErrorState body={propQ.error} onRetry={propQ.reload} /> : null}
 
       <ConfirmModal
-        open={confirmDelete}
+        open={confirmArchive}
         onClose={() => {
-          setConfirmDelete(false);
+          setConfirmArchive(false);
         }}
         onConfirm={() => {
-          void removeProperty();
+          void setPropertyStatus('ARCHIVED');
         }}
-        title="Remover imóvel"
-        body={`Remover "${property.title}"? Esta ação não pode ser desfeita.`}
-        confirmLabel="Remover"
+        title="Arquivar imóvel"
+        body={`Arquivar "${property.title}"? Ele sai da lista de ativos, mantém o histórico e pode ser reativado depois.`}
+        confirmLabel="Arquivar"
         danger
         loading={busy}
       />

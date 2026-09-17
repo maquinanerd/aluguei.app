@@ -1,0 +1,101 @@
+# comando: WEB_PORT=3300 API_PORT=4300 PG_PORT=5533 pnpm --filter @aluguei/tests-e2e test:e2e g2-b2-creation-flows
+# árvore: commit 3a69397 — Track B2 aplicada na árvore de trabalho, sem a correção do clique nas ações da linha (DataTable), do estado do pagamento (cobranças) e da navegação após criar contrato; spec de cobrança com as asserções de detalhe, receber e cancelar; stack e cluster PostgreSQL descartáveis, providers FAKE
+# data (UTC): 2026-09-17T04:55:07Z
+$ playwright test "g2-b2-creation-flows"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789620910639\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5533...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4300...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3300...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1789620910639).
+[WebServer] [e2e-stack] web http://localhost:3300 · API http://127.0.0.1:4300 — Ctrl+C para derrubar.
+
+Running 3 tests using 1 worker
+
+  ok 1 g2-b2-creation-flows.spec.ts:22:3 › Fluxos de criação pela interface › cria anúncio, proposta e vistoria pelos modais (6.4s)
+  x  2 g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura (1.1m)
+  x  3 g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela (23.3s)
+[e2e-stack] stack run-1789620910639 desligada.
+
+
+  1) g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura 
+
+    Error: Timed out 60000ms waiting for expect(locator).toHaveURL(expected)
+
+    Locator: locator(':root')
+    Expected pattern: /\/app\/contracts\/[0-9a-f-]{36}$/
+    Received string:  "http://localhost:3300/app/contracts"
+    Call log:
+      - expect.toHaveURL with timeout 60000ms
+      - waiting for locator(':root')
+        63 × locator resolved to <html lang="pt-BR" class="inter_f78823fd-module__vG9ymG__variable">…</html>
+           - unexpected value "http://localhost:3300/app/contracts"
+
+
+      107 |     await dialog.getByLabel('Template', { exact: true }).selectOption({ label: templateName });
+      108 |     await dialog.getByRole('button', { name: 'Criar' }).click();
+    > 109 |     await expect(page).toHaveURL(/\/app\/contracts\/[0-9a-f-]{36}$/, { timeout: 60_000 });
+          |                        ^
+      110 |     const contractId = page.url().split('/').pop() ?? '';
+      111 |
+      112 |     await page.getByRole('button', { name: 'Gerar contrato' }).click();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-creation-flows.spec.ts:109:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-creation-flows-Fluxo-da8d1-xto-e-envia-para-assinatura\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela 
+
+    Error: Timed out 15000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByRole('dialog', { name: 'Detalhe da cobrança' })
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Detalhe da cobrança' })
+
+
+      151 |       .first()
+      152 |       .click({ position: { x: 16, y: 16 } });
+    > 153 |     await expect(detail).toBeVisible();
+          |                          ^
+      154 |     await page.keyboard.press('Escape');
+      155 |     await expect(detail).toBeHidden();
+      156 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g2-b2-creation-flows.spec.ts:153:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g2-b2-creation-flows-Fluxo-b7bdf-cela-uma-cobrança-pela-tela\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura 
+    g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela 
+  1 passed (2.0m)
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g2-b2-creation-flows"`
+Exit status 1
+# duração: 123s
+# exit=1

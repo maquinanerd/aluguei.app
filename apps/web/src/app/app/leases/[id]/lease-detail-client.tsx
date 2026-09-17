@@ -28,6 +28,8 @@ import {
   CHARGE_STATUS_TONES,
 } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
+import { PortalAccessDialog } from '@/components/portal/portal-access-dialog';
+import type { PortalKind } from '@/lib/portal-access';
 
 interface Lease {
   id: string;
@@ -77,6 +79,11 @@ function LeaseBody() {
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  const [portalFor, setPortalFor] = useState<{
+    partyId: string;
+    partyName: string;
+    kind: PortalKind;
+  } | null>(null);
 
   const aggQ = useQuery<LeaseAggregate>(`/leases/${id}`, [id]);
 
@@ -174,15 +181,41 @@ function LeaseBody() {
               rows={[
                 {
                   label: 'Locatário',
-                  value: lease.tenantPartyId
-                    ? (partyMap.get(lease.tenantPartyId)?.name ?? '—')
-                    : '—',
+                  value: lease.tenantPartyId ? (
+                    <PartyWithPortal
+                      name={partyMap.get(lease.tenantPartyId)?.name ?? null}
+                      onPortal={(name) => {
+                        if (lease.tenantPartyId) {
+                          setPortalFor({
+                            partyId: lease.tenantPartyId,
+                            partyName: name,
+                            kind: 'TENANT',
+                          });
+                        }
+                      }}
+                    />
+                  ) : (
+                    '—'
+                  ),
                 },
                 {
                   label: 'Proprietário',
-                  value: lease.landlordPartyId
-                    ? (partyMap.get(lease.landlordPartyId)?.name ?? '—')
-                    : '—',
+                  value: lease.landlordPartyId ? (
+                    <PartyWithPortal
+                      name={partyMap.get(lease.landlordPartyId)?.name ?? null}
+                      onPortal={(name) => {
+                        if (lease.landlordPartyId) {
+                          setPortalFor({
+                            partyId: lease.landlordPartyId,
+                            partyName: name,
+                            kind: 'LANDLORD',
+                          });
+                        }
+                      }}
+                    />
+                  ) : (
+                    '—'
+                  ),
                 },
                 { label: 'Aluguel mensal', value: formatBRL(lease.monthlyRentCents) },
                 {
@@ -277,7 +310,45 @@ function LeaseBody() {
           />
         </InspectorSection>
       </Inspector>
+      {portalFor ? (
+        <PortalAccessDialog
+          open
+          onClose={() => {
+            setPortalFor(null);
+          }}
+          partyId={portalFor.partyId}
+          partyName={portalFor.partyName}
+          kind={portalFor.kind}
+        />
+      ) : null}
     </Stack>
+  );
+}
+
+/** Nome da parte com o botão de acesso ao portal (P1-16). */
+function PartyWithPortal({
+  name,
+  onPortal,
+}: {
+  name: string | null;
+  onPortal: (name: string) => void;
+}) {
+  if (!name) return <>—</>;
+  return (
+    <span className="peg-group" style={{ gap: 8, flexWrap: 'wrap' }}>
+      <span>{name}</span>
+      <Button
+        size="xs"
+        variant="tertiary"
+        icon={<Icon name="key" size={12} />}
+        aria-label={`Acesso ao portal de ${name}`}
+        onClick={() => {
+          onPortal(name);
+        }}
+      >
+        Portal
+      </Button>
+    </span>
   );
 }
 

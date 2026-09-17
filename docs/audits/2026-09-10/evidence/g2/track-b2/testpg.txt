@@ -1,0 +1,24 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54330/postgres pnpm test:pg
+# árvore: commit c96d6c6 — g2/track-b2 com a Track B2 completa
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54330), parado e removido ao final
+# data (UTC): 2026-09-17T05:13:38Z
+
+$ pnpm --filter @aluguei/tests-integration test:pg
+$ vitest run --config vitest.pg.config.ts
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:10520) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10520) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(node:6092) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8532) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  02:13:40
+   Duration  30.02s (transform 1.82s, setup 0ms, import 7.49s, tests 21.68s, environment 0ms)
+
+# exit=0

@@ -1,0 +1,6 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit c96d6c6 (g2/track-b2)
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high

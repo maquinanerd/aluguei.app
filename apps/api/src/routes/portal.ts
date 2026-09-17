@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { and, desc, eq, inArray, isNull, ne } from 'drizzle-orm';
+import { and, count, desc, eq, gt, inArray, isNull, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import type { AppDb } from '@aluguei/db';
 import {
@@ -33,6 +33,8 @@ import {
   createPortalAccessRequestSchema,
   createPortalAccessResponseSchema,
   landlordStatementSchema,
+  listPortalAccessQuerySchema,
+  listPortalAccessResponseSchema,
   listPortalChargesQuerySchema,
   portalChargeSchema,
   portalContractSchema,
@@ -55,7 +57,7 @@ import {
   setPortalCookie,
 } from '../plugins/portal-session.js';
 import { writeAudit } from '../plugins/audit.js';
-import { first } from './helpers.js';
+import { assertOwnedByOrg, first } from './helpers.js';
 
 const PORTAL_SESSION_TTL_SECONDS = 7 * 24 * 3600; // 7 dias
 const ONE_TIME_TOKEN_TTL_MS = 7 * 24 * 3600 * 1000;
@@ -89,90 +91,123 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createPortalAccessRequestSchema.parse(request.body);
+      const token = generatePortalToken();
 
-      const [party] = await db
-        .select()
-        .from(parties)
-        .where(and(eq(parties.id, input.partyId), eq(parties.orgId, auth.orgId)))
-        .limit(1);
-      if (!party) {
-        throw new DomainError('NOT_FOUND', 'Parte não encontrada');
-      }
+      const accessId = await db.transaction(async (tx) => {
+        // Trava a pessoa: pedidos simultâneos de link para ela esperam um ao outro, e o
+        // segundo reaproveita a concessão que o primeiro gravou (B2, ADR-061).
+        const [party] = await tx
+          .select({ id: parties.id })
+          .from(parties)
+          .where(and(eq(parties.id, input.partyId), eq(parties.orgId, auth.orgId)))
+          .limit(1)
+          .for('update');
+        if (!party) {
+          throw new DomainError('NOT_FOUND', 'Parte não encontrada');
+        }
 
-      // Uma concessão ativa por (org, party, kind). Reutiliza a existente.
-      const [existing] = await db
-        .select()
-        .from(portalAccess)
-        .where(
-          and(
-            eq(portalAccess.orgId, auth.orgId),
-            eq(portalAccess.partyId, party.id),
-            eq(portalAccess.kind, input.kind),
-          ),
-        )
-        .limit(1);
-
-      if (existing && !existing.revokedAt) {
-        // Já existe ativa: gera um novo token one-time para a mesma concessão.
-        const token = generatePortalToken();
-        await db
-          .update(portalAccess)
-          .set({
-            oneTimeTokenHash: hashPortalToken(token),
-            oneTimeTokenExpiresAt: new Date(Date.now() + ONE_TIME_TOKEN_TTL_MS),
-            revokedAt: null,
-          })
-          .where(eq(portalAccess.id, existing.id));
-        await writeAudit(db, {
+        // Uma concessão ativa por (org, party, kind): a revogada fica no histórico e
+        // nunca é reaproveitada; a ativa recebe um token novo, que invalida o anterior.
+        const [existing] = await tx
+          .select({ id: portalAccess.id })
+          .from(portalAccess)
+          .where(
+            and(
+              eq(portalAccess.orgId, auth.orgId),
+              eq(portalAccess.partyId, party.id),
+              eq(portalAccess.kind, input.kind),
+              isNull(portalAccess.revokedAt),
+            ),
+          )
+          .orderBy(desc(portalAccess.createdAt))
+          .limit(1);
+        const tokenFields = {
+          oneTimeTokenHash: hashPortalToken(token),
+          oneTimeTokenExpiresAt: new Date(Date.now() + ONE_TIME_TOKEN_TTL_MS),
+        };
+        const id = existing
+          ? first(
+              await tx
+                .update(portalAccess)
+                .set(tokenFields)
+                .where(eq(portalAccess.id, existing.id))
+                .returning({ id: portalAccess.id }),
+            ).id
+          : first(
+              await tx
+                .insert(portalAccess)
+                .values({
+                  orgId: auth.orgId,
+                  partyId: party.id,
+                  kind: input.kind,
+                  createdBy: auth.userId,
+                  ...tokenFields,
+                })
+                .returning({ id: portalAccess.id }),
+            ).id;
+        await writeAudit(tx, {
           orgId: auth.orgId,
           actorUserId: auth.userId,
           action: AUDIT_ACTIONS.PORTAL_ACCESS_CREATED,
           entityType: 'PORTAL_ACCESS',
-          entityId: existing.id,
+          entityId: id,
           payload: { partyId: party.id, kind: input.kind },
         });
-        return reply.status(201).send(
-          createPortalAccessResponseSchema.parse({
-            access: { id: existing.id, kind: input.kind, partyId: party.id },
-            oneTimeToken: token,
-          }),
-        );
-      }
-
-      const access = first(
-        await db
-          .insert(portalAccess)
-          .values({
-            orgId: auth.orgId,
-            partyId: party.id,
-            kind: input.kind,
-            createdBy: auth.userId,
-            oneTimeTokenHash: null,
-          })
-          .returning(),
-      );
-      const token = generatePortalToken();
-      await db
-        .update(portalAccess)
-        .set({
-          oneTimeTokenHash: hashPortalToken(token),
-          oneTimeTokenExpiresAt: new Date(Date.now() + ONE_TIME_TOKEN_TTL_MS),
-        })
-        .where(eq(portalAccess.id, access.id));
-      await writeAudit(db, {
-        orgId: auth.orgId,
-        actorUserId: auth.userId,
-        action: AUDIT_ACTIONS.PORTAL_ACCESS_CREATED,
-        entityType: 'PORTAL_ACCESS',
-        entityId: access.id,
-        payload: { partyId: party.id, kind: input.kind },
+        return id;
       });
+
       return reply.status(201).send(
         createPortalAccessResponseSchema.parse({
-          access: { id: access.id, kind: input.kind, partyId: party.id },
+          access: { id: accessId, kind: input.kind, partyId: input.partyId },
           oneTimeToken: token,
         }),
       );
+    },
+  );
+
+  // Concessões de uma pessoa para a tela de acesso ao portal (P1-16).
+  app.get(
+    '/portal/access',
+    { onRequest: [requirePermission('portal:manage')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const { partyId } = listPortalAccessQuerySchema.parse(request.query);
+      await assertOwnedByOrg(db, parties, partyId, auth.orgId, 'Parte não encontrada');
+      const now = new Date();
+      const rows = await db
+        .select()
+        .from(portalAccess)
+        .where(and(eq(portalAccess.orgId, auth.orgId), eq(portalAccess.partyId, partyId)))
+        .orderBy(desc(portalAccess.createdAt));
+      const accesses = [];
+      for (const row of rows) {
+        const [open] = await db
+          .select({ n: count() })
+          .from(portalSessions)
+          .where(
+            and(
+              eq(portalSessions.accessId, row.id),
+              isNull(portalSessions.revokedAt),
+              gt(portalSessions.expiresAt, now),
+            ),
+          );
+        const linkActive =
+          row.revokedAt === null &&
+          row.oneTimeTokenHash !== null &&
+          row.oneTimeTokenExpiresAt !== null &&
+          row.oneTimeTokenExpiresAt > now;
+        accesses.push({
+          id: row.id,
+          partyId: row.partyId,
+          kind: row.kind,
+          createdAt: row.createdAt.toISOString(),
+          revokedAt: row.revokedAt?.toISOString() ?? null,
+          linkActive,
+          linkExpiresAt: linkActive ? (row.oneTimeTokenExpiresAt?.toISOString() ?? null) : null,
+          activeSessions: open?.n ?? 0,
+        });
+      }
+      return listPortalAccessResponseSchema.parse({ accesses });
     },
   );
 
@@ -291,6 +326,11 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
     const portal = request.portalAuth;
     reply.clearCookie('aluguei_portal', { path: '/' });
     if (portal) {
+      // Encerra a sessão no servidor: cookie copiado antes do "Sair" deixa de valer (P1-03).
+      await db
+        .update(portalSessions)
+        .set({ revokedAt: new Date() })
+        .where(and(eq(portalSessions.id, portal.sessionId), isNull(portalSessions.revokedAt)));
       await writeAudit(db, {
         orgId: portal.orgId,
         action: AUDIT_ACTIONS.PORTAL_LOGOUT,

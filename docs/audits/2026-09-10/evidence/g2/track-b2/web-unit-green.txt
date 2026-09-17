@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/rental-application.test.ts src/lib/charge-rules.test.ts src/lib/channel-publish.test.ts src/lib/lookup.test.ts src/lib/portal-access.test.ts
+# árvore: commit 3a69397 + API e telas da Track B2 (não commitadas)
+# data (UTC): 2026-09-17T04:39:32Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+
+ Test Files  5 passed (5)
+      Tests  20 passed (20)
+   Start at  01:39:35
+   Duration  1.31s (transform 814ms, setup 0ms, import 1.14s, tests 123ms, environment 1ms)
+
+
+# exit=0

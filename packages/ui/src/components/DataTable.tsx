@@ -18,6 +18,22 @@ export interface Column<T> {
   headerClassName?: string;
 }
 
+/**
+ * Controles dentro da linha: o clique neles é a ação do controle, não a da linha. Sem
+ * isso, "Cancelar" numa cobrança também abria o detalhe, que cobria a confirmação
+ * (auditoria 2026-09-10, Track B2 do G2).
+ */
+const ROW_CONTROLS =
+  'a[href], button, input, select, textarea, label, summary, [contenteditable="true"], ' +
+  '[role="button"], [role="checkbox"], [role="link"], [role="menuitem"], [role="option"], ' +
+  '[role="switch"], [role="tab"]';
+
+function isRowControlClick(target: EventTarget | null, row: Element): boolean {
+  if (!(target instanceof Element)) return false;
+  const control = target.closest(ROW_CONTROLS);
+  return control !== null && control !== row && row.contains(control);
+}
+
 export interface DataTableProps<T extends { id: string }> {
   columns: ReadonlyArray<Column<T>>;
   rows: readonly T[];
@@ -162,7 +178,8 @@ export function DataTable<T extends { id: string }>({
                     className={cx(selected && 'peg-table__selected')}
                     onClick={
                       onRowClick
-                        ? () => {
+                        ? (event) => {
+                            if (isRowControlClick(event.target, event.currentTarget)) return;
                             onRowClick(row);
                           }
                         : undefined

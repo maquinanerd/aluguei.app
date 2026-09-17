@@ -1,0 +1,105 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g2-b2-api.test.ts
+# árvore: commit db3f95f (main, com o admin da plataforma) + teste novo da Track B2, sem implementação
+# data (UTC): 2026-09-17T01:00:51Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:17220) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g2-b2-api.test.ts (4 tests | 4 failed) 26628ms
+     × um cookie do portal copiado antes do logout deixa de valer 1841ms
+     × lista o acesso com a situação do link e das sessões; revogado aparece revogado; outra organização não vê 462ms
+     × q filtra por nome ou por documento (com ou sem máscara), só na organização 604ms
+     × GET /channels informa quais canais têm integração configurada 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g2-b2-api.test.ts > P1-03 no portal: "Sair" encerra a sessão no servidor > um cookie do portal copiado antes do logout deixa de valer
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ src/g2-b2-api.test.ts:75:27
+     73|
+     74|     const reused = await call(app, 'GET', '/portal/me', { cookie: port…
+     75|     expect(reused.status).toBe(401);
+       |                           ^
+     76|     const open = await db.execute(sql`
+     77|       select count(*)::int as n from portal_sessions
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/g2-b2-api.test.ts > P1-16: acessos ao portal de uma pessoa, para a tela de concessão > lista o acesso com a situação do link e das sessões; revogado aparece revogado; outra organização não vê
+AssertionError: {"message":"Route GET:/portal/access?partyId=04193570-3b47-4492-85c6-832bd4a8cdb9 not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g2-b2-api.test.ts:94:54
+     92|
+     93|     const fresh = await list(cookie);
+     94|     expect(fresh.status, JSON.stringify(fresh.body)).toBe(200);
+       |                                                      ^
+     95|     expect(fresh.body.accesses).toEqual([
+     96|       expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/g2-b2-api.test.ts > P1-17: busca de pessoas para a candidatura > q filtra por nome ou por documento (com ou sem máscara), só na organização
+AssertionError: expected [ …(2) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
++   "0d5db6a0-cf21-4975-a016-0b6adfe41568",
+    "b85e31cd-afea-4f30-8d48-0dd3ad5facd2",
+  ]
+
+ ❯ src/g2-b2-api.test.ts:131:77
+    129|     const byName = await call(app, 'GET', '/parties?q=mariana', { cook…
+    130|     expect(byName.status, JSON.stringify(byName.body)).toBe(200);
+    131|     expect((byName.body.parties as Array<{ id: string }>).map((p) => p…
+       |                                                                             ^
+    132|
+    133|     const byDocument = await call(app, 'GET', `/parties?q=${encodeURIC…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/g2-b2-api.test.ts > P1-17: canais disponíveis para a primeira publicação > GET /channels informa quais canais têm integração configurada
+AssertionError: {"message":"Route GET:/channels not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g2-b2-api.test.ts:147:50
+    145|     const { cookie } = await registerUser(app);
+    146|     const res = await call(app, 'GET', '/channels', { cookie });
+    147|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+       |                                                  ^
+    148|     const channels = res.body.channels as Array<{ channel: string; ava…
+    149|     expect(channels.map((c) => c.channel).sort()).toEqual(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  22:00:55
+   Duration  46.61s (transform 10.36s, setup 0ms, import 19.36s, tests 26.63s, environment 3ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g2-b2-api.test.ts
+# exit=1

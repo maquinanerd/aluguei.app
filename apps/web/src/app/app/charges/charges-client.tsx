@@ -19,6 +19,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { chargeActions } from '@/lib/charge-rules';
 import { label, CHARGE_STATUS_LABELS, CHARGE_STATUS_TONES } from './finance-labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -52,7 +53,8 @@ function ChargesBody() {
   const [page, setPage] = useState(0);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const [payOpen, setPayOpen] = useState(false);
+  // Pagamento com estado próprio: usar o do detalhe abria o painel lateral por cima do diálogo.
+  const [payCharge, setPayCharge] = useState<Charge | null>(null);
   const [cancelCharge, setCancelCharge] = useState<Charge | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -116,20 +118,23 @@ function ChargesBody() {
     {
       key: 'actions',
       header: '',
-      render: (c) => (
-        <Group gap={1}>
-          {c.status === 'OPEN' || c.status === 'OVERDUE' ? (
-            <>
+      render: (c) => {
+        // Espelha o domínio: agendada também é cancelada; vencida não (P1-17).
+        const actions = chargeActions(c.status);
+        return (
+          <Group gap={1}>
+            {actions.receive ? (
               <Button
                 size="xs"
                 variant="brand"
                 onClick={() => {
-                  setDetailId(c.id);
-                  setPayOpen(true);
+                  setPayCharge(c);
                 }}
               >
                 Receber
               </Button>
+            ) : null}
+            {actions.cancel ? (
               <Button
                 size="xs"
                 variant="tertiary"
@@ -139,21 +144,21 @@ function ChargesBody() {
               >
                 Cancelar
               </Button>
-            </>
-          ) : null}
-          {c.status === 'PAID' ? (
-            <Button
-              size="xs"
-              variant="tertiary"
-              onClick={() => {
-                void refund(c.id);
-              }}
-            >
-              Estornar
-            </Button>
-          ) : null}
-        </Group>
-      ),
+            ) : null}
+            {actions.refund ? (
+              <Button
+                size="xs"
+                variant="tertiary"
+                onClick={() => {
+                  void refund(c.id);
+                }}
+              >
+                Estornar
+              </Button>
+            ) : null}
+          </Group>
+        );
+      },
     },
   ];
 
@@ -303,14 +308,13 @@ function ChargesBody() {
       />
 
       <PaymentModal
-        open={payOpen}
+        open={payCharge !== null}
         onClose={() => {
-          setPayOpen(false);
+          setPayCharge(null);
         }}
-        charge={detail}
+        charge={payCharge}
         onDone={() => {
-          setPayOpen(false);
-          setDetailId(null);
+          setPayCharge(null);
           toast.success('Pagamento iniciado', 'Acompanhe em Pagamentos.');
           reload();
         }}
