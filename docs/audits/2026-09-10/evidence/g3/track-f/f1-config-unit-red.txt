@@ -1,0 +1,32 @@
+# comando: pnpm --filter @aluguei/config exec vitest run src/runtime.test.ts
+# árvore: commit 957dda5 (testes do F-1, sem loadRuntimeEnv)
+# data (UTC): 2026-09-17T16:23:57Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/config
+
+ ❯ src/runtime.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/runtime.test.ts [ src/runtime.test.ts ]
+Error: Cannot find module './runtime.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/config/src/runtime.test.ts
+ ❯ src/runtime.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { ConfigError, fakeProvidersInUse, loadRuntimeEnv } from './run…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  13:23:59
+   Duration  359ms (transform 50ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\config:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/runtime.test.ts
+# exit=1

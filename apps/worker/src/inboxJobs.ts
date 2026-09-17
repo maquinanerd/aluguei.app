@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
+import { resolveMetaMode, resolveScreeningProvider } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
 import { createDbFakePaymentStore, webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
@@ -172,16 +173,24 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
     onDeadLetter?.(dead);
   }
   const jobs = await claimInboxJobs(db, limit);
+  // Escolhas padrão só fora de produção (P1-12): em produção cada provider vem da configuração,
+  // que o boot já validou; sem ela o job falha como "não configurado", nunca no FAKE.
+  const modeSource = {
+    NODE_ENV: env?.NODE_ENV ?? process.env.NODE_ENV,
+    META_MODE: env?.META_MODE ?? process.env.META_MODE,
+    SCREENING_PROVIDER: env?.SCREENING_PROVIDER ?? process.env.SCREENING_PROVIDER,
+  };
   const ai =
     opts.ai ?? getAiProvider({ provider: env?.AI_PROVIDER ?? process.env.AI_PROVIDER ?? 'mock' });
   const messenger =
     opts.messenger !== undefined
       ? opts.messenger
       : (() => {
-          const mode = env?.META_MODE ?? (process.env.META_MODE as 'dry_run' | 'live' | undefined);
-          const messengerOptions: WhatsAppRegistryOptions = {
-            mode: mode === 'live' ? 'live' : 'dry_run',
-          };
+          const messengerOptions: WhatsAppRegistryOptions = {};
+          const mode = resolveMetaMode(modeSource);
+          if (mode) {
+            messengerOptions.mode = mode;
+          }
           const accessToken = env?.WHATSAPP_ACCESS_TOKEN ?? process.env.WHATSAPP_ACCESS_TOKEN;
           if (accessToken) {
             messengerOptions.accessToken = accessToken;
@@ -202,12 +211,12 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
   const screeningProvider =
     opts.screening ??
     (() => {
-      const options: Parameters<typeof getScreeningProvider>[0] = {
-        provider:
-          env?.SCREENING_PROVIDER ??
-          process.env.SCREENING_PROVIDER ??
-          (process.env.NODE_ENV === 'production' ? 'SERASA' : 'FAKE'),
-      };
+      // Sem SCREENING_PROVIDER em produção não há provider (antes: esqueleto Serasa).
+      const options: Parameters<typeof getScreeningProvider>[0] = {};
+      const provider = resolveScreeningProvider(modeSource);
+      if (provider) {
+        options.provider = provider;
+      }
       const clientId = env?.SERASA_CLIENT_ID ?? process.env.SERASA_CLIENT_ID;
       const clientSecret = env?.SERASA_CLIENT_SECRET ?? process.env.SERASA_CLIENT_SECRET;
       if (clientId) {
@@ -228,10 +237,14 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
       ? opts.payments
       : (() => {
           const paymentOptions: PaymentRegistryOptions = {
-            provider: env?.PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'FAKE',
             // O FAKE do worker precisa ver as cobranças criadas pela API (P1-13).
             fakeStore: createDbFakePaymentStore(db),
           };
+          // Sem PAYMENT_PROVIDER não há provider, como na API (antes: FAKE por omissão, P1-12).
+          const provider = env?.PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER;
+          if (provider) {
+            paymentOptions.provider = provider;
+          }
           const apiKey = env?.ASAAS_API_KEY ?? process.env.ASAAS_API_KEY;
           if (apiKey) {
             paymentOptions.apiKey = apiKey;

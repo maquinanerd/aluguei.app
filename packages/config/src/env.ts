@@ -2,11 +2,18 @@ import { z } from 'zod';
 
 /**
  * Schema de configuração da aplicação. Nunca contenha segredos em valores default.
- * Credenciais de integrações (Meta, WhatsApp, pagamentos, etc.) são validadas pelos
- * pacotes específicos em fases futuras — o schema aqui cobre apenas infraestrutura.
+ *
+ * O default `development` de NODE_ENV vale só para uso como biblioteca e em testes
+ * (`envSchema.parse`, `loadEnv`). API e worker sobem por `loadRuntimeEnv` (runtime.ts), que
+ * exige NODE_ENV explícito e, em produção, valida banco, URLs, segredos e providers.
  */
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  /**
+   * Permissão explícita para providers FAKE, mock ou dry_run em produção (homologação).
+   * Só o valor exato `true` vale; sem ela, a API e o worker recusam a subida.
+   */
+  ALLOW_FAKE_PROVIDERS: z.enum(['true', 'false']).optional(),
   LOG_LEVEL: z.string().default('info'),
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().default(4000),

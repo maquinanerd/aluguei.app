@@ -1,0 +1,85 @@
+# comando: pnpm --filter @aluguei/worker exec vitest run src/provider-defaults.test.ts
+# árvore: commit 957dda5 (testes do F-1, worker com providers por omissão)
+# data (UTC): 2026-09-17T16:24:03Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker
+
+ ❯ src/provider-defaults.test.ts (3 tests | 3 failed) 3715ms
+     × pagamento sem PAYMENT_PROVIDER: o job falha como não configurado, sem FAKE implícito 55ms
+     × produção sem SCREENING_PROVIDER não usa o esqueleto Serasa, mesmo com credenciais 13ms
+     × produção sem META_MODE: jobs da Meta não rodam no FAKE 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/provider-defaults.test.ts > worker sem provider por omissão (P1-12) > pagamento sem PAYMENT_PROVIDER: o job falha como não configurado, sem FAKE implícito
+AssertionError: expected { status: 'SUCCESS', lastError: null } to deeply equal { status: 'FAILED', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "lastError": "provider de pagamento não configurado",
+-   "status": "FAILED",
++   "lastError": null,
++   "status": "SUCCESS",
+  }
+
+ ❯ src/provider-defaults.test.ts:69:36
+     67|     const id = await enqueue('PAYMENT', {});
+     68|     await runInboxJobs({ db, env: developmentEnv, limit: 50 });
+     69|     expect(await inboxOutcome(id)).toEqual({
+       |                                    ^
+     70|       status: 'FAILED',
+     71|       lastError: 'provider de pagamento não configurado',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/provider-defaults.test.ts > worker sem provider por omissão (P1-12) > produção sem SCREENING_PROVIDER não usa o esqueleto Serasa, mesmo com credenciais
+AssertionError: expected { status: 'FAILED', …(1) } to deeply equal { status: 'FAILED', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "lastError": "provider de screening não configurado",
++   "lastError": "job sem screeningRequestId",
+    "status": "FAILED",
+  }
+
+ ❯ src/provider-defaults.test.ts:88:36
+     86|     });
+     87|     await runInboxJobs({ db, env, limit: 50, payments: null });
+     88|     expect(await inboxOutcome(id)).toEqual({
+       |                                    ^
+     89|       status: 'FAILED',
+     90|       lastError: 'provider de screening não configurado',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/provider-defaults.test.ts > worker sem provider por omissão (P1-12) > produção sem META_MODE: jobs da Meta não rodam no FAKE
+AssertionError: expected 'SYNC_INSIGHTS sem campaignLinkId' to be 'provider de meta não configurado' // Object.is equality
+
+Expected: "provider de meta não configurado"
+Received: "SYNC_INSIGHTS sem campaignLinkId"
+
+ ❯ src/provider-defaults.test.ts:109:30
+    107|     const [after] = await db.select().from(metaSyncJobs).where(eq(meta…
+    108|     expect(after?.status).toBe('FAILED');
+    109|     expect(after?.lastError).toBe('provider de meta não configurado');
+       |                              ^
+    110|   });
+    111| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  13:24:04
+   Duration  6.87s (transform 940ms, setup 0ms, import 2.84s, tests 3.72s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\worker:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/provider-defaults.test.ts
+# exit=1

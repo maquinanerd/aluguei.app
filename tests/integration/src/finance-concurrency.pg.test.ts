@@ -249,8 +249,16 @@ describe('concorrência real (PostgreSQL): liquidação, fila e processos separa
       signature,
     });
     try {
+      // O worker escolhe o FAKE pela mesma configuração da API: sem PAYMENT_PROVIDER não há
+      // provider por omissão (G3, F-1).
       const apiFx = createFinanceFixtures(api, () =>
-        runInboxJobs({ db, limit: 20, screening, signature }),
+        runInboxJobs({
+          db,
+          limit: 20,
+          screening,
+          signature,
+          env: { ...testEnv, PAYMENT_PROVIDER: 'FAKE' },
+        }),
       );
       const lease = await apiFx.setupLease({ rentCents: 120_000, landlord: true });
       const { chargeId } = await apiFx.issueCharge(lease, futurePeriod());

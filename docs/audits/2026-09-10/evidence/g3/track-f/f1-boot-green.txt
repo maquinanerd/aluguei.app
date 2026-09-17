@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/config-fail-fast.test.ts
+# árvore: commit 957dda5 + fail-fast nos pontos de entrada da API e do worker, antes do commit
+# data (UTC): 2026-09-17T16:33:44Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  13:33:46
+   Duration  18.92s (transform 40ms, setup 0ms, import 72ms, tests 18.56s, environment 0ms)
+
+# exit=0

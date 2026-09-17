@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/worker exec vitest run src/provider-defaults.test.ts
+# árvore: commit 957dda5 + worker sem provider por omissão (inboxJobs.ts, index.ts), antes do commit
+# data (UTC): 2026-09-17T16:33:34Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  13:33:36
+   Duration  7.99s (transform 1.02s, setup 0ms, import 3.26s, tests 4.26s, environment 0ms)
+
+# exit=0

@@ -1,4 +1,11 @@
-import { loadEnv } from '@aluguei/config';
+import {
+  ConfigError,
+  fakeProvidersInUse,
+  loadEnv,
+  loadRuntimeEnv,
+  resolveMetaMode,
+} from '@aluguei/config';
+import type { AppEnv } from '@aluguei/config';
 import { createLogger } from '@aluguei/observability';
 import { createDb } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
@@ -32,6 +39,8 @@ function getWorkerDb(env: ReturnType<typeof loadEnv>): AppDb | null {
 
 export interface WorkerRunOptions {
   db?: AppDb;
+  /** Configuração já validada (`run`); sem ela, lê o ambiente do processo. */
+  env?: AppEnv;
   fakeChannel?: FakeChannel;
   pollIntervalMs?: number;
   log?: (msg: string) => void;
@@ -41,7 +50,7 @@ export interface WorkerRunOptions {
 
 /** Um ciclo de jobs de canal (testável com PGlite). */
 export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed: number }> {
-  const env = loadEnv();
+  const env = opts.env ?? loadEnv();
   const log =
     opts.log ??
     ((msg: string) => {
@@ -57,9 +66,13 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
     return Promise.resolve({ processed: 0 });
   }
   const fakeChannel = opts.fakeChannel ?? undefined;
-  const metaAdsOptions: Parameters<typeof getMetaAdsProvider>[0] = {
-    mode: env.META_MODE === 'live' ? 'live' : 'dry_run',
-  };
+  // `dry_run` só fora de produção e só sem META_MODE; em produção sem modo, os jobs da Meta
+  // falham como "não configurado" em vez de rodar no FAKE (P1-12).
+  const metaAdsOptions: Parameters<typeof getMetaAdsProvider>[0] = {};
+  const metaMode = resolveMetaMode(env);
+  if (metaMode) {
+    metaAdsOptions.mode = metaMode;
+  }
   if (env.META_ACCESS_TOKEN) {
     metaAdsOptions.accessToken = env.META_ACCESS_TOKEN;
   }
@@ -90,14 +103,24 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
 
 /** Executa o worker. Com `--run-once`, um único ciclo (testável); senão loop com poll. */
 export function run(argv: string[]): Promise<void> {
-  const env = loadEnv();
+  // Sem NODE_ENV, ou em produção sem banco e providers explícitos, lança ConfigError com a
+  // lista do que falta (P1-12) — antes de qualquer ciclo.
+  const env = loadRuntimeEnv('worker');
   const log = createLogger({ level: env.LOG_LEVEL });
   const runOnceFlag = argv.includes('--run-once');
 
+  const fakeProviders = fakeProvidersInUse(env, 'worker');
+  if (env.NODE_ENV === 'production' && fakeProviders.length > 0) {
+    log.warn(
+      { fakeProviders },
+      'ALLOW_FAKE_PROVIDERS=true: worker em produção com providers FAKE, mock ou dry_run',
+    );
+  }
   log.info({ runOnce: runOnceFlag }, 'worker started');
 
   if (runOnceFlag) {
     return runOnce({
+      env,
       log: (msg: string) => {
         log.info(msg);
       },
@@ -120,6 +143,7 @@ export function run(argv: string[]): Promise<void> {
     }
     cycleInFlight = true;
     runOnce({
+      env,
       log: (msg: string) => {
         log.debug(msg);
       },
@@ -163,8 +187,11 @@ export function run(argv: string[]): Promise<void> {
 
 const entry = process.argv[1] ?? '';
 if (entry.endsWith('index.ts') || entry.endsWith('index.js')) {
-  run(process.argv.slice(2)).catch((err: unknown) => {
-    console.error(err);
-    process.exit(1);
-  });
+  try {
+    await run(process.argv.slice(2));
+  } catch (err: unknown) {
+    // Configuração inválida: só a lista do que falta, sem pilha.
+    console.error(err instanceof ConfigError ? err.message : err);
+    process.exitCode = 1;
+  }
 }

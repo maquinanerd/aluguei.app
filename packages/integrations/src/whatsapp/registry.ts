@@ -10,8 +10,10 @@ export interface WhatsAppRegistryOptions {
   messenger?: WhatsAppMessenger;
 }
 /**
- * Seleciona o messenger WhatsApp: override injetado > live (credenciais) >
- * produção sem credenciais → null (nunca simula envio em prod) > dev/test → fake.
+ * Seleciona o messenger WhatsApp: override injetado > live (credenciais) > dry_run explícito →
+ * fake. Live sem credencial, modo ausente ou desconhecido → null (auditoria 2026-09-10, P1-12:
+ * o fake respondia fora de `live`). O padrão de desenvolvimento (`dry_run`) é decidido por quem
+ * chama (`resolveMetaMode`), nunca aqui.
  */
 export function getWhatsAppMessenger(opts: WhatsAppRegistryOptions = {}): WhatsAppMessenger | null {
   if (opts.messenger) {
@@ -24,8 +26,8 @@ export function getWhatsAppMessenger(opts: WhatsAppRegistryOptions = {}): WhatsA
       verifyToken: opts.verifyToken ?? '',
     });
   }
-  if (opts.mode === 'live') {
-    return null; // produção sem credencial: nunca enviar por canal fake
+  if (opts.mode === 'dry_run') {
+    return new FakeWhatsAppMessenger(opts.verifyToken ?? 'fake-verify-token');
   }
-  return new FakeWhatsAppMessenger(opts.verifyToken ?? 'fake-verify-token');
+  return null;
 }

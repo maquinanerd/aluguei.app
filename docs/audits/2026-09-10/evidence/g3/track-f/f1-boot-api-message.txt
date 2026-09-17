@@ -1,0 +1,17 @@
+# comando: NODE_ENV=production node --import tsx apps/api/src/index.ts
+# árvore: commit 957dda5 + fail-fast (antes do commit); ambiente sem nenhuma variável da aplicação
+# data (UTC): 2026-09-17T16:34:25Z
+
+Configuração inválida: api não sobe em produção (11 problemas).
+  - DATABASE_URL ausente: URL do PostgreSQL
+  - APP_BASE_URL ausente: URL pública do web (https), usada no CORS e nos links
+  - ASAAS_WEBHOOK_TOKEN ausente: token do webhook de pagamentos (POST /webhooks/payments)
+  - SIGNATURE_WEBHOOK_TOKEN ausente: token do webhook de assinatura (POST /webhooks/signature)
+  - META_APP_SECRET ausente: segredo do app da Meta (assinatura dos webhooks do WhatsApp e da Meta)
+  - META_WEBHOOK_VERIFY_TOKEN ausente: token de verificação do webhook do WhatsApp (GET)
+  - META_TOKEN_ENCRYPTION_KEY ausente: chave que cifra os tokens de conexão da Meta
+  - PAYMENT_PROVIDER ausente: escolha ASAAS ou FAKE
+  - SIGNATURE_PROVIDER ausente: escolha CLICKSIGN ou FAKE
+  - META_MODE ausente: defina live ou dry_run (WhatsApp e Meta Ads)
+  - AI_PROVIDER ausente: escolha openai, gemini ou mock
+# exit=1

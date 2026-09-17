@@ -5,6 +5,7 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import { createDbFakePaymentStore } from '@aluguei/db';
+import { resolveMetaMode } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { StorageService } from '@aluguei/storage';
@@ -245,12 +246,15 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(placesPlugin, placesOptions);
 
+  // Modo da Meta: o configurado; `dry_run` só fora de produção e só sem META_MODE. Em produção
+  // sem modo, WhatsApp e Meta Ads ficam "não configurados" — nunca FAKE (P1-12).
+  const metaMode = resolveMetaMode(env);
   const whatsappOptions: WhatsAppPluginOptions = {};
   if (opts.whatsapp) {
     whatsappOptions.messenger = opts.whatsapp;
   }
-  if (env.META_MODE) {
-    whatsappOptions.mode = env.META_MODE;
+  if (metaMode) {
+    whatsappOptions.mode = metaMode;
   }
   if (env.WHATSAPP_ACCESS_TOKEN) {
     whatsappOptions.accessToken = env.WHATSAPP_ACCESS_TOKEN;
@@ -317,8 +321,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.meta) {
     metaOptions.meta = opts.meta;
   }
-  if (env.META_MODE) {
-    metaOptions.mode = env.META_MODE;
+  if (metaMode) {
+    metaOptions.mode = metaMode;
   }
   if (env.META_ACCESS_TOKEN) {
     metaOptions.accessToken = env.META_ACCESS_TOKEN;

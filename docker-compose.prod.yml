@@ -108,6 +108,8 @@ services:
       SCREENING_PROVIDER: FAKE
       META_MODE: dry_run
       AI_PROVIDER: mock
+      # Homologação: em produção a API recusa FAKE, mock e dry_run sem esta permissão.
+      ALLOW_FAKE_PROVIDERS: 'true'
       SIGNATURE_WEBHOOK_TOKEN: ${SERVICE_HEX_64_SIGNATUREWEBHOOK}
       ASAAS_WEBHOOK_TOKEN: ${SERVICE_HEX_64_ASAASWEBHOOK}
       META_APP_SECRET: ${SERVICE_HEX_64_METAAPPSECRET}
@@ -149,6 +151,8 @@ services:
       SCREENING_PROVIDER: FAKE
       META_MODE: dry_run
       AI_PROVIDER: mock
+      # Homologação: em produção o worker recusa FAKE, mock e dry_run sem esta permissão.
+      ALLOW_FAKE_PROVIDERS: 'true'
       META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
     depends_on:
       migrate:

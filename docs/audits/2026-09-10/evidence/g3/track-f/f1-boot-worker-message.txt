@@ -1,0 +1,11 @@
+# comando: NODE_ENV=production node --import tsx apps/worker/src/index.ts
+# árvore: commit 957dda5 + fail-fast (antes do commit); ambiente sem nenhuma variável da aplicação
+# data (UTC): 2026-09-17T16:34:26Z
+
+Configuração inválida: worker não sobe em produção (5 problemas).
+  - DATABASE_URL ausente: URL do PostgreSQL
+  - PAYMENT_PROVIDER ausente: escolha ASAAS ou FAKE
+  - SCREENING_PROVIDER ausente: escolha SERASA ou FAKE
+  - META_MODE ausente: defina live ou dry_run (WhatsApp e Meta Ads)
+  - AI_PROVIDER ausente: escolha openai, gemini ou mock
+# exit=1

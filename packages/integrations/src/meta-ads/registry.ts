@@ -14,7 +14,8 @@ export interface MetaAdsRegistryOptions {
  * Seleciona o provider Meta Ads: override injetado > live com credencial
  * (adapter Graph real — IMPLEMENTED_NOT_LIVE_VERIFIED; falhas de integração
  * (ex.: image_hash/página) são erros tipados, nunca efeito externo inventado) >
- * produção sem credencial → null > dev/test → fake determinístico.
+ * dry_run explícito → fake determinístico. Live sem credencial, modo ausente ou desconhecido →
+ * null (auditoria 2026-09-10, P1-12: o fake respondia fora de `live`).
  * Campanhas reais são sempre criadas PAUSADAS e ativadas por intenção explícita.
  */
 export function getMetaAdsProvider(opts: MetaAdsRegistryOptions = {}): IMetaAdsProvider | null {
@@ -31,8 +32,8 @@ export function getMetaAdsProvider(opts: MetaAdsRegistryOptions = {}): IMetaAdsP
     }
     return new MetaGraphAdsProvider(providerOptions);
   }
-  if (opts.mode === 'live') {
-    return null; // produção sem credencial: nunca simular anúncio real
+  if (opts.mode === 'dry_run') {
+    return new FakeMetaAdsProvider();
   }
-  return new FakeMetaAdsProvider();
+  return null;
 }
