@@ -397,6 +397,24 @@ describe('Fase 06: Inspections + AI', () => {
         headers: { cookie },
         payload: { status: 'REVIEW' },
       });
+      // Evidência entra em REVIEW: depois de COMPLETED a vistoria é imutável (P1-24).
+      const common = await app.inject({
+        method: 'POST',
+        url: `/inspections/${id}/observations`,
+        headers: { cookie },
+        payload: { category: 'CONDITION', severity: 'LOW', description: 'Piso com riscos' },
+      });
+      expect(common.statusCode, common.body).toBe(201);
+      if (id === checkoutId) {
+        // Checkout ganha uma observação nova, que a comparação acusa como NEW.
+        const extra = await app.inject({
+          method: 'POST',
+          url: `/inspections/${id}/observations`,
+          headers: { cookie },
+          payload: { category: 'DAMAGE', severity: 'MEDIUM', description: 'Mancha na parede' },
+        });
+        expect(extra.statusCode, extra.body).toBe(201);
+      }
       const s4 = await app.inject({
         method: 'PATCH',
         url: `/inspections/${id}/status`,
@@ -411,20 +429,7 @@ describe('Fase 06: Inspections + AI', () => {
         s4.statusCode,
       );
       expect(s4.statusCode).toBe(200);
-      await app.inject({
-        method: 'POST',
-        url: `/inspections/${id}/observations`,
-        headers: { cookie },
-        payload: { category: 'CONDITION', severity: 'LOW', description: 'Piso com riscos' },
-      });
     }
-    // Checkout ganha uma observação nova
-    await app.inject({
-      method: 'POST',
-      url: `/inspections/${checkoutId}/observations`,
-      headers: { cookie },
-      payload: { category: 'DAMAGE', severity: 'MEDIUM', description: 'Mancha na parede' },
-    });
 
     const compare = await app.inject({
       method: 'POST',

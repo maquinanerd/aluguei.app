@@ -46,6 +46,7 @@ export const AUDIT_ACTIONS = {
   INSPECTION_CREATED: 'inspection.created',
   INSPECTION_STATUS_CHANGED: 'inspection.status_changed',
   INSPECTION_MEDIA_CONFIRMED: 'inspection.media_confirmed',
+  INSPECTION_MEDIA_REMOVED: 'inspection.media_removed',
   INSPECTION_PROCESS_REQUESTED: 'inspection.process_requested',
   INSPECTION_OBSERVATION_CREATED: 'inspection.observation_created',
   INSPECTION_SUGGESTION_RESOLVED: 'inspection.suggestion_resolved',
