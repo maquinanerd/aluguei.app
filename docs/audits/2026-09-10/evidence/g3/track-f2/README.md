@@ -26,6 +26,16 @@ Base: `main` em `52e2582` (trilhas C, E1 e F mescladas), branch `g3/track-f2-bac
 | `restore-pg-green.txt` | PostgreSQL real 4/4: backup de um banco com locação, cobrança paga, split, repasse e razão pela linha de comando; restauração num banco vazio com todas as tabelas iguais (contagem e hash das linhas); adulterado e chave errada sem tocar o destino; destino com dados recusado; retenção depois do backup      |
 | `compose-green.txt`    | 16/16: compose válido; serviço `backup` na imagem server, agendado, depois de `migrate`, com healthcheck; chave de `SERVICE_HEX_64_BACKUPKEY` e banco de `DATABASE_URL`; volume `aluguei-backups` com escrita; invariantes do ADR-062; Dockerfile com `postgresql-client-17` do PGDG e `/backups` do usuário node |
 
+## Verificação sem cache
+
+| Arquivo             | Resultado                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `gates-summary.txt` | 9 gates com exit 0 no commit `eeaea75`; `db-drift=NO` (a F2 não muda o schema)                                                                                                                   |
+| `gates-*.txt`       | Saída de cada gate. `gates-test-counts.txt`: 993 testes em 14 pacotes, nenhum ignorado                                                                                                           |
+| `testpg.txt`        | `pnpm test:pg` num cluster PostgreSQL 17 descartável: 23/23 em 8 arquivos, com a restauração nova                                                                                                |
+| `e2e-full.txt`      | Playwright completo no commit `1d96ae6`: 35/35. De lá para `eeaea75` só mudou o tipo do byte adulterado nos dois testes de backup                                                                |
+| `run1/`             | Primeira rodada de gates, em `1d96ae6`: o typecheck sem cache reprovou o índice do byte adulterado (`noUncheckedIndexedAccess`) nos dois testes novos; corrigido em `eeaea75` sem mudar asserção |
+
 O build da imagem não rodou nesta máquina: o motor do Docker não sobe (o WSL está sem distribuições).
 A prova do build e do agendamento é o deploy, pelo MCP do Coolify: aplicação saudável, volume
 `aluguei-backups` e `SERVICE_HEX_64_BACKUPKEY` criados, e o healthcheck do serviço verde.
