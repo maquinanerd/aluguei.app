@@ -1,0 +1,6 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit b6b7a02 (g3/track-e-portal)
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high

@@ -1,0 +1,12 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e 
+# árvore: commit 9647419 (g3/track-e-portal) — trilha E1 completa, Playwright de todos os specs; stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 6 entradas
+# data (UTC): 2026-09-21T18:22:59Z
+$ playwright test
+Error: http://localhost:3310 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test`
+Exit status 1
+# duração: 3s
+# exit=1

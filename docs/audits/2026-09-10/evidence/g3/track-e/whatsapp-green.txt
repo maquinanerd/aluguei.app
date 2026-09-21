@@ -1,0 +1,21 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-e-whatsapp.test.ts src/whatsapp.test.ts src/dashboard-summary.test.ts
+# árvore: main 8409420 + handoff que dura até a equipe devolver, com POST /conversations/:id/resume
+# data (UTC): 2026-09-17T19:02:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:12704) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24620) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21560) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  16:02:41
+   Duration  25.27s (transform 3.57s, setup 0ms, import 10.46s, tests 13.84s, environment 0ms)
+
+
+# exit=0

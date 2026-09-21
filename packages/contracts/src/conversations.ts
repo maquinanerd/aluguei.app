@@ -74,6 +74,11 @@ export const handoffResponseSchema = z.object({
   conversation: conversationSchema,
 });
 
+/** Devolução da conversa ao atendimento automático (G3, P1-18). */
+export const resumeConversationRequestSchema = z.object({});
+
+export const resumeConversationResponseSchema = handoffResponseSchema;
+
 export const listLeadConversationsResponseSchema = z.object({
   conversations: z.array(conversationSchema),
 });

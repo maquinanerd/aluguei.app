@@ -1,0 +1,65 @@
+# comando: WEB_PORT=3330 API_PORT=4330 PG_PORT=5563 pnpm --filter @aluguei/tests-e2e test:e2e 
+# árvore: commit b6b7a02 (g3/track-e-portal) — trilha E1 completa, Playwright de todos os specs; stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 14 entradas
+# data (UTC): 2026-09-21T18:39:59Z
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790016003083\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5563...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4330...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3330...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790016003083).
+[WebServer] [e2e-stack] web http://localhost:3330 · API http://127.0.0.1:4330 — Ctrl+C para derrubar.
+
+Running 35 tests using 1 worker
+
+  ok 1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (3.2s)
+  ok 2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (3.0s)
+  ok 3 g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado (8.4s)
+  ok 4 g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado (3.0s)
+  ok 5 g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho (2.8s)
+  ok 6 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (3.0s)
+  ok 7 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (1.9s)
+  ok 8 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.6s)
+  ok 9 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (1.4s)
+  ok 10 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (1.6s)
+  ok 11 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (1.6s)
+  ok 12 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (38.9s)
+  ok 13 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (7.7s)
+  ok 14 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (1.1s)
+  ok 15 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (4.0s)
+  ok 16 g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise (2.9s)
+  ok 17 g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela (6.1s)
+  ok 18 g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito (2.4s)
+  ok 19 g2-b2-crawler.spec.ts:115:3 › Crawler: todas as telas sem 4xx inesperado nem erro de página › painel, portais e visitante (1.1m)
+  ok 20 g2-b2-creation-flows.spec.ts:22:3 › Fluxos de criação pela interface › cria anúncio, proposta e vistoria pelos modais (4.5s)
+  ok 21 g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura (4.3s)
+  ok 22 g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela (9.2s)
+  ok 23 g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão (4.6s)
+  ok 24 g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário (2.6s)
+  ok 25 g3-c-lease-lifecycle.spec.ts:21:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado (9.9s)
+  ok 26 g3-c-lease-lifecycle.spec.ts:76:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada (10.1s)
+  ok 27 g3-c-lease-lifecycle.spec.ts:149:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel (3.6s)
+  ok 28 g3-c-lease-lifecycle.spec.ts:208:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida (10.0s)
+  ok 29 g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático (5.6s)
+  ok 30 g3-e-portal-inbox-inspection.spec.ts:95:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão (6.7s)
+  ok 31 g3-e-portal-inbox-inspection.spec.ts:146:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada (7.9s)
+  ok 32 main-journey.spec.ts:74:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (6.1s)
+  ok 33 main-journey.spec.ts:117:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (13.1s)
+  ok 34 main-journey.spec.ts:433:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (3.9s)
+  ok 35 platform-admin.spec.ts:10:3 › Admin da plataforma › cadastro em análise, aprovação com plano, suspensão com motivo e novo plano (7.8s)
+[e2e-stack] stack run-1790016003083 desligada.
+
+  Slow test file: g2-b2-crawler.spec.ts (1.1m)
+  Slow test file: g2-b1-navigation.spec.ts (51.7s)
+  Slow test file: g3-c-lease-lifecycle.spec.ts (33.6s)
+  Slow test file: main-journey.spec.ts (23.1s)
+  Slow test file: g3-e-portal-inbox-inspection.spec.ts (20.3s)
+  Consider splitting slow test files to speed up parallel execution
+  35 passed (5.4m)
+# duração: 326s
+# exit=0

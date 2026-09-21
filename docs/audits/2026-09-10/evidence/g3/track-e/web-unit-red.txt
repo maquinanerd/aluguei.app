@@ -1,0 +1,47 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/conversation-rules.test.ts src/lib/inspection-rules.test.ts
+# árvore: g3/track-e-portal b6f8302 + testes novos conversation-rules e inspection-rules (sem os módulos)
+# data (UTC): 2026-09-21T18:04:55Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+ ❯ src/lib/conversation-rules.test.ts (0 test)
+ ❯ src/lib/inspection-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/conversation-rules.test.ts [ src/lib/conversation-rules.test.ts ]
+Error: Cannot find module './conversation-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/conversation-rules.test.ts
+ ❯ src/lib/conversation-rules.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { CONVERSATION_STATUSES, canTransitionConversation } from '@alu…
+      3| import { conversationActions } from './conversation-rules';
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/inspection-rules.test.ts [ src/lib/inspection-rules.test.ts ]
+Error: Cannot find module './inspection-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web/src/lib/inspection-rules.test.ts
+ ❯ src/lib/inspection-rules.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { INSPECTION_STATUSES, canWriteInspectionEvidence } from '@alug…
+      3| import { EVIDENCE_CLOSED_NOTE, canEditInspectionEvidence } from './ins…
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  15:04:57
+   Duration  2.08s (transform 1.09s, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/conversation-rules.test.ts src/lib/inspection-rules.test.ts
+
+# exit=1
