@@ -655,9 +655,7 @@ describe('G3 trilha D — cadastros e identidade pela API', () => {
       const team = await call(app, 'GET', '/me/members', { cookie: agentSession.cookie });
       expect(team.status, JSON.stringify(team.body)).toBe(200);
       const members = team.body.members as Array<Record<string, unknown>>;
-      expect(members.map((m) => m.userId).sort()).toEqual(
-        [a.user.id, colleague.user.id].sort(),
-      );
+      expect(members.map((m) => m.userId).sort()).toEqual([a.user.id, colleague.user.id].sort());
       expect(members.map((m) => m.userId)).not.toContain(outsider.user.id);
       expect(members.find((m) => m.userId === colleague.user.id)).toMatchObject({
         name: colleague.user.name,
