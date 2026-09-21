@@ -26,14 +26,19 @@ Base: `main` em `8409420` (trilha C mesclada), branch `g3/track-e-portal`.
 
 ## GREEN
 
-| Arquivo                   | O que prova                                                                                                                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `portal-green.txt`        | Integração 9/9: os 4 novos e os 5 do portal                                                                                                                                             |
-| `portal-domain-green.txt` | Domínio 11/11: cobrança cancelada fora dos totais e visibilidade da vistoria por papel, tipo e status                                                                                   |
-| `inspection-green.txt`    | Integração 8/8: os 2 novos e os 6 da vistoria                                                                                                                                           |
-| `whatsapp-green.txt`      | Integração 11/11: o novo, os 7 do WhatsApp e os 3 do painel                                                                                                                             |
-| `web-unit-green.txt`      | Unidade do web 5/5: ações da conversa e edição da evidência comparadas com o domínio                                                                                                    |
-| `e2e-green.txt`           | Playwright dos specs `g3-e` 3/3: devolver a conversa pela caixa de entrada, vistoria concluída sem ações de evidência (com a em revisão como controle) e "Total cobrado" de R$ 2.500,00 |
+| Arquivo                   | O que prova                                                                                                                                                                                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `portal-green.txt`        | Integração 9/9: os 4 novos e os 5 do portal                                                                                                                                                                                                              |
+| `portal-domain-green.txt` | Domínio 11/11: cobrança cancelada fora dos totais e visibilidade da vistoria por papel, tipo e status                                                                                                                                                    |
+| `inspection-green.txt`    | Integração 8/8: os 2 novos e os 6 da vistoria                                                                                                                                                                                                            |
+| `whatsapp-green.txt`      | Integração 11/11: o novo, os 7 do WhatsApp e os 3 do painel                                                                                                                                                                                              |
+| `web-unit-green.txt`      | Unidade do web 5/5: ações da conversa e edição da evidência comparadas com o domínio                                                                                                                                                                     |
+| `e2e-green.txt`           | Playwright dos specs `g3-e` 3/3: devolver a conversa pela caixa de entrada, vistoria concluída sem ações de evidência (com a em revisão como controle) e "Total cobrado" de R$ 2.500,00                                                                  |
+| `gates-summary.txt`       | Gates sem cache no commit `b6b7a02`: install, format, lint, typecheck, test, build, secret scan, audit critical e `db:generate`, todos com exit 0; `db-drift=NO` (a E1 não muda o schema)                                                                |
+| `gates-*.txt`             | Saída de cada gate. `gates-test-counts.txt`: 851 testes em 14 pacotes, nenhum ignorado                                                                                                                                                                   |
+| `testpg.txt`              | `pnpm test:pg` num cluster PostgreSQL 17 descartável: 10/10 em 4 arquivos                                                                                                                                                                                |
+| `e2e-full.txt`            | Playwright completo (stack e cluster descartáveis; web 3330, API 4330, PostgreSQL 5563): 35/35, nenhum ignorado — os 32 de antes e os 3 da E1                                                                                                            |
+| `run1/`                   | Primeira rodada, guardada como veio: o lint sem cache reprovou um genérico de uso único num teste novo (`no-unnecessary-type-parameters`, corrigido em `b6b7a02`), e o Playwright nem subiu porque a porta 3310 estava com a stack do agente da trilha F |
 
 ## Ajustes nos testes depois do RED
 

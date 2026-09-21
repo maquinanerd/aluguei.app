@@ -1,0 +1,7 @@
+# resumo: exit code e duração de cada gate, na ordem (cada um só roda se o anterior passar);
+# db-drift = git status --porcelain -- packages/db depois do db:generate (NO = sem mudança)
+commit=9647419 branch=g3/track-e-portal date=2026-09-21T18:18:44Z
+install exit=0 dur=1s
+format exit=0 dur=50s
+lint exit=1 dur=145s
+gates-chain exit=1
