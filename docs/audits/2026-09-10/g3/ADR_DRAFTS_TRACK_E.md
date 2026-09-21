@@ -57,8 +57,8 @@ próprio handoff de novo ("Assumir"), sem efeito, e não havia como devolver a c
 
 Decisões:
 
-- O gateway não tira a conversa de NEEDS_HUMAN. O UPDATE para ACTIVE filtra `status <>
-'NEEDS_HUMAN'`, o que também cobre o handoff pedido pela equipe enquanto a mensagem é processada.
+- O gateway não tira a conversa de NEEDS_HUMAN. O UPDATE para ACTIVE exclui NEEDS_HUMAN no
+  próprio filtro, o que também cobre o handoff pedido pela equipe enquanto a mensagem é processada.
 - `POST /conversations/:id/resume` (permissão `conversation:write`) devolve ao atendimento
   automático: só de NEEDS_HUMAN (senão 409), com compare-and-set, evento `HANDOFF_RETURNED` na linha
   do tempo e auditoria `conversation.handoff_returned`. O handoff pedido pela equipe passa a ser
