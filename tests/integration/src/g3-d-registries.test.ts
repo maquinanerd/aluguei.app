@@ -916,6 +916,9 @@ describe('G3 trilha D — cadastros e identidade pela API', () => {
         }>
       ).find((m) => m.toEmail === email);
       expect(message).toMatchObject({ kind: 'MEMBER_INVITE', status: 'QUEUED' });
+      // A mensagem é para uma pessoa: a função vai em português, não o código interno.
+      expect(message?.body).toContain('como Corretor');
+      expect(message?.body).not.toContain('como agent');
       const token = tokenFrom(message?.body ?? '');
 
       const described = await app.inject({
