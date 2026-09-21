@@ -1,0 +1,261 @@
+# comando: pnpm --filter @aluguei/tests-e2e test:e2e g3-d
+# árvore: g3/track-d-registries 98be64c (API da trilha D completa) + specs da trilha D sem a interface nova (RED); stack e cluster PostgreSQL descartáveis (WEB_PORT=3320 API_PORT=4320 PG_PORT=5553), providers FAKE
+# data (UTC): 2026-09-21T19:35:51Z
+
+$ playwright test "g3-d"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242\run-1790019353962\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242\run-1790019353962).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 7 tests using 1 worker
+
+  x  1 g3-d-registries.spec.ts:26:3 › G3 trilha D — cadastros pela interface › pessoa: CPF inválido recusado na tela, detalhe, edição, documentos e arquivamento (17.2s)
+  x  2 g3-d-registries.spec.ts:101:3 › G3 trilha D — cadastros pela interface › visita: confirma, reagenda e cancela com motivo (5.0m)
+  x  3 g3-d-registries.spec.ts:152:3 › G3 trilha D — cadastros pela interface › proposta: validade em data civil, edição no rascunho, envio e recusa com motivo (32.4s)
+  x  4 g3-d-registries.spec.ts:228:3 › G3 trilha D — cadastros pela interface › lead: detalhe pela rota própria e edição de dados e responsável (5.0m)
+  x  5 g3-d-registries.spec.ts:269:3 › G3 trilha D — identidade pela interface › convite de membro por e-mail: registrado na caixa de saída e aceito pela tela (5.0m)
+  x  6 g3-d-registries.spec.ts:328:3 › G3 trilha D — identidade pela interface › troca de senha na conta encerra as outras sessões (5.0m)
+  x  7 g3-d-registries.spec.ts:364:3 › G3 trilha D — identidade pela interface › recuperação de senha pela tela de login, com o link da caixa de saída (5.0m)
+[e2e-stack] PID 24596 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 15184 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 16212 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790019353962 desligada.
+
+
+  1) g3-d-registries.spec.ts:26:3 › G3 trilha D — cadastros pela interface › pessoa: CPF inválido recusado na tela, detalhe, edição, documentos e arquivamento 
+
+    Error: Timed out 15000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByRole('dialog', { name: 'Novo contato' }).getByText('CPF inválido: confira os dígitos')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Novo contato' }).getByText('CPF inválido: confira os dígitos')
+
+
+      40 |     await create.getByLabel('Valor').fill('123.456.789-00');
+      41 |     await create.getByRole('button', { name: 'Salvar contato' }).click();
+    > 42 |     await expect(create.getByText('CPF inválido: confira os dígitos')).toBeVisible();
+         |                                                                        ^
+      43 |     const none = await api<{ parties: IdBody[] }>('GET', '/parties?limit=100', {
+      44 |       cookie: owner.cookie,
+      45 |     });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:42:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--09acf-o-documentos-e-arquivamento\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--09acf-o-documentos-e-arquivamento\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--09acf-o-documentos-e-arquivamento\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g3-d-registries.spec.ts:101:3 › G3 trilha D — cadastros pela interface › visita: confirma, reagenda e cancela com motivo 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Detalhe da visita' }).getByRole('button', { name: 'Confirmar', exact: true })
+
+
+      113 |     await page.getByRole('row').filter({ hasText: 'Agendada' }).first().click();
+      114 |     const drawer = page.getByRole('dialog', { name: 'Detalhe da visita' });
+    > 115 |     await drawer.getByRole('button', { name: 'Confirmar', exact: true }).click();
+          |                                                                          ^
+      116 |     await expect(page.getByText('Visita confirmada')).toBeVisible({ timeout: 30_000 });
+      117 |     await expect(drawer.getByText('Confirmada', { exact: true })).toBeVisible();
+      118 |
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:115:74
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--8b445-agenda-e-cancela-com-motivo\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--8b445-agenda-e-cancela-com-motivo\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--8b445-agenda-e-cancela-com-motivo\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g3-d-registries.spec.ts:152:3 › G3 trilha D — cadastros pela interface › proposta: validade em data civil, edição no rascunho, envio e recusa com motivo 
+
+    Error: Timed out 30000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByText('Proposta criada')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 30000ms
+      - waiting for getByText('Proposta criada')
+
+
+      172 |     await create.getByLabel('Válida até').fill(validUntil);
+      173 |     await create.getByRole('button', { name: 'Criar' }).click();
+    > 174 |     await expect(page.getByText('Proposta criada')).toBeVisible({ timeout: 30_000 });
+          |                                                     ^
+      175 |
+      176 |     const listed = await api<{ proposals: Array<{ id: string; validUntil: string | null }> }>(
+      177 |       'GET',
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:174:53
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--3764e-o-envio-e-recusa-com-motivo\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--3764e-o-envio-e-recusa-com-motivo\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--3764e-o-envio-e-recusa-com-motivo\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) g3-d-registries.spec.ts:228:3 › G3 trilha D — cadastros pela interface › lead: detalhe pela rota própria e edição de dados e responsável 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Editar lead' })
+
+
+      241 |     await expect(page.getByText('Procura 2 quartos')).toBeVisible({ timeout: 60_000 });
+      242 |
+    > 243 |     await page.getByRole('button', { name: 'Editar lead' }).click();
+          |                                                             ^
+      244 |     const edit = page.getByRole('dialog', { name: 'Editar lead' });
+      245 |     await edit.getByLabel('Responsável').selectOption(colleagueId);
+      246 |     await edit.getByLabel('Canal').fill('WHATSAPP');
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:243:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--97fbb-ição-de-dados-e-responsável\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--97fbb-ição-de-dados-e-responsável\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--97fbb-ição-de-dados-e-responsável\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) g3-d-registries.spec.ts:269:3 › G3 trilha D — identidade pela interface › convite de membro por e-mail: registrado na caixa de saída e aceito pela tela 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.fill: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Convidar membro' }).getByLabel('E-mail')
+
+
+      280 |     await page.getByRole('button', { name: 'Convidar membro' }).first().click();
+      281 |     const invite = page.getByRole('dialog', { name: 'Convidar membro' });
+    > 282 |     await invite.getByLabel('E-mail').fill(email);
+          |                                       ^
+      283 |     await invite.getByLabel('Função').selectOption('agent');
+      284 |     await invite.getByRole('button', { name: 'Registrar convite' }).click();
+      285 |     await expect(page.getByText('Convite registrado')).toBeVisible({ timeout: 30_000 });
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:282:39
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--edda3-de-saída-e-aceito-pela-tela\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--edda3-de-saída-e-aceito-pela-tela\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--edda3-de-saída-e-aceito-pela-tela\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) g3-d-registries.spec.ts:328:3 › G3 trilha D — identidade pela interface › troca de senha na conta encerra as outras sessões 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.fill: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Trocar senha' }) }).getByLabel('Senha atual')
+
+
+      340 |       has: page.getByRole('heading', { name: 'Trocar senha' }),
+      341 |     });
+    > 342 |     await card.getByLabel('Senha atual').fill('senha-errada-000');
+          |                                          ^
+      343 |     await card.getByLabel('Nova senha', { exact: true }).fill('senha-nova-e2e-456');
+      344 |     await card.getByLabel('Confirme a nova senha').fill('senha-nova-e2e-456');
+      345 |     await card.getByRole('button', { name: 'Trocar senha' }).click();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:342:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--c821b-a-encerra-as-outras-sessões\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--c821b-a-encerra-as-outras-sessões\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--c821b-a-encerra-as-outras-sessões\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) g3-d-registries.spec.ts:364:3 › G3 trilha D — identidade pela interface › recuperação de senha pela tela de login, com o link da caixa de saída 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Esqueci minha senha' })
+
+
+      368 |     const account = await registerViaApi('d-recupera');
+      369 |     await page.goto('/login', FIRST_LOAD);
+    > 370 |     await page.getByRole('link', { name: 'Esqueci minha senha' }).click();
+          |                                                                   ^
+      371 |     await expect(page).toHaveURL(/\/esqueci-senha$/, { timeout: 60_000 });
+      372 |     await expect(page.getByRole('heading', { name: 'Recuperar senha' })).toBeVisible({
+      373 |       timeout: 60_000,
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e\src\g3-d-registries.spec.ts:370:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--abf59-om-o-link-da-caixa-de-saída\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-d-registries-G3-trilha--abf59-om-o-link-da-caixa-de-saída\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-d-registries-G3-trilha--abf59-om-o-link-da-caixa-de-saída\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    g3-d-registries.spec.ts:26:3 › G3 trilha D — cadastros pela interface › pessoa: CPF inválido recusado na tela, detalhe, edição, documentos e arquivamento 
+    g3-d-registries.spec.ts:101:3 › G3 trilha D — cadastros pela interface › visita: confirma, reagenda e cancela com motivo 
+    g3-d-registries.spec.ts:152:3 › G3 trilha D — cadastros pela interface › proposta: validade em data civil, edição no rascunho, envio e recusa com motivo 
+    g3-d-registries.spec.ts:228:3 › G3 trilha D — cadastros pela interface › lead: detalhe pela rota própria e edição de dados e responsável 
+    g3-d-registries.spec.ts:269:3 › G3 trilha D — identidade pela interface › convite de membro por e-mail: registrado na caixa de saída e aceito pela tela 
+    g3-d-registries.spec.ts:328:3 › G3 trilha D — identidade pela interface › troca de senha na conta encerra as outras sessões 
+    g3-d-registries.spec.ts:364:3 › G3 trilha D — identidade pela interface › recuperação de senha pela tela de login, com o link da caixa de saída 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g3-d"`
+Exit status 1
+
+# exit=1

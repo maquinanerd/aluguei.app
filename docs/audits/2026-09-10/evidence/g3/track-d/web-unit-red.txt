@@ -1,0 +1,60 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/party-rules.test.ts src/lib/crm-lifecycle.test.ts src/lib/account-rules.test.ts
+# árvore: g3/track-d-registries 98be64c + testes de unidade das regras novas das telas, sem os módulos
+# data (UTC): 2026-09-21T19:35:25Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web
+
+ ❯ src/lib/crm-lifecycle.test.ts (0 test)
+ ❯ src/lib/party-rules.test.ts (0 test)
+ ❯ src/lib/account-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/account-rules.test.ts [ src/lib/account-rules.test.ts ]
+Error: Cannot find module './account-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web/src/lib/account-rules.test.ts
+ ❯ src/lib/account-rules.test.ts:7:1
+      5|   PASSWORD_MIN_LENGTH as DOMAIN_PASSWORD_MIN_LENGTH,
+      6| } from '@aluguei/domain';
+      7| import {
+       | ^
+      8|   changePasswordErrors,
+      9|   INVITE_STATUS_LABELS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/lib/crm-lifecycle.test.ts [ src/lib/crm-lifecycle.test.ts ]
+Error: Cannot find module './crm-lifecycle' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web/src/lib/crm-lifecycle.test.ts
+ ❯ src/lib/crm-lifecycle.test.ts:11:1
+      9|   visitReschedulable,
+     10| } from '@aluguei/domain';
+     11| import {
+       | ^
+     12|   canRescheduleVisit,
+     13|   civilDateFromInput,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/lib/party-rules.test.ts [ src/lib/party-rules.test.ts ]
+Error: Cannot find module './party-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web/src/lib/party-rules.test.ts
+ ❯ src/lib/party-rules.test.ts:8:1
+      6| } from '@aluguei/domain';
+      7| import type { IdentityKind } from '@aluguei/domain';
+      8| import {
+       | ^
+      9|   formatIdentityValue,
+     10|   identityError,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  no tests
+   Start at  16:35:26
+   Duration  685ms (transform 763ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/party-rules.test.ts src/lib/crm-lifecycle.test.ts src/lib/account-rules.test.ts
+
+# exit=1
