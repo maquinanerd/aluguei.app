@@ -15,6 +15,7 @@ import {
 } from '@aluguei/ui';
 import { cx, formatRelative } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
+import { conversationActions } from '@/lib/conversation-rules';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
 import {
@@ -161,10 +162,22 @@ function InboxBody() {
     if (!selectedId) return;
     try {
       await apiClient(`/conversations/${selectedId}/handoff`, { method: 'POST', body: {} });
-      toast.success('Handoff solicitado', 'A conversa aguarda um humano.');
+      toast.success('Conversa com a equipe', 'O atendimento automático para até a devolução.');
       convQ.reload();
     } catch (err) {
-      toast.error('Falha no handoff', err instanceof Error ? err.message : undefined);
+      toast.error('Falha ao passar para a equipe', err instanceof Error ? err.message : undefined);
+    }
+  }
+
+  // A conversa em atendimento humano só volta ao bot quando a equipe devolve (P1-18).
+  async function resume() {
+    if (!selectedId) return;
+    try {
+      await apiClient(`/conversations/${selectedId}/resume`, { method: 'POST', body: {} });
+      toast.success('Conversa devolvida ao atendimento automático');
+      convQ.reload();
+    } catch (err) {
+      toast.error('Falha ao devolver a conversa', err instanceof Error ? err.message : undefined);
     }
   }
 
@@ -302,15 +315,26 @@ function InboxBody() {
                   </Stack>
                 </Group>
                 <Group gap={2}>
-                  {selected.status === 'NEEDS_HUMAN' ? (
+                  {conversationActions(selected.status).handoff ? (
                     <Button
                       size="xs"
-                      variant="brand"
+                      variant="secondary"
                       onClick={() => {
                         void handoff();
                       }}
                     >
-                      Assumir
+                      Passar para a equipe
+                    </Button>
+                  ) : null}
+                  {conversationActions(selected.status).resume ? (
+                    <Button
+                      size="xs"
+                      variant="brand"
+                      onClick={() => {
+                        void resume();
+                      }}
+                    >
+                      Devolver ao atendimento automático
                     </Button>
                   ) : null}
                   <Badge tone={CONVERSATION_STATUS_TONES[selected.status] ?? 'neutral'}>
