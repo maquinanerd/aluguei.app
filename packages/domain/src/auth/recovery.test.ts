@@ -28,7 +28,10 @@ describe('token de uso único (recuperação de senha e convite de membro)', () 
     expect(tokenUsable({ expiresAt: new Date('2026-09-17T11:59:59.000Z') }, now)).toBe(false);
     expect(
       tokenUsable(
-        { expiresAt: new Date('2026-09-17T12:30:00.000Z'), usedAt: new Date('2026-09-17T12:01:00.000Z') },
+        {
+          expiresAt: new Date('2026-09-17T12:30:00.000Z'),
+          usedAt: new Date('2026-09-17T12:01:00.000Z'),
+        },
         now,
       ),
     ).toBe(false);
@@ -46,7 +49,11 @@ describe('token de uso único (recuperação de senha e convite de membro)', () 
   it('token vencido, usado ou revogado responde NOT_FOUND (sem oráculo de existência)', () => {
     let error: unknown;
     try {
-      assertTokenUsable({ expiresAt: new Date('2026-09-17T11:00:00.000Z') }, now, 'Convite inválido');
+      assertTokenUsable(
+        { expiresAt: new Date('2026-09-17T11:00:00.000Z') },
+        now,
+        'Convite inválido',
+      );
     } catch (err) {
       error = err;
     }

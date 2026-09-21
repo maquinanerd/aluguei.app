@@ -27,7 +27,10 @@ export function isValidCpf(value: string): boolean {
   if (digits.length !== 11 || allSameDigits(digits)) {
     return false;
   }
-  return cpfCheckDigit(digits, 9) === Number(digits[9]) && cpfCheckDigit(digits, 10) === Number(digits[10]);
+  return (
+    cpfCheckDigit(digits, 9) === Number(digits[9]) &&
+    cpfCheckDigit(digits, 10) === Number(digits[10])
+  );
 }
 
 const CNPJ_WEIGHTS_FIRST = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] as const;

@@ -14,13 +14,7 @@ import {
  */
 describe('ciclo de vida da visita', () => {
   it('conhece os cinco status', () => {
-    expect([...VISIT_STATUSES]).toEqual([
-      'SCHEDULED',
-      'CONFIRMED',
-      'DONE',
-      'CANCELLED',
-      'NO_SHOW',
-    ]);
+    expect([...VISIT_STATUSES]).toEqual(['SCHEDULED', 'CONFIRMED', 'DONE', 'CANCELLED', 'NO_SHOW']);
     expect(isVisitStatus('CONFIRMED')).toBe(true);
     expect(isVisitStatus('RESCHEDULED')).toBe(false);
   });

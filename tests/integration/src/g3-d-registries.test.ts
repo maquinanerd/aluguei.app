@@ -763,7 +763,9 @@ describe('G3 trilha D — cadastros e identidade pela API', () => {
       // Mesma resposta com e sem conta: sem enumeração.
       expect(known.body).toBe(unknown.body);
       expect(
-        await rows(sql`select 1 from email_outbox where to_email = 'ninguem-cadastrado@example.com'`),
+        await rows(
+          sql`select 1 from email_outbox where to_email = 'ninguem-cadastrado@example.com'`,
+        ),
       ).toHaveLength(0);
 
       const [message] = await rows<{
@@ -878,9 +880,14 @@ describe('G3 trilha D — cadastros e identidade pela API', () => {
 
       const outbox = await call(app, 'GET', '/email-outbox', { cookie: a.cookie });
       expect(outbox.status).toBe(200);
-      const message = (outbox.body.messages as Array<{ kind: string; toEmail: string; body: string; status: string }>).find(
-        (m) => m.toEmail === email,
-      );
+      const message = (
+        outbox.body.messages as Array<{
+          kind: string;
+          toEmail: string;
+          body: string;
+          status: string;
+        }>
+      ).find((m) => m.toEmail === email);
       expect(message).toMatchObject({ kind: 'MEMBER_INVITE', status: 'QUEUED' });
       const token = tokenFrom(message?.body ?? '');
 

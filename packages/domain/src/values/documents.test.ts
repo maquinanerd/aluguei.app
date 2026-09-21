@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../errors.js';
-import {
-  assertValidIdentityValue,
-  formatDocument,
-  isValidCnpj,
-  isValidCpf,
-} from './documents.js';
+import { assertValidIdentityValue, formatDocument, isValidCnpj, isValidCpf } from './documents.js';
 
 /**
  * Auditoria 2026-09-10, P2-01: `POST /parties` aceitava `12345678900` como CPF — nenhum
