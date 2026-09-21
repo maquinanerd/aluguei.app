@@ -60,6 +60,7 @@ import { leaseRoutes } from './routes/leases.js';
 import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
 import { devPaymentRoutes } from './routes/dev-payments.js';
+import { devOutboxRoutes } from './routes/dev-outbox.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
@@ -348,6 +349,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.NODE_ENV !== 'production') {
     // Simulação do pagador com provider FAKE (dev/E2E) — nunca em produção.
     await app.register(devPaymentRoutes);
+    // Leitura da caixa de saída local por destinatário (dev/E2E) — nunca em produção.
+    await app.register(devOutboxRoutes);
   }
   await app.register(metaRoutes);
   await app.register(portalRoutes);

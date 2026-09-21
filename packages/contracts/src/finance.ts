@@ -70,7 +70,8 @@ export const leaseAmendmentSchema = z.object({
 });
 
 /** Data civil `AAAA-MM-DD` que existe no calendário (2027-02-30 não passa). */
-const isoDateSchema = z
+/** Data civil AAAA-MM-DD que existe no calendário (sem instante, sem fuso). */
+export const isoDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data no formato AAAA-MM-DD')
   .refine(

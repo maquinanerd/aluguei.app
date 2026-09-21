@@ -29,6 +29,7 @@ import {
   processReconcileJob,
 } from './paymentJobs.js';
 import { processMetaWebhookJob } from './metaJobs.js';
+import { processProposalExpiryJob } from './crmJobs.js';
 
 export interface RunInboxJobsOptions {
   db: AppDb;
@@ -71,6 +72,16 @@ async function enqueueSchedulerJobs(db: AppDb, log?: (msg: string) => void): Pro
         provider: 'PAYMENT_RECONCILE',
         providerEventId: `RECON:${org.id}:${today}`,
         payload: { periodStart: today },
+      })
+      .onConflictDoNothing();
+    // Expiração da proposta pela validade (auditoria 2026-09-10, P2-02).
+    await db
+      .insert(webhookInbox)
+      .values({
+        orgId: org.id,
+        provider: 'PROPOSAL_EXPIRY',
+        providerEventId: `PROPEXP:${org.id}:${today}`,
+        payload: {},
       })
       .onConflictDoNothing();
   }
@@ -266,6 +277,8 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
         await processPaymentSchedulerJob(db, job);
       } else if (job.provider === 'PAYMENT_RECONCILE') {
         await processReconcileJob(db, job, paymentProvider);
+      } else if (job.provider === 'PROPOSAL_EXPIRY') {
+        await processProposalExpiryJob(db, job);
       } else if (job.provider === 'META') {
         await processMetaWebhookJob(db, job);
       } else {

@@ -12,6 +12,7 @@ import { startHeartbeat } from './heartbeat.js';
 import { getMetaAdsProvider } from '@aluguei/integrations';
 
 export { runChannelJobs, runInboxJobs, runMetaJobs };
+export { processProposalExpiryJob } from './crmJobs.js';
 export {
   advanceBillingLifecycle,
   processPaymentJob,
