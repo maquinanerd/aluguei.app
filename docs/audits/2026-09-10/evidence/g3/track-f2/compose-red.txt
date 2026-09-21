@@ -1,0 +1,27 @@
+# comando: docker compose -f <docker-compose.prod.yml de origin/main sem exclude_from_hc> config (--quiet, --services, --volumes, --format json) e leitura do Dockerfile
+# árvore: main 33add42 (sem o serviço de backup)
+# data (UTC): 2026-09-21T19:55:28Z
+# Docker Compose 5.1.4; sem daemon: config só lê e valida o arquivo
+
+OK   compose válido
+serviços: api legacy-pgdata migrate minio storage-init web worker 
+volumes no modelo: aluguei-minio-data aluguei-pgdata 
+fatos: {"present":false,"target":"","command":"","deps":"","depMigrate":"","health":false,"key":"","db":"","dir":"","mount":"","pg":["legacy-pgdata:ro"]}
+FAIL serviço backup no compose
+FAIL backup na imagem server
+FAIL backup roda o agendamento da linha de comando
+FAIL backup espera migrate concluir
+FAIL backup com healthcheck
+FAIL chave vinda do Coolify (SERVICE_HEX_64_BACKUPKEY)
+FAIL banco vindo do recurso (DATABASE_URL)
+FAIL volume aluguei-backups em /backups com escrita ( )
+FAIL volume aluguei-backups no modelo do compose
+OK   aluguei-pgdata só leitura (ADR-062) (legacy-pgdata:ro)
+OK   volume aluguei-minio-data no modelo do compose
+FAIL Dockerfile instala postgresql-client-17
+FAIL repositório PGDG com chave de assinatura
+FAIL PG_DUMP aponta para o 17
+FAIL /backups do usuário node na imagem
+
+resultado: 3 ok, 13 falhas
+# exit=1

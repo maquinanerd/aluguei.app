@@ -20,24 +20,50 @@ Documento operacional mínimo (Fase 11). Assume PostgreSQL gerenciado e storage 
 
 ## Backup do Postgres
 
-```bash
-# Full dump (schema + dados), diário, fora do horário de pico
-pg_dump --format=custom --file=backup-$(date +%F).dump "$DATABASE_URL"
+O backup é a linha de comando `packages/db/src/backup/cli.ts` (G3, trilha F2), a mesma que o
+serviço `backup` do compose agenda:
 
-# Backup contínuo/PITR: habilitar WAL archiving do provider gerenciado
-# (RDS/Cloud SQL/Supabase: point-in-time recovery com retenção >= 7 dias)
+- **`backup`**: `pg_dump` em formato custom, cifrado em fluxo com AES-256-GCM (o dump não toca o
+  disco em claro), em `BACKUP_DIR/aluguei-AAAAMMDDTHHMMSSZ.dump.enc`, mantendo os `BACKUP_KEEP`
+  mais novos (padrão 14). A conexão vai por variáveis de ambiente, e a senha não aparece em
+  argumento nem no log.
+- **`schedule`**: um backup por dia em `BACKUP_HOUR_UTC` (padrão 6) e um logo ao subir, se o último
+  tiver mais de 24 h. Grava `status.json` com o último backup bom, o último erro e a próxima
+  execução.
+- **`verify <arquivo>`**: decifra, autentica e confere o sumário com `pg_restore --list`.
+- **`restore <arquivo>`**: decifra, autentica e restaura em `TARGET_DATABASE_URL` numa transação
+  só. O destino precisa estar vazio.
+
+Chave: `BACKUP_ENCRYPTION_KEY`, hex de 64 caracteres (32 bytes); na homologação,
+`SERVICE_HEX_64_BACKUPKEY` do Coolify. **Sem a chave, o backup não abre**: guarde uma cópia dela
+fora do servidor, junto com os arquivos.
+
+```bash
+# Backup manual (a partir da raiz do repositório)
+DATABASE_URL=… BACKUP_DIR=./backups BACKUP_ENCRYPTION_KEY=…   node --import tsx packages/db/src/backup/cli.ts backup
 ```
 
 Restauração:
 
 ```bash
-# Recriar banco a partir do dump
-createdb "$DATABASE_URL_NOVA"
-pg_restore --dbname="$DATABASE_URL_NOVA" --no-owner backup-$(date +%F).dump
-# Migrations já estão embutidas no dump (estado final). Para drift: pnpm --filter @aluguei/db db:generate
+# 1. Banco novo e vazio
+createdb aluguei_restaurado
+# 2. Conferir o arquivo e restaurar (pg_dump e pg_restore 17, ou PG_DUMP e PG_RESTORE)
+BACKUP_ENCRYPTION_KEY=… node --import tsx packages/db/src/backup/cli.ts verify aluguei-….dump.enc
+TARGET_DATABASE_URL=postgresql://…/aluguei_restaurado BACKUP_ENCRYPTION_KEY=…   node --import tsx packages/db/src/backup/cli.ts restore aluguei-….dump.enc
+# 3. Apontar a aplicação para o banco restaurado e rodar /health/ready. As migrations já estão
+#    no dump (estado final), inclusive a tabela de controle do drizzle.
 ```
 
-Verificação: restaurar mensalmente em banco de teste e rodar `/health/ready` + contagem de orgs.
+Arquivo adulterado, truncado ou com a chave errada falha na autenticação ("Backup corrompido ou com
+a chave errada") antes de qualquer escrita no destino. Destino com tabelas é recusado.
+
+Verificação: `tests/integration/src/backup-restore.pg.test.ts` (em `pnpm test:pg`, no CI) faz
+backup de um banco com locação, cobrança paga, split, repasse e razão, restaura num banco vazio e
+compara todas as tabelas linha a linha.
+
+Backup contínuo (PITR) depende de WAL archiving do provedor ou de um destino fora do servidor
+(Fase 7).
 
 ## Restore de storage
 
