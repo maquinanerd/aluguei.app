@@ -1,0 +1,56 @@
+Trilhas E1 e F do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-21 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+Os dois deploys foram feitos em sequência, um PR de cada vez, com smoke antes e depois de cada um.
+
+=== Trilha E1 — PR #12, merge aec1ca5
+
+--- Deploy (deploy + get_deployment 5sciyp2ibxej3ybjhyunjc8e)
+status   finished
+commit   aec1ca55eb60098cc3e86fcb2393d56aa75b4a20
+criado   18:54:48   terminado 19:02:53   (pedido pela API, sem force rebuild, sem rollback)
+
+--- Smoke (docs/audits/2026-09-10/evidence/g3/track-e/)
+antes   smoke-antes.txt: 10 ok, 2 falhas — POST /conversations/:id/resume (direto e pelo BFF)
+        respondia 404
+depois  smoke-depois.txt: 12 ok, 0 falhas — a rota nova responde 401 sem sessão, direto e pelo BFF,
+        e a regressão (trilha C, portal, login, caixa de entrada) segue de pé
+
+=== Trilha F — PR #13, merge 52e2582
+
+--- Antes do deploy
+list_unhealthy_resources: 0 recursos não saudáveis
+smoke-antes.txt (docs/audits/2026-09-10/evidence/g3/track-f/): 12 ok, 0 falhas
+
+--- Deploy (deploy + get_deployment qctghoillmwctojqeb9g9w1s)
+status   finished
+commit   52e2582bdecbc40f26518de13741dd9d8a06d143
+criado   19:29:23   terminado 19:35:25   (pedido pela API, sem force rebuild, sem rollback)
+
+--- Aplicação depois do deploy (get_application)
+status              running:healthy   (antes: running:unknown)
+container_present   true
+last_online_at      2026-09-21 19:38:19
+O status passou a ter saúde porque o worker ganhou healthcheck (GET http://127.0.0.1:4001/health,
+só dentro do container). No compose de 8409420, minio, api e web já tinham healthcheck e migrate,
+storage-init e legacy-pgdata ficam fora da conta (exclude_from_hc): o worker era o único serviço
+contínuo sem healthcheck, daí o "unknown". O worker só responde 200 com o laço de jobs saudável, e só sobe se o
+fail-fast de configuração aceitar o ambiente de produção (NODE_ENV=production com
+ALLOW_FAKE_PROVIDERS=true). A API também passa pelo fail-fast e respondeu 200 em /health/ready.
+
+--- Estado geral e volumes
+list_unhealthy_resources depois do deploy: 0
+list_storages: os mesmos dois volumes (hvwxasfarzxnpnw4fjoerqws_aluguei-pgdata em /legacy-pgdata,
+só leitura, e hvwxasfarzxnpnw4fjoerqws_aluguei-minio-data em /data); nada foi apagado.
+
+--- Smoke depois
+smoke-depois.txt: 12 ok, 0 falhas — a mesma regressão, agora com a API e o worker sob o fail-fast
+de configuração, a telemetria e a redação de logs.
+
+--- O que o MCP não permite
+get_logs -> "Missing required permissions: read:sensitive". Os logs estruturados por job, os spans
+e a redação de CPF, e-mail, telefone e cookie não são observáveis por esta via na homologação; estão
+provados nos testes da trilha F (docs/audits/2026-09-10/evidence/g3/track-f/). A parada graciosa
+no SIGTERM também não foi exercitada aqui: o deploy troca os contêineres, mas o MCP não mostra o
+log da parada.
