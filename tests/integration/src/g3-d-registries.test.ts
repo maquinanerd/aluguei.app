@@ -638,6 +638,35 @@ describe('G3 trilha D — cadastros e identidade pela API', () => {
       expect((await call(app, 'GET', `/leads/${leadId}`, { cookie: b.cookie })).status).toBe(404);
     });
 
+    it('equipe da organização ativa para escolher o responsável, sem e-mail e para qualquer função', async () => {
+      const a = await agency();
+      const colleague = await agency();
+      const outsider = await agency();
+      await call(app, 'POST', `/organizations/${a.org.id}/members`, {
+        cookie: a.cookie,
+        payload: { userId: colleague.user.id, role: 'agent' },
+      });
+      // O corretor não tem `member:read`, mas escolhe o responsável do lead.
+      const agentSession = await login(colleague.user.email, 'senha-segura-123');
+      await call(app, 'POST', '/auth/switch-org', {
+        cookie: agentSession.cookie,
+        payload: { orgId: a.org.id },
+      });
+      const team = await call(app, 'GET', '/me/members', { cookie: agentSession.cookie });
+      expect(team.status, JSON.stringify(team.body)).toBe(200);
+      const members = team.body.members as Array<Record<string, unknown>>;
+      expect(members.map((m) => m.userId).sort()).toEqual(
+        [a.user.id, colleague.user.id].sort(),
+      );
+      expect(members.map((m) => m.userId)).not.toContain(outsider.user.id);
+      expect(members.find((m) => m.userId === colleague.user.id)).toMatchObject({
+        name: colleague.user.name,
+        role: 'agent',
+      });
+      expect(JSON.stringify(team.body)).not.toContain('@');
+      expect((await call(app, 'GET', '/me/members')).status).toBe(401);
+    });
+
     it('edição de dados e responsável, com diff auditado; responsável de fora da org → 404', async () => {
       const a = await agency();
       const colleague = await agency();
