@@ -85,6 +85,9 @@ export {
 export { advanceLeadTo } from './crm/funnel.js';
 
 export {
+  assertInspectionEvidenceWritable,
+  canWriteInspectionEvidence,
+  INSPECTION_EVIDENCE_WRITABLE_STATUSES,
   INSPECTION_STATUSES,
   isInspectionStatus,
   canTransitionInspection,

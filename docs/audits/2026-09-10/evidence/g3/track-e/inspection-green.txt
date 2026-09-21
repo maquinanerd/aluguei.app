@@ -1,0 +1,19 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-e-inspection.test.ts src/inspections.test.ts
+# árvore: main 8409420 + evidência de vistoria imutável depois de COMPLETED, com auditoria na remoção de mídia
+# data (UTC): 2026-09-17T18:58:15Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:9772) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30932) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  15:58:17
+   Duration  16.76s (transform 2.11s, setup 0ms, import 6.79s, tests 9.26s, environment 0ms)
+
+
+# exit=0

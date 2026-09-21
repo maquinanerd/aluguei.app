@@ -1,0 +1,99 @@
+# comando: pnpm db:generate
+# árvore: commit b6b7a02 (g3/track-e-portal)
+
+$ turbo run db:generate
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running db:generate in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/db:db:generate: cache bypass, force executing 7704958604d4a2d0
+@aluguei/db:db:generate: $ drizzle-kit generate
+@aluguei/db:db:generate: No config path provided, using default 'drizzle.config.ts'
+@aluguei/db:db:generate: Reading config file 'C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\db\drizzle.config.ts'
+@aluguei/db:db:generate: 77 tables
+@aluguei/db:db:generate: audit_events 8 columns 2 indexes 2 fks
+@aluguei/db:db:generate: memberships 6 columns 2 indexes 2 fks
+@aluguei/db:db:generate: organizations 13 columns 1 indexes 2 fks
+@aluguei/db:db:generate: user_sessions 9 columns 1 indexes 2 fks
+@aluguei/db:db:generate: users 7 columns 0 indexes 0 fks
+@aluguei/db:db:generate: lead_property_interests 5 columns 2 indexes 3 fks
+@aluguei/db:db:generate: leads 12 columns 2 indexes 3 fks
+@aluguei/db:db:generate: parties 7 columns 1 indexes 1 fks
+@aluguei/db:db:generate: party_addresses 15 columns 1 indexes 2 fks
+@aluguei/db:db:generate: party_consents 6 columns 1 indexes 2 fks
+@aluguei/db:db:generate: party_documents 6 columns 1 indexes 2 fks
+@aluguei/db:db:generate: party_identities 6 columns 2 indexes 2 fks
+@aluguei/db:db:generate: party_roles 5 columns 2 indexes 2 fks
+@aluguei/db:db:generate: proposals 12 columns 1 indexes 5 fks
+@aluguei/db:db:generate: tasks 12 columns 2 indexes 3 fks
+@aluguei/db:db:generate: timeline_events 8 columns 1 indexes 2 fks
+@aluguei/db:db:generate: visits 10 columns 1 indexes 4 fks
+@aluguei/db:db:generate: listings 10 columns 2 indexes 2 fks
+@aluguei/db:db:generate: properties 16 columns 3 indexes 1 fks
+@aluguei/db:db:generate: property_addresses 17 columns 2 indexes 2 fks
+@aluguei/db:db:generate: property_features 5 columns 2 indexes 2 fks
+@aluguei/db:db:generate: property_financial_terms 10 columns 1 indexes 2 fks
+@aluguei/db:db:generate: property_media 10 columns 1 indexes 2 fks
+@aluguei/db:db:generate: property_owners 6 columns 2 indexes 3 fks
+@aluguei/db:db:generate: channel_sync_jobs 14 columns 2 indexes 2 fks
+@aluguei/db:db:generate: listing_channel_publications 10 columns 2 indexes 2 fks
+@aluguei/db:db:generate: conversation_intents 13 columns 2 indexes 4 fks
+@aluguei/db:db:generate: conversations 11 columns 2 indexes 3 fks
+@aluguei/db:db:generate: messages 11 columns 1 indexes 2 fks
+@aluguei/db:db:generate: webhook_inbox 12 columns 2 indexes 1 fks
+@aluguei/db:db:generate: whatsapp_connections 8 columns 1 indexes 1 fks
+@aluguei/db:db:generate: inspection_ai_suggestions 11 columns 3 indexes 4 fks
+@aluguei/db:db:generate: inspection_comparisons 10 columns 2 indexes 5 fks
+@aluguei/db:db:generate: inspection_media 12 columns 2 indexes 3 fks
+@aluguei/db:db:generate: inspection_observations 14 columns 3 indexes 6 fks
+@aluguei/db:db:generate: inspection_rooms 6 columns 2 indexes 2 fks
+@aluguei/db:db:generate: inspection_transcripts 10 columns 3 indexes 3 fks
+@aluguei/db:db:generate: inspections 11 columns 3 indexes 4 fks
+@aluguei/db:db:generate: contract_parties 7 columns 2 indexes 3 fks
+@aluguei/db:db:generate: contract_templates 10 columns 2 indexes 2 fks
+@aluguei/db:db:generate: contract_versions 10 columns 2 indexes 4 fks
+@aluguei/db:db:generate: contracts 12 columns 2 indexes 4 fks
+@aluguei/db:db:generate: rental_applications 14 columns 6 indexes 6 fks
+@aluguei/db:db:generate: screening_requests 11 columns 3 indexes 4 fks
+@aluguei/db:db:generate: screening_results 11 columns 1 indexes 3 fks
+@aluguei/db:db:generate: signature_envelopes 10 columns 2 indexes 2 fks
+@aluguei/db:db:generate: signature_events 8 columns 2 indexes 2 fks
+@aluguei/db:db:generate: charges 18 columns 4 indexes 2 fks
+@aluguei/db:db:generate: fake_provider_charges 7 columns 0 indexes 0 fks
+@aluguei/db:db:generate: lease_amendments 14 columns 1 indexes 3 fks
+@aluguei/db:db:generate: lease_landlords 6 columns 2 indexes 3 fks
+@aluguei/db:db:generate: leases 17 columns 3 indexes 5 fks
+@aluguei/db:db:generate: ledger_accounts 6 columns 1 indexes 1 fks
+@aluguei/db:db:generate: ledger_entries 11 columns 4 indexes 2 fks
+@aluguei/db:db:generate: party_bank_accounts 15 columns 1 indexes 3 fks
+@aluguei/db:db:generate: payment_attempts 6 columns 1 indexes 2 fks
+@aluguei/db:db:generate: payments 14 columns 4 indexes 2 fks
+@aluguei/db:db:generate: payouts 10 columns 3 indexes 3 fks
+@aluguei/db:db:generate: reconciliations 10 columns 2 indexes 1 fks
+@aluguei/db:db:generate: split_allocations 8 columns 2 indexes 3 fks
+@aluguei/db:db:generate: split_rules 7 columns 2 indexes 3 fks
+@aluguei/db:db:generate: meta_ad_links 10 columns 2 indexes 3 fks
+@aluguei/db:db:generate: meta_ad_profiles 24 columns 3 indexes 6 fks
+@aluguei/db:db:generate: meta_adset_links 14 columns 2 indexes 2 fks
+@aluguei/db:db:generate: meta_assets 11 columns 2 indexes 2 fks
+@aluguei/db:db:generate: meta_audit_events 9 columns 2 indexes 1 fks
+@aluguei/db:db:generate: meta_campaign_links 16 columns 2 indexes 2 fks
+@aluguei/db:db:generate: meta_connections 12 columns 2 indexes 1 fks
+@aluguei/db:db:generate: meta_creative_links 14 columns 2 indexes 2 fks
+@aluguei/db:db:generate: meta_insight_snapshots 10 columns 2 indexes 5 fks
+@aluguei/db:db:generate: meta_org_settings 6 columns 0 indexes 1 fks
+@aluguei/db:db:generate: meta_sync_jobs 13 columns 3 indexes 2 fks
+@aluguei/db:db:generate: meta_webhook_events 7 columns 1 indexes 1 fks
+@aluguei/db:db:generate: portal_access 9 columns 3 indexes 3 fks
+@aluguei/db:db:generate: portal_sessions 10 columns 2 indexes 3 fks
+@aluguei/db:db:generate: app_metadata 3 columns 0 indexes 0 fks
+@aluguei/db:db:generate: plans 10 columns 0 indexes 0 fks
+@aluguei/db:db:generate: 
+@aluguei/db:db:generate: No schema changes, nothing to migrate 😴
+
+ Tasks:    1 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    2.931s 
+

@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import {
   conversationIntents,
@@ -360,10 +360,14 @@ export async function handleIncomingMessage(
     );
   }
   const leadId = conversation.leadId;
-  await db
-    .update(conversations)
-    .set({ status: 'ACTIVE', updatedAt: new Date() })
-    .where(eq(conversations.id, conversation.id));
+  // Handoff dura até a equipe devolver a conversa (P1-18): mensagem nova não tira do atendimento
+  // humano. O filtro no UPDATE também cobre o handoff pedido pela equipe no meio do caminho.
+  if (conversation.status !== 'NEEDS_HUMAN') {
+    await db
+      .update(conversations)
+      .set({ status: 'ACTIVE', updatedAt: new Date() })
+      .where(and(eq(conversations.id, conversation.id), ne(conversations.status, 'NEEDS_HUMAN')));
+  }
 
   // 3. NEEDS_HUMAN? → sem resposta de bot.
   if (conversation.status === 'NEEDS_HUMAN' || HANDOFF_RE.test(event.body)) {

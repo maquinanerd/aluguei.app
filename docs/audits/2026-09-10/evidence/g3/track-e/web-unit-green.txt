@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/conversation-rules.test.ts src/lib/inspection-rules.test.ts
+# árvore: g3/track-e-portal b6f8302 + módulos conversation-rules e inspection-rules
+# data (UTC): 2026-09-21T18:08:13Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  15:08:15
+   Duration  1.04s (transform 855ms, setup 0ms, import 1.16s, tests 15ms, environment 0ms)
+
+
+# exit=0
