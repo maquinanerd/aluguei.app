@@ -62,7 +62,8 @@ describe('formato do backup cifrado', () => {
     const original = await readFile(sealed);
 
     const tampered = Buffer.from(original);
-    tampered[Math.floor(tampered.length / 2)] ^= 0x01;
+    const middle = Math.floor(tampered.length / 2);
+    tampered[middle] = (tampered[middle] ?? 0) ^ 0x01;
     const tamperedPath = join(dir, 'sealed-tampered');
     await writeFile(tamperedPath, tampered);
     const truncatedPath = join(dir, 'sealed-truncated');

@@ -219,7 +219,8 @@ describe('backup e restauração (PostgreSQL real)', () => {
     const [file] = await backups();
     const tampered = join(dir, 'adulterado.bin');
     const bytes = await readFile(join(dir, file ?? ''));
-    bytes[Math.floor(bytes.length / 2)] ^= 0x01;
+    const middle = Math.floor(bytes.length / 2);
+    bytes[middle] = (bytes[middle] ?? 0) ^ 0x01;
     await writeFile(tampered, bytes);
 
     for (const [label, input, cryptoKey] of [
