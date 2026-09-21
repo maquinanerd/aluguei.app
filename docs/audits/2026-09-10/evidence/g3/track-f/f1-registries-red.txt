@@ -1,0 +1,82 @@
+# comando: pnpm --filter @aluguei/integrations exec vitest run src/provider-fallbacks.test.ts
+# árvore: commit 957dda5 (testes do F-1, registries com FAKE fora de live)
+# data (UTC): 2026-09-17T16:24:00Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/integrations
+
+ ❯ src/provider-fallbacks.test.ts (11 tests | 9 failed) 13ms
+     × WhatsApp com modo undefined → null 6ms
+     × WhatsApp com modo "" → null 1ms
+     × WhatsApp com modo "live " → null 1ms
+     × WhatsApp com modo "dryrun" → null 1ms
+     × WhatsApp com modo "DRY_RUN" → null 1ms
+     × Meta Ads com modo undefined → null 1ms
+     × Meta Ads com modo "" → null 0ms
+     × Meta Ads com modo "dryrun" → null 0ms
+     × Meta Ads com modo "LIVE" → null 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > WhatsApp com modo undefined → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > WhatsApp com modo "" → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > WhatsApp com modo "live " → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > WhatsApp com modo "dryrun" → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > WhatsApp com modo "DRY_RUN" → null
+AssertionError: expected FakeWhatsAppMessenger{ …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+FakeWhatsAppMessenger {
+  "failNextSend": false,
+  "outbox": [],
+  "verifyToken": "fake-verify-token",
+}
+
+ ❯ src/provider-fallbacks.test.ts:17:40
+     15|   it.each([undefined, '', 'live ', 'dryrun', 'DRY_RUN'])('WhatsApp com…
+     16|     const opts = mode === undefined ? {} : { mode };
+     17|     expect(getWhatsAppMessenger(opts)).toBeNull();
+       |                                        ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > Meta Ads com modo undefined → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > Meta Ads com modo "" → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > Meta Ads com modo "dryrun" → null
+ FAIL  src/provider-fallbacks.test.ts > registries sem FAKE por omissão (P1-12) > Meta Ads com modo "LIVE" → null
+AssertionError: expected FakeMetaAdsProvider{ …(2) } to be null
+
+- Expected:
+null
+
++ Received:
+FakeMetaAdsProvider {
+  "failNext": false,
+  "statuses": Map {},
+}
+
+ ❯ src/provider-fallbacks.test.ts:26:38
+     24|   it.each([undefined, '', 'dryrun', 'LIVE'])('Meta Ads com modo %j → n…
+     25|     const opts = mode === undefined ? {} : { mode };
+     26|     expect(getMetaAdsProvider(opts)).toBeNull();
+       |                                      ^
+     27|   });
+     28|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 2 passed (11)
+   Start at  13:24:01
+   Duration  1.49s (transform 582ms, setup 0ms, import 1.14s, tests 13ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\integrations:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/provider-fallbacks.test.ts
+# exit=1

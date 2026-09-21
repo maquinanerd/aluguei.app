@@ -1,0 +1,116 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54332/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/otel-memory.pg.test.ts src/otel-collector.pg.test.ts
+# árvore: commit 9fa305f (testes do F-6; tracer sem instrumentação e sem ponto de entrada do worker com telemetria)
+# data (UTC): 2026-09-17T17:55:29Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+ ❯ src/otel-collector.pg.test.ts (2 tests | 2 failed) 97509ms
+     × API: GET /health/ready chega ao coletor como span HTTP da rota com a query pg filha 33637ms
+     × worker: o ciclo de jobs chega ao coletor com as queries pg 60177ms
+ ❯ src/otel-memory.pg.test.ts (2 tests | 2 skipped) 1690ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/otel-memory.pg.test.ts > OTEL com exportador em memória (PostgreSQL real)
+TypeError: observability.InMemorySpanExporter is not a constructor
+ ❯ src/otel-memory.pg.test.ts:41:20
+     39|   beforeAll(async () => {
+     40|     const observability = await import('@aluguei/observability');
+     41|     const memory = new observability.InMemorySpanExporter();
+       |                    ^
+     42|     exporter = memory;
+     43|     telemetry = observability.startTelemetry({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/otel-memory.pg.test.ts > OTEL com exportador em memória (PostgreSQL real)
+TypeError: Cannot read properties of undefined (reading 'close')
+ ❯ src/otel-memory.pg.test.ts:65:15
+     63|
+     64|   afterAll(async () => {
+     65|     await app.close();
+       |               ^
+     66|     await db.$client.end();
+     67|     const { dropTestDatabase } = await import('./pg-test-database.js');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/otel-collector.pg.test.ts > spans num coletor OTLP local (API e worker como processos reais) > API: GET /health/ready chega ao coletor como span HTTP da rota com a query pg filha
+AssertionError: []
+(node:31936) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/otel-collector.pg.test.ts:225:76
+    223|         15_000,
+    224|       );
+    225|       expect(found, `${JSON.stringify(collector.paths)}\n${api.output(…
+       |                                                                            ^
+    226|       const server = collector.spans.find(
+    227|         (span) => span.service === 'aluguei-api' && span.attr['http.ro…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/otel-collector.pg.test.ts > spans num coletor OTLP local (API e worker como processos reais) > worker: o ciclo de jobs chega ao coletor com as queries pg
+AssertionError: []
+node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\worker\src\main.ts' imported from C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932)
+    at resolveDirectorySync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238)
+    at resolveTsPathsSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445)
+    at resolve (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:15991) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker/src/main.ts'
+}
+
+Node.js v24.19.0
+: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ resolveBaseSync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932
+ ❯ resolveDirectorySync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238
+ ❯ resolveTsPathsSync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445
+ ❯ src/otel-collector.pg.test.ts:256:79
+    254|         60_000,
+    255|       );
+    256|       expect(found, `${JSON.stringify(collector.paths)}\n${worker.outp…
+       |                                                                               ^
+    257|       const cycle = collector.spans.find(
+    258|         (span) => span.service === 'aluguei-worker' && span.name === '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 2 skipped (4)
+   Start at  14:55:33
+   Duration  104.02s (transform 1.37s, setup 0ms, import 3.35s, tests 99.20s, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/otel-memory.pg.test.ts src/otel-collector.pg.test.ts
+# exit=1

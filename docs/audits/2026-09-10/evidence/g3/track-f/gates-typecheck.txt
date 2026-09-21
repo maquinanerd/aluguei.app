@@ -1,0 +1,69 @@
+# comando: pnpm typecheck --force
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:08:20Z
+
+$ turbo run typecheck "--force"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running typecheck in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/config:build: cache bypass, force executing d07c21fd5590c351
+@aluguei/contracts:build: cache bypass, force executing fa184ebd8349782c
+@aluguei/observability:typecheck: cache bypass, force executing 3ae1753b172b2cb4
+@aluguei/contracts:typecheck: cache bypass, force executing a2bd6ff622590f1b
+@aluguei/domain:typecheck: cache bypass, force executing 7343e276bdb89b44
+@aluguei/config:typecheck: cache bypass, force executing 90fda15ace7cc149
+@aluguei/db:build: cache bypass, force executing 09b0fcb136823a5d
+@aluguei/observability:build: cache bypass, force executing 5305faae73dbb2c6
+@aluguei/storage:build: cache bypass, force executing 790f1b37752f7581
+@aluguei/mobile:typecheck: cache bypass, force executing 46b8a17f43dfd396
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/observability:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/config:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/domain:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/contracts:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/mobile:typecheck: $ tsc --noEmit
+@aluguei/db:typecheck: cache bypass, force executing 93d79667baefc059
+@aluguei/domain:build: cache bypass, force executing 4b054a2770b33b1a
+@aluguei/storage:typecheck: cache bypass, force executing af9f90c224f2c565
+@aluguei/tests-e2e:typecheck: cache bypass, force executing 4004c18363caa00b
+@aluguei/ui:typecheck: cache bypass, force executing 30ae5524b65c65a3
+@aluguei/ui:build: cache bypass, force executing 4f492b128ebabbe2
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/db:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/storage:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-e2e:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/ui:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/integrations:build: cache bypass, force executing 094d1cd125c57ae4
+@aluguei/integrations:typecheck: cache bypass, force executing 9adfd0d428488b6b
+@aluguei/tests-contract:typecheck: cache bypass, force executing e9cf51aebc2b8f34
+@aluguei/integrations:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/tests-contract:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/web:typecheck: cache bypass, force executing facaa802322337d6
+@aluguei/web:typecheck: $ tsc --noEmit
+@aluguei/api:typecheck: cache bypass, force executing e17ae4320600a211
+@aluguei/meta-mcp:typecheck: cache bypass, force executing a84a2a1354ef6551
+@aluguei/api:build: cache bypass, force executing 3f36e6fa2123828a
+@aluguei/api:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/meta-mcp:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/worker:build: cache bypass, force executing f8b0b729bc2780fa
+@aluguei/worker:typecheck: cache bypass, force executing acde681a187439d7
+@aluguei/worker:build: $ tsc -p tsconfig.json
+@aluguei/worker:typecheck: $ tsc -p tsconfig.json --noEmit
+@aluguei/tests-integration:typecheck: cache bypass, force executing 533515a8a17acc17
+@aluguei/tests-integration:typecheck: $ tsc -p tsconfig.json --noEmit
+
+ Tasks:    26 successful, 26 total
+Cached:    0 cached, 26 total
+  Time:    1m16.165s 
+
+# exit=0

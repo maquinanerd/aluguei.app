@@ -49,7 +49,7 @@ sem necessidade.
 | `minio`         | `ghcr.io/coollabsio/minio` (versão fixada) | storage compatível com S3, volume `aluguei-minio-data`                                                                                                              |
 | `storage-init`  | `Dockerfile` → `server`                    | garante o bucket privado e termina (idempotente)                                                                                                                    |
 | `api`           | `Dockerfile` → `server`                    | Fastify via tsx, porta 4000, healthcheck `/health/ready`; só sobe depois de `migrate` e `storage-init` concluírem                                                   |
-| `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta)                                                                                                  |
+| `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta); entra por `apps/worker/src/main.ts`, com health HTTP na porta 4001 (só dentro do container)     |
 | `web`           | `Dockerfile` → `web`                       | Next.js (`next start`), porta 3000, healthcheck `/login`                                                                                                            |
 | `legacy-pgdata` | `busybox:1.36`                             | monta só para leitura o volume `aluguei-pgdata` (dados do banco embutido da primeira implantação) e termina; existe só para o volume continuar no recurso (ADR-062) |
 
@@ -103,9 +103,24 @@ Definidas no recurso:
 
 Fixas no compose: `NODE_ENV=production`, `COOKIE_SECURE=true`, `STORAGE_BUCKET=aluguei-private`,
 `STORAGE_REGION=us-east-1`, `STORAGE_FORCE_PATH_STYLE=true`, `PAYMENT_PROVIDER=FAKE`,
-`SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`. Os
-providers são fixados explicitamente porque os defaults divergem: sem variável, o worker em produção
-usaria SERASA para screening.
+`SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`,
+`ALLOW_FAKE_PROVIDERS=true`, `WORKER_HEALTH_PORT=4001` e `WORKER_SHUTDOWN_TIMEOUT_MS=20000`.
+
+Desde o G3 (Trilha F) a escolha de provider é obrigatória em produção e **não há mais default**:
+sem `PAYMENT_PROVIDER`, `SIGNATURE_PROVIDER`, `SCREENING_PROVIDER`, `META_MODE` ou `AI_PROVIDER`, a
+API e o worker não sobem e imprimem a lista do que falta (o mesmo vale para `NODE_ENV`,
+`DATABASE_URL`, `APP_BASE_URL` https, `COOKIE_SECURE` diferente de `false`, os quatro segredos de
+webhook e `META_TOKEN_ENCRYPTION_KEY`). Como a homologação usa FAKE, mock e dry-run de propósito,
+`ALLOW_FAKE_PROVIDERS=true` é a permissão explícita para isso — sem ela, os dois processos recusam
+a subida dizendo quais providers são FAKE. Com ela, cada um registra um aviso no boot.
+
+Opcionais, não definidas hoje:
+
+| Variável                      | Para quê                                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log) |
+| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https       |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria              |
 
 `STORAGE_FORCE_PATH_STYLE=true` é obrigatório com MinIO atrás de domínio próprio: sem ele o SDK assina
 a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não atende.
@@ -121,9 +136,11 @@ a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não a
 | Aprovação do cadastro sem aviso: a imobiliária só descobre a aprovação, a recusa ou a suspensão ao entrar (envio real de e-mail ou WhatsApp está fora desta fase)                           | ADR-060 (Fase 7)                             |
 | Suspensão fecha painel, portal e site público, mas não despublica anúncios já enviados a canais externos nem para jobs do worker (webhooks de pagamento seguem sendo processados)           | ADR-060                                      |
 | Pagamento FAKE não pode ser simulado: a rota `/dev/fake-payments` só existe fora de produção, então cobranças ficam `PENDING`                                                               | `apps/api/src/app.ts` (proteção intencional) |
-| Sem Redis: rate limit em memória por processo; preencher `REDIS_URL` derruba a API                                                                                                          | P1-14 (Fase 6)                               |
+| Sem Redis: rate limit em memória por processo (uma instância hoje). Preencher `REDIS_URL` já é seguro — a API não cai mais no boot                                                          | P1-14 fechado no G3 (Trilha F)               |
+| Sem coletor OTLP: nenhum span é exportado (a instrumentação existe e liga com `OTEL_EXPORTER_OTLP_ENDPOINT`); a investigação hoje é por log estruturado                                     | Trilha F (G3)                                |
+| Captura de erro sem serviço externo: erro 5xx, falha de job e exceção sem tratamento ficam no log (`event=error.captured`) e no span; não há alerta automático                              | ADR G3F-7                                    |
 | Todos os clientes dividem o mesmo limite de requisições: `trustProxy: 'loopback'` e o web chama a API pelo proxy, então a API vê um único IP (10/min nas rotas de login)                    | Fase 6                                       |
-| O web chama a API pelo domínio público, não pela rede interna: `API_BASE_URL` sem https é recusada                                                                                          | P1-15 (Fase 6)                               |
+| O web chama a API pelo domínio público, não pela rede interna. A troca é possível desde o G3 (`API_BASE_URL=http://api:4000` com `API_BASE_URL_ALLOW_HTTP=true`), mas exige smoke no deploy | P1-15 (opção liberada na Trilha F)           |
 | Web sem `Strict-Transport-Security`; CSP com `'unsafe-inline'` e `'unsafe-eval'`                                                                                                            | Fase 6                                       |
 
 ## Admin da plataforma
@@ -157,6 +174,10 @@ no plano ILIMITADO.
 - **Deploy**: painel do Coolify → `aluguei-app` → Deploy, ou `POST /api/v1/deploy?uuid=<app>` com um
   token de API que tenha permissão de deploy. Tokens usados em sessões assistidas devem ser
   revogados depois.
+- **Saúde do worker**: healthcheck do próprio container em `http://127.0.0.1:4001/health` (200 com
+  o loop de jobs saudável; 503 com o motivo — parando, ciclo preso há mais de 5 min, três falhas
+  seguidas ou nenhum ciclo bem-sucedido há mais de 60 s). Sem domínio público. No deploy, o worker
+  recebe SIGTERM, para de pegar jobs e espera os em andamento até 20 s (`stop_grace_period` de 30 s).
 - **Status**: `GET /api/v1/deployments/applications/<app>` e `GET /api/v1/deployments/<deployment>`.
   Logs de build e de containers exigem a permissão `read:sensitive` no token, ou o painel.
 - **Rollback**: redeploy de um commit anterior (o schema é forward-only; migrations destrutivas

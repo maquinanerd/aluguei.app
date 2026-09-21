@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/observability exec vitest run src/redaction.test.ts
+# árvore: commit c530d96 + redação por caminho e por padrão de valor (packages/observability/src/pii.ts, logger.ts), antes do commit
+# data (UTC): 2026-09-17T16:47:29Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  13:47:30
+   Duration  483ms (transform 150ms, setup 0ms, import 211ms, tests 16ms, environment 0ms)
+
+# exit=0

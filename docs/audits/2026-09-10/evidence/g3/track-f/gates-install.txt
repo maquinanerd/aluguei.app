@@ -1,0 +1,17 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:05:42Z
+
+Scope: all 17 workspace projects
+Already up to date
+Done in 656ms using pnpm v11.15.1
+
+   ╭──────────────────────────────────────────────╮
+   │                                              │
+   │     Update available! 11.15.1 → 12.5.1.      │
+   │     Changelog: https://pnpm.io/v/12.5.1      │
+   │   To update, run: corepack use pnpm@12.5.1   │
+   │                                              │
+   ╰──────────────────────────────────────────────╯
+
+# exit=0

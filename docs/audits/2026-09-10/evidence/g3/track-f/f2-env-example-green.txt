@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/config exec vitest run src/env-example.test.ts
+# árvore: commit 287c42c + .env.example completo e variáveis do web no schema, antes do commit
+# data (UTC): 2026-09-17T16:42:06Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/config
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  13:42:08
+   Duration  560ms (transform 81ms, setup 0ms, import 232ms, tests 17ms, environment 0ms)
+
+# exit=0

@@ -1,0 +1,14 @@
+# comando: pnpm --filter @aluguei/worker exec vitest run src/job-logging.test.ts src/lifecycle.test.ts src/job-loop.test.ts src/health.test.ts
+# árvore: commit 951d96f + log por job, loop com stop, health HTTP e shutdown gracioso (apps/worker/src), antes do commit
+# data (UTC): 2026-09-17T16:56:58Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker
+
+
+ Test Files  4 passed (4)
+      Tests  23 passed (23)
+   Start at  13:56:59
+   Duration  22.72s (transform 1.17s, setup 0ms, import 5.54s, tests 16.00s, environment 1ms)
+
+# exit=0

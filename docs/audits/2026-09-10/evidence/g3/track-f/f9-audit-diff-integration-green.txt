@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/audit-diff.test.ts
+# árvore: commit a63b480 + auditDiff nas rotas de atualização, antes do commit
+# data (UTC): 2026-09-17T18:36:05Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+(node:10016) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:36:06
+   Duration  9.66s (transform 3.51s, setup 0ms, import 5.68s, tests 3.71s, environment 0ms)
+
+# exit=0

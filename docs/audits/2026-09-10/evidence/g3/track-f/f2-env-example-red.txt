@@ -1,0 +1,67 @@
+# comando: pnpm --filter @aluguei/config exec vitest run src/env-example.test.ts
+# árvore: commit 287c42c (teste do F-2; .env.example e schema como em main + ALLOW_FAKE_PROVIDERS do F-1)
+# data (UTC): 2026-09-17T16:41:12Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/config
+
+ ❯ src/env-example.test.ts (4 tests | 1 failed) 18ms
+     × toda chave do schema está no exemplo e toda chave do exemplo está no schema 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/env-example.test.ts > .env.example × envSchema > toda chave do schema está no exemplo e toda chave do exemplo está no schema
+AssertionError: expected { …(2) } to deeply equal { noSchemaForaDoExemplo: [], …(1) }
+
+- Expected
++ Received
+
+  {
+-   "noExemploForaDoSchema": [],
+-   "noSchemaForaDoExemplo": [],
++   "noExemploForaDoSchema": [
++     "API_BASE_URL",
++     "SENTRY_DSN",
++   ],
++   "noSchemaForaDoExemplo": [
++     "ALLOW_FAKE_PROVIDERS",
++     "API_HOST",
++     "API_PORT",
++     "COOKIE_SECURE",
++     "CORS_ORIGINS",
++     "LOG_LEVEL",
++     "MCP_ALLOWED_ORG_ID",
++     "META_ACCESS_TOKEN",
++     "META_AD_ACCOUNT_ID",
++     "META_TOKEN_ENCRYPTION_KEY",
++     "PAYMENT_PROVIDER",
++     "PLATFORM_ADMIN_EMAILS",
++     "SCREENING_APPROVE_SCORE_MIN",
++     "SCREENING_PROVIDER",
++     "SESSION_TTL_SECONDS",
++     "SIGNATURE_PROVIDER",
++     "SIGNATURE_WEBHOOK_TOKEN",
++     "STORAGE_FORCE_PATH_STYLE",
++   ],
+  }
+
+ ❯ src/env-example.test.ts:41:8
+     39|       noSchemaForaDoExemplo: schemaKeys.filter((key) => !exampleKeys.i…
+     40|       noExemploForaDoSchema: exampleKeys.filter((key) => !schemaKeys.i…
+     41|     }).toEqual({ noSchemaForaDoExemplo: [], noExemploForaDoSchema: [] …
+       |        ^
+     42|   });
+     43|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  13:41:13
+   Duration  454ms (transform 59ms, setup 0ms, import 186ms, tests 18ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\config:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/env-example.test.ts
+# exit=1

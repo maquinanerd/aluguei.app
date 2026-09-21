@@ -1,0 +1,33 @@
+# comando: pnpm --filter @aluguei/observability exec vitest run src/errors.test.ts
+# árvore: commit 20f2715 (testes do F-7; sem captureError, 5xx só como unhandled error e falha de job sem pilha)
+# data (UTC): 2026-09-17T18:17:34Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability
+
+ ❯ src/errors.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/errors.test.ts [ src/errors.test.ts ]
+Error: Cannot find module './errors.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability/src/errors.test.ts
+ ❯ src/errors.test.ts:4:1
+      2| import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } f…
+      3| import { SpanStatusCode } from '@opentelemetry/api';
+      4| import { captureError, errorDetails, installProcessErrorHandlers } fro…
+       | ^
+      5| import { InMemorySpanExporter, startTelemetry, withSpan } from './tele…
+      6| import type { Telemetry } from './telemetry.js';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:17:42
+   Duration  2.61s (transform 399ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\observability:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/errors.test.ts
+# exit=1

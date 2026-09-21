@@ -1,0 +1,7 @@
+# comando: pnpm security:scan
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:17:46Z
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.
+# exit=0

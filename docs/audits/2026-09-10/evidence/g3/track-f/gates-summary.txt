@@ -1,0 +1,15 @@
+# comando: node gates.mjs (os 9 gates em ordem, cada um com o próprio arquivo) + git status --porcelain -- packages/db
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:18:00Z
+
+install: exit=0 (1 s) -> gates-install.txt
+format: exit=0 (20 s) -> gates-format.txt
+lint: exit=0 (137 s) -> gates-lint.txt
+typecheck: exit=0 (77 s) -> gates-typecheck.txt
+test: exit=0 (412 s) -> gates-test.txt
+build: exit=0 (77 s) -> gates-build.txt
+secscan: exit=0 (3 s) -> gates-secscan.txt
+audit-critical: exit=0 (5 s) -> gates-audit-critical.txt
+dbgen: exit=0 (6 s) -> gates-dbgen.txt
+db-drift=NO
+# exit=0
