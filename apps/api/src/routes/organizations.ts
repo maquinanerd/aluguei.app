@@ -50,6 +50,16 @@ import { first, setAuthCookie, toMembershipDto } from './helpers.js';
 /** Convite inexistente, vencido, revogado ou já aceito: sempre a mesma resposta. */
 const INVITE_INVALID_MESSAGE = 'Convite inválido ou expirado';
 
+/** Função em português na mensagem do convite (a mesma do painel). */
+const ROLE_NAMES: Record<Role, string> = {
+  owner: 'Proprietário da conta',
+  admin: 'Administrador',
+  agent: 'Corretor',
+  inspector: 'Vistoriador',
+  finance: 'Financeiro',
+  viewer: 'Leitura',
+};
+
 type MemberInviteRow = typeof memberInvites.$inferSelect;
 
 /**
@@ -277,7 +287,7 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
         body: [
           input.name ? `Olá, ${input.name}.` : 'Olá.',
           '',
-          `Você foi convidado para a equipe de ${org.name} como ${input.role}.`,
+          `Você foi convidado para a equipe de ${org.name} como ${ROLE_NAMES[input.role]}.`,
           `O convite vale por ${String(MEMBER_INVITE_TTL_HOURS)} horas e só pode ser usado uma vez.`,
           '',
           link,
