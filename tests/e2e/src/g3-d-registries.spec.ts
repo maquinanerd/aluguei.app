@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
 import { api, DAY_MS, registerViaApi, uniq, useSession, watchPage, WEB } from './g2-b1-support';
-import type { Account } from './g2-b1-support';
 import { pickComboboxOption } from './g2-b2-support';
 import { brDate } from './g3-c-support';
 import { addMember, outboxToken, spDatePlus } from './g3-d-support';
@@ -17,11 +15,6 @@ test.use({ timezoneId: 'America/Sao_Paulo', locale: 'pt-BR' });
 
 const FIRST_LOAD = { timeout: 240_000 };
 
-async function open(page: Page, account: Account, path: string): Promise<void> {
-  await useSession(page, account.cookie);
-  await page.goto(path, FIRST_LOAD);
-}
-
 test.describe('G3 trilha D — cadastros pela interface', () => {
   test('pessoa: CPF inválido recusado na tela, detalhe, edição, documentos e arquivamento', async ({
     page,
@@ -30,7 +23,8 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
     const owner = await registerViaApi('d-pessoa');
     const watch = watchPage(page);
     watch.route = 'contatos';
-    await open(page, owner, '/app/crm/contacts');
+    await useSession(page, owner.cookie);
+    await page.goto('/app/crm/contacts', FIRST_LOAD);
 
     await page.getByRole('button', { name: 'Novo contato' }).first().click();
     const create = page.getByRole('dialog', { name: 'Novo contato' });
@@ -108,7 +102,8 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
     expect(created.status).toBe(201);
     const watch = watchPage(page);
     watch.route = 'visitas';
-    await open(page, owner, '/app/visits');
+    await useSession(page, owner.cookie);
+    await page.goto('/app/visits', FIRST_LOAD);
 
     await page.getByRole('row').filter({ hasText: 'Agendada' }).first().click();
     const drawer = page.getByRole('dialog', { name: 'Detalhe da visita' });
@@ -162,7 +157,8 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
     expect(property.status).toBe(201);
     const watch = watchPage(page);
     watch.route = 'propostas';
-    await open(page, owner, '/app/proposals');
+    await useSession(page, owner.cookie);
+    await page.goto('/app/proposals', FIRST_LOAD);
 
     const validUntil = spDatePlus(10);
     await page.getByRole('button', { name: 'Nova proposta' }).first().click();
@@ -237,7 +233,8 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
     expect(lead.status).toBe(201);
     const watch = watchPage(page);
     watch.route = 'lead';
-    await open(page, owner, `/app/crm/leads/${lead.body.lead.id}`);
+    await useSession(page, owner.cookie);
+    await page.goto(`/app/crm/leads/${lead.body.lead.id}`, FIRST_LOAD);
     await expect(page.getByText('Procura 2 quartos')).toBeVisible({ timeout: 60_000 });
 
     await page.getByRole('button', { name: 'Editar lead' }).click();
@@ -274,7 +271,8 @@ test.describe('G3 trilha D — identidade pela interface', () => {
     const owner = await registerViaApi('d-equipe');
     const watch = watchPage(page);
     watch.route = 'equipe';
-    await open(page, owner, '/app/admin/members');
+    await useSession(page, owner.cookie);
+    await page.goto('/app/admin/members', FIRST_LOAD);
     const email = `convidado-${uniq()}@teste.com`;
 
     await page.getByRole('button', { name: 'Convidar membro' }).first().click();
@@ -334,7 +332,8 @@ test.describe('G3 trilha D — identidade pela interface', () => {
     expect(other.status).toBe(200);
     const watch = watchPage(page);
     watch.route = 'configurações';
-    await open(page, account, '/app/settings');
+    await useSession(page, account.cookie);
+    await page.goto('/app/settings', FIRST_LOAD);
 
     const card = page.locator('section.peg-card', {
       has: page.getByRole('heading', { name: 'Trocar senha' }),
