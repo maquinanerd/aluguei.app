@@ -10,3 +10,10 @@ toda a verificação sem cache nesta máquina, em portas próprias:
 | `gates-*.txt`       | Saída de cada gate. `gates-test-counts.txt`: 974 testes em 14 pacotes, nenhum ignorado                                                                     |
 | `testpg.txt`        | `pnpm test:pg` num cluster PostgreSQL 17 descartável (porta 54333): 19/19 em 7 arquivos, incluindo o runner de migrations e o ciclo da locação da trilha C |
 | `e2e-full.txt`      | Playwright completo (web 3340, API 4340, PostgreSQL 5573): 32/32, incluindo os 4 specs da trilha C sobre a entrada nova do worker e o fail-fast            |
+
+## Com a trilha E1 (`com-e1/`)
+
+Depois do merge do PR #12 (trilha E1) no `main`, o orquestrador trouxe o `main` de novo para a branch
+(merge `227f96e`, sem conflito textual) e refez tudo sem cache: 9 gates com exit 0 e
+`db-drift=NO`; 988 testes em 14 pacotes, nenhum ignorado (`com-e1/gates-test-counts.txt`);
+`test:pg` 19/19 em 7 arquivos; Playwright completo 35/35, com os 3 specs da E1.
