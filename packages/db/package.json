@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./backup": {
+      "types": "./src/backup/index.ts",
+      "default": "./src/backup/index.ts"
     }
   },
   "scripts": {
@@ -15,7 +19,9 @@
     "lint": "eslint src",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:apply": "node scripts/apply-migrations.mjs"
+    "db:apply": "node scripts/apply-migrations.mjs",
+    "db:backup": "node --import tsx src/backup/cli.ts backup",
+    "db:restore": "node --import tsx src/backup/cli.ts restore"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
