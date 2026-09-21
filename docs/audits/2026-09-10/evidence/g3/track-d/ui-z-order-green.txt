@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/ui test
+# árvore: g3/track-d-registries 3f15e3c + tokens drawer 130, modal 140, toast 150
+# data (UTC): 2026-09-21T23:38:26Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/ui
+
+
+ Test Files  6 passed (6)
+      Tests  91 passed (91)
+   Start at  20:38:27
+   Duration  1.37s (transform 972ms, setup 0ms, import 1.50s, tests 168ms, environment 1ms)
+
+
+# exit=0
