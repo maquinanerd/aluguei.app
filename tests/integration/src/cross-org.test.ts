@@ -60,7 +60,7 @@ describe('gate: autorização cross-organization negativa', () => {
       payload: {
         type: 'PERSON',
         name: 'Party B',
-        identities: [{ kind: 'CPF', value: '11122233344' }],
+        identities: [{ kind: 'CPF', value: '15350946056' }],
       },
     });
 
@@ -68,7 +68,7 @@ describe('gate: autorização cross-organization negativa', () => {
       method: 'POST',
       url: '/parties/dedupe',
       headers: { cookie: a.cookie },
-      payload: { identities: [{ kind: 'CPF', value: '11122233344' }] },
+      payload: { identities: [{ kind: 'CPF', value: '15350946056' }] },
     });
     expect(dedupe.statusCode).toBe(200);
     expect((dedupe.json() as { matches: unknown[] }).matches).toHaveLength(0);

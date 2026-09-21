@@ -28,7 +28,7 @@ describe('CRM: parties e deduplicação', () => {
     const payload = {
       type: 'PERSON',
       name: 'João Silva',
-      identities: [{ kind: 'CPF', value: '123.456.789-01' }],
+      identities: [{ kind: 'CPF', value: '529.982.247-25' }],
     };
 
     const first = await app.inject({

@@ -1,0 +1,359 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-d-registries.test.ts
+# árvore: g3/track-d-registries em 57eaede (domínio e migration 0020 da trilha D) + teste de integração da trilha D, sem as rotas
+# data (UTC): 2026-09-21T18:53:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/tests/integration
+
+(node:14620) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-d-registries.test.ts (17 tests | 17 failed) 5453ms
+       × CPF e CNPJ sem dígito verificador válido são recusados (400) 180ms
+       × detalhe traz identidades, endereços, papéis, consentimentos e documentos; outra org → 404 133ms
+       × edição troca nome, identidades, papéis e endereços, com diff na auditoria sem o valor do documento 88ms
+       × arquivar tira a pessoa da lista, e reativar devolve; as duas ficam auditadas 47ms
+       × documento: upload pelo storage, confirmação idempotente, detalhe e exclusão; chave alheia recusada 134ms
+       × confirma, reagenda, cancela com motivo e não volta de status final 49ms
+       × realizada e não comparecimento; visita de outra org → 404; nasce só agendada ou confirmada 87ms
+       × validade é data civil; enviar exige validade futura; só o rascunho é editável 40ms
+       × aceita; recusa exige motivo; status final não volta; outra org → 404 70ms
+       × worker expira a proposta enviada depois do último dia de validade, e só ela 534ms
+       × detalhe com imóveis de interesse; outra org → 404 101ms
+       × edição de dados e responsável, com diff auditado; responsável de fora da org → 404 141ms
+       × troca de senha exige a atual, recusa a mesma e encerra as outras sessões 61ms
+       × recuperação grava na caixa de saída sem enviar, guarda só o hash e o link é de uso único 31ms
+       × link vencido e pedido substituído não servem 36ms
+       × convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único 40ms
+       × convite para conta existente só acrescenta o vínculo; revogado não serve; sem permissão → 403 78ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-01: pessoas > CPF e CNPJ sem dígito verificador válido são recusados (400)
+AssertionError: {"identity":{"kind":"CPF","value":"12345678900"},"body":{"party":{"id":"00207716-49a4-41eb-ae0e-8605bdfff972","orgId":"4acca873-876b-49a1-ad1f-56d9351548aa","type":"PERSON","name":"Documento Inválido","status":"ACTIVE","identities":[{"kind":"CPF","value":"12345678900"}],"addresses":[],"createdAt":"2026-09-21T18:53:52.827Z","updatedAt":"2026-09-21T18:53:52.827Z"},"duplicate":false,"matchedPartyId":null}}: expected 201 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 201
+
+ ❯ src/g3-d-registries.test.ts:100:74
+     98|           payload: { type: 'PERSON', name: 'Documento Inválido', ident…
+     99|         });
+    100|         expect(res.status, JSON.stringify({ identity, body: res.body }…
+       |                                                                          ^
+    101|       }
+    102|       const ok = await call(app, 'POST', '/parties', {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-01: pessoas > detalhe traz identidades, endereços, papéis, consentimentos e documentos; outra org → 404
+AssertionError: {"message":"Route GET:/parties/1f2b872e-131b-4e2e-ab91-467ac67c4626 not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:145:58
+    143|
+    144|       const detail = await call(app, 'GET', `/parties/${partyId}`, { c…
+    145|       expect(detail.status, JSON.stringify(detail.body)).toBe(200);
+       |                                                          ^
+    146|       expect(detail.body.party).toMatchObject({
+    147|         id: partyId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-01: pessoas > edição troca nome, identidades, papéis e endereços, com diff na auditoria sem o valor do documento
+AssertionError: {"message":"Route PATCH:/parties/4d16bafe-afe2-4c05-9466-f743df36b10f not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:188:60
+    186|         },
+    187|       });
+    188|       expect(updated.status, JSON.stringify(updated.body)).toBe(200);
+       |                                                            ^
+    189|       expect(updated.body.party).toMatchObject({ name: 'Nome Novo' });
+    190|       expect(updated.body.roles).toEqual(['GUARANTOR', 'OWNER']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-01: pessoas > arquivar tira a pessoa da lista, e reativar devolve; as duas ficam auditadas
+AssertionError: {"message":"Route PATCH:/parties/9f02c83a-f495-4051-b642-ad04e034167b not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:243:62
+    241|         payload: { status: 'ARCHIVED' },
+    242|       });
+    243|       expect(archived.status, JSON.stringify(archived.body)).toBe(200);
+       |                                                              ^
+    244|       expect(archived.body.party).toMatchObject({ status: 'ARCHIVED' }…
+    245|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-01: pessoas > documento: upload pelo storage, confirmação idempotente, detalhe e exclusão; chave alheia recusada
+AssertionError: {"message":"Route POST:/parties/a84ab204-8310-44f5-a2ef-a109f725fec4/documents/upload-url not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:277:58
+    275|         payload: { kind: 'PROOF_OF_INCOME', mimeType: 'application/pdf…
+    276|       });
+    277|       expect(upload.status, JSON.stringify(upload.body)).toBe(200);
+       |                                                          ^
+    278|       const key = upload.body.key as string;
+    279|       expect(key.startsWith(`orgs/${a.org.id}/parties/${partyId}/`)).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-02: visitas > confirma, reagenda, cancela com motivo e não volta de status final
+AssertionError: {"message":"Route PATCH:/visits/ad79640f-c3fa-4d25-a6c7-d111e35d2733/status not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:354:64
+    352|         payload: { status: 'CONFIRMED' },
+    353|       });
+    354|       expect(confirmed.status, JSON.stringify(confirmed.body)).toBe(20…
+       |                                                                ^
+    355|       expect(confirmed.body.visit).toMatchObject({ status: 'CONFIRMED'…
+    356|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-02: visitas > realizada e não comparecimento; visita de outra org → 404; nasce só agendada ou confirmada
+AssertionError: expected undefined to match object { status: 'DONE' }
+
+- Expected:
+{
+  "status": "DONE",
+}
+
++ Received:
+undefined
+
+ ❯ src/g3-d-registries.test.ts:433:9
+    431|           })
+    432|         ).body.visit,
+    433|       ).toMatchObject({ status: 'DONE' });
+       |         ^
+    434|       expect(
+    435|         (
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-02: propostas > validade é data civil; enviar exige validade futura; só o rascunho é editável
+AssertionError: 2027-02-30: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ src/g3-d-registries.test.ts:477:44
+    475|           payload: { monthlyRentCents: 100_000, validUntil },
+    476|         });
+    477|         expect(refused.status, validUntil).toBe(400);
+       |                                            ^
+    478|       }
+    479|       const id = await proposal(a.cookie);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-02: propostas > aceita; recusa exige motivo; status final não volta; outra org → 404
+AssertionError: {"error":"InternalServerError","code":"INTERNAL","message":"Erro interno"}: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ proposal src/g3-d-registries.test.ts:466:52
+    464|         payload: { monthlyRentCents: 250_000, ...extra },
+    465|       });
+    466|       expect(res.status, JSON.stringify(res.body)).toBe(201);
+       |                                                    ^
+    467|       return (res.body.proposal as { id: string }).id;
+    468|     };
+ ❯ src/g3-d-registries.test.ts:528:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-02: propostas > worker expira a proposta enviada depois do último dia de validade, e só ela
+AssertionError: expected 'SENT' to be 'EXPIRED' // Object.is equality
+
+Expected: "EXPIRED"
+Received: "SENT"
+
+ ❯ src/g3-d-registries.test.ts:606:39
+    604|       }
+    605|
+    606|       expect(await statusOf(expired)).toBe('EXPIRED');
+       |                                       ^
+    607|       expect(await statusOf(lastDay)).toBe('SENT');
+    608|       expect(await statusOf(accepted)).toBe('ACCEPTED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-03: lead > detalhe com imóveis de interesse; outra org → 404
+AssertionError: {"message":"Route GET:/leads/0d83e9a1-483c-4318-8b86-a038017cd18c not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:635:58
+    633|
+    634|       const detail = await call(app, 'GET', `/leads/${leadId}`, { cook…
+    635|       expect(detail.status, JSON.stringify(detail.body)).toBe(200);
+       |                                                          ^
+    636|       expect(detail.body.lead).toMatchObject({ id: leadId, source: 'si…
+    637|       expect(detail.body.interestedPropertyIds).toEqual([propertyId]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-03: lead > edição de dados e responsável, com diff auditado; responsável de fora da org → 404
+AssertionError: {"message":"Route PATCH:/leads/72edb1e1-a09c-4af3-87c2-8c07db5572ed not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:668:60
+    666|         },
+    667|       });
+    668|       expect(updated.status, JSON.stringify(updated.body)).toBe(200);
+       |                                                            ^
+    669|       expect(updated.body.lead).toMatchObject({
+    670|         ownerUserId: colleague.user.id,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > troca de senha exige a atual, recusa a mesma e encerra as outras sessões
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ src/g3-d-registries.test.ts:723:28
+    721|         payload: { currentPassword: 'errada-123', newPassword: 'senha-…
+    722|       });
+    723|       expect(wrong.status).toBe(401);
+       |                            ^
+    724|       const same = await call(app, 'POST', '/auth/change-password', {
+    725|         cookie: a.cookie,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > recuperação grava na caixa de saída sem enviar, guarda só o hash e o link é de uso único
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-d-registries.test.ts:755:34
+    753|         payload: { email: 'ninguem-cadastrado@example.com' },
+    754|       });
+    755|       expect(unknown.statusCode).toBe(200);
+       |                                  ^
+    756|       const known = await app.inject({
+    757|         method: 'POST',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > link vencido e pedido substituído não servem
+Error: mensagem sem token: 
+ ❯ tokenFrom src/g3-d-registries.test.ts:82:13
+     80|     const match = /token=([A-Za-z0-9_-]+)/.exec(body);
+     81|     if (!match?.[1]) {
+     82|       throw new Error(`mensagem sem token: ${body}`);
+       |             ^
+     83|     }
+     84|     return match[1];
+ ❯ lastToken src/g3-d-registries.test.ts:834:16
+ ❯ src/g3-d-registries.test.ts:837:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único
+AssertionError: {"message":"Route POST:/organizations/5fb54448-4fe4-4d0b-9872-da2bcd4f9053/invites not found","error":"Not Found","statusCode":404}: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ src/g3-d-registries.test.ts:865:60
+    863|         payload: { email: email.toUpperCase(), role: 'agent', name: 'P…
+    864|       });
+    865|       expect(invited.status, JSON.stringify(invited.body)).toBe(201);
+       |                                                            ^
+    866|       expect(invited.body.invite).toMatchObject({ email, role: 'agent'…
+    867|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/17]⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > convite para conta existente só acrescenta o vínculo; revogado não serve; sem permissão → 403
+AssertionError: {"message":"Route POST:/organizations/f1e98007-97a5-407e-aff0-2bfe84157cb0/invites not found","error":"Not Found","statusCode":404}: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ src/g3-d-registries.test.ts:952:60
+    950|         payload: { email: existing.user.email, role: 'viewer' },
+    951|       });
+    952|       expect(invited.status, JSON.stringify(invited.body)).toBe(201);
+       |                                                            ^
+    953|       const [message] = await rows<{ body: string }>(sql`
+    954|         select body from email_outbox where org_id = ${a.org.id} and t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/17]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  17 failed (17)
+   Start at  15:53:43
+   Duration  10.81s (transform 2.12s, setup 0ms, import 5.00s, tests 5.45s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-d-registries.test.ts
+
+# exit=1
