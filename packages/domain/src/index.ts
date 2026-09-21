@@ -140,8 +140,47 @@ export {
 export type { ContractTemplateVariable, ContractVariableSource } from './contract/variables.js';
 
 export { add, sub, negate, mulBpsFloor, splitAmount } from './finance/money.js';
-export { calculateChargeBreakdown } from './finance/chargeCalc.js';
-export type { ChargeBreakdown, ChargeCalcInput } from './finance/chargeCalc.js';
+export {
+  assertLateChargeTerms,
+  calculateChargeBreakdown,
+  chargeDueDate,
+  DEFAULT_INTEREST_MONTHLY_BPS,
+  DEFAULT_LATE_FEE_BPS,
+  isChargeOverdue,
+  MAX_INTEREST_MONTHLY_BPS,
+  MAX_LATE_FEE_BPS,
+} from './finance/chargeCalc.js';
+export type { ChargeBreakdown, ChargeCalcInput, LateChargeTerms } from './finance/chargeCalc.js';
+export {
+  addDays,
+  daysBetween,
+  easterSunday,
+  isBankHoliday,
+  isBusinessDay,
+  monthStartOf,
+  nextBusinessDay,
+  nextMonthStart,
+  saoPauloDate,
+} from './finance/calendar.js';
+export {
+  assertOwnershipTotal,
+  assertReadjustmentWithinLease,
+  assertRenewal,
+  assertRentChangeAfterHistory,
+  BILLABLE_LEASE_STATUSES,
+  landlordSharesFromOwners,
+  planLeaseEnd,
+  readjustedRent,
+  rentForPeriod,
+  shouldBillPeriod,
+  shouldFinalizeLeaseEnd,
+} from './finance/leaseLifecycle.js';
+export type {
+  LandlordShare,
+  LeasePeriodInfo,
+  OwnerShareInput,
+  RentChange,
+} from './finance/leaseLifecycle.js';
 export { splitPayment, splitAmong } from './finance/split.js';
 export type { SplitAllocation, SplitInput } from './finance/split.js';
 export {

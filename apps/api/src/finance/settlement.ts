@@ -1,10 +1,19 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import type { AppDb, DbExecutor } from '@aluguei/db';
-import { charges, leases, payments, payouts, splitAllocations, splitRules } from '@aluguei/db';
+import {
+  charges,
+  leaseLandlords,
+  leases,
+  payments,
+  payouts,
+  splitAllocations,
+  splitRules,
+} from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   isChargeStatus,
   isPaymentStatus,
+  splitAmong,
   splitPayment,
   transitionCharge,
   transitionLease,
@@ -160,6 +169,26 @@ async function lockChargeAndPayment(
   return charge && payment ? { charge, payment } : null;
 }
 
+/**
+ * Participações do repasse da locação (auditoria 2026-09-10, P1-08), em ordem determinística. Sem
+ * registro — locação sem proprietário —, quem estiver na regra de split recebe tudo.
+ */
+export async function landlordSharesFor(
+  db: DbExecutor,
+  leaseId: string,
+  fallbackPartyId: string | null,
+): Promise<Array<{ partyId: string; shareBps: number }>> {
+  const rows = await db
+    .select({ partyId: leaseLandlords.partyId, shareBps: leaseLandlords.shareBps })
+    .from(leaseLandlords)
+    .where(eq(leaseLandlords.leaseId, leaseId))
+    .orderBy(desc(leaseLandlords.shareBps), asc(leaseLandlords.partyId));
+  if (rows.length > 0) {
+    return rows;
+  }
+  return fallbackPartyId ? [{ partyId: fallbackPartyId, shareBps: 10_000 }] : [];
+}
+
 async function settleCharge(tx: DbExecutor, charge: ChargeRow, payment: PaymentRow): Promise<void> {
   const { agencyShareBps, landlordPartyId } = await splitRuleFor(tx, charge.leaseId);
   const received = payment.amountCents;
@@ -203,35 +232,61 @@ async function settleCharge(tx: DbExecutor, charge: ChargeRow, payment: PaymentR
     amountCents: received,
     agencyShareBps,
   });
-  await tx.insert(splitAllocations).values(
-    allocations.map((allocation) => ({
-      orgId: charge.orgId,
-      paymentId: payment.id,
-      partyId: allocation.role === 'LANDLORD' ? landlordPartyId : null,
-      role: allocation.role,
-      amountCents: allocation.amountCents,
-      status: 'PENDING',
-    })),
-  );
-
   const landlordShare =
     allocations.find((allocation) => allocation.role === 'LANDLORD')?.amountCents ?? 0;
-  if (landlordShare > 0 && landlordPartyId) {
+  // Repasse entre coproprietários pela participação de cada um, sem perder centavo (P1-08).
+  const shares = await landlordSharesFor(tx, charge.leaseId, landlordPartyId);
+  const parts =
+    shares.length > 0
+      ? splitAmong(
+          landlordShare,
+          shares.map((share) => share.shareBps),
+        )
+      : [];
+  const allocationRows: Array<typeof splitAllocations.$inferInsert> = allocations.flatMap(
+    (allocation): Array<typeof splitAllocations.$inferInsert> =>
+      allocation.role === 'LANDLORD' && shares.length > 0
+        ? shares.map((share, index) => ({
+            orgId: charge.orgId,
+            paymentId: payment.id,
+            partyId: share.partyId,
+            role: allocation.role,
+            amountCents: parts[index] ?? 0,
+            status: 'PENDING',
+          }))
+        : [
+            {
+              orgId: charge.orgId,
+              paymentId: payment.id,
+              partyId: null,
+              role: allocation.role,
+              amountCents: allocation.amountCents,
+              status: 'PENDING',
+            },
+          ],
+  );
+  await tx.insert(splitAllocations).values(allocationRows);
+
+  for (const [index, share] of shares.entries()) {
+    const amountCents = parts[index] ?? 0;
+    if (amountCents <= 0) {
+      continue;
+    }
     await tx.insert(payouts).values({
       orgId: charge.orgId,
       paymentId: payment.id,
-      partyId: landlordPartyId,
-      amountCents: landlordShare,
+      partyId: share.partyId,
+      amountCents,
       status: 'PENDING',
     });
     await postLedgerTransaction(tx, {
       orgId: charge.orgId,
-      businessKey: `PAYOUT:${payment.id}:${landlordPartyId}`,
+      businessKey: `PAYOUT:${payment.id}:${share.partyId}`,
       referenceType: 'PAYOUT',
       referenceId: payment.id,
       legs: [
-        { code: 'LANDLORD_PAYABLE', amountCents: landlordShare },
-        { code: 'CASH', amountCents: -landlordShare },
+        { code: 'LANDLORD_PAYABLE', amountCents },
+        { code: 'CASH', amountCents: -amountCents },
       ],
     });
   }

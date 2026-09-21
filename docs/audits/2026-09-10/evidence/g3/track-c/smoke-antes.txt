@@ -1,0 +1,24 @@
+# smoke da homologação — antes do deploy da trilha C (main em f6a2890 na homologação)
+# data (UTC): 2026-09-17T17:55:36Z
+# sem conta, sem login, sem escrita: só respostas públicas e de acesso negado
+
+## já existentes (regressão)
+OK   API /health/ready → 200
+OK   API /auth/me sem sessão → 401
+OK   API /platform/organizations sem sessão → 401
+OK   API site público de imobiliária inexistente → 404
+OK   API GET /channels sem sessão → 401
+OK   API consumo de token do portal inválido → 401
+OK   WEB /login → 200
+OK   WEB /plataforma sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login
+OK   WEB /portal/entrar → 200
+
+## trilha C (rotas novas da locação, sem sessão)
+FAIL API PATCH /leases/:id/terms → esperado 401, veio 404
+FAIL API POST /leases/:id/renew → esperado 401, veio 404
+FAIL API POST /leases/:id/readjust → esperado 401, veio 404
+FAIL API POST /leases/:id/end → esperado 401, veio 404
+OK   WEB → BFF → API GET /leases/:id sem sessão → 401
+OK   WEB /app/leases sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login
+
+resultado: 11 ok, 4 falhas

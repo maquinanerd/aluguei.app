@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import {
   check,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -26,6 +27,7 @@ export const leases = pgTable(
       .notNull()
       .references(() => contracts.id, { onDelete: 'cascade' }),
     tenantPartyId: uuid('tenant_party_id').references(() => parties.id, { onDelete: 'set null' }),
+    // Proprietário principal (maior participação); o repasse usa `lease_landlords`.
     landlordPartyId: uuid('landlord_party_id').references(() => parties.id, {
       onDelete: 'set null',
     }),
@@ -35,8 +37,14 @@ export const leases = pgTable(
     status: text('status').notNull().default('PENDING'), // PENDING | ACTIVE | DELINQUENT | TERMINATING | ENDED
     startDate: date('start_date', { mode: 'string' }).notNull(),
     endDate: date('end_date', { mode: 'string' }),
+    // Aluguel em vigor hoje; o de cada período sai do histórico em `lease_amendments`.
     monthlyRentCents: integer('monthly_rent_cents').notNull(),
     condoFeeCents: integer('condo_fee_cents'),
+    // Encargos por atraso e vencimento (auditoria 2026-09-10, P1-07).
+    lateFeeBps: integer('late_fee_bps').notNull().default(200),
+    interestMonthlyBps: integer('interest_monthly_bps').notNull().default(100),
+    dueDay: integer('due_day').notNull().default(10),
+    endReason: text('end_reason'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -44,6 +52,80 @@ export const leases = pgTable(
     uniqueIndex('leases_contract_unique').on(t.contractId),
     index('leases_org_status_idx').on(t.orgId, t.status),
     index('leases_org_created_idx').on(t.orgId, t.createdAt),
+    unique('leases_org_id_unique').on(t.orgId, t.id),
+    check('leases_late_fee_bps_range', sql`${t.lateFeeBps} between 0 and 1000`),
+    check('leases_interest_monthly_bps_range', sql`${t.interestMonthlyBps} between 0 and 100`),
+    check('leases_due_day_range', sql`${t.dueDay} between 1 and 28`),
+  ],
+);
+
+/** Participação de cada proprietário no repasse da locação (auditoria 2026-09-10, P1-08). */
+export const leaseLandlords = pgTable(
+  'lease_landlords',
+  {
+    id: uuid('id').primaryKey().$defaultFn(randomUUID),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    leaseId: uuid('lease_id').notNull(),
+    partyId: uuid('party_id').notNull(),
+    shareBps: integer('share_bps').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('lease_landlords_lease_party_unique').on(t.leaseId, t.partyId),
+    index('lease_landlords_org_party_idx').on(t.orgId, t.partyId),
+    check('lease_landlords_share_bps_range', sql`${t.shareBps} > 0 and ${t.shareBps} <= 10000`),
+    foreignKey({
+      name: 'lease_landlords_lease_org_fk',
+      columns: [t.orgId, t.leaseId],
+      foreignColumns: [leases.orgId, leases.id],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'lease_landlords_party_org_fk',
+      columns: [t.orgId, t.partyId],
+      foreignColumns: [parties.orgId, parties.id],
+    }).onDelete('restrict'),
+  ],
+);
+
+/** Renovação, reajuste e encerramento da locação (auditoria 2026-09-10, P1-20). */
+export const leaseAmendments = pgTable(
+  'lease_amendments',
+  {
+    id: uuid('id').primaryKey().$defaultFn(randomUUID),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    leaseId: uuid('lease_id').notNull(),
+    kind: text('kind').notNull(), // RENEWAL | READJUSTMENT | TERMINATION
+    // Primeiro dia do mês em que o novo aluguel vale (null quando o aluguel não muda).
+    effectiveFrom: date('effective_from', { mode: 'string' }),
+    previousEndDate: date('previous_end_date', { mode: 'string' }),
+    newEndDate: date('new_end_date', { mode: 'string' }),
+    previousRentCents: integer('previous_rent_cents'),
+    newRentCents: integer('new_rent_cents'),
+    indexName: text('index_name'),
+    adjustmentBps: integer('adjustment_bps'),
+    reason: text('reason'),
+    createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('lease_amendments_lease_created_idx').on(t.leaseId, t.createdAt),
+    check(
+      'lease_amendments_kind_valid',
+      sql`${t.kind} in ('RENEWAL', 'READJUSTMENT', 'TERMINATION')`,
+    ),
+    check(
+      'lease_amendments_rent_change_complete',
+      sql`(${t.newRentCents} is null) = (${t.previousRentCents} is null) and (${t.newRentCents} is null or (${t.effectiveFrom} is not null and ${t.newRentCents} >= 0))`,
+    ),
+    foreignKey({
+      name: 'lease_amendments_lease_org_fk',
+      columns: [t.orgId, t.leaseId],
+      foreignColumns: [leases.orgId, leases.id],
+    }).onDelete('cascade'),
   ],
 );
 

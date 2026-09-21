@@ -1,0 +1,310 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-leases.test.ts src/g3-c-scheduler.test.ts
+# árvore: main 3aa922b + domínio e migration 0019 da trilha C (não commitados), sem rotas novas, sem mudança no scheduler, na liquidação e no portal
+# data (UTC): 2026-09-17T15:58:16Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:30100) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-c-leases.test.ts (10 tests | 10 failed) 12353ms
+       × locação nova tem os padrões; a edição respeita os limites e fica auditada 956ms
+       × cobrança nova vence no dia configurado na locação 608ms
+       × pagamento de cobrança vencida usa as taxas da locação e a data de São Paulo 570ms
+       × as participações cadastradas no imóvel não passam de 100% 167ms
+       × locação de imóvel com participação faltando é recusada 768ms
+       × liquidação divide o repasse 60/40 sem perder centavo; cada coproprietário vê só a sua parte 676ms
+       × reajuste por índice vale a partir do mês informado; cobranças anteriores mantêm o aluguel 512ms
+       × renovação estende o término e traz o aluguel novo a partir do mês seguinte 391ms
+       × encerramento com data futura: em encerramento, e cobranças agendadas depois do fim são canceladas 586ms
+       × encerramento com data passada leva a locação a ENDED 532ms
+(node:29848) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-c-scheduler.test.ts (4 tests | 4 failed) 11797ms
+     × cobra só locações ativas, inadimplentes ou em encerramento dentro da vigência 3006ms
+     × o aluguel de cada período segue o reajuste registrado 503ms
+     × varredura diária: abre no período, vence só depois do dia útil seguinte e finaliza o encerramento 606ms
+     × a conciliação diária do worker roda a varredura 405ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-07: encargos por atraso configuráveis na locação > locação nova tem os padrões; a edição respeita os limites e fica auditada
+AssertionError: expected { …(13) } to match object { lateFeeBps: 200, …(2) }
+(13 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "dueDay": 10,
+-   "interestMonthlyBps": 100,
+-   "lateFeeBps": 200,
++   "condoFeeCents": null,
++   "contractId": "2348c250-ded1-407c-995f-47837a56ca67",
++   "createdAt": "2026-09-17T15:58:46.466Z",
++   "endDate": null,
++   "id": "1b93305b-79f3-4ab0-83ff-cb4556a59583",
++   "landlordPartyId": "265dd048-efe5-46f9-b945-af55a2184f05",
++   "monthlyRentCents": 100000,
++   "orgId": "18bc23a3-bb5a-4210-a8f6-162c1336401c",
++   "propertyId": "877356fa-0a78-4e3d-bb17-54abba5e2784",
++   "startDate": "2026-09-17",
++   "status": "ACTIVE",
++   "tenantPartyId": "c1ee3c22-2cce-4563-b4c7-b61231a4c9ca",
++   "updatedAt": "2026-09-17T15:58:46.466Z",
+  }
+
+ ❯ src/g3-c-leases.test.ts:54:44
+     52|     it('locação nova tem os padrões; a edição respeita os limites e fi…
+     53|       const lease = await fx.setupLease({ rentCents: 100_000, landlord…
+     54|       expect((await leaseOf(lease)).lease).toMatchObject({
+       |                                            ^
+     55|         lateFeeBps: 200,
+     56|         interestMonthlyBps: 100,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-07: encargos por atraso configuráveis na locação > cobrança nova vence no dia configurado na locação
+AssertionError: expected { …(16) } to match object { dueDate: '2026-10-05' }
+(15 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "dueDate": "2026-10-05",
++   "dueDate": "2026-10-11",
+  }
+
+ ❯ src/g3-c-leases.test.ts:105:31
+    103|       });
+    104|       expect(res.status, JSON.stringify(res.body)).toBe(201);
+    105|       expect(res.body.charge).toMatchObject({ dueDate: `${period.slice…
+       |                               ^
+    106|     });
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-07: encargos por atraso configuráveis na locação > pagamento de cobrança vencida usa as taxas da locação e a data de São Paulo
+AssertionError: expected 104266 to be 111133 // Object.is equality
+
+- Expected
++ Received
+
+- 111133
++ 104266
+
+ ❯ src/g3-c-leases.test.ts:132:35
+    130|       });
+    131|       expect(expected.lateFeeCents).toBe(10_000);
+    132|       expect(payment.amountCents).toBe(expected.amountCents);
+       |                                   ^
+    133|     });
+    134|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-08: repasse entre coproprietários > as participações cadastradas no imóvel não passam de 100%
+AssertionError: {"property":{"id":"76f6f835-a7e4-4a5d-9aa2-52a1f1d2d93a","orgId":"38c86346-cfb9-45c1-a643-3ff7165dd510","title":"Imóvel 74i5m2ko","propertyType":"APARTMENT","status":"ACTIVE","totalAreaSqm":null,"builtAreaSqm":null,"bedrooms":null,"bathrooms":null,"parkingSpots":null,"furnished":false,"petsAllowed":null,"createdAt":"2026-09-17T15:58:47.753Z","updatedAt":"2026-09-17T15:58:47.753Z","addresses":[],"financialTerms":null,"owners":[{"partyId":"2e7b80a0-f08e-4abe-955d-74677ebcfce4","name":"Dona 11144477735","ownershipSharePct":60},{"partyId":"090461d8-e550-4112-9374-58b4735a6e6a","name":"Dona 39053344705","ownershipSharePct":50}],"features":[],"media":[]}}: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/g3-c-leases.test.ts:165:60
+    163|       expect((await link(first, 60)).status).toBe(201);
+    164|       const tooMuch = await link(second, 50);
+    165|       expect(tooMuch.status, JSON.stringify(tooMuch.body)).toBe(409);
+       |                                                            ^
+    166|       expect(String(tooMuch.body.message)).toContain('110%');
+    167|       expect((await link(second, 40)).status).toBe(201);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-08: repasse entre coproprietários > locação de imóvel com participação faltando é recusada
+AssertionError: {"lease":{"id":"8ea123d8-cda6-4592-bbc8-a07bab164311","orgId":"02fefb3c-462d-42fe-ad88-609ad432f929","contractId":"50e47212-365e-42ca-9f49-27f136b38e91","tenantPartyId":"c95d3435-2ae1-4014-bcbc-87d8ce370015","landlordPartyId":"41c39c7d-235a-4a89-8819-10fd5706983a","propertyId":"db41995d-5b8c-472e-9718-946e1caedcec","status":"ACTIVE","startDate":"2026-09-17","endDate":null,"monthlyRentCents":100000,"condoFeeCents":null,"createdAt":"2026-09-17T15:58:48.626Z","updatedAt":"2026-09-17T15:58:48.626Z"}}: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ src/g3-c-leases.test.ts:183:74
+    181|         },
+    182|       });
+    183|       expect(leaseResponse?.status, JSON.stringify(leaseResponse?.body…
+       |                                                                          ^
+    184|     });
+    185|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-08: repasse entre coproprietários > liquidação divide o repasse 60/40 sem perder centavo; cada coproprietário vê só a sua parte
+AssertionError: expected undefined to deeply equal [ { …(2) }, { …(2) } ]
+
+- Expected:
+[
+  {
+    "partyId": "8a76079e-5522-4a2e-800e-105317854ebb",
+    "shareBps": 6000,
+  },
+  {
+    "partyId": "7e92d589-8d19-4c14-9787-44c4b5418285",
+    "shareBps": 4000,
+  },
+]
+
++ Received:
+undefined
+
+ ❯ src/g3-c-leases.test.ts:196:48
+    194|       });
+    195|       const [majority, minority] = lease.landlordIds;
+    196|       expect((await leaseOf(lease)).landlords).toEqual([
+       |                                                ^
+    197|         { partyId: majority, shareBps: 6_000 },
+    198|         { partyId: minority, shareBps: 4_000 },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > reajuste por índice vale a partir do mês informado; cobranças anteriores mantêm o aluguel
+AssertionError: {"message":"Route POST:/leases/a5acf22e-248a-4854-a866-769bcd7d508a/readjust not found","error":"Not Found","statusCode":404}: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ src/g3-c-leases.test.ts:254:62
+    252|         payload: { effectiveFrom, adjustmentBps: 452, indexName: 'IGPM…
+    253|       });
+    254|       expect(readjust.status, JSON.stringify(readjust.body)).toBe(201);
+       |                                                              ^
+    255|       expect(readjust.body.amendment).toMatchObject({
+    256|         kind: 'READJUSTMENT',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > renovação estende o término e traz o aluguel novo a partir do mês seguinte
+AssertionError: {"message":"Route POST:/leases/691fb2bd-1a57-474b-b338-234a8f463208/renew not found","error":"Not Found","statusCode":404}: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ src/g3-c-leases.test.ts:293:60
+    291|         payload: { endDate: '2029-12-31', monthlyRentCents: 120_000 },
+    292|       });
+    293|       expect(renewal.status, JSON.stringify(renewal.body)).toBe(201);
+       |                                                            ^
+    294|       expect(renewal.body.lease).toMatchObject({ endDate: '2029-12-31'…
+    295|       expect(renewal.body.amendment).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > encerramento com data futura: em encerramento, e cobranças agendadas depois do fim são canceladas
+AssertionError: {"message":"Route POST:/leases/b9996c6d-3798-4dc9-a875-439c7c4f49b6/end not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-c-leases.test.ts:323:56
+    321|         payload: { endDate, reason: 'Acordo entre as partes' },
+    322|       });
+    323|       expect(ended.status, JSON.stringify(ended.body)).toBe(200);
+       |                                                        ^
+    324|       expect(ended.body.lease).toMatchObject({ status: 'TERMINATING', …
+    325|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-20: renovar, reajustar e encerrar > encerramento com data passada leva a locação a ENDED
+AssertionError: {"message":"Route POST:/leases/fe67dec1-f17e-4401-93fc-85c30b650c06/end not found","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-c-leases.test.ts:350:56
+    348|         payload: { endDate: addDays(saoPauloDate(new Date()), -1), rea…
+    349|       });
+    350|       expect(ended.status, JSON.stringify(ended.body)).toBe(200);
+       |                                                        ^
+    351|       expect(ended.body.lease).toMatchObject({ status: 'ENDED', endRea…
+    352|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > cobra só locações ativas, inadimplentes ou em encerramento dentro da vigência
+TypeError: processPaymentSchedulerJob is not a function
+ ❯ schedule src/g3-c-scheduler.test.ts:48:5
+     46|
+     47|   const schedule = (lease: LeaseFixture, periodStart: string) =>
+     48|     processPaymentSchedulerJob(app.db, {
+       |     ^
+     49|       id: randomUUID(),
+     50|       orgId: lease.orgId,
+ ❯ src/g3-c-scheduler.test.ts:80:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > o aluguel de cada período segue o reajuste registrado
+TypeError: processPaymentSchedulerJob is not a function
+ ❯ schedule src/g3-c-scheduler.test.ts:48:5
+     46|
+     47|   const schedule = (lease: LeaseFixture, periodStart: string) =>
+     48|     processPaymentSchedulerJob(app.db, {
+       |     ^
+     49|       id: randomUUID(),
+     50|       orgId: lease.orgId,
+ ❯ src/g3-c-scheduler.test.ts:103:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > varredura diária: abre no período, vence só depois do dia útil seguinte e finaliza o encerramento
+TypeError: advanceBillingLifecycle is not a function
+ ❯ src/g3-c-scheduler.test.ts:126:11
+    124|       )[0];
+    125|
+    126|     await advanceBillingLifecycle(app.db, lease.orgId, '2031-09-30');
+       |           ^
+    127|     expect(await status()).toEqual({ charge: 'SCHEDULED', lease: 'TERM…
+    128|     await advanceBillingLifecycle(app.db, lease.orgId, '2031-10-01');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > a conciliação diária do worker roda a varredura
+TypeError: processReconcileJob is not a function
+ ❯ src/g3-c-scheduler.test.ts:148:11
+    146|       values (${chargeId}, ${lease.orgId}, ${lease.leaseId}, '2020-01-…
+    147|     `);
+    148|     await processReconcileJob(
+       |           ^
+    149|       app.db,
+    150|       { id: randomUUID(), orgId: lease.orgId, payload: { periodStart: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/14]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  14 failed (14)
+   Start at  12:58:20
+   Duration  48.92s (transform 5.43s, setup 0ms, import 23.65s, tests 24.15s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-c-leases.test.ts src/g3-c-scheduler.test.ts
+
+# exit=1

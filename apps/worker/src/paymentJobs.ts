@@ -1,7 +1,21 @@
-import { and, eq, isNotNull, lt } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNotNull, lt, lte } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import { charges, leases, payments, reconciliations } from '@aluguei/db';
-import { AUDIT_ACTIONS, DomainError, isLeaseStatus } from '@aluguei/domain';
+import { charges, leaseAmendments, leases, payments, reconciliations } from '@aluguei/db';
+import {
+  AUDIT_ACTIONS,
+  BILLABLE_LEASE_STATUSES,
+  DomainError,
+  chargeDueDate,
+  isChargeOverdue,
+  monthStartOf,
+  rentForPeriod,
+  saoPauloDate,
+  shouldBillPeriod,
+  shouldFinalizeLeaseEnd,
+  transitionCharge,
+  transitionLease,
+} from '@aluguei/domain';
+import type { RentChange } from '@aluguei/domain';
 import type { IPaymentProvider } from '@aluguei/integrations';
 import { writeAudit } from '@aluguei/api/audit';
 import {
@@ -114,48 +128,165 @@ export async function processPaymentJob(
   await markChargeOverdue(db, job.orgId, payment.chargeId);
 }
 
-/** Gera charges do mês corrente para leases ACTIVE/DELINQUENT (idempotente por UNIQUE lease+period). */
-export async function processPaymentSchedulerJob(db: AppDb, job: PaymentJob): Promise<void> {
-  const periodStart =
-    typeof job.payload['periodStart'] === 'string'
-      ? job.payload['periodStart']
-      : `${new Date().toISOString().slice(0, 8)}01`;
-  const activeLeases = await db
+async function rentChangesByLease(
+  db: AppDb,
+  leaseIds: readonly string[],
+): Promise<Map<string, RentChange[]>> {
+  const byLease = new Map<string, RentChange[]>();
+  if (leaseIds.length === 0) {
+    return byLease;
+  }
+  const rows = await db
     .select()
-    .from(leases)
-    .where(and(eq(leases.orgId, job.orgId), lt(leases.status, 'TERMINATING')));
-  for (const lease of activeLeases) {
-    if (!isLeaseStatus(lease.status)) {
+    .from(leaseAmendments)
+    .where(inArray(leaseAmendments.leaseId, [...leaseIds]))
+    .orderBy(asc(leaseAmendments.createdAt));
+  for (const row of rows) {
+    if (row.effectiveFrom === null || row.previousRentCents === null || row.newRentCents === null) {
       continue;
     }
-    const dueDate = new Date(new Date(`${periodStart}T00:00:00.000Z`).getTime() + 10 * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    const list = byLease.get(row.leaseId) ?? [];
+    list.push({
+      effectiveFrom: row.effectiveFrom,
+      previousRentCents: row.previousRentCents,
+      newRentCents: row.newRentCents,
+    });
+    byLease.set(row.leaseId, list);
+  }
+  return byLease;
+}
+
+/**
+ * Gera as cobranças do período (idempotente por UNIQUE lease+period). Auditoria 2026-09-10, P1-20:
+ * lista explícita de status cobráveis dentro da vigência — antes `lt(status, 'TERMINATING')`
+ * comparava texto e cobrava ENDED e PENDING, e deixava de cobrar TERMINATING. Vencimento no dia da
+ * locação e aluguel do período pelo histórico de reajustes (P1-07).
+ */
+export async function processPaymentSchedulerJob(db: AppDb, job: PaymentJob): Promise<void> {
+  const today = saoPauloDate(new Date());
+  const periodStart =
+    typeof job.payload['periodStart'] === 'string'
+      ? monthStartOf(job.payload['periodStart'])
+      : monthStartOf(today);
+  const candidates = await db
+    .select()
+    .from(leases)
+    .where(and(eq(leases.orgId, job.orgId), inArray(leases.status, [...BILLABLE_LEASE_STATUSES])));
+  const billable = candidates.filter((lease) => shouldBillPeriod(lease, periodStart));
+  const changes = await rentChangesByLease(
+    db,
+    billable.map((lease) => lease.id),
+  );
+  for (const lease of billable) {
+    const rentCents = rentForPeriod(
+      lease.monthlyRentCents,
+      changes.get(lease.id) ?? [],
+      periodStart,
+    );
+    const condoFeeCents = lease.condoFeeCents ?? 0;
     await db
       .insert(charges)
       .values({
         orgId: job.orgId,
         leaseId: lease.id,
         periodStart,
-        dueDate,
+        dueDate: chargeDueDate(periodStart, lease.dueDay),
         status: 'SCHEDULED',
-        amountCents: lease.monthlyRentCents + (lease.condoFeeCents ?? 0),
-        rentCents: lease.monthlyRentCents,
-        condoFeeCents: lease.condoFeeCents ?? 0,
+        amountCents: rentCents + condoFeeCents,
+        rentCents,
+        condoFeeCents,
       })
       .onConflictDoNothing();
   }
-  const today = new Date().toISOString().slice(0, 10);
+  await advanceBillingLifecycle(db, job.orgId, today);
+}
+
+/**
+ * Varredura diária da cobrança e da locação (auditoria 2026-09-10, P1-07 e P1-20), com `today` na
+ * data de São Paulo:
+ *  - agendada abre (OPEN) quando o período começa;
+ *  - em aberto vence (OVERDUE) só depois do dia útil seguinte ao vencimento;
+ *  - em encerramento com a data de fim já passada termina (ENDED);
+ *  - o aluguel em vigor da locação acompanha os reajustes que já começaram.
+ */
+export async function advanceBillingLifecycle(
+  db: AppDb,
+  orgId: string,
+  today: string,
+): Promise<void> {
   await db
     .update(charges)
     .set({ status: 'OPEN', updatedAt: new Date() })
     .where(
       and(
-        eq(charges.orgId, job.orgId),
+        eq(charges.orgId, orgId),
         eq(charges.status, 'SCHEDULED'),
-        lt(charges.dueDate, today),
+        lte(charges.periodStart, today),
       ),
     );
+
+  const pastDue = await db
+    .select({ id: charges.id, dueDate: charges.dueDate })
+    .from(charges)
+    .where(and(eq(charges.orgId, orgId), eq(charges.status, 'OPEN'), lt(charges.dueDate, today)));
+  for (const charge of pastDue) {
+    if (!isChargeOverdue(charge.dueDate, today)) {
+      continue;
+    }
+    transitionCharge('OPEN', 'OVERDUE');
+    await db
+      .update(charges)
+      .set({ status: 'OVERDUE', updatedAt: new Date() })
+      .where(and(eq(charges.id, charge.id), eq(charges.status, 'OPEN')));
+  }
+
+  const ending = await db
+    .select()
+    .from(leases)
+    .where(and(eq(leases.orgId, orgId), eq(leases.status, 'TERMINATING')));
+  for (const lease of ending) {
+    if (!shouldFinalizeLeaseEnd(lease, today)) {
+      continue;
+    }
+    transitionLease('TERMINATING', 'ENDED');
+    const [ended] = await db
+      .update(leases)
+      .set({ status: 'ENDED', updatedAt: new Date() })
+      .where(and(eq(leases.id, lease.id), eq(leases.status, 'TERMINATING')))
+      .returning({ id: leases.id });
+    if (ended) {
+      await writeAudit(db, {
+        orgId,
+        action: AUDIT_ACTIONS.LEASE_ENDED,
+        entityType: 'LEASE',
+        entityId: lease.id,
+        payload: { endDate: lease.endDate, source: 'scheduler' },
+      });
+    }
+  }
+
+  const inForce = await db
+    .select()
+    .from(leases)
+    .where(and(eq(leases.orgId, orgId), inArray(leases.status, [...BILLABLE_LEASE_STATUSES])));
+  const changes = await rentChangesByLease(
+    db,
+    inForce.map((lease) => lease.id),
+  );
+  const currentMonth = monthStartOf(today);
+  for (const lease of inForce) {
+    const leaseChanges = changes.get(lease.id);
+    if (!leaseChanges) {
+      continue;
+    }
+    const current = rentForPeriod(lease.monthlyRentCents, leaseChanges, currentMonth);
+    if (current !== lease.monthlyRentCents) {
+      await db
+        .update(leases)
+        .set({ monthlyRentCents: current, updatedAt: new Date() })
+        .where(eq(leases.id, lease.id));
+    }
+  }
 }
 
 /**
@@ -168,6 +299,8 @@ export async function processReconcileJob(
   job: PaymentJob,
   provider: IPaymentProvider | null,
 ): Promise<void> {
+  // A conciliação é diária: roda também a varredura de cobrança e locação (P1-07, P1-20).
+  await advanceBillingLifecycle(db, job.orgId, saoPauloDate(new Date()));
   const periodStart =
     typeof job.payload['periodStart'] === 'string' ? job.payload['periodStart'] : '';
   let recovered = 0;

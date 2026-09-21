@@ -1,0 +1,44 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-leases.test.ts -t data civil
+# árvore: g3/track-c-finance 710c7b1 + teste novo de data civil na criação da cobrança (sem correção)
+# data (UTC): 2026-09-17T16:32:58Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:23780) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-c-leases.test.ts (14 tests | 1 failed | 13 skipped) 5418ms
+       × período e vencimento da cobrança só como data civil AAAA-MM-DD 663ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-c-leases.test.ts > G3 trilha C — locação pela API > P1-07: encargos por atraso configuráveis na locação > período e vencimento da cobrança só como data civil AAAA-MM-DD
+AssertionError: {"payload":{"dueDate":"abc"},"body":{"error":"InternalServerError","code":"INTERNAL","message":"Erro interno"}}: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ src/g3-c-leases.test.ts:120:81
+    118|           payload: { leaseId: lease.leaseId, ...payload },
+    119|         });
+    120|         expect(refused.status, JSON.stringify({ payload, body: refused…
+       |                                                                                 ^
+    121|       }
+    122|       const accepted = await fx.call('POST', '/charges', {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  13:33:00
+   Duration  10.29s (transform 2.05s, setup 0ms, import 4.59s, tests 5.42s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-c-leases.test.ts -t "data civil"
+
+# exit=1

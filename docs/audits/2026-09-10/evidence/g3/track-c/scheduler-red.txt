@@ -1,0 +1,105 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-c-scheduler.test.ts
+# árvore: main 3aa922b + domínio e migration 0019 da trilha C, com processPaymentSchedulerJob e processReconcileJob exportados do worker (só export, sem mudança de comportamento); advanceBillingLifecycle ainda não existe
+# data (UTC): 2026-09-17T16:01:03Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:31360) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-c-scheduler.test.ts (4 tests | 4 failed) 5381ms
+     × cobra só locações ativas, inadimplentes ou em encerramento dentro da vigência 1509ms
+     × o aluguel de cada período segue o reajuste registrado 339ms
+     × varredura diária: abre no período, vence só depois do dia útil seguinte e finaliza o encerramento 387ms
+     × a conciliação diária do worker roda a varredura 293ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > cobra só locações ativas, inadimplentes ou em encerramento dentro da vigência
+AssertionError: expected { ended: 1, pending: 1, ending: [] } to deeply equal { ended: +0, pending: +0, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "ended": 0,
+-   "ending": [
+-     "2026-10-01",
+-   ],
+-   "pending": 0,
++   "ended": 1,
++   "ending": [],
++   "pending": 1,
+  }
+
+ ❯ src/g3-c-scheduler.test.ts:89:20
+     87|       ending: (await chargesOf(ending)).map((c) => c.periodStart),
+     88|     };
+     89|     expect(billed).toEqual({ ended: 0, pending: 0, ending: [futurePeri…
+       |                    ^
+     90|     expect(await chargesOf(active)).toEqual([
+     91|       {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > o aluguel de cada período segue o reajuste registrado
+AssertionError: expected [ 100000, 100000 ] to deeply equal [ 100000, 104520 ]
+
+- Expected
++ Received
+
+  [
+    100000,
+-   104520,
++   100000,
+  ]
+
+ ❯ src/g3-c-scheduler.test.ts:108:62
+    106|     await schedule(lease, futurePeriod(1));
+    107|     await schedule(lease, futurePeriod(2));
+    108|     expect((await chargesOf(lease)).map((c) => c.rentCents)).toEqual([…
+       |                                                              ^
+    109|   });
+    110|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > varredura diária: abre no período, vence só depois do dia útil seguinte e finaliza o encerramento
+TypeError: advanceBillingLifecycle is not a function
+ ❯ src/g3-c-scheduler.test.ts:129:11
+    127|       )[0];
+    128|
+    129|     await advanceBillingLifecycle(app.db, lease.orgId, '2031-09-30');
+       |           ^
+    130|     expect(await status()).toEqual({ charge: 'SCHEDULED', lease: 'TERM…
+    131|     await advanceBillingLifecycle(app.db, lease.orgId, '2031-10-01');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/g3-c-scheduler.test.ts > G3 trilha C — scheduler e varredura diária > a conciliação diária do worker roda a varredura
+AssertionError: expected 'OPEN' to be 'OVERDUE' // Object.is equality
+
+Expected: "OVERDUE"
+Received: "OPEN"
+
+ ❯ src/g3-c-scheduler.test.ts:159:25
+    157|       sql`select status from charges where id = ${chargeId}`,
+    158|     );
+    159|     expect(row?.status).toBe('OVERDUE');
+       |                         ^
+    160|   });
+    161| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  13:01:04
+   Duration  9.58s (transform 1.82s, setup 0ms, import 3.93s, tests 5.38s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-c-scheduler.test.ts
+
+# exit=1

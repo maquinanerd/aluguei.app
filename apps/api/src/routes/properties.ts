@@ -11,7 +11,7 @@ import {
   propertyOwners,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import { AUDIT_ACTIONS, DomainError } from '@aluguei/domain';
+import { AUDIT_ACTIONS, DomainError, assertOwnershipTotal } from '@aluguei/domain';
 import {
   addFeatureRequestSchema,
   addOwnerRequestSchema,
@@ -528,6 +528,16 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       if (existing) {
         throw new DomainError('CONFLICT', 'Proprietário já vinculado');
       }
+      const registered = await db
+        .select({ ownershipSharePct: propertyOwners.ownershipSharePct })
+        .from(propertyOwners)
+        .where(
+          and(eq(propertyOwners.propertyId, property.id), eq(propertyOwners.orgId, auth.orgId)),
+        );
+      assertOwnershipTotal([
+        ...registered.map((owner) => owner.ownershipSharePct),
+        input.ownershipSharePct ?? null,
+      ]);
       await db.insert(propertyOwners).values({
         orgId: auth.orgId,
         propertyId: property.id,

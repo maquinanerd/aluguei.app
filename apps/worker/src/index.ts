@@ -17,7 +17,12 @@ import type { HealthServer } from './health.js';
 import type { JobLogger } from './job-log.js';
 
 export { runChannelJobs, runInboxJobs, runMetaJobs };
-export { processPaymentJob } from './paymentJobs.js';
+export {
+  advanceBillingLifecycle,
+  processPaymentJob,
+  processPaymentSchedulerJob,
+  processReconcileJob,
+} from './paymentJobs.js';
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const JOB_POLL_INTERVAL_MS = 5_000;

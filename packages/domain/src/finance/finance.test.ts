@@ -31,15 +31,17 @@ describe('money (centavos)', () => {
 });
 
 describe('chargeCalc', () => {
-  it('R$1000 aluguel: multa 2% + juros 1%/dia × 5 dias', () => {
+  // Antes esta asserção fixava juros de 1% AO DIA (5.000 em 5 dias) — o defeito P1-07 da
+  // auditoria 2026-09-10. O padrão correto é 1% ao mês pro rata die (lateCharges.test.ts).
+  it('R$1000 aluguel: multa 2% + juros 1% ao mês pro rata × 5 dias', () => {
     const breakdown = calculateChargeBreakdown({
       rentCents: 100_000,
       dueDate: '2026-08-10',
       paidOn: '2026-08-15',
     });
     expect(breakdown.lateFeeCents).toBe(2_000);
-    expect(breakdown.interestCents).toBe(5_000);
-    expect(breakdown.amountCents).toBe(107_000);
+    expect(breakdown.interestCents).toBe(166);
+    expect(breakdown.amountCents).toBe(102_166);
   });
 
   it('sem atraso não cobra multa/juros', () => {

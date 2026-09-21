@@ -1,0 +1,259 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/finance
+# árvore: main 3aa922b + testes novos da trilha C do G3 (calendar, lateCharges, leaseLifecycle) e a asserção corrigida de juros em finance.test.ts, sem implementação
+# data (UTC): 2026-09-17T15:47:44Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+ ❯ src/finance/calendar.test.ts (0 test)
+ ❯ src/finance/leaseLifecycle.test.ts (0 test)
+ ❯ src/finance/lateCharges.test.ts (10 tests | 9 failed) 18ms
+     × padrões: multa de 2% e juros de 1% ao mês 7ms
+     × 100 dias de atraso custam juros de cerca de 3,33%, não 100% do aluguel 2ms
+     × encargos incidem sobre aluguel e condomínio da cobrança 3ms
+     × vencimento no sábado, com domingo e feriado na segunda: pagar na terça não tem encargo 1ms
+     × taxas configuradas na locação: multa de 10% e juros de 0,5% ao mês 1ms
+     × limites: multa até 10% e juros até 1% ao mês, nunca negativos 1ms
+     × dia de vencimento da locação dentro do mês do período 0ms
+     × dia de vencimento fora de 1 a 28 é recusado 1ms
+     × só está vencida depois do dia útil seguinte ao vencimento 0ms
+ ❯ src/finance/finance.test.ts (12 tests | 1 failed) 79ms
+     × R$1000 aluguel: multa 2% + juros 1% ao mês pro rata × 5 dias 36ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/finance/calendar.test.ts [ src/finance/calendar.test.ts ]
+Error: Cannot find module './calendar.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain/src/finance/calendar.test.ts
+ ❯ src/finance/calendar.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   addDays,
+      4|   daysBetween,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  src/finance/leaseLifecycle.test.ts [ src/finance/leaseLifecycle.test.ts ]
+Error: Cannot find module './leaseLifecycle.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain/src/finance/leaseLifecycle.test.ts
+ ❯ src/finance/leaseLifecycle.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { DomainError } from '../errors.js';
+      3| import {
+       | ^
+      4|   assertOwnershipTotal,
+      5|   assertRenewal,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/finance/finance.test.ts > chargeCalc > R$1000 aluguel: multa 2% + juros 1% ao mês pro rata × 5 dias
+AssertionError: expected 5000 to be 166 // Object.is equality
+
+- Expected
++ Received
+
+- 166
++ 5000
+
+ ❯ src/finance/finance.test.ts:43:37
+     41|     });
+     42|     expect(breakdown.lateFeeCents).toBe(2_000);
+     43|     expect(breakdown.interestCents).toBe(166);
+       |                                     ^
+     44|     expect(breakdown.amountCents).toBe(102_166);
+     45|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > padrões: multa de 2% e juros de 1% ao mês
+AssertionError: expected undefined to be 200 // Object.is equality
+
+- Expected:
+200
+
++ Received:
+undefined
+
+ ❯ src/finance/lateCharges.test.ts:21:34
+     19| describe('multa e juros de mora', () => {
+     20|   it('padrões: multa de 2% e juros de 1% ao mês', () => {
+     21|     expect(DEFAULT_LATE_FEE_BPS).toBe(200);
+       |                                  ^
+     22|     expect(DEFAULT_INTEREST_MONTHLY_BPS).toBe(100);
+     23|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > 100 dias de atraso custam juros de cerca de 3,33%, não 100% do aluguel
+AssertionError: expected 100000 to be 3333 // Object.is equality
+
+- Expected
++ Received
+
+- 3333
++ 100000
+
+ ❯ src/finance/lateCharges.test.ts:32:37
+     30|     });
+     31|     expect(breakdown.lateFeeCents).toBe(2_000);
+     32|     expect(breakdown.interestCents).toBe(3_333);
+       |                                     ^
+     33|     expect(breakdown.amountCents).toBe(105_333);
+     34|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > encargos incidem sobre aluguel e condomínio da cobrança
+AssertionError: expected { rentCents: 100000, …(6) } to match object { lateFeeCents: 2600, …(2) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "amountCents": 132773,
+-   "interestCents": 173,
+-   "lateFeeCents": 2600,
++   "amountCents": 136000,
++   "interestCents": 4000,
++   "lateFeeCents": 2000,
+  }
+
+ ❯ src/finance/lateCharges.test.ts:44:23
+     42|     });
+     43|     // Base 130.000; multa 2% = 2.600; juros 1% a.m. × 4 dias / 30 = 1…
+     44|     expect(breakdown).toMatchObject({
+       |                       ^
+     45|       lateFeeCents: 2_600,
+     46|       interestCents: 173,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > vencimento no sábado, com domingo e feriado na segunda: pagar na terça não tem encargo
+AssertionError: expected { rentCents: 100000, …(6) } to match object { lateFeeCents: +0, …(2) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "amountCents": 130000,
+-   "interestCents": 0,
+-   "lateFeeCents": 0,
++   "amountCents": 135000,
++   "interestCents": 3000,
++   "lateFeeCents": 2000,
+  }
+
+ ❯ src/finance/lateCharges.test.ts:58:23
+     56|       paidOn: '2026-10-13',
+     57|     });
+     58|     expect(breakdown).toMatchObject({ lateFeeCents: 0, interestCents: …
+       |                       ^
+     59|   });
+     60|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > taxas configuradas na locação: multa de 10% e juros de 0,5% ao mês
+AssertionError: expected { rentCents: 100000, …(6) } to match object { lateFeeCents: 10000, …(2) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "amountCents": 110250,
+-   "interestCents": 250,
++   "amountCents": 125000,
++   "interestCents": 15000,
+    "lateFeeCents": 10000,
+  }
+
+ ❯ src/finance/lateCharges.test.ts:69:23
+     67|       paidOn: '2026-08-25',
+     68|     });
+     69|     expect(breakdown).toMatchObject({
+       |                       ^
+     70|       lateFeeCents: 10_000,
+     71|       interestCents: 250,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > multa e juros de mora > limites: multa até 10% e juros até 1% ao mês, nunca negativos
+AssertionError: expected [Function] to not throw an error but 'TypeError: (0 , __vite_ssr_import_2__…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"TypeError: (0 , __vite_ssr_import_2__.assertLateChargeTerms) is not a function"
+
+ ❯ src/finance/lateCharges.test.ts:89:12
+     87|     expect(() => {
+     88|       assertLateChargeTerms({ lateFeeBps: 1_000, interestMonthlyBps: 1…
+     89|     }).not.toThrow();
+       |            ^
+     90|     for (const terms of [
+     91|       { lateFeeBps: 1_001, interestMonthlyBps: 100 },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > vencimento da cobrança > dia de vencimento da locação dentro do mês do período
+TypeError: chargeDueDate is not a function
+ ❯ src/finance/lateCharges.test.ts:106:12
+    104| describe('vencimento da cobrança', () => {
+    105|   it('dia de vencimento da locação dentro do mês do período', () => {
+    106|     expect(chargeDueDate('2026-10-01', 10)).toBe('2026-10-10');
+       |            ^
+    107|     expect(chargeDueDate('2026-02-01', 28)).toBe('2026-02-28');
+    108|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > vencimento da cobrança > dia de vencimento fora de 1 a 28 é recusado
+AssertionError: expected error to be instance of DomainError
+
+- Expected:
+[Function DomainError]
+
++ Received:
+TypeError {
+  "message": "(0 , __vite_ssr_import_2__.chargeDueDate) is not a function",
+}
+
+ ❯ src/finance/lateCharges.test.ts:111:51
+    109|
+    110|   it('dia de vencimento fora de 1 a 28 é recusado', () => {
+    111|     expect(() => chargeDueDate('2026-02-01', 29)).toThrow(DomainError);
+       |                                                   ^
+    112|     expect(() => chargeDueDate('2026-02-01', 0)).toThrow(DomainError);
+    113|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  src/finance/lateCharges.test.ts > vencimento da cobrança > só está vencida depois do dia útil seguinte ao vencimento
+TypeError: isChargeOverdue is not a function
+ ❯ src/finance/lateCharges.test.ts:116:12
+    114|
+    115|   it('só está vencida depois do dia útil seguinte ao vencimento', () =…
+    116|     expect(isChargeOverdue('2026-10-10', '2026-10-13')).toBe(false);
+       |            ^
+    117|     expect(isChargeOverdue('2026-10-10', '2026-10-14')).toBe(true);
+    118|     expect(isChargeOverdue('2026-08-10', '2026-08-10')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  10 failed | 12 passed (22)
+   Start at  12:47:55
+   Duration  5.76s (transform 7.66s, setup 0ms, import 4.50s, tests 97ms, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\domain:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/finance
+
+# exit=1
