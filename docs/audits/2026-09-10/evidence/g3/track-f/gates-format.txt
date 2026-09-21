@@ -1,6 +1,6 @@
 # comando: pnpm format:check
-# árvore: commit d0d1be7 (g3/track-f-ops)
-# data (UTC): 2026-09-17T18:42:02Z
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:05:43Z
 
 $ prettier --check .
 Checking formatting...

@@ -1,0 +1,8 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit 8284995 (g3/track-f-ops) + só os arquivos de evidência dos gates, fora do commit
+# data (UTC): 2026-09-21T18:17:49Z
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high
+# exit=0
