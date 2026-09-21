@@ -23,8 +23,6 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
     await app.close();
   });
 
-  const json = <T>(res: { json: () => unknown }): T => res.json() as T;
-
   async function inspectionInReview(): Promise<{
     cookie: string;
     inspectionId: string;
@@ -38,7 +36,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
       headers: { cookie },
       payload: { title: 'Casa Imutável', propertyType: 'HOUSE' },
     });
-    const propertyId = json<{ property: { id: string } }>(property).property.id;
+    const propertyId = (property.json() as { property: { id: string } }).property.id;
     const created = await app.inject({
       method: 'POST',
       url: '/inspections',
@@ -46,7 +44,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
       payload: { propertyId, type: 'CHECKIN' },
     });
     expect(created.statusCode).toBe(201);
-    const inspectionId = json<{ inspection: { id: string } }>(created).inspection.id;
+    const inspectionId = (created.json() as { inspection: { id: string } }).inspection.id;
     expect(
       (
         await app.inject({
@@ -65,7 +63,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
       payload: { name: 'Sala' },
     });
     expect(room.statusCode).toBe(201);
-    const roomId = json<{ room: { id: string } }>(room).room.id;
+    const roomId = (room.json() as { room: { id: string } }).room.id;
 
     const media = async (kind: string, mimeType: string, sizeBytes: number): Promise<string> => {
       const upload = await app.inject({
@@ -75,7 +73,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
         payload: { kind, mimeType, sizeBytes },
       });
       expect(upload.statusCode).toBe(200);
-      const key = json<{ key: string }>(upload).key;
+      const key = (upload.json() as { key: string }).key;
       fakeStorage.markUploaded(key, sizeBytes);
       const confirmed = await app.inject({
         method: 'POST',
@@ -84,7 +82,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
         payload: { key },
       });
       expect(confirmed.statusCode).toBe(201);
-      return json<{ media: { id: string } }>(confirmed).media.id;
+      return (confirmed.json() as { media: { id: string } }).media.id;
     };
     const photoMediaId = await media('PHOTO', 'image/jpeg', 2048);
     await media('AUDIO', 'audio/mpeg', 4096);
@@ -105,7 +103,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
       url: `/inspections/${inspectionId}`,
       headers: { cookie },
     });
-    expect(json<{ inspection: { status: string } }>(detail).inspection.status).toBe('REVIEW');
+    expect((detail.json() as { inspection: { status: string } }).inspection.status).toBe('REVIEW');
     return { cookie, inspectionId, roomId, photoMediaId };
   }
 
@@ -150,7 +148,7 @@ describe('G3 trilha E — evidência de vistoria imutável depois de concluída'
       url: `/inspections/${inspectionId}`,
       headers: { cookie },
     });
-    const pending = json<{ aiSuggestions: Array<{ id: string }> }>(detailBefore).aiSuggestions;
+    const pending = (detailBefore.json() as { aiSuggestions: Array<{ id: string }> }).aiSuggestions;
     expect(pending.length).toBeGreaterThan(0);
     for (const suggestion of pending) {
       const resolved = await app.inject({
