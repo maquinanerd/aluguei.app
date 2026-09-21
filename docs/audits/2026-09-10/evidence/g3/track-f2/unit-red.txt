@@ -1,0 +1,35 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/backup-format.test.ts
+# árvore: main 52e2582 + testes novos do formato e da retenção do backup (sem o módulo)
+# data (UTC): 2026-09-21T19:43:24Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+ ❯ src/backup-format.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/backup-format.test.ts [ src/backup-format.test.ts ]
+Error: "./backup" is not exported under the conditions ["node", "development", "import"] from package C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration\node_modules\@aluguei\db (see exports field in C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration\node_modules\@aluguei\db\package.json)
+  Plugin: builtin:vite-resolve
+ ❯ EnvironmentPluginContainer.resolveId ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:30767:19
+ ❯ TransformPluginContext.resolve ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:30996:13
+ ❯ normalizeUrl ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:28000:22
+ ❯ ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:28076:30
+ ❯ TransformPluginContext.transform ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:28044:4
+ ❯ EnvironmentPluginContainer.transform ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:30851:14
+ ❯ loadAndTransform ../../node_modules/.pnpm/vite@8.2.1_@types+node@24.1_a2e01926faa5c053c47fa367cb25827e/node_modules/vite/dist/node/chunks/node.js:20619:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:43:27
+   Duration  698ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/backup-format.test.ts
+
+# exit=1
