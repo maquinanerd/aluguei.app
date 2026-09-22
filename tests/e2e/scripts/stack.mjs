@@ -328,6 +328,9 @@ function stackEnv(databaseUrl) {
   delete env.REDIS_URL;
   return {
     ...env,
+    // API e worker exigem NODE_ENV explícito (fail-fast, G3 F-1). A stack E2E é de
+    // desenvolvimento: providers FAKE sem permissão de produção e simulação do pagador.
+    NODE_ENV: 'development',
     DATABASE_URL: databaseUrl,
     API_PORT: String(PORTS.api),
     APP_BASE_URL: `http://localhost:${PORTS.web}`,
@@ -476,7 +479,7 @@ export async function bootStack({ mode = 'playwright' } = {}) {
     const worker = spawnLogged(
       'worker',
       process.execPath,
-      ['--import', 'tsx', join(ROOT, 'apps/worker/src/index.ts')],
+      ['--import', 'tsx', join(ROOT, 'apps/worker/src/main.ts')],
       { cwd: ROOT, env, logFile: join(runDir, 'worker.log') },
     );
     track(worker);

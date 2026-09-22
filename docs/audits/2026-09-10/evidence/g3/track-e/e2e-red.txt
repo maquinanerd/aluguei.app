@@ -1,0 +1,133 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e g3-e
+# árvore: commit 3db8f63 (g3/track-e-portal) — RED: apps/ e packages/ restaurados de origin/main (c04bf7e), só com o spec novo da trilha E; stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 13 entradas
+# data (UTC): 2026-09-21T18:10:59Z
+$ playwright test "g3-e"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790014264755\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790014264755).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 3 tests using 1 worker
+
+  x  1 g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático (37.7s)
+  x  2 g3-e-portal-inbox-inspection.spec.ts:95:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão (1.8m)
+  x  3 g3-e-portal-inbox-inspection.spec.ts:146:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada (1.1m)
+[e2e-stack] stack run-1790014264755 desligada.
+
+
+  1) g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático 
+
+    Error: Timed out 30000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByRole('button', { name: 'Devolver ao atendimento automático' })
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 30000ms
+      - waiting for getByRole('button', { name: 'Devolver ao atendimento automático' })
+
+
+      74 |       .click();
+      75 |     const resume = page.getByRole('button', { name: 'Devolver ao atendimento automático' });
+    > 76 |     await expect(resume).toBeVisible({ timeout: 30_000 });
+         |                          ^
+      77 |     await expect(page.getByRole('button', { name: 'Passar para a equipe' })).toBeHidden();
+      78 |     await resume.click();
+      79 |     await expect(page.getByText('Conversa devolvida ao atendimento automático')).toBeVisible({
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-e-portal-inbox-inspection.spec.ts:76:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-c858a-a-ao-atendimento-automático\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-c858a-a-ao-atendimento-automático\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-e-portal-inbox-inspecti-c858a-a-ao-atendimento-automático\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) g3-e-portal-inbox-inspection.spec.ts:95:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão 
+
+    Error: Timed out 60000ms waiting for expect(locator).toBeVisible()
+
+    Locator: getByText('Vistoria concluída: a evidência está fechada e não pode mais ser alterada.')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 60000ms
+      - waiting for getByText('Vistoria concluída: a evidência está fechada e não pode mais ser alterada.')
+
+
+      135 |     await page.getByRole('tab', { name: 'Ambientes' }).click();
+      136 |     const note = 'Vistoria concluída: a evidência está fechada e não pode mais ser alterada.';
+    > 137 |     await expect(page.getByText(note)).toBeVisible({ timeout: 60_000 });
+          |                                        ^
+      138 |     await expect(page.getByRole('button', { name: 'Adicionar' })).toBeHidden();
+      139 |     await page.getByRole('tab', { name: 'Ocorrências' }).click();
+      140 |     await expect(page.getByText(note)).toBeVisible();
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-e-portal-inbox-inspection.spec.ts:137:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-510a8-nte-ocorrência-nem-sugestão\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-510a8-nte-ocorrência-nem-sugestão\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-e-portal-inbox-inspecti-510a8-nte-ocorrência-nem-sugestão\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) g3-e-portal-inbox-inspection.spec.ts:146:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada 
+
+    Error: Timed out 60000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Total cobrado' }) }).getByText('R$ 2.500,00')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - expect.toBeVisible with timeout 60000ms
+      - waiting for locator('section.peg-card').filter({ has: getByRole('heading', { name: 'Total cobrado' }) }).getByText('R$ 2.500,00')
+
+
+      186 |     });
+      187 |     // Aluguel de R$ 2.500,00: só a cobrança que vale; a cancelada fica fora da soma.
+    > 188 |     await expect(billed.getByText('R$ 2.500,00')).toBeVisible({ timeout: 60_000 });
+          |                                                   ^
+      189 |     await expect(billed.getByText('R$ 5.000,00')).toBeHidden();
+      190 |     expect(watch.backendFailures).toEqual([]);
+      191 |     expect(watch.pageErrors).toEqual([]);
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e\src\g3-e-portal-inbox-inspection.spec.ts:188:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-271fb-não-soma-cobrança-cancelada\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-e-portal-inbox-inspecti-271fb-não-soma-cobrança-cancelada\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-e-portal-inbox-inspecti-271fb-não-soma-cobrança-cancelada\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático 
+    g3-e-portal-inbox-inspection.spec.ts:95:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão 
+    g3-e-portal-inbox-inspection.spec.ts:146:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g3-e"`
+Exit status 1
+# duração: 295s
+# exit=1

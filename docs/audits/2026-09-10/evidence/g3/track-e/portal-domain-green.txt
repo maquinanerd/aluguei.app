@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/portal
+# árvore: main 8409420 + regras do portal no domínio (extrato sem cancelada, visibilidade da vistoria)
+# data (UTC): 2026-09-17T18:50:41Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  15:50:45
+   Duration  4.87s (transform 3.57s, setup 0ms, import 3.80s, tests 59ms, environment 0ms)
+
+
+# exit=0

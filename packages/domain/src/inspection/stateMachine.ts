@@ -25,6 +25,32 @@ const TRANSITIONS: Record<InspectionStatus, readonly InspectionStatus[]> = {
   SIGNED: [],
 };
 
+/**
+ * Evidência (ambiente, mídia, observação e sugestão de IA) só muda enquanto a vistoria está em
+ * andamento: depois de COMPLETED, o relatório é a prova do estado do imóvel e não pode ser
+ * reescrito (auditoria 2026-09-10, P1-24).
+ */
+export const INSPECTION_EVIDENCE_WRITABLE_STATUSES: readonly InspectionStatus[] = [
+  'DRAFT',
+  'CAPTURING',
+  'PROCESSING',
+  'REVIEW',
+];
+
+export function canWriteInspectionEvidence(status: string): boolean {
+  return (INSPECTION_EVIDENCE_WRITABLE_STATUSES as readonly string[]).includes(status);
+}
+
+export function assertInspectionEvidenceWritable(status: string): void {
+  if (!canWriteInspectionEvidence(status)) {
+    throw new DomainError(
+      'INVALID_TRANSITION',
+      `Vistoria ${status}: a evidência está fechada e não pode mais ser alterada`,
+      { status },
+    );
+  }
+}
+
 export function isInspectionStatus(value: string): value is InspectionStatus {
   return (INSPECTION_STATUSES as readonly string[]).includes(value);
 }

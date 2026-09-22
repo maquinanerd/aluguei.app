@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { DomainError } from '@aluguei/domain';
+import { captureError } from '@aluguei/observability';
 
 const DOMAIN_STATUS: Record<string, number> = {
   INVALID_TRANSITION: 409,
@@ -92,16 +93,17 @@ export function setErrorHandler(app: FastifyInstance): void {
     // banco chega ao log como "Failed query", sem o motivo.
     const cause = (err as { cause?: { message?: unknown; code?: unknown; constraint?: unknown } })
       .cause;
-    request.log.error(
-      {
-        err,
-        pgCode,
-        causeMessage: typeof cause?.message === 'string' ? cause.message : undefined,
-        causeCode: typeof cause?.code === 'string' ? cause.code : undefined,
-        causeConstraint: typeof cause?.constraint === 'string' ? cause.constraint : undefined,
-      },
-      'unhandled error',
-    );
+    // Captura de erro (auditoria 2026-09-10, P2-11): origem, rota, pilha e marca no span ativo.
+    captureError(request.log, err, {
+      kind: 'http_5xx',
+      method: request.method,
+      route: request.routeOptions.url ?? request.url,
+      statusCode: 500,
+      pgCode,
+      causeMessage: typeof cause?.message === 'string' ? cause.message : undefined,
+      causeCode: typeof cause?.code === 'string' ? cause.code : undefined,
+      causeConstraint: typeof cause?.constraint === 'string' ? cause.constraint : undefined,
+    });
     return reply.status(500).send({
       error: 'InternalServerError',
       code: 'INTERNAL',

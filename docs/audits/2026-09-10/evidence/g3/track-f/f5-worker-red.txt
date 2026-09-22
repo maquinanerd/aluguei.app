@@ -1,0 +1,212 @@
+# comando: pnpm --filter @aluguei/worker exec vitest run src/job-logging.test.ts src/lifecycle.test.ts src/job-loop.test.ts src/health.test.ts
+# árvore: commit 951d96f (testes do F-5; worker sem log por job, sem health e com process.exit no sinal)
+# data (UTC): 2026-09-17T16:49:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker
+
+{"level":30,"time":1789663788661,"pid":12132,"hostname":"DESKTOP-STB662P","runOnce":false,"msg":"worker started"}
+{"level":30,"time":1789663791675,"pid":12132,"hostname":"DESKTOP-STB662P","signal":"SIGTERM","msg":"worker stopping"}
+{"level":30,"time":1789663794526,"pid":12132,"hostname":"DESKTOP-STB662P","runOnce":false,"msg":"worker started"}
+{"level":30,"time":1789663794527,"pid":12132,"hostname":"DESKTOP-STB662P","signal":"SIGINT","msg":"worker stopping"}
+{"level":30,"time":1789663794529,"pid":12132,"hostname":"DESKTOP-STB662P","signal":"SIGINT","msg":"worker stopping"}
+{"level":30,"time":1789663797413,"pid":12132,"hostname":"DESKTOP-STB662P","runOnce":false,"msg":"worker started"}
+{"level":30,"time":1789663797466,"pid":12132,"hostname":"DESKTOP-STB662P","signal":"SIGTERM","msg":"worker stopping"}
+{"level":30,"time":1789663797469,"pid":12132,"hostname":"DESKTOP-STB662P","signal":"SIGTERM","msg":"worker stopping"}
+ ❯ src/lifecycle.test.ts (3 tests | 3 failed) 12845ms
+     × SIGTERM: health 200 no ar; ao sinal, para de pegar jobs, fecha health e pool, sem process.exit 7055ms
+     × SIGINT também encerra de forma graciosa 2848ms
+     × job que não termina no limite: loga o timeout, exitCode 1 e process.exit só depois do limite 2939ms
+ ❯ src/job-logging.test.ts (4 tests | 4 failed) 4168ms
+     × fila inbox: início e fim de um job concluído 51ms
+     × fila inbox: falha com tentativa, duração e mensagem de erro 9ms
+     × fila de canais: job concluído e job com canal sem integração 11ms
+     × fila da Meta: falha registrada com a mensagem do job 7ms
+ ❯ src/job-loop.test.ts (0 test)
+ ❯ src/health.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/health.test.ts [ src/health.test.ts ]
+Error: Cannot find module './health.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker/src/health.test.ts
+ ❯ src/health.test.ts:2:1
+      1| import { afterEach, describe, expect, it } from 'vitest';
+      2| import { evaluateWorkerHealth, startHealthServer } from './health.js';
+       | ^
+      3| import type { HealthServer } from './health.js';
+      4| import type { JobLoopState } from './job-loop.js';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/job-loop.test.ts [ src/job-loop.test.ts ]
+Error: Cannot find module './job-loop.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker/src/job-loop.test.ts
+ ❯ src/job-loop.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { createJobLoop } from './job-loop.js';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/job-logging.test.ts > log estruturado por job (P2-10) > fila inbox: início e fim de um job concluído
+AssertionError: expected [] to deeply equal [ 'job.started', 'job.finished' ]
+
+- Expected
++ Received
+
+- [
+-   "job.started",
+-   "job.finished",
+- ]
++ []
+
+ ❯ src/job-logging.test.ts:89:52
+     87|
+     88|     const logged = forJob(entries, id);
+     89|     expect(logged.map((entry) => entry.obj.event)).toEqual(['job.start…
+       |                                                    ^
+     90|     expect(logged[0]?.obj).toMatchObject({
+     91|       queue: 'inbox',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/job-logging.test.ts > log estruturado por job (P2-10) > fila inbox: falha com tentativa, duração e mensagem de erro
+AssertionError: expected [] to deeply equal [ 'job.started', 'job.failed' ]
+
+- Expected
++ Received
+
+- [
+-   "job.started",
+-   "job.failed",
+- ]
++ []
+
+ ❯ src/job-logging.test.ts:108:52
+    106|
+    107|     const logged = forJob(entries, id);
+    108|     expect(logged.map((entry) => entry.obj.event)).toEqual(['job.start…
+       |                                                    ^
+    109|     expect(logged[1]?.level).toBe('error');
+    110|     expect(logged[1]?.obj).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/job-logging.test.ts > log estruturado por job (P2-10) > fila de canais: job concluído e job com canal sem integração
+AssertionError: expected [] to deeply equal [ 'job.started', 'job.finished' ]
+
+- Expected
++ Received
+
+- [
+-   "job.started",
+-   "job.finished",
+- ]
++ []
+
+ ❯ src/job-logging.test.ts:140:68
+    138|     });
+    139|
+    140|     expect(forJob(entries, ok.id).map((entry) => entry.obj.event)).toE…
+       |                                                                    ^
+    141|       'job.started',
+    142|       'job.finished',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/job-logging.test.ts > log estruturado por job (P2-10) > fila da Meta: falha registrada com a mensagem do job
+AssertionError: expected [] to deeply equal [ 'job.started', 'job.failed' ]
+
+- Expected
++ Received
+
+- [
+-   "job.started",
+-   "job.failed",
+- ]
++ []
+
+ ❯ src/job-logging.test.ts:167:52
+    165|
+    166|     const logged = forJob(entries, job.id);
+    167|     expect(logged.map((entry) => entry.obj.event)).toEqual(['job.start…
+       |                                                    ^
+    168|     expect(logged[1]?.obj).toMatchObject({
+    169|       queue: 'meta',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/lifecycle.test.ts > ciclo de vida do worker (P2-10) > SIGTERM: health 200 no ar; ao sinal, para de pegar jobs, fecha health e pool, sem process.exit
+AssertionError: health HTTP no ar: expected undefined to be defined
+ ❯ src/lifecycle.test.ts:108:46
+    106|         3_000,
+    107|       );
+    108|       expect(listening, 'health HTTP no ar').toBeDefined();
+       |                                              ^
+    109|       const url = `http://127.0.0.1:${String(listening?.obj.port)}/hea…
+    110|       const healthy = await waitFor(async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/lifecycle.test.ts > ciclo de vida do worker (P2-10) > SIGINT também encerra de forma graciosa
+AssertionError: expected "Mock" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st Mock call:
+
+    Array [
+      0,
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/lifecycle.test.ts:148:27
+    146|       expect(sigint).toBeDefined();
+    147|       sigint?.('SIGINT');
+    148|       expect(exitSpy).not.toHaveBeenCalled();
+       |                           ^
+    149|       const stopped = await waitFor(
+    150|         () => entries.find((entry) => entry.obj.event === 'worker.stop…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  src/lifecycle.test.ts > ciclo de vida do worker (P2-10) > job que não termina no limite: loga o timeout, exitCode 1 e process.exit só depois do limite
+AssertionError: expected "Mock" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st Mock call:
+
+    Array [
+      0,
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/lifecycle.test.ts:179:27
+    177|       const signaledAt = Date.now();
+    178|       sigterm?.('SIGTERM');
+    179|       expect(exitSpy).not.toHaveBeenCalled();
+       |                           ^
+    180|
+    181|       const timedOut = await waitFor(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  7 failed (7)
+   Start at  13:49:40
+   Duration  22.81s (transform 1.13s, setup 0ms, import 4.51s, tests 17.01s, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\worker:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/job-logging.test.ts src/lifecycle.test.ts src/job-loop.test.ts src/health.test.ts
+# exit=1

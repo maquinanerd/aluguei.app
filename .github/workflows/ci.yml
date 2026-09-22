@@ -64,6 +64,19 @@ jobs:
       - name: Test
         run: pnpm test
 
+      # A suíte de backup e restauração usa pg_dump e pg_restore na versão do servidor (17); o
+      # runner traz uma versão mais antiga, que recusa ler um banco 17.
+      - name: PostgreSQL 17 client (backup e restauração)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+          echo "PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump" >> "$GITHUB_ENV"
+          echo "PG_RESTORE=/usr/lib/postgresql/17/bin/pg_restore" >> "$GITHUB_ENV"
+          /usr/lib/postgresql/17/bin/pg_dump --version
+
       - name: Test (PostgreSQL real — concorrência de dinheiro e fila)
         run: pnpm test:pg
         env:

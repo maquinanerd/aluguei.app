@@ -1,0 +1,94 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-e-inspection.test.ts
+# árvore: main 8409420 + testes novos de imutabilidade da vistoria (sem correção)
+# data (UTC): 2026-09-17T18:55:41Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:18672) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-e-inspection.test.ts (2 tests | 2 failed) 4332ms
+     × remover mídia com a vistoria em revisão fica registrado na auditoria 321ms
+     × vistoria concluída recusa ambiente, mídia, observação e sugestão, e nada é apagado 247ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-e-inspection.test.ts > G3 trilha E — evidência de vistoria imutável depois de concluída > remover mídia com a vistoria em revisão fica registrado na auditoria
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/g3-e-inspection.test.ts:126:24
+    124|         and action = 'inspection.media_removed'
+    125|     `);
+    126|     expect(audit.rows).toHaveLength(1);
+       |                        ^
+    127|     expect((audit.rows[0] as { payload: Record<string, unknown> }).pay…
+    128|       mediaId: photoMediaId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/g3-e-inspection.test.ts > G3 trilha E — evidência de vistoria imutável depois de concluída > vistoria concluída recusa ambiente, mídia, observação e sugestão, e nada é apagado
+AssertionError: expected [ [ 'POST /rooms', 201 ], …(5) ] to deeply equal [ [ 'POST /rooms', 409 ], …(5) ]
+
+- Expected
++ Received
+
+  [
+    [
+      "POST /rooms",
+-     409,
++     201,
+    ],
+    [
+      "POST /media/upload-url",
+-     409,
++     200,
+    ],
+    [
+      "POST /media/confirm",
+-     409,
++     400,
+    ],
+    [
+      "DELETE /media/:mediaId",
+-     409,
++     200,
+    ],
+    [
+      "POST /observations",
+-     409,
++     404,
+    ],
+    [
+      "PATCH /ai-suggestions/:id",
+-     409,
++     200,
+    ],
+  ]
+
+ ❯ src/g3-e-inspection.test.ts:230:21
+    228|     });
+    229|     refused.push(['PATCH /ai-suggestions/:id', suggestion.statusCode]);
+    230|     expect(refused).toEqual(refused.map(([name]) => [name, 409]));
+       |                     ^
+    231|
+    232|     // A evidência continua onde estava.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  15:55:42
+   Duration  8.99s (transform 1.96s, setup 0ms, import 4.32s, tests 4.33s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-e-inspection.test.ts
+
+# exit=1

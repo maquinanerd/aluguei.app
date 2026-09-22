@@ -1,0 +1,109 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/config-fail-fast.test.ts
+# árvore: commit 957dda5 (testes do F-1; pontos de entrada da API e do worker sem fail-fast)
+# data (UTC): 2026-09-17T16:24:25Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+ ❯ src/config-fail-fast.test.ts (7 tests | 5 failed) 156729ms
+     × API em produção sem configuração termina sozinha e lista o que falta 30078ms
+     × API sem NODE_ENV não assume desenvolvimento 30046ms
+     × API com a configuração da homologação e sem ALLOW_FAKE_PROVIDERS não sobe 30047ms
+     × worker em produção sem configuração termina sozinho e lista o que falta 30062ms
+     × worker sem NODE_ENV não assume desenvolvimento 30040ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/config-fail-fast.test.ts > fail-fast de configuração nos processos reais (P1-12) > API em produção sem configuração termina sozinha e lista o que falta
+AssertionError: (node:32664) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"level":30,"time":1789662271837,"pid":32664,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://127.0.0.1:58421"}
+{"level":30,"time":1789662271837,"pid":32664,"hostname":"DESKTOP-STB662P","host":"0.0.0.0","port":58421,"msg":"api listening"}
+{"level":30,"time":1789662271837,"pid":32664,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://172.30.176.1:58421"}
+{"level":30,"time":1789662271837,"pid":32664,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://192.168.1.3:58421"}
+: expected 'running' not to be 'running' // Object.is equality
+ ❯ src/config-fail-fast.test.ts:157:30
+    155|     const code = await waitExit(api);
+    156|     const output = api.output();
+    157|     expect(code, output).not.toBe('running');
+       |                              ^
+    158|     expect(code, output).not.toBe(0);
+    159|     for (const name of [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/config-fail-fast.test.ts > fail-fast de configuração nos processos reais (P1-12) > API sem NODE_ENV não assume desenvolvimento
+AssertionError: (node:15248) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"level":30,"time":1789662300759,"pid":15248,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://127.0.0.1:54957"}
+{"level":30,"time":1789662300760,"pid":15248,"hostname":"DESKTOP-STB662P","host":"0.0.0.0","port":54957,"msg":"api listening"}
+{"level":30,"time":1789662300760,"pid":15248,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://172.30.176.1:54957"}
+{"level":30,"time":1789662300760,"pid":15248,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://192.168.1.3:54957"}
+: expected 'running' not to be 'running' // Object.is equality
+ ❯ src/config-fail-fast.test.ts:181:36
+    179|     const api = start('api', { API_PORT: String(port) });
+    180|     const code = await waitExit(api);
+    181|     expect(code, api.output()).not.toBe('running');
+       |                                    ^
+    182|     expect(code).not.toBe(0);
+    183|     expect(api.output()).toContain('NODE_ENV ausente');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/config-fail-fast.test.ts > fail-fast de configuração nos processos reais (P1-12) > API com a configuração da homologação e sem ALLOW_FAKE_PROVIDERS não sobe
+AssertionError: (node:2892) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"level":30,"time":1789662330621,"pid":2892,"hostname":"DESKTOP-STB662P","msg":"Server listening at http://127.0.0.1:62986"}
+{"level":30,"time":1789662330623,"pid":2892,"hostname":"DESKTOP-STB662P","host":"127.0.0.1","port":62986,"msg":"api listening"}
+: expected 'running' not to be 'running' // Object.is equality
+ ❯ src/config-fail-fast.test.ts:190:36
+    188|     const api = start('api', { ...HOMOLOGATION_API, API_PORT: String(p…
+    189|     const code = await waitExit(api);
+    190|     expect(code, api.output()).not.toBe('running');
+       |                                    ^
+    191|     expect(code).not.toBe(0);
+    192|     expect(api.output()).toContain('ALLOW_FAKE_PROVIDERS=true');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/config-fail-fast.test.ts > fail-fast de configuração nos processos reais (P1-12) > worker em produção sem configuração termina sozinho e lista o que falta
+AssertionError: {"level":30,"time":1789662363871,"pid":29200,"hostname":"DESKTOP-STB662P","runOnce":false,"msg":"worker started"}
+: expected 'running' not to be 'running' // Object.is equality
+ ❯ src/config-fail-fast.test.ts:223:30
+    221|     const code = await waitExit(worker);
+    222|     const output = worker.output();
+    223|     expect(code, output).not.toBe('running');
+       |                              ^
+    224|     expect(code, output).not.toBe(0);
+    225|     for (const name of [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/config-fail-fast.test.ts > fail-fast de configuração nos processos reais (P1-12) > worker sem NODE_ENV não assume desenvolvimento
+AssertionError: {"level":30,"time":1789662393736,"pid":11160,"hostname":"DESKTOP-STB662P","runOnce":false,"msg":"worker started"}
+{"level":50,"time":1789662398788,"pid":11160,"hostname":"DESKTOP-STB662P","err":{"type":"DrizzleQueryError","message":"Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: : connect ECONNREFUSED 127.0.0.1:1","stack":"Error: Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: \n    at NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)\ncaused by: Error: connect ECONNREFUSED 127.0.0.1:1\n    at C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\pg-pool@3.14.0_pg@8.23.0\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\node-postgres\\session.ts:149:14)\n    at async NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:71:12)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)","query":"\n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  ","params":[]},"msg":"job cycle failed"}
+{"level":50,"time":1789662403750,"pid":11160,"hostname":"DESKTOP-STB662P","err":{"type":"DrizzleQueryError","message":"Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: : connect ECONNREFUSED 127.0.0.1:1","stack":"Error: Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: \n    at NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)\ncaused by: Error: connect ECONNREFUSED 127.0.0.1:1\n    at C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\pg-pool@3.14.0_pg@8.23.0\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\node-postgres\\session.ts:149:14)\n    at async NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:71:12)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)","query":"\n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  ","params":[]},"msg":"job cycle failed"}
+{"level":50,"time":1789662408752,"pid":11160,"hostname":"DESKTOP-STB662P","err":{"type":"DrizzleQueryError","message":"Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: : connect ECONNREFUSED 127.0.0.1:1","stack":"Error: Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: \n    at NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)\ncaused by: Error: connect ECONNREFUSED 127.0.0.1:1\n    at C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\pg-pool@3.14.0_pg@8.23.0\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\node-postgres\\session.ts:149:14)\n    at async NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:71:12)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)","query":"\n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  ","params":[]},"msg":"job cycle failed"}
+{"level":50,"time":1789662413756,"pid":11160,"hostname":"DESKTOP-STB662P","err":{"type":"DrizzleQueryError","message":"Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: : connect ECONNREFUSED 127.0.0.1:1","stack":"Error: Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: \n    at NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)\ncaused by: Error: connect ECONNREFUSED 127.0.0.1:1\n    at C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\pg-pool@3.14.0_pg@8.23.0\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\node-postgres\\session.ts:149:14)\n    at async NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:71:12)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)","query":"\n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  ","params":[]},"msg":"job cycle failed"}
+{"level":50,"time":1789662418768,"pid":11160,"hostname":"DESKTOP-STB662P","err":{"type":"DrizzleQueryError","message":"Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: : connect ECONNREFUSED 127.0.0.1:1","stack":"Error: Failed query: \n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  \nparams: \n    at NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)\ncaused by: Error: connect ECONNREFUSED 127.0.0.1:1\n    at C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\pg-pool@3.14.0_pg@8.23.0\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\node-postgres\\session.ts:149:14)\n    at async NodePgPreparedQuery.queryWithCache (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\node_modules\\.pnpm\\drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2\\node_modules\\src\\pg-core\\session.ts:71:12)\n    at async claimJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:39:3)\n    at async runChannelJobs (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\channelJobs.ts:278:16)\n    at async Promise.all (index 0)\n    at async runOnce (C:\\Users\\pablo\\Documents\\OpenCode\\Aluguei-app\\.claude\\worktrees\\agent-a8fcbfc5daba18807\\apps\\worker\\src\\index.ts:71:39)","query":"\n    UPDATE channel_sync_jobs\n    SET status = 'PENDING'\n    WHERE status = 'RUNNING' AND started_at < now() - interval '5 minutes'\n  ","params":[]},"msg":"job cycle failed"}
+: expected 'running' not to be 'running' // Object.is equality
+ ❯ src/config-fail-fast.test.ts:240:39
+    238|     const worker = start('worker', { DATABASE_URL: 'postgresql://alugu…
+    239|     const code = await waitExit(worker);
+    240|     expect(code, worker.output()).not.toBe('running');
+       |                                       ^
+    241|     expect(code).not.toBe(0);
+    242|     expect(worker.output()).toContain('NODE_ENV ausente');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 2 passed (7)
+   Start at  13:24:26
+   Duration  157.01s (transform 38ms, setup 0ms, import 62ms, tests 156.73s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/config-fail-fast.test.ts
+# exit=1

@@ -27,11 +27,65 @@ export function normalizeBaseUrl(url: string): string {
   }
 }
 
-/** Garante que API_BASE_URL use HTTPS fora de desenvolvimento. */
+/** IPv4 privado (RFC 1918) ou loopback. */
+function isPrivateIpv4(host: string): boolean {
+  const parts = host.split('.').map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0)) {
+    return false;
+  }
+  const [a = -1, b = -1] = parts;
+  return a === 10 || a === 127 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+}
+
+/**
+ * Endereço que só existe dentro da rede do deploy: nome de serviço sem domínio (Docker/Coolify),
+ * loopback, IP privado ou domínio `.internal`/`.local` (inclui `*.svc.cluster.local`).
+ */
+function isInternalHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (host === 'localhost' || host === '::1') {
+    return true;
+  }
+  if (/^[0-9.]+$/.test(host)) {
+    return isPrivateIpv4(host);
+  }
+  if (host.includes(':')) {
+    return false;
+  }
+  return !host.includes('.') || host.endsWith('.internal') || host.endsWith('.local');
+}
+
+/**
+ * Em produção a API precisa de `API_BASE_URL` com HTTPS: o BFF repassa o cookie de sessão.
+ * API na rede interna do deploy (sem TLS, sem passar pela internet) só com permissão explícita,
+ * `API_BASE_URL_ALLOW_HTTP=true`, e mesmo assim só para endereço interno (P1-15).
+ */
 export function assertSecureApiBase(): void {
+  if (process.env.NODE_ENV !== 'production') {
+    return;
+  }
   const base = process.env.API_BASE_URL;
-  if (base && process.env.NODE_ENV === 'production' && !base.startsWith('https://')) {
-    throw new Error('API_BASE_URL deve usar HTTPS em produção');
+  if (!base) {
+    throw new Error('API_BASE_URL ausente em produção');
+  }
+  if (base.startsWith('https://')) {
+    return;
+  }
+  if (process.env.API_BASE_URL_ALLOW_HTTP !== 'true') {
+    throw new Error(
+      'API_BASE_URL deve usar HTTPS em produção; para a API na rede interna (ex.: http://api:4000), defina API_BASE_URL_ALLOW_HTTP=true',
+    );
+  }
+  let url: URL;
+  try {
+    url = new URL(base);
+  } catch {
+    throw new Error('API_BASE_URL inválida');
+  }
+  if (url.protocol !== 'http:' || !isInternalHost(url.hostname)) {
+    throw new Error(
+      'API_BASE_URL_ALLOW_HTTP=true só vale para a API na rede interna (nome de serviço, loopback, IP privado, .internal ou .local)',
+    );
   }
 }
 

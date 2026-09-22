@@ -30,6 +30,7 @@ import {
   suggestionStatusLabel,
   suggestionStatusTone,
 } from '@/lib/inspection-suggestions';
+import { canEditInspectionEvidence, EVIDENCE_CLOSED_NOTE } from '@/lib/inspection-rules';
 import { label, INSPECTION_STATUS_LABELS, INSPECTION_STATUS_TONES } from '@/lib/labels';
 import { PermissionDenied, EmptyState } from '@aluguei/ui';
 
@@ -168,6 +169,9 @@ function InspectionBody() {
     );
   }
   if (!inspection || !agg) return <EmptyState title="Carregando vistoria…" icon="camera" />;
+
+  // Depois de concluída, a evidência é a prova do estado do imóvel e não muda mais (P1-24).
+  const evidenceOpen = canEditInspectionEvidence(inspection.status);
 
   async function addRoom(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -380,27 +384,31 @@ function InspectionBody() {
                 </span>
               ) : null}
             </Group>
-            <form
-              className="peg-group"
-              style={{ gap: 8 }}
-              onSubmit={(e) => {
-                void addRoom(e);
-              }}
-            >
-              <Input
-                size="sm"
-                placeholder="Nome do ambiente (ex.: Sala)"
-                value={roomName}
-                onChange={(e) => {
-                  setRoomName(e.target.value);
+            {evidenceOpen ? (
+              <form
+                className="peg-group"
+                style={{ gap: 8 }}
+                onSubmit={(e) => {
+                  void addRoom(e);
                 }}
-              />
-              {/* O Button do design system é type="button" por padrão: sem type="submit"
+              >
+                <Input
+                  size="sm"
+                  placeholder="Nome do ambiente (ex.: Sala)"
+                  value={roomName}
+                  onChange={(e) => {
+                    setRoomName(e.target.value);
+                  }}
+                />
+                {/* O Button do design system é type="button" por padrão: sem type="submit"
                   o clique não enviava o formulário e o ambiente nunca era criado. */}
-              <Button type="submit" size="sm" variant="secondary" loading={busy}>
-                Adicionar
-              </Button>
-            </form>
+                <Button type="submit" size="sm" variant="secondary" loading={busy}>
+                  Adicionar
+                </Button>
+              </form>
+            ) : (
+              <EvidenceClosedNote />
+            )}
           </Stack>
         </Card>
       ) : null}
@@ -409,19 +417,26 @@ function InspectionBody() {
         <Card
           title="Ocorrências"
           actions={
-            <Button
-              size="sm"
-              variant="brand"
-              icon={<Icon name="plus" size={14} />}
-              onClick={() => {
-                setObsOpen(true);
-              }}
-            >
-              Nova ocorrência
-            </Button>
+            evidenceOpen ? (
+              <Button
+                size="sm"
+                variant="brand"
+                icon={<Icon name="plus" size={14} />}
+                onClick={() => {
+                  setObsOpen(true);
+                }}
+              >
+                Nova ocorrência
+              </Button>
+            ) : null
           }
           padless
         >
+          {!evidenceOpen ? (
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--peg-border)' }}>
+              <EvidenceClosedNote />
+            </div>
+          ) : null}
           {agg.observations.length === 0 ? (
             <div className="peg-empty" style={{ padding: 24 }}>
               <span className="peg-empty__body">Nenhuma ocorrência registrada.</span>
@@ -484,26 +499,28 @@ function InspectionBody() {
                       {JSON.stringify(s.payload).slice(0, 160)}
                     </span>
                   </Stack>
-                  <Group gap={1}>
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      onClick={() => {
-                        void resolveSuggestion(s.id, 'ACCEPT');
-                      }}
-                    >
-                      Aceitar
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="tertiary"
-                      onClick={() => {
-                        void resolveSuggestion(s.id, 'REJECT');
-                      }}
-                    >
-                      Rejeitar
-                    </Button>
-                  </Group>
+                  {evidenceOpen ? (
+                    <Group gap={1}>
+                      <Button
+                        size="xs"
+                        variant="secondary"
+                        onClick={() => {
+                          void resolveSuggestion(s.id, 'ACCEPT');
+                        }}
+                      >
+                        Aceitar
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="tertiary"
+                        onClick={() => {
+                          void resolveSuggestion(s.id, 'REJECT');
+                        }}
+                      >
+                        Rejeitar
+                      </Button>
+                    </Group>
+                  ) : null}
                 </Group>
               ))}
             </Stack>
@@ -687,5 +704,14 @@ export function InspectionDetailClient() {
     <ToastProvider>
       <InspectionBody />
     </ToastProvider>
+  );
+}
+
+/** Aviso das abas quando a vistoria já foi concluída (P1-24). */
+function EvidenceClosedNote() {
+  return (
+    <span role="status" className="peg-text-secondary" style={{ fontSize: 13 }}>
+      {EVIDENCE_CLOSED_NOTE}
+    </span>
   );
 }

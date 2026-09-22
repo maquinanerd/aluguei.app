@@ -1,0 +1,133 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54331/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/backup-restore.pg.test.ts
+# árvore: main 52e2582 + teste novo de backup e restauração (sem a linha de comando)
+# ambiente: cluster PostgreSQL 17 descartável (initdb -A trust, porta 54331), parado e removido ao final
+# data (UTC): 2026-09-21T19:43:33Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:7452) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/backup-restore.pg.test.ts (4 tests | 4 failed) 2530ms
+     × backup cifrado restaura num banco vazio com todas as tabelas iguais, linha a linha 174ms
+     × backup adulterado ou com chave errada não chega ao banco de destino 2ms
+     × restauração recusa destino com dados 155ms
+     × retenção mantém os N mais novos depois de cada backup 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > backup cifrado restaura num banco vazio com todas as tabelas iguais, linha a linha
+AssertionError: node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\db\src\backup\cli.ts' imported from C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932)
+    at resolveDirectorySync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238)
+    at resolveTsPathsSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445)
+    at resolve (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:15991) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/db/src/backup/cli.ts'
+}
+
+Node.js v24.19.0
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ resolveBaseSync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932
+ ❯ resolveDirectorySync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238
+ ❯ resolveTsPathsSync ../../node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445
+ ❯ src/backup-restore.pg.test.ts:191:40
+    189|       BACKUP_ENCRYPTION_KEY: key,
+    190|     });
+    191|     expect(backup.code, backup.output).toBe(0);
+       |                                        ^
+    192|     expect(backup.output, 'a saída não mostra a URL com credencial').n…
+    193|     const [file] = await backups();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > backup adulterado ou com chave errada não chega ao banco de destino
+Error: EISDIR: illegal operation on a directory, read
+ ❯ src/backup-restore.pg.test.ts:221:19
+    219|     const [file] = await backups();
+    220|     const tampered = join(dir, 'adulterado.bin');
+    221|     const bytes = await readFile(join(dir, file ?? ''));
+       |                   ^
+    222|     bytes[Math.floor(bytes.length / 2)] ^= 0x01;
+    223|     await writeFile(tampered, bytes);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > restauração recusa destino com dados
+AssertionError: expected 'node:internal/modules/esm/resolve:271…' to contain 'não está vazio'
+
+- Expected
++ Received
+
+- não está vazio
++ node:internal/modules/esm/resolve:271
++     throw new ERR_MODULE_NOT_FOUND(
++           ^
++ 
++ Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\db\src\backup\cli.ts' imported from C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\
++     at finalizeResolution (node:internal/modules/esm/resolve:271:11)
++     at moduleResolve (node:internal/modules/esm/resolve:865:10)
++     at defaultResolve (node:internal/modules/esm/resolve:992:11)
++     at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
++     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
++     at nextStep (node:internal/modules/customization_hooks:189:26)
++     at resolveBaseSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932)
++     at resolveDirectorySync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238)
++     at resolveTsPathsSync (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445)
++     at resolve (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/node_modules/.pnpm/tsx@4.23.12/node_modules/tsx/dist/register-C4vWVmug.mjs:2:15991) {
++   code: 'ERR_MODULE_NOT_FOUND',
++   url: 'file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/db/src/backup/cli.ts'
++ }
++ 
++ Node.js v24.19.0
++
+
+ ❯ src/backup-restore.pg.test.ts:247:28
+    245|     });
+    246|     expect(restore.code, restore.output).not.toBe(0);
+    247|     expect(restore.output).toContain('não está vazio');
+       |                            ^
+    248|     const before = await fingerprint(databaseUrl(sourceName));
+    249|     expect(before['public.payouts']?.startsWith('1:')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > retenção mantém os N mais novos depois de cada backup
+Error: EPERM: operation not permitted, copyfile 'C:\Users\pablo\AppData\Local\Temp\aluguei-backup-pg-H3etU9' -> 'C:\Users\pablo\AppData\Local\Temp\aluguei-backup-pg-H3etU9\aluguei-20260101T060000Z.dump.enc'
+ ❯ src/backup-restore.pg.test.ts:256:7
+    254|     for (let day = 1; day <= 15; day += 1) {
+    255|       const name = `aluguei-202601${String(day).padStart(2, '0')}T0600…
+    256|       await copyFile(join(dir, (await backups()).at(-1) ?? ''), join(d…
+       |       ^
+    257|     }
+    258|     const backup = await runBackupCli(['backup'], {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  16:43:35
+   Duration  6.71s (transform 1.77s, setup 0ms, import 3.93s, tests 2.53s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/backup-restore.pg.test.ts
+# exit=1

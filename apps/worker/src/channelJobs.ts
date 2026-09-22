@@ -15,6 +15,9 @@ import { DomainError, normalizeEmail, normalizePhone } from '@aluguei/domain';
 import type { ChannelPublicationStatus } from '@aluguei/domain';
 import type { ChannelLeadInput, IListingChannelAdapter } from '@aluguei/integrations';
 import { buildChannelListingInput } from '@aluguei/api/channel-jobs';
+import { markSpanError, withSpan } from '@aluguei/observability';
+import { startJobLog } from './job-log.js';
+import type { JobLogger } from './job-log.js';
 
 export interface RunChannelJobsOptions {
   db: AppDb;
@@ -22,6 +25,8 @@ export interface RunChannelJobsOptions {
   adapterFor: (channel: string) => IListingChannelAdapter | null;
   limit?: number;
   log?: (msg: string) => void;
+  /** Log estruturado por job (início, fim, falha). */
+  logger?: JobLogger;
 }
 
 interface ClaimedJob {
@@ -30,6 +35,7 @@ interface ClaimedJob {
   listingId: string | null;
   channel: string;
   jobType: string;
+  attempts: number;
   payload: Record<string, unknown> | null;
 }
 
@@ -51,7 +57,7 @@ async function claimJobs(db: AppDb, limit: number): Promise<ClaimedJob[]> {
       LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, org_id, listing_id, channel, job_type, payload
+    RETURNING id, org_id, listing_id, channel, job_type, attempts, payload
   `);
   return result.rows.map((row) => ({
     id: String(row.id),
@@ -59,6 +65,7 @@ async function claimJobs(db: AppDb, limit: number): Promise<ClaimedJob[]> {
     listingId: row.listing_id === null ? null : (row.listing_id as string),
     channel: String(row.channel),
     jobType: String(row.job_type),
+    attempts: Number(row.attempts),
     payload: row.payload ? (row.payload as Record<string, unknown>) : null,
   }));
 }
@@ -274,115 +281,149 @@ async function importLead(
 
 /** Executa um ciclo de jobs de canal. Retorna quantos foram processados. */
 export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ processed: number }> {
-  const { db, adapterFor, limit = 1, log } = opts;
+  const { db, adapterFor, limit = 1, log, logger } = opts;
   const jobs = await claimJobs(db, limit);
   let processed = 0;
 
   for (const job of jobs) {
-    const adapter = adapterFor(job.channel);
-    if (!adapter) {
-      await markJobFailed(db, job.id, 'Canal não configurado');
-      processed += 1;
-      continue;
-    }
-    try {
-      switch (job.jobType) {
-        case 'PUBLISH': {
-          if (!job.listingId) throw new DomainError('INVALID_INPUT', 'PUBLISH exige listing');
-          const listing = await loadListing(db, job.orgId, job.listingId);
-          const input = await buildChannelListingInput(db, job.orgId, listing);
-          const validation = await adapter.validate(input);
-          if (!validation.valid) {
-            throw new DomainError('INVALID_INPUT', validation.errors.join('; '));
-          }
-          const result = await adapter.publish(input);
-          await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED', {
-            channelListingId: result.channelListingId,
-            lastPayload: input,
-          });
-          break;
+    // Span do job: as queries e chamadas do adapter entram no mesmo trace (P2-11).
+    await withSpan(
+      `job ${job.channel}:${job.jobType}`,
+      {
+        'job.queue': 'channel',
+        'job.id': job.id,
+        'job.type': `${job.channel}:${job.jobType}`,
+        'job.attempt': job.attempts,
+        'job.org_id': job.orgId,
+      },
+      async (span) => {
+        const jobLog = startJobLog(logger, {
+          queue: 'channel',
+          jobId: job.id,
+          jobType: `${job.channel}:${job.jobType}`,
+          attempt: job.attempts,
+          orgId: job.orgId,
+        });
+        const adapter = adapterFor(job.channel);
+        if (!adapter) {
+          await markJobFailed(db, job.id, 'Canal não configurado');
+          jobLog.failed('FAILED', 'Canal não configurado', new Error('Canal não configurado'));
+          markSpanError(span, new Error('Canal não configurado'));
+          return;
         }
-        case 'UPDATE': {
-          if (!job.listingId) throw new DomainError('INVALID_INPUT', 'UPDATE exige listing');
-          const publication = await resolvePublication(db, job.orgId, job.listingId, job.channel);
-          if (!publication?.channelListingId) {
-            throw new DomainError('CONFLICT', 'Publicação sem id no canal');
-          }
-          const listing = await loadListing(db, job.orgId, job.listingId);
-          const input = await buildChannelListingInput(db, job.orgId, listing);
-          const result = await adapter.update({
-            ...input,
-            channelListingId: publication.channelListingId,
-          });
-          await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED', {
-            channelListingId: result.channelListingId,
-            lastPayload: input,
-          });
-          break;
-        }
-        case 'REMOVE': {
-          if (!job.listingId) throw new DomainError('INVALID_INPUT', 'REMOVE exige listing');
-          const publication = await resolvePublication(db, job.orgId, job.listingId, job.channel);
-          await adapter.remove({
-            channelListingId: publication?.channelListingId ?? `unknown-${job.id}`,
-          });
-          await updatePublication(db, job.orgId, job.listingId, job.channel, 'REMOVED', {
-            channelListingId: null,
-          });
-          break;
-        }
-        case 'RECONCILE': {
-          const publication =
-            job.listingId !== null
-              ? await resolvePublication(db, job.orgId, job.listingId, job.channel)
-              : null;
-          const result = await adapter.reconcile({
-            channelListingId: publication?.channelListingId ?? null,
-          });
-          if (job.listingId && publication) {
-            if (result.status === 'PUBLISHED') {
-              await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED');
-            } else if (result.status === 'REMOVED' || result.status === 'NOT_FOUND') {
+        try {
+          switch (job.jobType) {
+            case 'PUBLISH': {
+              if (!job.listingId) throw new DomainError('INVALID_INPUT', 'PUBLISH exige listing');
+              const listing = await loadListing(db, job.orgId, job.listingId);
+              const input = await buildChannelListingInput(db, job.orgId, listing);
+              const validation = await adapter.validate(input);
+              if (!validation.valid) {
+                throw new DomainError('INVALID_INPUT', validation.errors.join('; '));
+              }
+              const result = await adapter.publish(input);
+              await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED', {
+                channelListingId: result.channelListingId,
+                lastPayload: input,
+              });
+              break;
+            }
+            case 'UPDATE': {
+              if (!job.listingId) throw new DomainError('INVALID_INPUT', 'UPDATE exige listing');
+              const publication = await resolvePublication(
+                db,
+                job.orgId,
+                job.listingId,
+                job.channel,
+              );
+              if (!publication?.channelListingId) {
+                throw new DomainError('CONFLICT', 'Publicação sem id no canal');
+              }
+              const listing = await loadListing(db, job.orgId, job.listingId);
+              const input = await buildChannelListingInput(db, job.orgId, listing);
+              const result = await adapter.update({
+                ...input,
+                channelListingId: publication.channelListingId,
+              });
+              await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED', {
+                channelListingId: result.channelListingId,
+                lastPayload: input,
+              });
+              break;
+            }
+            case 'REMOVE': {
+              if (!job.listingId) throw new DomainError('INVALID_INPUT', 'REMOVE exige listing');
+              const publication = await resolvePublication(
+                db,
+                job.orgId,
+                job.listingId,
+                job.channel,
+              );
+              await adapter.remove({
+                channelListingId: publication?.channelListingId ?? `unknown-${job.id}`,
+              });
               await updatePublication(db, job.orgId, job.listingId, job.channel, 'REMOVED', {
                 channelListingId: null,
               });
-            } else {
-              await updatePublication(db, job.orgId, job.listingId, job.channel, 'FAILED', {
-                lastError: `Reconciliação: status ${result.status}`,
+              break;
+            }
+            case 'RECONCILE': {
+              const publication =
+                job.listingId !== null
+                  ? await resolvePublication(db, job.orgId, job.listingId, job.channel)
+                  : null;
+              const result = await adapter.reconcile({
+                channelListingId: publication?.channelListingId ?? null,
               });
+              if (job.listingId && publication) {
+                if (result.status === 'PUBLISHED') {
+                  await updatePublication(db, job.orgId, job.listingId, job.channel, 'PUBLISHED');
+                } else if (result.status === 'REMOVED' || result.status === 'NOT_FOUND') {
+                  await updatePublication(db, job.orgId, job.listingId, job.channel, 'REMOVED', {
+                    channelListingId: null,
+                  });
+                } else {
+                  await updatePublication(db, job.orgId, job.listingId, job.channel, 'FAILED', {
+                    lastError: `Reconciliação: status ${result.status}`,
+                  });
+                }
+              }
+              break;
             }
-          }
-          break;
-        }
-        case 'IMPORT_LEADS': {
-          if (!adapter.importLeads) {
-            throw new DomainError('INVALID_INPUT', 'Canal não suporta importLeads');
-          }
-          const { leads: channelLeads } = await adapter.importLeads({});
-          let imported = 0;
-          for (const lead of channelLeads) {
-            if (await importLead(db, job.orgId, job.channel, lead)) {
-              imported += 1;
+            case 'IMPORT_LEADS': {
+              if (!adapter.importLeads) {
+                throw new DomainError('INVALID_INPUT', 'Canal não suporta importLeads');
+              }
+              const { leads: channelLeads } = await adapter.importLeads({});
+              let imported = 0;
+              for (const lead of channelLeads) {
+                if (await importLead(db, job.orgId, job.channel, lead)) {
+                  imported += 1;
+                }
+              }
+              log?.(`importLeads ${job.channel}: ${String(imported)} leads`);
+              break;
             }
+            default:
+              throw new DomainError('INVALID_INPUT', `Job type desconhecido: ${job.jobType}`);
           }
-          log?.(`importLeads ${job.channel}: ${String(imported)} leads`);
-          break;
+          await markJobSuccess(db, job.id);
+          jobLog.finished('SUCCESS');
+          log?.(`job ${job.id} (${job.channel}:${job.jobType}) OK`);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (job.listingId) {
+            await updatePublication(db, job.orgId, job.listingId, job.channel, 'FAILED', {
+              lastError: message,
+            });
+          }
+          await markJobFailed(db, job.id, message);
+          jobLog.failed('FAILED', message.replace(/https?:\/\/\S+/g, '[url]').slice(0, 500), err);
+          markSpanError(span, err);
+          log?.(`job ${job.id} (${job.channel}:${job.jobType}) FAILED: ${message}`);
         }
-        default:
-          throw new DomainError('INVALID_INPUT', `Job type desconhecido: ${job.jobType}`);
-      }
-      await markJobSuccess(db, job.id);
-      log?.(`job ${job.id} (${job.channel}:${job.jobType}) OK`);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      if (job.listingId) {
-        await updatePublication(db, job.orgId, job.listingId, job.channel, 'FAILED', {
-          lastError: message,
-        });
-      }
-      await markJobFailed(db, job.id, message);
-      log?.(`job ${job.id} (${job.channel}:${job.jobType}) FAILED: ${message}`);
-    }
+      },
+    );
     processed += 1;
   }
 

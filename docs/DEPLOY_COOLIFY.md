@@ -22,15 +22,16 @@ sem necessidade.
 
 ## Recursos no Coolify
 
-| Item            | Valor                                                                          |
-| --------------- | ------------------------------------------------------------------------------ |
-| Projeto         | `Aluguei.app` (ambiente `production`)                                          |
-| Aplicação       | `aluguei-app` — build pack Docker Compose, `/docker-compose.prod.yml`          |
-| Banco           | `aluguei-postgres` — PostgreSQL 17, recurso próprio, sem porta pública         |
-| Backup do banco | diário às 05:00 (relógio do servidor), 14 cópias retidas, no disco do servidor |
-| Repositório     | `maquinanerd/aluguei.app` (público)                                            |
-| Auto-deploy     | desligado — deploy manual pelo painel ou pela API                              |
-| Outro projeto   | `CMS Kal-El` convive no mesmo servidor e não é alterado                        |
+| Item            | Valor                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| Projeto         | `Aluguei.app` (ambiente `production`)                                                                |
+| Aplicação       | `aluguei-app` — build pack Docker Compose, `/docker-compose.prod.yml`                                |
+| Banco           | `aluguei-postgres` — PostgreSQL 17, recurso próprio, sem porta pública                               |
+| Backup do banco | diário às 05:00 (relógio do servidor), 14 cópias retidas, no disco do servidor                       |
+| Backup cifrado  | serviço `backup` do compose: diário às 06:00 UTC, AES-256-GCM, 14 cópias no volume `aluguei-backups` |
+| Repositório     | `maquinanerd/aluguei.app` (público)                                                                  |
+| Auto-deploy     | desligado — deploy manual pelo painel ou pela API                                                    |
+| Outro projeto   | `CMS Kal-El` convive no mesmo servidor e não é alterado                                              |
 
 ## Onde ficam os dados
 
@@ -40,6 +41,7 @@ sem necessidade.
 | Sessões e fila de jobs                                               | banco `aluguei-postgres`                                                                                        |
 | Fotos de imóveis e mídias de vistoria                                | MinIO, bucket privado `aluguei-private`, volume `aluguei-minio-data`; o banco guarda só a chave de cada arquivo |
 | Backups do banco                                                     | `/data/coolify/backups/databases/…` no próprio servidor                                                         |
+| Backups cifrados do banco                                            | volume `aluguei-backups` do recurso `aluguei-app` (`aluguei-AAAAMMDDTHHMMSSZ.dump.enc` e `status.json`)         |
 
 ## Topologia (`docker-compose.prod.yml`)
 
@@ -49,7 +51,8 @@ sem necessidade.
 | `minio`         | `ghcr.io/coollabsio/minio` (versão fixada) | storage compatível com S3, volume `aluguei-minio-data`                                                                                                              |
 | `storage-init`  | `Dockerfile` → `server`                    | garante o bucket privado e termina (idempotente)                                                                                                                    |
 | `api`           | `Dockerfile` → `server`                    | Fastify via tsx, porta 4000, healthcheck `/health/ready`; só sobe depois de `migrate` e `storage-init` concluírem                                                   |
-| `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta)                                                                                                  |
+| `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta); entra por `apps/worker/src/main.ts`, com health HTTP na porta 4001 (só dentro do container)     |
+| `backup`        | `Dockerfile` → `server`                    | `pg_dump` 17 por dia às 06:00 UTC, cifrado em fluxo com `BACKUP_ENCRYPTION_KEY`, 14 cópias no volume `aluguei-backups`; healthcheck vermelho sem backup bom em 26 h |
 | `web`           | `Dockerfile` → `web`                       | Next.js (`next start`), porta 3000, healthcheck `/login`                                                                                                            |
 | `legacy-pgdata` | `busybox:1.36`                             | monta só para leitura o volume `aluguei-pgdata` (dados do banco embutido da primeira implantação) e termina; existe só para o volume continuar no recurso (ADR-062) |
 
@@ -103,28 +106,46 @@ Definidas no recurso:
 
 Fixas no compose: `NODE_ENV=production`, `COOKIE_SECURE=true`, `STORAGE_BUCKET=aluguei-private`,
 `STORAGE_REGION=us-east-1`, `STORAGE_FORCE_PATH_STYLE=true`, `PAYMENT_PROVIDER=FAKE`,
-`SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`. Os
-providers são fixados explicitamente porque os defaults divergem: sem variável, o worker em produção
-usaria SERASA para screening.
+`SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`,
+`ALLOW_FAKE_PROVIDERS=true`, `WORKER_HEALTH_PORT=4001` e `WORKER_SHUTDOWN_TIMEOUT_MS=20000`.
+
+Desde o G3 (Trilha F) a escolha de provider é obrigatória em produção e **não há mais default**:
+sem `PAYMENT_PROVIDER`, `SIGNATURE_PROVIDER`, `SCREENING_PROVIDER`, `META_MODE` ou `AI_PROVIDER`, a
+API e o worker não sobem e imprimem a lista do que falta (o mesmo vale para `NODE_ENV`,
+`DATABASE_URL`, `APP_BASE_URL` https, `COOKIE_SECURE` diferente de `false`, os quatro segredos de
+webhook e `META_TOKEN_ENCRYPTION_KEY`). Como a homologação usa FAKE, mock e dry-run de propósito,
+`ALLOW_FAKE_PROVIDERS=true` é a permissão explícita para isso — sem ela, os dois processos recusam
+a subida dizendo quais providers são FAKE. Com ela, cada um registra um aviso no boot.
+
+Opcionais, não definidas hoje:
+
+| Variável                      | Para quê                                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log) |
+| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https       |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria              |
 
 `STORAGE_FORCE_PATH_STYLE=true` é obrigatório com MinIO atrás de domínio próprio: sem ele o SDK assina
 a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não atende.
 
 ## Limitações conhecidas desta homologação
 
-| Limitação                                                                                                                                                                                   | Origem                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Backups do banco no mesmo servidor: protegem contra erro humano e corrupção, não contra perda do VPS; falta cópia fora do servidor                                                          | Fase 6                                       |
-| Arquivos do MinIO sem backup                                                                                                                                                                | Fase 6                                       |
-| MinIO comunitário: a MinIO deixou de publicar imagens da edição comunitária; a imagem usada é a build mantida pelo Coolify, com versão fixada. Reavaliar storage gerenciado antes do piloto | ADR-046                                      |
-| Existência do bucket só inferida (a API depende de `storage-init`); a prova direta é o primeiro upload autenticado                                                                          | deploy de 2026-09-15                         |
-| Aprovação do cadastro sem aviso: a imobiliária só descobre a aprovação, a recusa ou a suspensão ao entrar (envio real de e-mail ou WhatsApp está fora desta fase)                           | ADR-060 (Fase 7)                             |
-| Suspensão fecha painel, portal e site público, mas não despublica anúncios já enviados a canais externos nem para jobs do worker (webhooks de pagamento seguem sendo processados)           | ADR-060                                      |
-| Pagamento FAKE não pode ser simulado: a rota `/dev/fake-payments` só existe fora de produção, então cobranças ficam `PENDING`                                                               | `apps/api/src/app.ts` (proteção intencional) |
-| Sem Redis: rate limit em memória por processo; preencher `REDIS_URL` derruba a API                                                                                                          | P1-14 (Fase 6)                               |
-| Todos os clientes dividem o mesmo limite de requisições: `trustProxy: 'loopback'` e o web chama a API pelo proxy, então a API vê um único IP (10/min nas rotas de login)                    | Fase 6                                       |
-| O web chama a API pelo domínio público, não pela rede interna: `API_BASE_URL` sem https é recusada                                                                                          | P1-15 (Fase 6)                               |
-| Web sem `Strict-Transport-Security`; CSP com `'unsafe-inline'` e `'unsafe-eval'`                                                                                                            | Fase 6                                       |
+| Limitação                                                                                                                                                                                                         | Origem                                       |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Backups do banco no mesmo servidor (os do Coolify e os cifrados do serviço `backup`): protegem contra erro humano e corrupção, não contra perda do VPS; a cópia fora do servidor depende de um destino do usuário | Fase 7                                       |
+| A chave dos backups cifrados (`SERVICE_HEX_64_BACKUPKEY`) existe só no Coolify: sem uma cópia dela fora do servidor, os backups cifrados não abrem se o VPS se perder                                             | trilha F2 (G3)                               |
+| Arquivos do MinIO sem backup                                                                                                                                                                                      | Fase 6                                       |
+| MinIO comunitário: a MinIO deixou de publicar imagens da edição comunitária; a imagem usada é a build mantida pelo Coolify, com versão fixada. Reavaliar storage gerenciado antes do piloto                       | ADR-046                                      |
+| Existência do bucket só inferida (a API depende de `storage-init`); a prova direta é o primeiro upload autenticado                                                                                                | deploy de 2026-09-15                         |
+| Aprovação do cadastro sem aviso: a imobiliária só descobre a aprovação, a recusa ou a suspensão ao entrar (envio real de e-mail ou WhatsApp está fora desta fase)                                                 | ADR-060 (Fase 7)                             |
+| Suspensão fecha painel, portal e site público, mas não despublica anúncios já enviados a canais externos nem para jobs do worker (webhooks de pagamento seguem sendo processados)                                 | ADR-060                                      |
+| Pagamento FAKE não pode ser simulado: a rota `/dev/fake-payments` só existe fora de produção, então cobranças ficam `PENDING`                                                                                     | `apps/api/src/app.ts` (proteção intencional) |
+| Sem Redis: rate limit em memória por processo (uma instância hoje). Preencher `REDIS_URL` já é seguro — a API não cai mais no boot                                                                                | P1-14 fechado no G3 (Trilha F)               |
+| Sem coletor OTLP: nenhum span é exportado (a instrumentação existe e liga com `OTEL_EXPORTER_OTLP_ENDPOINT`); a investigação hoje é por log estruturado                                                           | Trilha F (G3)                                |
+| Captura de erro sem serviço externo: erro 5xx, falha de job e exceção sem tratamento ficam no log (`event=error.captured`) e no span; não há alerta automático                                                    | ADR G3F-7                                    |
+| Todos os clientes dividem o mesmo limite de requisições: `trustProxy: 'loopback'` e o web chama a API pelo proxy, então a API vê um único IP (10/min nas rotas de login)                                          | Fase 6                                       |
+| O web chama a API pelo domínio público, não pela rede interna. A troca é possível desde o G3 (`API_BASE_URL=http://api:4000` com `API_BASE_URL_ALLOW_HTTP=true`), mas exige smoke no deploy                       | P1-15 (opção liberada na Trilha F)           |
+| Web sem `Strict-Transport-Security`; CSP com `'unsafe-inline'` e `'unsafe-eval'`                                                                                                                                  | Fase 6                                       |
 
 ## Admin da plataforma
 
@@ -157,10 +178,17 @@ no plano ILIMITADO.
 - **Deploy**: painel do Coolify → `aluguei-app` → Deploy, ou `POST /api/v1/deploy?uuid=<app>` com um
   token de API que tenha permissão de deploy. Tokens usados em sessões assistidas devem ser
   revogados depois.
+- **Saúde do worker**: healthcheck do próprio container em `http://127.0.0.1:4001/health` (200 com
+  o loop de jobs saudável; 503 com o motivo — parando, ciclo preso há mais de 5 min, três falhas
+  seguidas ou nenhum ciclo bem-sucedido há mais de 60 s). Sem domínio público. No deploy, o worker
+  recebe SIGTERM, para de pegar jobs e espera os em andamento até 20 s (`stop_grace_period` de 30 s).
 - **Status**: `GET /api/v1/deployments/applications/<app>` e `GET /api/v1/deployments/<deployment>`.
   Logs de build e de containers exigem a permissão `read:sensitive` no token, ou o painel.
 - **Rollback**: redeploy de um commit anterior (o schema é forward-only; migrations destrutivas
   exigem migração própria).
-- **Backup e restauração do banco**: painel do Coolify → `aluguei-postgres` → Backups. Para uma
-  cópia fora do servidor, baixar o dump pelo painel ou configurar um destino S3 externo.
+- **Backup e restauração do banco**: dois caminhos. (1) Painel do Coolify → `aluguei-postgres` →
+  Backups: dump diário do próprio Coolify, sem cifra. (2) Serviço `backup` do compose: dump cifrado
+  diário no volume `aluguei-backups`, com `status.json` (último backup bom, erro e próxima execução)
+  e healthcheck. Restaurar um backup cifrado: `docs/OPERATIONS.md`. Para uma cópia fora do servidor,
+  baixar os arquivos e guardar junto a chave `SERVICE_HEX_64_BACKUPKEY` em outro lugar (Fase 7).
 - **Arquivos**: bucket `aluguei-private`, no volume `aluguei-minio-data` do recurso `aluguei-app`.

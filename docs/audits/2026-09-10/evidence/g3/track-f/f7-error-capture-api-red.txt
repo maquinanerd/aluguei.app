@@ -1,0 +1,37 @@
+# comando: pnpm --filter @aluguei/api exec vitest run src/error-capture.test.ts
+# árvore: commit 20f2715 (teste do F-7 na API; error handler sem captura estruturada)
+# data (UTC): 2026-09-17T18:17:46Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/api
+
+(node:33788) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33788) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+ ❯ src/error-capture.test.ts (2 tests | 1 failed) 3917ms
+     × erro 5xx vira error.captured com rota, método e pilha 2902ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/error-capture.test.ts > captura de erro da API (P2-11) > erro 5xx vira error.captured com rota, método e pilha
+AssertionError: ["incoming request","unhandled error","request completed"]: expected undefined to be defined
+ ❯ src/error-capture.test.ts:48:71
+     46|
+     47|     const captured = log.entries().find((entry) => entry.event === 'er…
+     48|     expect(captured, JSON.stringify(log.entries().map((e) => e.msg))).…
+       |                                                                       ^
+     49|     expect(captured?.kind).toBe('http_5xx');
+     50|     expect(captured?.method).toBe('GET');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  15:17:53
+   Duration  57.54s (transform 37.79s, setup 0ms, import 51.84s, tests 3.92s, environment 1ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/error-capture.test.ts
+# exit=1

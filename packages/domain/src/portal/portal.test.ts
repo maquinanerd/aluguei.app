@@ -6,6 +6,7 @@ import {
   buildLandlordStatement,
   buildTenantStatement,
   canPortalReadInspection,
+  canPortalSeeInspection,
   sanitizeExportColumns,
 } from '../index.js';
 
@@ -41,6 +42,26 @@ describe('portal/statement', () => {
     expect(statement.totals.openCents).toBe(100_000);
   });
 
+  it('cobrança cancelada fica na lista e fora dos totais (P2-05)', () => {
+    const charge = (id: string, status: string) => ({
+      id,
+      periodStart: '2026-09-01',
+      dueDate: '2026-09-10',
+      status,
+      amountCents: 100_000,
+      lateFeeCents: 0,
+      interestCents: 0,
+      paidAt: null,
+    });
+    const statement = buildTenantStatement([charge('c1', 'OPEN'), charge('c2', 'CANCELLED')], []);
+    expect(statement.totals).toEqual({
+      billedCents: 100_000,
+      paidCents: 0,
+      openCents: 100_000,
+    });
+    expect(statement.charges.map((c) => c.id)).toEqual(['c1', 'c2']);
+  });
+
   it('extrato do proprietário separa pago/pendente', () => {
     const statement = buildLandlordStatement('p1', [
       {
@@ -74,6 +95,37 @@ describe('portal/inspection visibility', () => {
     expect(canPortalReadInspection('TENANT', 'CHECKOUT')).toBe(true);
     expect(canPortalReadInspection('LANDLORD', 'CHECKIN')).toBe(true);
     expect(canPortalReadInspection('LANDLORD', 'CHECKOUT')).toBe(true);
+  });
+
+  it('só vistoria concluída aparece: rascunho e intermediária ficam fora (P2-05)', () => {
+    for (const portalKind of ['TENANT', 'LANDLORD']) {
+      for (const inspectionStatus of ['COMPLETED', 'SIGNED']) {
+        expect(
+          canPortalSeeInspection({ portalKind, inspectionType: 'CHECKIN', inspectionStatus }),
+          `${portalKind} ${inspectionStatus}`,
+        ).toBe(true);
+      }
+      for (const inspectionStatus of ['DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW']) {
+        expect(
+          canPortalSeeInspection({ portalKind, inspectionType: 'CHECKOUT', inspectionStatus }),
+          `${portalKind} ${inspectionStatus}`,
+        ).toBe(false);
+      }
+      expect(
+        canPortalSeeInspection({
+          portalKind,
+          inspectionType: 'INTERMEDIATE',
+          inspectionStatus: 'COMPLETED',
+        }),
+      ).toBe(false);
+    }
+    expect(
+      canPortalSeeInspection({
+        portalKind: 'AGENCY',
+        inspectionType: 'CHECKIN',
+        inspectionStatus: 'COMPLETED',
+      }),
+    ).toBe(false);
   });
 });
 

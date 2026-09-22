@@ -1,0 +1,14 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54332/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/migration-runner.pg.test.ts
+# árvore: commit d86a125 + runner com pg_advisory_lock e saída sem segredo (packages/db/scripts/apply-migrations.mjs, antes do commit)
+# data (UTC): 2026-09-17T16:09:16Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  13:09:18
+   Duration  10.80s (transform 238ms, setup 0ms, import 931ms, tests 9.63s, environment 0ms)
+
+# exit=0

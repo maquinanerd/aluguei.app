@@ -1,0 +1,29 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e g3-e
+# árvore: commit 3db8f63 (g3/track-e-portal) — trilha E1 completa (portal, vistoria, handoff e interface); stack e cluster PostgreSQL descartáveis, providers FAKE
+# git status --porcelain (fora do commit): 4 entradas
+# data (UTC): 2026-09-21T18:16:13Z
+$ playwright test "g3-e"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790014577309\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+
+Running 3 tests using 1 worker
+
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a47d98dd51\run-1790014577309).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+  ok 1 g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático (11.3s)
+  ok 2 g3-e-portal-inbox-inspection.spec.ts:95:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão (5.2s)
+  ok 3 g3-e-portal-inbox-inspection.spec.ts:146:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada (13.1s)
+[e2e-stack] stack run-1790014577309 desligada.
+
+  Slow test file: g3-e-portal-inbox-inspection.spec.ts (29.6s)
+  Consider splitting slow test files to speed up parallel execution
+  3 passed (1.7m)
+# duração: 104s
+# exit=0

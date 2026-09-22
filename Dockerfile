@@ -20,8 +20,13 @@ FROM base AS fetch
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
 RUN pnpm fetch
 
-# API, worker e migrations: mesma imagem, o comando vem do compose.
+# API, worker, migrations e backup: mesma imagem, o comando vem do compose.
 FROM fetch AS server
+# pg_dump e pg_restore na versão do servidor (17), do repositório oficial do PostgreSQL (PGDG,
+# assinado): o Debian bookworm traz a 15, que não lê um banco 17. Usados pelo serviço de backup
+# (G3, trilha F2). A camada fica em cache enquanto o Dockerfile não muda.
+RUN apt-get update  && apt-get install -y --no-install-recommends ca-certificates curl  && install -d /usr/share/postgresql-common/pgdg  && curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc       https://www.postgresql.org/media/keys/ACCC4CF8.asc  && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main"       > /etc/apt/sources.list.d/pgdg.list  && apt-get update  && apt-get install -y --no-install-recommends postgresql-client-17  && apt-get purge -y curl && apt-get autoremove -y  && rm -rf /var/lib/apt/lists/*  && install -d -o node -g node /backups
+ENV PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump     PG_RESTORE=/usr/lib/postgresql/17/bin/pg_restore
 COPY . .
 RUN pnpm install --offline --frozen-lockfile \
       --filter aluguei-app \

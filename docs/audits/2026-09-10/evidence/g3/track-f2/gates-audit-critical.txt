@@ -1,0 +1,6 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit eeaea75 (g3/track-f2-backup)
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high

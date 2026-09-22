@@ -1,0 +1,44 @@
+# comando: pnpm --filter @aluguei/worker exec vitest run src/job-logging.test.ts
+# árvore: commit 20f2715 (teste do F-7 no worker; falha de job sem tipo e sem pilha)
+# data (UTC): 2026-09-17T18:18:55Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/worker
+
+ ❯ src/job-logging.test.ts (4 tests | 1 failed) 20052ms
+     × fila inbox: falha com tentativa, duração e mensagem de erro 207ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/job-logging.test.ts > log estruturado por job (P2-10) > fila inbox: falha com tentativa, duração e mensagem de erro
+AssertionError: expected undefined to match object { type: 'Error', …(1) }
+
+- Expected:
+{
+  "message": "provider de pagamento não configurado",
+  "type": "Error",
+}
+
++ Received:
+undefined
+
+ ❯ src/job-logging.test.ts:119:32
+    117|     expect(logged[1]?.obj.durationMs).toBeGreaterThanOrEqual(0);
+    118|     // Captura de erro (F-7): tipo e pilha, com a mensagem já saneada.
+    119|     expect(logged[1]?.obj.err).toMatchObject({
+       |                                ^
+    120|       type: 'Error',
+    121|       message: 'provider de pagamento não configurado',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:19:09
+   Duration  54.62s (transform 20.49s, setup 0ms, import 32.00s, tests 20.05s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\worker:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/job-logging.test.ts
+# exit=1

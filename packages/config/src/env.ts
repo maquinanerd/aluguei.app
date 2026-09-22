@@ -1,12 +1,21 @@
 import { z } from 'zod';
 
+const emptyAsUndefined = (value: unknown): unknown => (value === '' ? undefined : value);
+
 /**
  * Schema de configuração da aplicação. Nunca contenha segredos em valores default.
- * Credenciais de integrações (Meta, WhatsApp, pagamentos, etc.) são validadas pelos
- * pacotes específicos em fases futuras — o schema aqui cobre apenas infraestrutura.
+ *
+ * O default `development` de NODE_ENV vale só para uso como biblioteca e em testes
+ * (`envSchema.parse`, `loadEnv`). API e worker sobem por `loadRuntimeEnv` (runtime.ts), que
+ * exige NODE_ENV explícito e, em produção, valida banco, URLs, segredos e providers.
  */
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  /**
+   * Permissão explícita para providers FAKE, mock ou dry_run em produção (homologação).
+   * Só o valor exato `true` vale; sem ela, a API e o worker recusam a subida.
+   */
+  ALLOW_FAKE_PROVIDERS: z.enum(['true', 'false']).optional(),
   LOG_LEVEL: z.string().default('info'),
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().default(4000),
@@ -55,8 +64,27 @@ export const envSchema = z.object({
   META_AD_ACCOUNT_ID: z.string().optional(),
   META_TOKEN_ENCRYPTION_KEY: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
+  // Worker. Vazio vale como ausente (z.coerce leria "" como 0).
+  /** Porta do health HTTP do worker (`GET /health`); ausente: sem servidor de health. */
+  WORKER_HEALTH_PORT: z.preprocess(
+    emptyAsUndefined,
+    z.coerce.number().int().min(0).max(65_535).optional(),
+  ),
+  /** Espera pelos jobs em andamento no SIGTERM/SIGINT; ausente: 20 s. */
+  WORKER_SHUTDOWN_TIMEOUT_MS: z.preprocess(
+    emptyAsUndefined,
+    z.coerce.number().int().positive().optional(),
+  ),
   // Admins da plataforma (e-mails separados por vírgula). Ausente: ninguém é admin.
   PLATFORM_ADMIN_EMAILS: z.string().optional(),
+  // Web (Next.js): lidas por apps/web, que não depende deste pacote. Ficam no schema para o
+  // `.env.example` e a documentação das variáveis estarem num lugar só (env-example.test.ts).
+  /** URL da API usada pelo BFF; em produção, https (ou http interno com a permissão abaixo). */
+  API_BASE_URL: z.string().optional(),
+  /** Permite `API_BASE_URL` http em produção, só para endereço da rede interna (P1-15). */
+  API_BASE_URL_ALLOW_HTTP: z.enum(['true', 'false']).optional(),
+  /** Slug da imobiliária exibida na vitrine pública. */
+  PUBLIC_ORG_SLUG: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

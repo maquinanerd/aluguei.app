@@ -1,0 +1,64 @@
+# comando: WEB_PORT=3310 API_PORT=4310 PG_PORT=5543 pnpm --filter @aluguei/tests-e2e test:e2e
+# árvore: commit 8284995 (g3/track-f-ops); stack e cluster descartáveis do próprio Playwright (web 3310, API 4310, PostgreSQL 5543; 3300/4300/5533 em uso por outra trilha)
+# data (UTC): 2026-09-21T18:21:49Z
+
+$ playwright test
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a45e97319a
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a45e97319a\run-1790014913735\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5543...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4310...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3310...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\a45e97319a\run-1790014913735).
+[WebServer] [e2e-stack] web http://localhost:3310 · API http://127.0.0.1:4310 — Ctrl+C para derrubar.
+
+Running 28 tests using 1 worker
+
+(node:2508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 g2-b1-bff.spec.ts:18:3 › P1-02: BFF repassa corpo e headers › export CSV de leads chega como arquivo CSV (4.5s)
+  ok 2 g2-b1-bff.spec.ts:45:3 › P1-02: BFF repassa corpo e headers › mutação sem corpo pela tela: remover característica do imóvel (2.7s)
+  ok 3 g2-b1-dialog-focus.spec.ts:85:3 › Foco em Modal e Drawer ao digitar tecla a tecla › motivo da decisão de crédito fica no campo, Tab circula no diálogo e o motivo é gravado (12.2s)
+  ok 4 g2-b1-dialog-focus.spec.ts:144:3 › Foco em Modal e Drawer ao digitar tecla a tecla › nome e identificador digitados em "Novo contato" ficam nos campos e o contato é criado (4.7s)
+  ok 5 g2-b1-dialog-focus.spec.ts:176:3 › Foco em Modal e Drawer ao digitar tecla a tecla › campo controlado no Drawer mantém o foco e Escape devolve o foco ao gatilho (5.1s)
+  ok 6 g2-b1-inspection-detail.spec.ts:10:1 › P1-04: detalhe de vistoria abre e navega pelas abas sem pageerror (4.8s)
+  ok 7 g2-b1-logout.spec.ts:32:3 › P1-03: logout encerra a sessão › "Sair" no menu da conta do topo revoga a sessão (3.4s)
+  ok 8 g2-b1-logout.spec.ts:43:3 › P1-03: logout encerra a sessão › "Sair" no menu do perfil da barra lateral revoga a sessão (1.8s)
+  ok 9 g2-b1-logout.spec.ts:56:3 › P1-03: logout encerra a sessão › "Sair" do portal do locatário encerra a sessão do portal no navegador (2.4s)
+  ok 10 g2-b1-money-input.spec.ts:17:3 › P0-07: valor monetário digitado em pt-BR › "3.500" nos termos financeiros do imóvel grava R$ 3.500,00 (1.7s)
+  ok 11 g2-b1-money-input.spec.ts:39:3 › P0-07: valor monetário digitado em pt-BR › "3.500,50" no orçamento mínimo de um lead novo grava 350050 centavos (1.7s)
+  ok 12 g2-b1-navigation.spec.ts:229:3 › P1-01: telas que usavam limit=200 › as telas afetadas carregam sem resposta >= 400 do BFF e sem pageerror (46.7s)
+  ok 13 g2-b1-navigation.spec.ts:264:3 › P1-01: telas que usavam limit=200 › nomes de pessoa e imóvel aparecem nas listas e detalhes (24.9s)
+  ok 14 g2-b1-navigation.spec.ts:289:3 › P1-01: telas que usavam limit=200 › Visão Geral mostra os números reais da organização (1.2s)
+  ok 15 g2-b1-navigation.spec.ts:300:3 › P1-01: telas que usavam limit=200 › os modais de criação oferecem o imóvel da organização (4.2s)
+  ok 16 g2-b2-application-channel-archive.spec.ts:18:1 › P1-17: nova candidatura pela tela, com consentimento LGPD, entra em análise (3.1s)
+  ok 17 g2-b2-application-channel-archive.spec.ts:69:1 › P1-17: primeira publicação de um anúncio em canal pela tela (6.6s)
+  ok 18 g2-b2-application-channel-archive.spec.ts:106:1 › P1-17: "Arquivar imóvel" arquiva pela API e pode ser desfeito (2.1s)
+  ok 19 g2-b2-crawler.spec.ts:115:3 › Crawler: todas as telas sem 4xx inesperado nem erro de página › painel, portais e visitante (1.9m)
+  ok 20 g2-b2-creation-flows.spec.ts:22:3 › Fluxos de criação pela interface › cria anúncio, proposta e vistoria pelos modais (53.4s)
+  ok 21 g2-b2-creation-flows.spec.ts:81:3 › Fluxos de criação pela interface › cria o contrato de uma candidatura aprovada, gera o texto e envia para assinatura (14.1s)
+  ok 22 g2-b2-creation-flows.spec.ts:133:3 › Fluxos de criação pela interface › cancela uma cobrança pela tela (12.8s)
+  ok 23 g2-b2-portal-access.spec.ts:20:3 › P1-16: portal alcançável pela interface › gera o link do inquilino na locação, entra pelo link, o link não abre de novo e "Sair" encerra a sessão (5.5s)
+  ok 24 g2-b2-portal-access.spec.ts:76:3 › P1-16: portal alcançável pela interface › o proprietário também recebe link e entra no portal do proprietário (4.2s)
+  ok 25 main-journey.spec.ts:74:3 › Jornada principal (browser + API, fakes) › 1. registro e criação de imóvel pela UI (19.3s)
+  ok 26 main-journey.spec.ts:117:3 › Jornada principal (browser + API, fakes) › 2. jornada de negócio via API (screening→assinatura→locação→cobrança→portal) (11.3s)
+  ok 27 main-journey.spec.ts:433:3 › Jornada principal (browser + API, fakes) › 3. telas do painel refletem os dados criados (9.0s)
+  ok 28 platform-admin.spec.ts:10:3 › Admin da plataforma › cadastro em análise, aprovação com plano, suspensão com motivo e novo plano (13.0s)
+[e2e-stack] PID 3532 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 17664 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 22664 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790014913735 desligada.
+
+  Slow test file: g2-b2-crawler.spec.ts (1.9m)
+  Slow test file: g2-b2-creation-flows.spec.ts (1.3m)
+  Slow test file: g2-b1-navigation.spec.ts (1.3m)
+  Slow test file: main-journey.spec.ts (39.6s)
+  Slow test file: g2-b1-dialog-focus.spec.ts (22.0s)
+  Consider splitting slow test files to speed up parallel execution
+  28 passed (7.3m)
+# exit=0

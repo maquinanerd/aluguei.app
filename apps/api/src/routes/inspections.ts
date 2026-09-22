@@ -16,6 +16,7 @@ import type { AppDb } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  assertInspectionEvidenceWritable,
   computeInspectionDifferences,
   isInspectionStatus,
   transitionInspection,
@@ -271,6 +272,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       const room = first(
         await db
           .insert(inspectionRooms)
@@ -298,6 +301,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       assertInspectionSizeAllowed(input.kind, input.sizeBytes);
       const key = buildInspectionStorageKey(auth.orgId, inspection.id, input.kind, input.mimeType);
       const { url, expiresIn } = await app.storage.getPresignedPutUrl({
@@ -325,6 +330,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       if (!input.key.startsWith(`orgs/${auth.orgId}/inspections/${inspection.id}/`)) {
         throw new DomainError('INVALID_INPUT', 'Chave de storage inválida');
       }
@@ -374,6 +381,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       const [media] = await db
         .select()
         .from(inspectionMedia)
@@ -386,6 +395,15 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
         if (app.storage) {
           await app.storage.deleteObject(media.storageKey).catch(() => undefined);
         }
+        // Remover evidência é rastreável (P1-24): quem removeu, de qual vistoria e qual mídia.
+        await writeAudit(db, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.INSPECTION_MEDIA_REMOVED,
+          entityType: 'INSPECTION',
+          entityId: inspection.id,
+          payload: { mediaId: media.id, kind: media.kind },
+        });
       }
       return { ok: true as const };
     },
@@ -449,6 +467,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       // P0-05: ambiente e mídia precisam ser DESTA vistoria (e da própria org).
       await assertOwnedByOrg(
         db,
@@ -510,6 +530,8 @@ export const inspectionRoutes: FastifyPluginAsync = (app) => {
           .where(and(eq(inspections.id, id), eq(inspections.orgId, auth.orgId)))
           .limit(1),
       );
+      // Evidência fechada depois de COMPLETED (auditoria 2026-09-10, P1-24).
+      assertInspectionEvidenceWritable(inspection.status);
       const [suggestion] = await db
         .select()
         .from(inspectionAiSuggestions)

@@ -1,0 +1,69 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/audit-diff.test.ts
+# árvore: commit a63b480 (testes do F-9 corrigidos; writeAudit ainda sem payload nas atualizações)
+# data (UTC): 2026-09-17T18:35:24Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/tests/integration
+
+(node:21164) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/audit-diff.test.ts (2 tests | 2 failed) 5541ms
+     × PATCH /properties/:id grava só o que mudou, com texto livre redigido 274ms
+     × troca de papel de membro grava o papel antes e depois, sem dado do usuário 137ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/audit-diff.test.ts > audit_events.payload com diff (P2-11) > PATCH /properties/:id grava só o que mudou, com texto livre redigido
+AssertionError: expected undefined to deeply equal [ 'bedrooms', 'description', 'title' ]
+
+- Expected:
+[
+  "bedrooms",
+  "description",
+  "title",
+]
+
++ Received:
+undefined
+
+ ❯ src/audit-diff.test.ts:69:28
+     67|
+     68|     const payload = await lastPayload(AUDIT_ACTIONS.PROPERTY_UPDATED, …
+     69|     expect(payload.fields).toEqual(['bedrooms', 'description', 'title'…
+       |                            ^
+     70|     expect(payload.changes?.title).toEqual({ from: 'Casa Antiga', to: …
+     71|     expect(payload.changes?.bedrooms).toEqual({ from: 2, to: 3 });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/audit-diff.test.ts > audit_events.payload com diff (P2-11) > troca de papel de membro grava o papel antes e depois, sem dado do usuário
+AssertionError: expected undefined to deeply equal [ 'role' ]
+
+- Expected:
+[
+  "role",
+]
+
++ Received:
+undefined
+
+ ❯ src/audit-diff.test.ts:108:28
+    106|
+    107|     const payload = await lastPayload(AUDIT_ACTIONS.MEMBER_ROLE_CHANGE…
+    108|     expect(payload.fields).toEqual(['role']);
+       |                            ^
+    109|     expect(payload.changes?.role).toEqual({ from: 'agent', to: 'financ…
+    110|     expect(payload.userId).toBe(member.body.user.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  15:35:26
+   Duration  11.20s (transform 2.27s, setup 0ms, import 5.27s, tests 5.54s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/audit-diff.test.ts
+# exit=1

@@ -5,7 +5,9 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import type { AppDb } from '@aluguei/db';
 import { createDbFakePaymentStore } from '@aluguei/db';
+import { resolveMetaMode } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
+import { annotateHttpRoute } from '@aluguei/observability';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { StorageService } from '@aluguei/storage';
 import type {
@@ -157,6 +159,13 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   // Env tipado (AppEnv validado por zod) disponível em rotas/plugins.
   app.decorate('env', env);
 
+  // Span do request com a rota do Fastify (`GET /properties/:id`) e `http.route` — sem
+  // telemetria ligada, não faz nada (auditoria 2026-09-10, P2-11).
+  app.addHook('onRequest', (request, _reply, done) => {
+    annotateHttpRoute(request.method, request.routeOptions.url);
+    done();
+  });
+
   await app.register(helmet);
   await app.register(cookie);
   await app.register(cors, { origin: config.corsOrigins, credentials: true });
@@ -172,8 +181,22 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     keyGenerator: defaultKeyGenerator,
   };
   if (env.REDIS_URL) {
-    const { createRedisClient } = await import('@aluguei/integrations');
-    rateLimitOptions.redis = createRedisClient(env.REDIS_URL);
+    // O store Redis do plugin registra comandos Lua (`defineCommand`): precisa do client
+    // ioredis, não do adapter get/set/del (auditoria 2026-09-10, P1-14).
+    const { closeRateLimitRedis, createRateLimitRedis } = await import('@aluguei/integrations');
+    const redis = createRateLimitRedis(env.REDIS_URL, {
+      onError: (err) => {
+        app.log.warn({ err }, 'rate limit: falha na conexão com o Redis');
+      },
+    });
+    app.addHook('onClose', async () => {
+      await closeRateLimitRedis(redis);
+    });
+    rateLimitOptions.redis = redis;
+    rateLimitOptions.nameSpace = 'aluguei:rate-limit:';
+    // Redis fora do ar não derruba a API: a requisição passa sem contar (e o erro de
+    // conexão fica no log). Decisão registrada no rascunho de ADR da Trilha F.
+    rateLimitOptions.skipOnError = true;
   }
   await app.register(rateLimit, rateLimitOptions);
   await app.register(configPlugin, { config });
@@ -232,12 +255,15 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   await app.register(placesPlugin, placesOptions);
 
+  // Modo da Meta: o configurado; `dry_run` só fora de produção e só sem META_MODE. Em produção
+  // sem modo, WhatsApp e Meta Ads ficam "não configurados" — nunca FAKE (P1-12).
+  const metaMode = resolveMetaMode(env);
   const whatsappOptions: WhatsAppPluginOptions = {};
   if (opts.whatsapp) {
     whatsappOptions.messenger = opts.whatsapp;
   }
-  if (env.META_MODE) {
-    whatsappOptions.mode = env.META_MODE;
+  if (metaMode) {
+    whatsappOptions.mode = metaMode;
   }
   if (env.WHATSAPP_ACCESS_TOKEN) {
     whatsappOptions.accessToken = env.WHATSAPP_ACCESS_TOKEN;
@@ -304,8 +330,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (opts.meta) {
     metaOptions.meta = opts.meta;
   }
-  if (env.META_MODE) {
-    metaOptions.mode = env.META_MODE;
+  if (metaMode) {
+    metaOptions.mode = metaMode;
   }
   if (env.META_ACCESS_TOKEN) {
     metaOptions.accessToken = env.META_ACCESS_TOKEN;

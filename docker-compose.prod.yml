@@ -108,6 +108,8 @@ services:
       SCREENING_PROVIDER: FAKE
       META_MODE: dry_run
       AI_PROVIDER: mock
+      # Homologação: em produção a API recusa FAKE, mock e dry_run sem esta permissão.
+      ALLOW_FAKE_PROVIDERS: 'true'
       SIGNATURE_WEBHOOK_TOKEN: ${SERVICE_HEX_64_SIGNATUREWEBHOOK}
       ASAAS_WEBHOOK_TOKEN: ${SERVICE_HEX_64_ASAASWEBHOOK}
       META_APP_SECRET: ${SERVICE_HEX_64_METAAPPSECRET}
@@ -138,7 +140,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: server
-    command: ['node', '--import', 'tsx', 'apps/worker/src/index.ts']
+    command: ['node', '--import', 'tsx', 'apps/worker/src/main.ts']
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
@@ -149,10 +151,65 @@ services:
       SCREENING_PROVIDER: FAKE
       META_MODE: dry_run
       AI_PROVIDER: mock
+      # Homologação: em produção o worker recusa FAKE, mock e dry_run sem esta permissão.
+      ALLOW_FAKE_PROVIDERS: 'true'
       META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
+      # Health HTTP só dentro do container (sem domínio): 200 com o loop saudável, 503 sem.
+      WORKER_HEALTH_PORT: '4001'
+      # No SIGTERM o worker espera os jobs em andamento até este limite (abaixo do stop_grace_period).
+      WORKER_SHUTDOWN_TIMEOUT_MS: '20000'
+    stop_grace_period: 30s
     depends_on:
       migrate:
         condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4001/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  # Backup do banco (G3, trilha F2): um pg_dump por dia às 06:00 UTC, cifrado com AES-256-GCM em
+  # fluxo (o dump não toca o disco em claro), guardado no volume `aluguei-backups` com os 14 mais
+  # novos. Sobe fazendo um backup se o último tiver mais de 24 h. O healthcheck fica vermelho sem
+  # backup bom em 26 h. A chave vem do Coolify e precisa ser guardada fora do servidor: sem ela o
+  # backup não abre. Restauração: docs/OPERATIONS.md.
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    command: ['node', '--import', 'tsx', 'packages/db/src/backup/cli.ts', 'schedule']
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BACKUP_DIR: /backups
+      BACKUP_ENCRYPTION_KEY: ${SERVICE_HEX_64_BACKUPKEY}
+      BACKUP_KEEP: '14'
+      BACKUP_HOUR_UTC: '6'
+    volumes:
+      - aluguei-backups:/backups
+    stop_grace_period: 60s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "const s = JSON.parse(require('fs').readFileSync('/backups/status.json', 'utf8')); process.exit(Date.now() - Date.parse(s.lastSuccessAt) < 26 * 3600e3 ? 0 : 1)",
+        ]
+      interval: 5m
+      timeout: 10s
+      retries: 2
+      start_period: 10m
 
   web:
     build:
@@ -186,3 +243,5 @@ volumes:
   # corte de 2026-09-15 (ADR-062). Apagar é irreversível e só com pedido explícito do usuário.
   aluguei-pgdata:
   aluguei-minio-data:
+  # Backups cifrados do banco (serviço `backup`).
+  aluguei-backups:

@@ -36,11 +36,14 @@ export interface TenantStatement {
   };
 }
 
+/** Cobrança cancelada não foi devida: fica na lista, fora dos totais (auditoria 2026-09-10, P2-05). */
 export function buildTenantStatement(
   charges: StatementChargeRow[],
   payments: StatementPaymentRow[],
 ): TenantStatement {
-  const billedCents = charges.reduce((sum, c) => sum + c.amountCents, 0);
+  const billedCents = charges
+    .filter((c) => c.status !== 'CANCELLED')
+    .reduce((sum, c) => sum + c.amountCents, 0);
   const paidCents = charges
     .filter((c) => c.status === 'PAID')
     .reduce((sum, c) => sum + c.amountCents, 0);
@@ -98,6 +101,21 @@ export function canPortalReadInspection(portalKind: string, inspectionType: stri
   }
   // Vistorias intermediárias (INTERMEDIATE) ficam fora do portal.
   return inspectionType === 'CHECKIN' || inspectionType === 'CHECKOUT';
+}
+
+/** Vistoria em andamento é rascunho: o portal só vê o que já foi concluído (P2-05). */
+export const PORTAL_VISIBLE_INSPECTION_STATUSES = ['COMPLETED', 'SIGNED'] as const;
+
+/** Vistoria visível no portal: tipo permitido pelo papel e já concluída. */
+export function canPortalSeeInspection(input: {
+  portalKind: string;
+  inspectionType: string;
+  inspectionStatus: string;
+}): boolean {
+  return (
+    canPortalReadInspection(input.portalKind, input.inspectionType) &&
+    (PORTAL_VISIBLE_INSPECTION_STATUSES as readonly string[]).includes(input.inspectionStatus)
+  );
 }
 
 // ---------- Exportação segura (whitelist por papel) ----------

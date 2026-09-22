@@ -1,0 +1,117 @@
+# comando: pnpm --filter @aluguei/observability exec vitest run src/redaction.test.ts
+# árvore: commit c530d96 (testes do F-8; redact só de senha e token)
+# data (UTC): 2026-09-17T16:44:28Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability
+
+ ❯ src/redaction.test.ts (6 tests | 4 failed) 25ms
+     × cookies por caminho: requisição, resposta e cabeçalhos soltos 13ms
+     × CPF, e-mail e telefone por caminho, no topo, um nível abaixo e nas identidades 3ms
+     × por padrão de valor na mensagem e em texto livre de objetos fundos 2ms
+     × erro com dado pessoal na mensagem e na pilha é redigido, e o tipo do erro fica 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/redaction.test.ts > redação de dado pessoal nos logs (P2-11) > cookies por caminho: requisição, resposta e cabeçalhos soltos
+AssertionError: sessao-secreta-123: expected '{"level":30,"time":1789663470279,"pid…' not to contain 'sessao-secreta-123'
+
+- Expected
++ Received
+
+- sessao-secreta-123
++ {"level":30,"time":1789663470279,"pid":31628,"hostname":"DESKTOP-STB662P","req":{"headers":{"cookie":"aluguei_session=sessao-secreta-123","user-agent":"vitest"}},"msg":"req"}
++ {"level":30,"time":1789663470279,"pid":31628,"hostname":"DESKTOP-STB662P","res":{"headers":{"set-cookie":["aluguei_session=sessao-secreta-123; HttpOnly"]}},"msg":"res"}
++ {"level":30,"time":1789663470279,"pid":31628,"hostname":"DESKTOP-STB662P","headers":{"cookie":"aluguei_session=sessao-secreta-123"},"msg":"headers"}
++ {"level":30,"time":1789663470279,"pid":31628,"hostname":"DESKTOP-STB662P","request":{"headers":{"cookie":"aluguei_session=sessao-secreta-123"}},"msg":"aninhado"}
++ {"level":30,"time":1789663470279,"pid":31628,"hostname":"DESKTOP-STB662P","cookie":"aluguei_session=sessao-secreta-123","msg":"solto"}
++
+
+ ❯ expectNoPii src/redaction.test.ts:32:29
+     30| function expectNoPii(text: string): void {
+     31|   for (const value of [CPF, CPF_DIGITS, EMAIL, PHONE, WA_ID, 'sessao-s…
+     32|     expect(text, value).not.toContain(value);
+       |                             ^
+     33|   }
+     34| }
+ ❯ src/redaction.test.ts:44:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/redaction.test.ts > redação de dado pessoal nos logs (P2-11) > CPF, e-mail e telefone por caminho, no topo, um nível abaixo e nas identidades
+AssertionError: x@y: expected '{"level":30,"time":1789663470289,"pid…' not to contain 'x@y'
+
+- Expected
++ Received
+
+- x@y
++ {"level":30,"time":1789663470289,"pid":31628,"hostname":"DESKTOP-STB662P","email":"x@y","cpf":"cpf-sem-formato","phone":"fone-sem-formato","msg":"topo"}
++ {"level":30,"time":1789663470289,"pid":31628,"hostname":"DESKTOP-STB662P","party":{"email":"x@y","cpf":"cpf-sem-formato","document":"doc-livre"},"msg":"nível"}
++ {"level":30,"time":1789663470289,"pid":31628,"hostname":"DESKTOP-STB662P","identities":[{"kind":"CPF","value":"valor-da-identidade"}],"msg":"identidades"}
++ {"level":30,"time":1789663470289,"pid":31628,"hostname":"DESKTOP-STB662P","contact":{"waContactId":"wa-sem-formato","phone":"fone-sem-formato"},"msg":"wa"}
++
+
+ ❯ src/redaction.test.ts:63:33
+     61|       'wa-sem-formato',
+     62|     ]) {
+     63|       expect(output, value).not.toContain(value);
+       |                                 ^
+     64|     }
+     65|     expect(output).toContain('"kind":"CPF"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/redaction.test.ts > redação de dado pessoal nos logs (P2-11) > por padrão de valor na mensagem e em texto livre de objetos fundos
+AssertionError: 529.982.247-25: expected '{"level":30,"time":1789663470292,"pid…' not to contain '529.982.247-25'
+
+- Expected
++ Received
+
+- 529.982.247-25
++ {"level":30,"time":1789663470292,"pid":31628,"hostname":"DESKTOP-STB662P","msg":"cadastro de maria.souza@exemplo.com.br com CPF 529.982.247-25 e telefone +55 11 91234-5678"}
++ {"level":30,"time":1789663470292,"pid":31628,"hostname":"DESKTOP-STB662P","job":{"payload":{"note":"ligar para 5511912345678 ou (11) 91234-5678, doc 52998224725"}},"msg":"x"}
++ {"level":30,"time":1789663470292,"pid":31628,"hostname":"DESKTOP-STB662P","lista":["contato maria.souza@exemplo.com.br"],"msg":"lista"}
++
+
+ ❯ expectNoPii src/redaction.test.ts:32:29
+     30| function expectNoPii(text: string): void {
+     31|   for (const value of [CPF, CPF_DIGITS, EMAIL, PHONE, WA_ID, 'sessao-s…
+     32|     expect(text, value).not.toContain(value);
+       |                             ^
+     33|   }
+     34| }
+ ❯ src/redaction.test.ts:76:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/redaction.test.ts > redação de dado pessoal nos logs (P2-11) > erro com dado pessoal na mensagem e na pilha é redigido, e o tipo do erro fica
+AssertionError: 529.982.247-25: expected '{"level":50,"time":1789663470294,"pid…' not to contain '529.982.247-25'
+
+- Expected
++ Received
+
+- 529.982.247-25
++ {"level":50,"time":1789663470294,"pid":31628,"hostname":"DESKTOP-STB662P","err":{"type":"Error","message":"duplicate key value: Key (email)=(maria.souza@exemplo.com.br) already exists","stack":"Error: duplicate key value: Key (email)=(maria.souza@exemplo.com.br) already exists\n    at C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/packages/observability/src/redaction.test.ts:82:17\n    at file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"},"causeMessage":"Key (cpf)=(529.982.247-25) already exists","msg":"unhandled error"}
++
+
+ ❯ expectNoPii src/redaction.test.ts:32:29
+     30| function expectNoPii(text: string): void {
+     31|   for (const value of [CPF, CPF_DIGITS, EMAIL, PHONE, WA_ID, 'sessao-s…
+     32|     expect(text, value).not.toContain(value);
+       |                             ^
+     33|   }
+     34| }
+ ❯ src/redaction.test.ts:85:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  13:44:29
+   Duration  411ms (transform 47ms, setup 0ms, import 108ms, tests 25ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\packages\observability:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/redaction.test.ts
+# exit=1

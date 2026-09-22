@@ -1,0 +1,151 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/api-base-security.test.ts
+# árvore: commit 5ed2bde (teste do F-4; assertSecureApiBase sem a permissão)
+# data (UTC): 2026-09-17T16:18:13Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a8fcbfc5daba18807/apps/web
+
+ ❯ src/lib/api-base-security.test.ts (22 tests | 20 failed) 31ms
+     × produção com http e sem a permissão é recusada, e a mensagem diz como liberar 6ms
+     × produção com a permissão aceita http interno: http://api:4000 1ms
+     × produção com a permissão aceita http interno: http://aluguei-api:4000/ 1ms
+     × produção com a permissão aceita http interno: http://localhost:4000 1ms
+     × produção com a permissão aceita http interno: http://127.0.0.1:4000 1ms
+     × produção com a permissão aceita http interno: http://[::1]:4000 2ms
+     × produção com a permissão aceita http interno: http://10.0.1.5:4000 1ms
+     × produção com a permissão aceita http interno: http://172.18.0.4:4000 1ms
+     × produção com a permissão aceita http interno: http://192.168.10.2:4000 1ms
+     × produção com a permissão aceita http interno: http://api.aluguei.internal:4000 1ms
+     × produção com a permissão aceita http interno: http://api.default.svc.cluster.local:4000 1ms
+     × mesmo com a permissão, http para endereço público é recusado: http://api.aluguei.example.com 1ms
+     × mesmo com a permissão, http para endereço público é recusado: http://62.171.164.224:4000 1ms
+     × mesmo com a permissão, http para endereço público é recusado: http://172.32.0.1:4000 1ms
+     × mesmo com a permissão, http para endereço público é recusado: http://api.62.171.164.224.sslip.io 1ms
+     × permissão só vale com o valor exato "true" ("1") 1ms
+     × permissão só vale com o valor exato "true" ("yes") 1ms
+     × permissão só vale com o valor exato "true" ("TRUE ") 1ms
+     × permissão só vale com o valor exato "true" ("") 1ms
+     × produção sem API_BASE_URL é recusada (não cai no localhost padrão) 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com http e sem a permissão é recusada, e a mensagem diz como liberar
+AssertionError: expected [Function] to throw error matching /API_BASE_URL_ALLOW_HTTP=true/ but got 'API_BASE_URL deve usar HTTPS em produ…'
+
+- Expected:
+/API_BASE_URL_ALLOW_HTTP=true/
+
++ Received:
+"API_BASE_URL deve usar HTTPS em produção"
+
+ ❯ src/lib/api-base-security.test.ts:49:8
+     47|     expect(() => {
+     48|       assertSecureApiBase();
+     49|     }).toThrow(/API_BASE_URL_ALLOW_HTTP=true/);
+       |        ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://api:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://aluguei-api:4000/
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://localhost:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://127.0.0.1:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://[::1]:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://10.0.1.5:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://172.18.0.4:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://192.168.10.2:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://api.aluguei.internal:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção com a permissão aceita http interno: http://api.default.svc.cluster.local:4000
+AssertionError: expected [Function] to not throw an error but 'Error: API_BASE_URL deve usar HTTPS e…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: API_BASE_URL deve usar HTTPS em produção"
+
+ ❯ src/lib/api-base-security.test.ts:67:12
+     65|     expect(() => {
+     66|       assertSecureApiBase();
+     67|     }).not.toThrow();
+       |            ^
+     68|   });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > mesmo com a permissão, http para endereço público é recusado: http://api.aluguei.example.com
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > mesmo com a permissão, http para endereço público é recusado: http://62.171.164.224:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > mesmo com a permissão, http para endereço público é recusado: http://172.32.0.1:4000
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > mesmo com a permissão, http para endereço público é recusado: http://api.62.171.164.224.sslip.io
+AssertionError: expected [Function] to throw error matching /rede interna/ but got 'API_BASE_URL deve usar HTTPS em produ…'
+
+- Expected:
+/rede interna/
+
++ Received:
+"API_BASE_URL deve usar HTTPS em produção"
+
+ ❯ src/lib/api-base-security.test.ts:79:8
+     77|     expect(() => {
+     78|       assertSecureApiBase();
+     79|     }).toThrow(/rede interna/);
+       |        ^
+     80|   });
+     81|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > permissão só vale com o valor exato "true" ("1")
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > permissão só vale com o valor exato "true" ("yes")
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > permissão só vale com o valor exato "true" ("TRUE ")
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > permissão só vale com o valor exato "true" ("")
+AssertionError: expected [Function] to throw error matching /API_BASE_URL_ALLOW_HTTP=true/ but got 'API_BASE_URL deve usar HTTPS em produ…'
+
+- Expected:
+/API_BASE_URL_ALLOW_HTTP=true/
+
++ Received:
+"API_BASE_URL deve usar HTTPS em produção"
+
+ ❯ src/lib/api-base-security.test.ts:86:8
+     84|     expect(() => {
+     85|       assertSecureApiBase();
+     86|     }).toThrow(/API_BASE_URL_ALLOW_HTTP=true/);
+       |        ^
+     87|   });
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯
+
+ FAIL  src/lib/api-base-security.test.ts > assertSecureApiBase (P1-15) > produção sem API_BASE_URL é recusada (não cai no localhost padrão)
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/lib/api-base-security.test.ts:93:8
+     91|     expect(() => {
+     92|       assertSecureApiBase();
+     93|     }).toThrow(/API_BASE_URL ausente/);
+       |        ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/20]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  20 failed | 2 passed (22)
+   Start at  13:18:15
+   Duration  622ms (transform 54ms, setup 0ms, import 239ms, tests 31ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a8fcbfc5daba18807\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/api-base-security.test.ts
+# exit=1

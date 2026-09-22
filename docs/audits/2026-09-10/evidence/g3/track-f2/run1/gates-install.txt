@@ -1,0 +1,6 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 1d96ae6 (g3/track-f2-backup)
+
+Scope: all 17 workspace projects
+Already up to date
+Done in 567ms using pnpm v11.15.1

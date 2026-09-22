@@ -1,0 +1,20 @@
+# comando: node C:/Users/pablo/AppData/Local/Temp/claude/C--Users-pablo-Documents-OpenCode-Aluguei-app--claude-worktrees-aluguei-technical-audit-6cea11/57b60008-7a72-4aed-be9f-ad6fb81a7cff/scratchpad/test-counts.mjs docs/audits/2026-09-10/evidence/g3/track-f/gates-test.txt
+# árvore: commit 8284995 (g3/track-f-ops); leitura de gates-test.txt
+# data (UTC): 2026-09-21T18:18:34Z
+
+@aluguei/mobile: 5 passed (5)
+@aluguei/config: 41 passed (41)
+@aluguei/contracts: 7 passed (7)
+@aluguei/domain: 120 passed (120)
+@aluguei/storage: 16 passed (16)
+@aluguei/observability: 18 passed (18)
+@aluguei/tests-contract: 10 passed (10)
+@aluguei/ui: 87 passed (87)
+@aluguei/integrations: 172 passed (172)
+@aluguei/web: 127 passed (127)
+@aluguei/api: 20 passed (20)
+@aluguei/meta-mcp: 7 passed (7)
+@aluguei/worker: 35 passed (35)
+@aluguei/tests-integration: 213 passed (213)
+total: 878 testes em 14 pacotes; pacotes com falha, skip ou todo: 0
+# exit=0
