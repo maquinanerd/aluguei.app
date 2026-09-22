@@ -2,6 +2,30 @@ import { z } from 'zod';
 
 export const uuidSchema = z.uuid();
 
+/**
+ * Teto de um valor em centavos que a API recebe: R$ 1.000.000,00 (o mesmo `MAX_AMOUNT_CENTS` do
+ * domínio e do campo de dinheiro do painel). As colunas por linha são int4 e a cobrança soma
+ * várias parcelas com multa e juros; acima do teto a API responde 400 em vez de estourar o INSERT.
+ */
+export const MAX_AMOUNT_CENTS = 100_000_000;
+/** Maior valor de uma coluna `integer` (int4): guarda do que vem de fora (webhook do provider). */
+export const INT4_MAX = 2_147_483_647;
+
+const ceilingMessage = 'O valor máximo é R$ 1.000.000,00';
+
+/** Centavos informados (zero aceito), até o teto. */
+export const amountCentsSchema = z
+  .number()
+  .int()
+  .nonnegative()
+  .max(MAX_AMOUNT_CENTS, ceilingMessage);
+/** Centavos informados, maior que zero, até o teto. */
+export const positiveAmountCentsSchema = z
+  .number()
+  .int()
+  .positive()
+  .max(MAX_AMOUNT_CENTS, ceilingMessage);
+
 export const roleSchema = z.enum(['owner', 'admin', 'agent', 'inspector', 'finance', 'viewer']);
 
 export const funnelStatusSchema = z.enum([

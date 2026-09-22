@@ -1,0 +1,75 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/finance/amount-ceiling.test.ts
+# árvore: fix/teto-centavos-api em 631478d + testes novos, sem a correção
+# data (UTC): 2026-09-22T16:20:14Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/domain
+
+ ❯ src/finance/amount-ceiling.test.ts (3 tests | 3 failed) 11ms
+     × é R$ 1.000.000,00 6ms
+     × reajuste que passa do teto é recusado; no teto, aceito 1ms
+     × orçamento acima do teto numa mensagem não vira valor; a intenção continua 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/finance/amount-ceiling.test.ts > teto dos centavos no domínio > é R$ 1.000.000,00
+AssertionError: expected undefined to be 100000000 // Object.is equality
+
+- Expected:
+100000000
+
++ Received:
+undefined
+
+ ❯ src/finance/amount-ceiling.test.ts:14:36
+     12| describe('teto dos centavos no domínio', () => {
+     13|   it('é R$ 1.000.000,00', () => {
+     14|     expect(money.MAX_AMOUNT_CENTS).toBe(100_000_000);
+       |                                    ^
+     15|   });
+     16|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/finance/amount-ceiling.test.ts > teto dos centavos no domínio > reajuste que passa do teto é recusado; no teto, aceito
+AssertionError: expected undefined to be an instance of DomainError
+ ❯ src/finance/amount-ceiling.test.ts:25:19
+     23|       error = caught;
+     24|     }
+     25|     expect(error).toBeInstanceOf(DomainError);
+       |                   ^
+     26|     expect((error as DomainError).code).toBe('INVALID_INPUT');
+     27|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/finance/amount-ceiling.test.ts > teto dos centavos no domínio > orçamento acima do teto numa mensagem não vira valor; a intenção continua
+AssertionError: expected 5000000000 to be null
+
+- Expected:
+null
+
++ Received:
+5000000000
+
+ ❯ src/finance/amount-ceiling.test.ts:32:33
+     30|     const huge = extractIntentByRule('quero um apartamento, pago até R…
+     31|     expect(huge.intent).toBe('PRICE_QUERY');
+     32|     expect(huge.budgetMaxCents).toBeNull();
+       |                                 ^
+     33|     const between = extractIntentByRule('valor entre 2 mil e 900.000.0…
+     34|     expect(between.budgetMinCents).toBe(200_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  13:20:15
+   Duration  402ms (transform 80ms, setup 0ms, import 132ms, tests 11ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\domain:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/finance/amount-ceiling.test.ts
+
+# exit=1

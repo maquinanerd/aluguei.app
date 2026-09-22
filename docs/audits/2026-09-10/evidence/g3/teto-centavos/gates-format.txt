@@ -1,0 +1,9 @@
+# comando: pnpm format:check
+# árvore: fix/teto-centavos-api em f920b38
+# data (UTC): 2026-09-22T16:24:38Z
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+
+# exit=0

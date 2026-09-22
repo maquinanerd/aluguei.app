@@ -1,5 +1,24 @@
 import { DomainError } from '../errors.js';
 
+/**
+ * Teto de um valor em centavos digitado ou calculado para uma linha: R$ 1.000.000,00. As colunas
+ * `*_cents` por linha são `integer` (int4, até R$ 21.474.836,47) e a cobrança soma aluguel,
+ * condomínio e impostos com multa e juros; com cada parcela no teto, a soma fica muito abaixo do
+ * int4. O contrato da API (`MAX_AMOUNT_CENTS` em @aluguei/contracts) e o campo de dinheiro do
+ * painel usam o mesmo número (testes em tests/integration e apps/web).
+ */
+export const MAX_AMOUNT_CENTS = 100_000_000;
+
+/** Valor dentro do teto, ou erro de entrada (400) com o campo e o teto. */
+export function assertAmountWithinCeiling(cents: number, field: string): void {
+  if (!Number.isSafeInteger(cents) || cents > MAX_AMOUNT_CENTS) {
+    throw new DomainError('INVALID_INPUT', 'Valor acima do máximo de R$ 1.000.000,00', {
+      field,
+      maxCents: MAX_AMOUNT_CENTS,
+    });
+  }
+}
+
 /** Operações em centavos inteiros — nunca float. Todas com overflow check. */
 export function add(a: number, b: number): number {
   const result = a + b;

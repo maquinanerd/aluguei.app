@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/ui test
+# árvore: fix/teto-centavos-api em c8cd6b7 + correção (domínio, contrato, IA, meta-mcp, painel)
+# data (UTC): 2026-09-22T16:23:57Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/ui
+
+
+ Test Files  6 passed (6)
+      Tests  92 passed (92)
+   Start at  13:23:58
+   Duration  1.16s (transform 979ms, setup 0ms, import 1.45s, tests 176ms, environment 1ms)
+
+
+# exit=0

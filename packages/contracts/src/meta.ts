@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import { amountCentsSchema, paginationQuerySchema, uuidSchema } from './common.js';
 
 export const metaConnectionStatusSchema = z.enum(['CONNECTING', 'ACTIVE', 'EXPIRED', 'REVOKED']);
 export const metaAssetKindSchema = z.enum(['AD_ACCOUNT', 'PAGE', 'INSTAGRAM_ACCOUNT', 'BUSINESS']);
@@ -176,8 +176,8 @@ export const prepareCampaignRequestSchema = z
     listingId: uuidSchema.optional(),
     name: z.string().min(1).max(120),
     objective: metaObjectiveSchema,
-    dailyBudgetCents: z.number().int().nonnegative().optional(),
-    lifetimeBudgetCents: z.number().int().nonnegative().optional(),
+    dailyBudgetCents: amountCentsSchema.optional(),
+    lifetimeBudgetCents: amountCentsSchema.optional(),
     startAt: z.string().optional(),
     endAt: z.string().optional(),
     geos: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -205,8 +205,8 @@ export const campaignActionRequestSchema = z
 
 export const updateBudgetRequestSchema = z
   .object({
-    dailyBudgetCents: z.number().int().nonnegative().optional(),
-    lifetimeBudgetCents: z.number().int().nonnegative().optional(),
+    dailyBudgetCents: amountCentsSchema.optional(),
+    lifetimeBudgetCents: amountCentsSchema.optional(),
     idempotencyKey: z.string().min(8).max(64),
   })
   .strict()

@@ -1452,3 +1452,47 @@ Consequências:
 - **Conciliação sem provider:** continua registrada como divergência com total do provider 0. Se
   isso confundir a operação, a mudança é de comportamento do job, não de vocabulário.
 - **Evidência:** `docs/audits/2026-09-10/evidence/g3/vocabulario/`.
+
+## ADR-094 — Teto de R$ 1.000.000,00 por valor em centavos na API, no domínio e no painel (pendência da trilha G, 2026-09-22)
+
+Status: Aceito; o valor do teto é revisável (uma constante em cada camada, presas por teste).
+
+Contexto: as colunas `*_cents` por linha são `integer` (int4, até R$ 21.474.836,47), e o contrato da
+API só exigia inteiro não negativo. Acima do int4, o INSERT estourava e a API respondia 500 (termos
+do imóvel, lead, proposta, cobrança avulsa, renovação, reajuste). Abaixo dele entravam valores sem
+sentido para aluguel, e a cobrança — soma de aluguel, condomínio e impostos com multa e juros —
+podia estourar depois, no job do scheduler ou no pagamento. Duas entradas não digitadas tinham o
+mesmo problema:
+
+- **Reajuste por índice:** calculava um aluguel sem limite.
+- **Orçamento de mensagem do WhatsApp:** "até R$ 50.000.000" virava 5 bilhões de centavos, pelas
+  regras e pela IA, e estourava o INSERT da intenção, derrubando o job da mensagem.
+
+O campo de dinheiro do painel tinha teto no int4.
+
+Decisões:
+
+- **Teto único:** R$ 1.000.000,00 (100.000.000 centavos) por valor que a API recebe.
+  - Com aluguel, condomínio e impostos no teto, a cobrança somada com multa de até 10% e juros de
+    1% ao mês fica abaixo do int4 por mais de duas décadas de atraso.
+  - Constantes: `MAX_AMOUNT_CENTS` em `packages/domain` e em `packages/contracts`, e
+    `MONEY_INPUT_MAX_CENTS` no campo de dinheiro do painel. Os testes prendem as três ao mesmo
+    número.
+- **Contrato:** `amountCentsSchema` e `positiveAmountCentsSchema` em todos os campos de dinheiro das
+  requisições: termos do imóvel, orçamento do lead, proposta, cobrança avulsa, renovação, reajuste,
+  orçamentos da Meta (API e meta-mcp). Acima do teto, 400 com "O valor máximo é R$ 1.000.000,00".
+- **Webhook de pagamento:** o valor vem do provider, não é digitado, e fica limitado ao int4
+  (`INT4_MAX`), que é o que a coluna aceita.
+- **Domínio:**
+  - `assertAmountWithinCeiling` no reajuste por índice (400 acima do teto).
+  - O orçamento acima do teto numa mensagem vira "sem orçamento", e a intenção continua.
+  - Na IA, o mesmo valor deixa a resposta fora do schema, e o gateway usa as regras.
+- **Painel:** o campo de dinheiro recusa acima do mesmo teto, no próprio campo, antes do envio.
+
+Consequências:
+
+- **Aluguel acima de R$ 1 milhão:** exige subir o teto nas três constantes e rever a folga da soma
+  da cobrança (ou passar as colunas da cobrança para `bigint`).
+- **Valores gravados antes:** nenhum dado é alterado; linhas acima do teto continuam lidas. Só novas
+  entradas são recusadas.
+- **Evidência:** `docs/audits/2026-09-10/evidence/g3/teto-centavos/`.

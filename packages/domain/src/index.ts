@@ -197,7 +197,15 @@ export {
 } from './contract/variables.js';
 export type { ContractTemplateVariable, ContractVariableSource } from './contract/variables.js';
 
-export { add, sub, negate, mulBpsFloor, splitAmount } from './finance/money.js';
+export {
+  add,
+  sub,
+  negate,
+  mulBpsFloor,
+  splitAmount,
+  MAX_AMOUNT_CENTS,
+  assertAmountWithinCeiling,
+} from './finance/money.js';
 export {
   assertLateChargeTerms,
   calculateChargeBreakdown,

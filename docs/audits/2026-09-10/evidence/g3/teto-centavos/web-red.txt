@@ -1,0 +1,66 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/money-ceiling.test.ts
+# árvore: fix/teto-centavos-api em 631478d + testes novos, sem a correção
+# data (UTC): 2026-09-22T16:20:22Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+ ❯ src/lib/money-ceiling.test.ts (2 tests | 2 failed) 19ms
+     × mesmo teto 10ms
+     × R$ 1.000.000,00 aceito; um centavo a mais, recusado 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/money-ceiling.test.ts > teto do campo de dinheiro igual ao da API > mesmo teto
+AssertionError: expected 2147483647 to be undefined // Object.is equality
+
+- Expected:
+undefined
+
++ Received:
+2147483647
+
+ ❯ src/lib/money-ceiling.test.ts:11:35
+      9| describe('teto do campo de dinheiro igual ao da API', () => {
+     10|   it('mesmo teto', () => {
+     11|     expect(MONEY_INPUT_MAX_CENTS).toBe(MAX_AMOUNT_CENTS);
+       |                                   ^
+     12|   });
+     13|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/money-ceiling.test.ts > teto do campo de dinheiro igual ao da API > R$ 1.000.000,00 aceito; um centavo a mais, recusado
+AssertionError: expected { ok: true, cents: 100000001 } to match object { ok: false, code: 'TOO_LARGE' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "TOO_LARGE",
+-   "ok": false,
++   "ok": true,
+  }
+
+ ❯ src/lib/money-ceiling.test.ts:16:45
+     14|   it('R$ 1.000.000,00 aceito; um centavo a mais, recusado', () => {
+     15|     expect(parseMoneyInput('1.000.000,00')).toMatchObject({ ok: true, …
+     16|     expect(parseMoneyInput('1.000.000,01')).toMatchObject({ ok: false,…
+       |                                             ^
+     17|   });
+     18| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  13:20:23
+   Duration  1.58s (transform 853ms, setup 0ms, import 1.23s, tests 19ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/money-ceiling.test.ts
+
+# exit=1

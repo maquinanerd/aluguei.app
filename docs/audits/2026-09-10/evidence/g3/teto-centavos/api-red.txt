@@ -1,0 +1,104 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/teto-centavos.test.ts
+# árvore: fix/teto-centavos-api em 631478d + testes novos, sem a correção
+# data (UTC): 2026-09-22T16:20:00Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:23724) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/teto-centavos.test.ts (5 tests | 4 failed) 4997ms
+     × o teto é o mesmo no domínio e no contrato: R$ 1.000.000,00 6ms
+     × acima do int4 (antes: 500 no INSERT) 11ms
+     × acima do teto e dentro do int4 (antes: aceito) 16ms
+     × reajuste por índice que leva o aluguel acima do teto é recusado (400) 343ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/teto-centavos.test.ts > teto dos centavos: acima dele a API responde 400, nunca 500 > o teto é o mesmo no domínio e no contrato: R$ 1.000.000,00
+AssertionError: expected undefined to be 100000000 // Object.is equality
+
+- Expected:
+100000000
+
++ Received:
+undefined
+
+ ❯ src/teto-centavos.test.ts:48:37
+     46|
+     47|   it('o teto é o mesmo no domínio e no contrato: R$ 1.000.000,00', () …
+     48|     expect(domain.MAX_AMOUNT_CENTS).toBe(MAX);
+       |                                     ^
+     49|     expect(contracts.MAX_AMOUNT_CENTS).toBe(MAX);
+     50|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/teto-centavos.test.ts > teto dos centavos: acima dele a API responde 400, nunca 500 > acima do int4 (antes: 500 no INSERT)
+AssertionError: aluguel do imóvel: {"error":"InternalServerError","code":"INTERNAL","message":"Erro interno"}: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ src/teto-centavos.test.ts:108:66
+    106|     for (const [what, method, url, payload] of cases()) {
+    107|       const res = await fx.call(method, url, { cookie: lease.cookie, p…
+    108|       expect(res.status, `${what}: ${JSON.stringify(res.body)}`).toBe(…
+       |                                                                  ^
+    109|     }
+    110|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/teto-centavos.test.ts > teto dos centavos: acima dele a API responde 400, nunca 500 > acima do teto e dentro do int4 (antes: aceito)
+AssertionError: aluguel do imóvel: {"property":{"id":"3b94e48c-af72-47d3-a533-7ac0a90e9daa","orgId":"03083cb7-0091-4f20-bbb5-43a35aa1e9ec","title":"Imóvel 4atoecqq","propertyType":"APARTMENT","status":"ACTIVE","totalAreaSqm":null,"builtAreaSqm":null,"bedrooms":null,"bathrooms":null,"parkingSpots":null,"furnished":false,"petsAllowed":null,"createdAt":"2026-09-22T16:20:12.982Z","updatedAt":"2026-09-22T16:20:12.982Z","addresses":[],"financialTerms":{"monthlyRentCents":100000001,"condoFeeCents":null,"iptuCents":null,"securityDepositCents":null,"minimumLeaseMonths":null,"availableFrom":null},"owners":[{"partyId":"64821882-606d-4f5e-830d-31fa5665e409","name":"Proprietária 1","ownershipSharePct":null}],"features":[],"media":[]}}: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ src/teto-centavos.test.ts:108:66
+    106|     for (const [what, method, url, payload] of cases()) {
+    107|       const res = await fx.call(method, url, { cookie: lease.cookie, p…
+    108|       expect(res.status, `${what}: ${JSON.stringify(res.body)}`).toBe(…
+       |                                                                  ^
+    109|     }
+    110|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/teto-centavos.test.ts > teto dos centavos: acima dele a API responde 400, nunca 500 > reajuste por índice que leva o aluguel acima do teto é recusado (400)
+AssertionError: {"lease":{"id":"1d2f5cc2-f85e-4c24-be36-b44a289a54cb","orgId":"cd0b3d26-3fe5-4050-b19a-b02253a9d492","contractId":"62b4f7b5-984c-4a01-b647-6f224aaf62a9","tenantPartyId":"e495ba6e-1a78-426b-9315-2bd576e3875b","landlordPartyId":"4be655a7-910c-47c8-9ed8-b92b6518ea9c","propertyId":"b9d3ec64-bdad-447f-84b9-103f64b9d9d5","status":"ACTIVE","startDate":"2026-09-22","endDate":null,"monthlyRentCents":100000000,"condoFeeCents":null,"lateFeeBps":200,"interestMonthlyBps":100,"dueDay":10,"endReason":null,"createdAt":"2026-09-22T16:20:13.736Z","updatedAt":"2026-09-22T16:20:13.736Z"},"amendment":{"id":"9d4e4ef8-bc3d-4854-84dc-6de6f25aca20","kind":"READJUSTMENT","effectiveFrom":"2026-11-01","previousEndDate":null,"newEndDate":null,"previousRentCents":100000000,"newRentCents":105000000,"indexName":"IGPM","adjustmentBps":500,"reason":null,"createdBy":"c69c18c2-13d8-4249-ab6b-4dfc6a92fd68","createdAt":"2026-09-22T16:20:13.746Z"}}: expected 201 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 201
+
+ ❯ src/teto-centavos.test.ts:131:50
+    129|       payload: { effectiveFrom: futurePeriod(2), indexName: 'IGPM', ad…
+    130|     });
+    131|     expect(res.status, JSON.stringify(res.body)).toBe(400);
+       |                                                  ^
+    132|   });
+    133| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  13:20:01
+   Duration  11.78s (transform 3.63s, setup 0ms, import 6.52s, tests 5.00s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/teto-centavos.test.ts
+
+# exit=1

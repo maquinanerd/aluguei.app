@@ -1,0 +1,62 @@
+# comando: pnpm --filter @aluguei/contracts exec vitest run src/amount-ceiling.test.ts
+# árvore: fix/teto-centavos-api em 631478d + testes novos, sem a correção
+# data (UTC): 2026-09-22T16:20:18Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/contracts
+
+ ❯ src/amount-ceiling.test.ts (2 tests | 2 failed) 14ms
+     × orçamento de campanha da Meta acima do teto é recusado; no teto, aceito 8ms
+     × valor do webhook de pagamento cabe no int4 da coluna 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/amount-ceiling.test.ts > teto dos centavos no contrato > orçamento de campanha da Meta acima do teto é recusado; no teto, aceito
+AssertionError: expected undefined to be 100000000 // Object.is equality
+
+- Expected:
+100000000
+
++ Received:
+undefined
+
+ ❯ src/amount-ceiling.test.ts:15:30
+     13| describe('teto dos centavos no contrato', () => {
+     14|   it('orçamento de campanha da Meta acima do teto é recusado; no teto,…
+     15|     expect(MAX_AMOUNT_CENTS).toBe(100_000_000);
+       |                              ^
+     16|     for (const schema of [updateBudgetRequestSchema, prepareCampaignRe…
+     17|       const shape = schema as unknown as {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/amount-ceiling.test.ts > teto dos centavos no contrato > valor do webhook de pagamento cabe no int4 da coluna
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/amount-ceiling.test.ts:38:7
+     36|     expect(
+     37|       paymentWebhookEventSchema.safeParse({ ...event, amountCents: 2_1…
+     38|     ).toBe(false);
+       |       ^
+     39|     expect(
+     40|       paymentWebhookEventSchema.safeParse({ ...event, amountCents: 2_1…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  13:20:20
+   Duration  1.03s (transform 341ms, setup 0ms, import 620ms, tests 14ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\contracts:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/amount-ceiling.test.ts
+
+# exit=1

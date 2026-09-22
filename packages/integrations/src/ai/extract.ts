@@ -1,4 +1,4 @@
-import { extractIntentByRule } from '@aluguei/domain';
+import { extractIntentByRule, MAX_AMOUNT_CENTS } from '@aluguei/domain';
 import { z } from 'zod';
 import type { IntentExtraction, IntentKind } from './types.js';
 
@@ -10,8 +10,9 @@ import type { IntentExtraction, IntentKind } from './types.js';
 export const intentJsonSchema = z.object({
   intent: z.enum(['VISIT_REQUEST', 'PRICE_QUERY', 'AVAILABILITY', 'OTHER']),
   propertyCode: z.string().nullable().optional(),
-  budgetMinCents: z.number().int().nonnegative().nullable().optional(),
-  budgetMaxCents: z.number().int().nonnegative().nullable().optional(),
+  // Acima do teto dos centavos não é orçamento de aluguel: fora do schema, o gateway usa as regras.
+  budgetMinCents: z.number().int().nonnegative().max(MAX_AMOUNT_CENTS).nullable().optional(),
+  budgetMaxCents: z.number().int().nonnegative().max(MAX_AMOUNT_CENTS).nullable().optional(),
   moveInDate: z.string().nullable().optional(),
   confidence: z.number().min(0).max(1).optional(),
 });

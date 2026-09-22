@@ -1,0 +1,50 @@
+# comando: pnpm --filter @aluguei/integrations exec vitest run src/ai/extract.test.ts
+# árvore: fix/teto-centavos-api em 631478d + testes novos, sem a correção
+# data (UTC): 2026-09-22T16:20:16Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/integrations
+
+ ❯ src/ai/extract.test.ts (2 tests | 1 failed) 17ms
+     × orçamento acima do teto → fora do schema (o chamador cai nas regras) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/ai/extract.test.ts > extração de intenção pela IA: teto do orçamento > orçamento acima do teto → fora do schema (o chamador cai nas regras)
+AssertionError: expected { intent: 'PRICE_QUERY', …(6) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "budgetMaxCents": 5000000000,
+  "budgetMinCents": null,
+  "confidence": 0.9,
+  "extractedBy": "AI",
+  "intent": "PRICE_QUERY",
+  "moveInDate": null,
+  "propertyCode": null,
+}
+
+ ❯ src/ai/extract.test.ts:15:7
+     13|         '{"intent": "PRICE_QUERY", "budgetMaxCents": 5000000000, "conf…
+     14|       ),
+     15|     ).toBeNull();
+       |       ^
+     16|     expect(
+     17|       intentFromAiJson('{"intent": "PRICE_QUERY", "budgetMinCents": 10…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  13:20:17
+   Duration  865ms (transform 331ms, setup 0ms, import 578ms, tests 17ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\packages\integrations:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/ai/extract.test.ts
+
+# exit=1
