@@ -211,3 +211,19 @@ Nenhuma asserção foi removida ou afrouxada, e nenhum teste existente mudou.
   instantâneo; num banco grande, pediria `NOT VALID` + `VALIDATE CONSTRAINT` em janela separada.
 - **Depois da 0022**, acrescentar um valor a qualquer dessas listas exige migration (o teste de
   paridade falha se o domínio mudar sozinho).
+
+## Verificação do orquestrador (`orquestrador/`)
+
+Refeita pelo orquestrador em `7596a0a`, sem mudança de código.
+
+| Arquivo             | Resultado                                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `gates-summary.txt` | 9 gates sem cache com exit 0; `db-drift=NO`. `gates-test-counts.txt`: 1165 testes em 14 pacotes, nenhum ignorado |
+| `testpg.txt`        | `pnpm test:pg` num cluster PostgreSQL 17 descartável na porta 54337, com `pg_dump` 17 no PATH: 37/37             |
+| `e2e-full.txt`      | Playwright completo: 43/43 (web 3370, API 4370, PostgreSQL 5603)                                                 |
+
+Conferido também que as três colunas dos achados paralelos (`timeline_events.entity_type`,
+`reconciliations.provider` e o filtro de `reconciliations.status`) não recebem CHECK que recuse o
+que o código grava: as duas primeiras ficaram sem CHECK, e o único ponto que grava
+`reconciliations.status` (`apps/worker/src/paymentJobs.ts`) usa `MATCHED` ou `DISCREPANCY`, que
+estão na lista.
