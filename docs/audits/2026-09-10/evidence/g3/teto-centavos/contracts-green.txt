@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/contracts exec vitest run src/amount-ceiling.test.ts
+# árvore: fix/teto-centavos-api em c8cd6b7 + correção (domínio, contrato, IA, meta-mcp, painel)
+# data (UTC): 2026-09-22T16:23:02Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/packages/contracts
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:23:04
+   Duration  912ms (transform 329ms, setup 0ms, import 621ms, tests 7ms, environment 0ms)
+
+
+# exit=0
