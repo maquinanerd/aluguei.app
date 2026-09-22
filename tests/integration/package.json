@@ -12,6 +12,7 @@
   "dependencies": {
     "@aluguei/api": "workspace:*",
     "@aluguei/config": "workspace:*",
+    "@aluguei/contracts": "workspace:*",
     "@aluguei/db": "workspace:*",
     "@aluguei/domain": "workspace:*",
     "@aluguei/integrations": "workspace:*",
