@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/app/api src/lib
+# árvore: g3/track-d-registries em 7e0521d + teste novo + retry-after no proxy
+# data (UTC): 2026-09-22T00:47:07Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web
+
+
+ Test Files  25 passed (25)
+      Tests  162 passed (162)
+   Start at  21:47:08
+   Duration  2.95s (transform 2.11s, setup 0ms, import 5.47s, tests 786ms, environment 6ms)
+
+
+# exit=0

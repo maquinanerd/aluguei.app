@@ -66,3 +66,23 @@ Nenhuma asserção foi removida ou afrouxada.
   em cada teste, como nos outros specs. Nenhuma asserção mudou.
 - A asserção nova da função em português no convite (`api-invite-role-*`) foi acrescentada ao teste
   de integração, com RED próprio.
+
+## Verificação do orquestrador (`orquestrador/`)
+
+Refeita pelo orquestrador depois de trazer o `main` com as trilhas C, E1, F e F2 e o job `image` do
+CI (merges `a426635` e `7e0521d`). Conflitos resolvidos mantendo os dois lados: em
+`organizations.ts`, os imports de convite e caixa de saída da D com o `auditDiff` da F; em
+`inboxJobs.ts`, o job `PROPOSAL_EXPIRY` da D dentro do span e do log por job da F.
+
+| Arquivo                     | Resultado                                                                                                                                                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run1/`                     | Primeira rodada, em `7e0521d`: 9 gates com exit 0, mas o Playwright completo deu 36 de 42 (`e2e-full-429.txt`). Com a D e a E juntas, a suíte passou de 10 cadastros por minuto do mesmo IP e o limite da API respondeu 429 ("cadastro na API": esperado 201, veio 429); os 3 testes da jornada principal caíram em cadeia |
+| `bff-retry-after-red.txt`   | Teste novo do proxy do painel sem a correção: o 429 da API chega ao navegador sem o `retry-after` (`expected null to be '37'`)                                                                                                                                                                                             |
+| `bff-retry-after-green.txt` | Com o `retry-after` na lista de headers repassados: 162/162 nos testes de `src/app/api` e `src/lib` do web                                                                                                                                                                                                                 |
+| `gates-summary.txt`         | 9 gates com exit 0 em `ec3a348`; `db-drift=NO`. `gates-test-counts.txt`: 1059 testes em 14 pacotes, nenhum ignorado                                                                                                                                                                                                        |
+| `testpg.txt`                | `pnpm test:pg` em `7e0521d`, cluster PostgreSQL 17 descartável na porta 54335: 25/25 em 9 arquivos, com a restauração do backup da F2 e o token de uso único da D. `ec3a348` só muda o web e os auxiliares do Playwright                                                                                                   |
+| `e2e-full.txt`              | Playwright completo em `ec3a348`: 42/42 (web 3350, API 4350, PostgreSQL 5583)                                                                                                                                                                                                                                              |
+
+O limite de cadastro não mudou. Os auxiliares de cadastro do Playwright (pela API e pela tela)
+esperam o `retry-after` do 429, como um cliente correto, e ganham esse tempo a mais de timeout;
+nenhuma asserção foi removida ou afrouxada.
