@@ -1,0 +1,36 @@
+# comando: pnpm --filter @aluguei/tests-e2e test:e2e g3-d
+# árvore: g3/track-d-registries 3f15e3c + interface da trilha D (antes do commit); stack e cluster PostgreSQL descartáveis (WEB_PORT=3320 API_PORT=4320 PG_PORT=5553), providers FAKE
+# data (UTC): 2026-09-21T23:38:41Z
+
+$ playwright test "g3-d"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242\run-1790033924073\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5553...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4320...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3320...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\7a56ed9242\run-1790033924073).
+[WebServer] [e2e-stack] web http://localhost:3320 · API http://127.0.0.1:4320 — Ctrl+C para derrubar.
+
+Running 7 tests using 1 worker
+
+  ok 1 g3-d-registries.spec.ts:19:3 › G3 trilha D — cadastros pela interface › pessoa: CPF inválido recusado na tela, detalhe, edição, documentos e arquivamento (6.4s)
+  ok 2 g3-d-registries.spec.ts:95:3 › G3 trilha D — cadastros pela interface › visita: confirma, reagenda e cancela com motivo (2.3s)
+  ok 3 g3-d-registries.spec.ts:147:3 › G3 trilha D — cadastros pela interface › proposta: validade em data civil, edição no rascunho, envio e recusa com motivo (3.7s)
+  ok 4 g3-d-registries.spec.ts:224:3 › G3 trilha D — cadastros pela interface › lead: detalhe pela rota própria e edição de dados e responsável (2.5s)
+  ok 5 g3-d-registries.spec.ts:266:3 › G3 trilha D — identidade pela interface › convite de membro por e-mail: registrado na caixa de saída e aceito pela tela (6.1s)
+  ok 6 g3-d-registries.spec.ts:326:3 › G3 trilha D — identidade pela interface › troca de senha na conta encerra as outras sessões (1.8s)
+  ok 7 g3-d-registries.spec.ts:363:3 › G3 trilha D — identidade pela interface › recuperação de senha pela tela de login, com o link da caixa de saída (3.5s)
+[e2e-stack] PID 6156 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 3580 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 19540 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790033924073 desligada.
+
+  Slow test file: g3-d-registries.spec.ts (26.4s)
+  Consider splitting slow test files to speed up parallel execution
+  7 passed (51.5s)
+
+# exit=0

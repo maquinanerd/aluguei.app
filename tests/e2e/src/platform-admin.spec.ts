@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { PLATFORM_ADMIN, uniq } from './g2-b1-support';
+import { PLATFORM_ADMIN, submitRegistration, uniq } from './g2-b1-support';
 
 /**
  * Admin da plataforma (decisão do usuário, 2026-09-15), pelo navegador: o cadastro
@@ -23,7 +23,7 @@ test.describe('Admin da plataforma', () => {
     await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
     await page.getByLabel('CNPJ ou CPF').fill('11.222.333/0001-81');
     await page.getByLabel('CRECI').fill('J-12345');
-    await page.getByRole('button', { name: 'Criar conta' }).click();
+    await submitRegistration(page);
     await expect(page).toHaveURL(/\/situacao-da-conta/, { timeout: 20_000 });
     await expect(page.getByRole('heading', { name: 'Cadastro em análise' })).toBeVisible();
 

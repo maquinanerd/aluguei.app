@@ -12,6 +12,8 @@ export const visitSchema = z.object({
   scheduledAt: z.string(),
   status: visitStatusSchema,
   note: z.string().nullable(),
+  cancelReason: z.string().nullable(),
+  statusChangedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -35,3 +37,28 @@ export const listVisitsResponseSchema = z.object({
   visits: z.array(visitSchema),
   total: z.number().int().nonnegative(),
 });
+
+export const getVisitResponseSchema = z.object({ visit: visitSchema });
+
+/**
+ * Ciclo de vida da visita (auditoria 2026-09-10, P2-02). `CANCELLED` exige motivo — a regra é do
+ * domínio (`transitionVisit`), e o schema só recebe o campo.
+ */
+export const updateVisitStatusRequestSchema = z
+  .object({
+    status: visitStatusSchema,
+    reason: z.string().min(1).max(500).optional(),
+  })
+  .strict();
+
+export const updateVisitStatusResponseSchema = z.object({ visit: visitSchema });
+
+/** Reagendar: nova data e hora (instante). A visita volta para agendada. */
+export const rescheduleVisitRequestSchema = z
+  .object({
+    scheduledAt: z.string().min(1),
+    note: z.string().max(500).optional(),
+  })
+  .strict();
+
+export const rescheduleVisitResponseSchema = z.object({ visit: visitSchema });

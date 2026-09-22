@@ -6,6 +6,7 @@ import {
   Button,
   DataTable,
   Drawer,
+  Group,
   Icon,
   Input,
   Modal,
@@ -16,9 +17,12 @@ import {
 } from '@aluguei/ui';
 import type { Column } from '@aluguei/ui';
 import { formatDateTime } from '@aluguei/ui';
+import { ReasonModal } from '@/components/reason-modal';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
+import { canRescheduleVisit, visitActions } from '@/lib/crm-lifecycle';
+import type { VisitStatus } from '@/lib/crm-lifecycle';
 import { label, VISIT_STATUS_LABELS, VISIT_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
@@ -31,6 +35,8 @@ interface Visit {
   scheduledAt: string;
   status: string;
   note: string | null;
+  cancelReason: string | null;
+  statusChangedAt: string | null;
   createdAt: string;
 }
 
@@ -44,12 +50,37 @@ interface Property {
   title: string;
 }
 
+/** Mensagem de sucesso por transição (P2-02). */
+const TRANSITION_TOASTS: Record<string, string> = {
+  CONFIRMED: 'Visita confirmada',
+  DONE: 'Visita realizada',
+  NO_SHOW: 'Não comparecimento registrado',
+  CANCELLED: 'Visita cancelada',
+};
+
+function Detail({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Stack gap={1}>
+      <span
+        className="peg-text-tertiary"
+        style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+      >
+        {title}
+      </span>
+      {children}
+    </Stack>
+  );
+}
+
 function VisitsBody() {
   const toast = useToast();
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(0);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const queryPath = useMemo(() => {
     const params = new URLSearchParams({ limit: '50', offset: String(page * 50) });
@@ -74,6 +105,23 @@ function VisitsBody() {
   if (permissionDenied) return <PermissionDenied title="Sem acesso a visitas" />;
 
   const detail = detailId ? (data?.visits.find((v) => v.id === detailId) ?? null) : null;
+
+  async function transition(visit: Visit, to: VisitStatus, reason?: string) {
+    setBusy(true);
+    try {
+      await apiClient(`/visits/${visit.id}/status`, {
+        method: 'PATCH',
+        body: reason === undefined ? { status: to } : { status: to, reason },
+      });
+      toast.success(TRANSITION_TOASTS[to] ?? 'Visita atualizada');
+      setCancelOpen(false);
+      reload();
+    } catch (err) {
+      toast.error('Falha na visita', err instanceof Error ? err.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const columns: Column<Visit>[] = [
     {
@@ -108,6 +156,8 @@ function VisitsBody() {
       ),
     },
   ];
+
+  const actions = detail ? visitActions(detail.status) : [];
 
   return (
     <div className="app-page">
@@ -175,62 +225,105 @@ function VisitsBody() {
       >
         {detail ? (
           <Stack gap={4}>
-            <Stack gap={1}>
-              <span
-                className="peg-text-tertiary"
-                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
-                Data e hora
-              </span>
+            <Detail title="Data e hora">
               <span style={{ fontSize: 14, fontWeight: 500 }}>
                 {formatDateTime(detail.scheduledAt)}
               </span>
-            </Stack>
-            <Stack gap={1}>
-              <span
-                className="peg-text-tertiary"
-                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
-                Imóvel
-              </span>
+            </Detail>
+            <Detail title="Imóvel">
               <span style={{ fontSize: 14 }}>
                 {propertyMap.get(detail.propertyId ?? '')?.title ?? '—'}
               </span>
-            </Stack>
-            <Stack gap={1}>
-              <span
-                className="peg-text-tertiary"
-                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
-                Interessado
-              </span>
+            </Detail>
+            <Detail title="Interessado">
               <span style={{ fontSize: 14 }}>
                 {partyMap.get(detail.partyId ?? '')?.name ?? '—'}
               </span>
-            </Stack>
-            <Stack gap={1}>
-              <span
-                className="peg-text-tertiary"
-                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
-                Status
-              </span>
-              <Badge tone={VISIT_STATUS_TONES[detail.status] ?? 'neutral'}>
-                {label(VISIT_STATUS_LABELS, detail.status)}
-              </Badge>
-            </Stack>
-            <Stack gap={1}>
-              <span
-                className="peg-text-tertiary"
-                style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
-                Observação
-              </span>
+            </Detail>
+            <Detail title="Status">
+              <div>
+                <Badge tone={VISIT_STATUS_TONES[detail.status] ?? 'neutral'}>
+                  {label(VISIT_STATUS_LABELS, detail.status)}
+                </Badge>
+              </div>
+            </Detail>
+            {detail.cancelReason ? (
+              <Detail title="Motivo do cancelamento">
+                <span style={{ fontSize: 13 }}>{detail.cancelReason}</span>
+              </Detail>
+            ) : null}
+            <Detail title="Observação">
               <span style={{ fontSize: 13 }}>{detail.note ?? '—'}</span>
-            </Stack>
+            </Detail>
+            {actions.length > 0 || canRescheduleVisit(detail.status) ? (
+              <Detail title="Ações">
+                <Group gap={2} wrap>
+                  {actions.map((action) => (
+                    <Button
+                      key={action.to}
+                      size="sm"
+                      variant={
+                        action.tone === 'danger'
+                          ? 'danger-subtle'
+                          : action.tone === 'brand'
+                            ? 'brand'
+                            : 'secondary'
+                      }
+                      loading={busy}
+                      onClick={() => {
+                        if (action.needsReason) {
+                          setCancelOpen(true);
+                          return;
+                        }
+                        void transition(detail, action.to);
+                      }}
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                  {canRescheduleVisit(detail.status) ? (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon={<Icon name="calendarClock" size={14} />}
+                      onClick={() => {
+                        setRescheduleOpen(true);
+                      }}
+                    >
+                      Reagendar
+                    </Button>
+                  ) : null}
+                </Group>
+              </Detail>
+            ) : null}
           </Stack>
         ) : null}
       </Drawer>
+
+      {detail && cancelOpen ? (
+        <ReasonModal
+          title="Cancelar visita"
+          confirmLabel="Cancelar visita"
+          busy={busy}
+          onClose={() => {
+            setCancelOpen(false);
+          }}
+          onConfirm={(reason) => void transition(detail, 'CANCELLED', reason)}
+        />
+      ) : null}
+      {detail && rescheduleOpen ? (
+        <RescheduleModal
+          visit={detail}
+          onClose={() => {
+            setRescheduleOpen(false);
+          }}
+          onDone={() => {
+            toast.success('Visita reagendada');
+            setRescheduleOpen(false);
+            reload();
+          }}
+        />
+      ) : null}
 
       <CreateVisitModal
         open={createOpen}
@@ -244,6 +337,88 @@ function VisitsBody() {
         }}
       />
     </div>
+  );
+}
+
+function RescheduleModal({
+  visit,
+  onClose,
+  onDone,
+}: {
+  visit: Visit;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const toast = useToast();
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.SyntheticEvent) {
+    e.preventDefault();
+    // `datetime-local` é hora local do navegador; o instante vai em ISO para a API.
+    const when = new Date(scheduledAt);
+    if (!scheduledAt || Number.isNaN(when.getTime())) {
+      setError('Informe a nova data e hora');
+      return;
+    }
+    setBusy(true);
+    try {
+      await apiClient(`/visits/${visit.id}/reschedule`, {
+        method: 'POST',
+        body: { scheduledAt: when.toISOString() },
+      });
+      onDone();
+    } catch (err) {
+      toast.error('Falha ao reagendar', err instanceof Error ? err.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Reagendar visita"
+      size="sm"
+      footer={
+        <>
+          <Button variant="tertiary" onClick={onClose}>
+            Voltar
+          </Button>
+          <Button variant="primary" type="submit" form="reschedule-visit-form" loading={busy}>
+            Reagendar
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="reschedule-visit-form"
+        className="peg-stack"
+        style={{ gap: 12 }}
+        noValidate
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+          Data atual: {formatDateTime(visit.scheduledAt)}. A visita volta para agendada e precisa
+          ser confirmada de novo.
+        </span>
+        <Input
+          label="Nova data e hora"
+          type="datetime-local"
+          required
+          value={scheduledAt}
+          onChange={(e) => {
+            setScheduledAt(e.target.value);
+            setError(null);
+          }}
+          {...(error ? { error } : {})}
+        />
+      </form>
+    </Modal>
   );
 }
 

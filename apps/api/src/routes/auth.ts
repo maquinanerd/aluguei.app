@@ -1,9 +1,21 @@
-import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, ne } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
-import { auditEvents, memberships, organizations, userSessions, users } from '@aluguei/db';
+import {
+  auditEvents,
+  memberships,
+  organizations,
+  passwordResetTokens,
+  userSessions,
+  users,
+} from '@aluguei/db';
+import type { DbExecutor } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  PASSWORD_RESET_TTL_MINUTES,
+  assertNewPassword,
+  assertTokenUsable,
+  expiresAt,
   hashPassword,
   hashPasswordSync,
   isPlatformAdminEmail,
@@ -12,17 +24,47 @@ import {
   verifyPassword,
 } from '@aluguei/domain';
 import {
+  changePasswordRequestSchema,
+  changePasswordResponseSchema,
+  forgotPasswordRequestSchema,
+  forgotPasswordResponseSchema,
   loginRequestSchema,
   loginResponseSchema,
   meResponseSchema,
   registerRequestSchema,
   registerResponseSchema,
+  resetPasswordRequestSchema,
+  resetPasswordResponseSchema,
   switchOrgRequestSchema,
   switchOrgResponseSchema,
 } from '@aluguei/contracts';
+import { generateOpaqueToken, hashOpaqueToken, queueEmail } from '../email-outbox.js';
 import { generateSessionToken, hashSessionToken } from '../plugins/session.js';
 import { requireSession } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
+
+/**
+ * Encerra as sessões do usuário, menos a atual quando `keepSessionId` vem preenchido. Trocar a
+ * senha derruba os outros dispositivos; redefinir por link derruba todos.
+ */
+async function revokeOtherSessions(
+  tx: DbExecutor,
+  userId: string,
+  keepSessionId: string | null,
+): Promise<number> {
+  const rows = await tx
+    .update(userSessions)
+    .set({ revokedAt: new Date() })
+    .where(
+      and(
+        eq(userSessions.userId, userId),
+        isNull(userSessions.revokedAt),
+        keepSessionId === null ? undefined : ne(userSessions.id, keepSessionId),
+      ),
+    )
+    .returning({ id: userSessions.id });
+  return rows.length;
+}
 import {
   clearAuthCookie,
   first,
@@ -44,7 +86,7 @@ const REGISTER_CONFLICT_MESSAGE = 'E-mail ou organização já cadastrados';
 
 export const authRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
-  const { sessionTtlSeconds, cookieSecure, platformAdminEmails } = app.config;
+  const { sessionTtlSeconds, cookieSecure, platformAdminEmails, appBaseUrl } = app.config;
 
   app.post(
     '/auth/register',
@@ -249,6 +291,163 @@ export const authRoutes: FastifyPluginAsync = (app) => {
       platformAdmin: session.platformAdmin,
     });
   });
+
+  /**
+   * Troca de senha pela própria conta (auditoria 2026-09-10, P2-04). Exige a senha atual e
+   * encerra as outras sessões do usuário — a sessão que fez a troca continua valendo.
+   */
+  app.post(
+    '/auth/change-password',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (request) => {
+      const session = requireSession(request);
+      const input = changePasswordRequestSchema.parse(request.body);
+      const user = first(
+        await db.select().from(users).where(eq(users.id, session.userId)).limit(1),
+      );
+      if (!(await verifyPassword(user.passwordHash, input.currentPassword))) {
+        throw new DomainError('UNAUTHORIZED', 'Senha atual incorreta');
+      }
+      assertNewPassword(input.newPassword, {
+        sameAsCurrent: await verifyPassword(user.passwordHash, input.newPassword),
+      });
+      const passwordHash = await hashPassword(input.newPassword);
+
+      const revoked = await db.transaction(async (tx) => {
+        await tx
+          .update(users)
+          .set({ passwordHash, updatedAt: new Date() })
+          .where(eq(users.id, user.id));
+        const rows = await revokeOtherSessions(tx, user.id, session.sessionId);
+        await writeAudit(tx, {
+          orgId: session.activeOrgId,
+          actorUserId: user.id,
+          action: AUDIT_ACTIONS.AUTH_PASSWORD_CHANGED,
+          entityType: 'USER',
+          entityId: user.id,
+          payload: { revokedSessions: rows, source: 'account' },
+        });
+        return rows;
+      });
+
+      return changePasswordResponseSchema.parse({ ok: true, revokedSessions: revoked });
+    },
+  );
+
+  /**
+   * Recuperação de senha: grava a mensagem na caixa de saída local e **não envia nada**. A
+   * resposta é sempre a mesma, com e-mail cadastrado ou não (sem enumeração de contas).
+   */
+  app.post(
+    '/auth/forgot-password',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (request) => {
+      const input = forgotPasswordRequestSchema.parse(request.body);
+      const email = normalizeEmail(input.email);
+      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (user && user.status === 'ACTIVE') {
+        const token = generateOpaqueToken();
+        const now = new Date();
+        await db.transaction(async (tx) => {
+          // Um pedido novo invalida os anteriores que ainda valiam.
+          await tx
+            .update(passwordResetTokens)
+            .set({ usedAt: now })
+            .where(
+              and(eq(passwordResetTokens.userId, user.id), isNull(passwordResetTokens.usedAt)),
+            );
+          await tx.insert(passwordResetTokens).values({
+            userId: user.id,
+            tokenHash: hashOpaqueToken(token),
+            requestedIp: request.ip,
+            expiresAt: expiresAt(now, { minutes: PASSWORD_RESET_TTL_MINUTES }),
+          });
+          const link = `${appBaseUrl}/redefinir-senha?token=${token}`;
+          await queueEmail(tx, {
+            orgId: null, // mensagem de conta: nenhuma imobiliária pode lê-la
+            kind: 'PASSWORD_RESET',
+            toEmail: user.email,
+            subject: 'Redefinir a senha do Aluguei.app',
+            body: [
+              `Olá, ${user.name}.`,
+              '',
+              'Para escolher uma senha nova, abra o link abaixo. Ele vale por ' +
+                `${String(PASSWORD_RESET_TTL_MINUTES)} minutos e só pode ser usado uma vez.`,
+              '',
+              link,
+              '',
+              'Se não foi você que pediu, ignore esta mensagem: a senha atual continua valendo.',
+            ].join('\n'),
+            relatedEntityType: 'USER',
+            relatedEntityId: user.id,
+            actorUserId: user.id,
+          });
+          await writeAudit(tx, {
+            orgId: null,
+            actorUserId: user.id,
+            action: AUDIT_ACTIONS.AUTH_PASSWORD_RESET_REQUESTED,
+            entityType: 'USER',
+            entityId: user.id,
+            payload: { delivered: false },
+          });
+        });
+      }
+      return forgotPasswordResponseSchema.parse({ ok: true });
+    },
+  );
+
+  /** Redefinição com o token de uso único: encerra TODAS as sessões do usuário. */
+  app.post(
+    '/auth/reset-password',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (request) => {
+      const input = resetPasswordRequestSchema.parse(request.body);
+      const tokenHash = hashOpaqueToken(input.token);
+      const now = new Date();
+
+      const revoked = await db.transaction(async (tx) => {
+        const [token] = await tx
+          .select()
+          .from(passwordResetTokens)
+          .where(eq(passwordResetTokens.tokenHash, tokenHash))
+          .for('update');
+        if (!token) {
+          throw new DomainError('NOT_FOUND', 'Link de redefinição inválido ou expirado');
+        }
+        assertTokenUsable(token, now, 'Link de redefinição inválido ou expirado');
+        const user = first(
+          await tx.select().from(users).where(eq(users.id, token.userId)).limit(1),
+        );
+        if (user.status !== 'ACTIVE') {
+          throw new DomainError('NOT_FOUND', 'Link de redefinição inválido ou expirado');
+        }
+        assertNewPassword(input.newPassword, {
+          sameAsCurrent: await verifyPassword(user.passwordHash, input.newPassword),
+        });
+        await tx
+          .update(passwordResetTokens)
+          .set({ usedAt: now })
+          .where(eq(passwordResetTokens.id, token.id));
+        await tx
+          .update(users)
+          .set({ passwordHash: await hashPassword(input.newPassword), updatedAt: now })
+          .where(eq(users.id, user.id));
+        // Senha redefinida por link: nenhuma sessão antiga continua (o link pode ter vazado).
+        const rows = await revokeOtherSessions(tx, user.id, null);
+        await writeAudit(tx, {
+          orgId: null,
+          actorUserId: user.id,
+          action: AUDIT_ACTIONS.AUTH_PASSWORD_RESET_COMPLETED,
+          entityType: 'USER',
+          entityId: user.id,
+          payload: { revokedSessions: rows },
+        });
+        return rows;
+      });
+
+      return resetPasswordResponseSchema.parse({ ok: true, revokedSessions: revoked });
+    },
+  );
 
   app.post('/auth/switch-org', async (request) => {
     const session = requireSession(request);

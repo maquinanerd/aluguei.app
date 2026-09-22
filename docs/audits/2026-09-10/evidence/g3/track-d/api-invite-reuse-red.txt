@@ -1,0 +1,44 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-d-registries.test.ts
+# árvore: g3/track-d-registries em 5ea6eeb (teste RED) + rotas, contratos, caixa de saída e job de expiração da trilha D
+# data (UTC): 2026-09-21T18:54:40Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/tests/integration
+
+(node:22660) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-d-registries.test.ts (17 tests | 1 failed) 5881ms
+       × convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único
+AssertionError: expected 409 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 409
+
+ ❯ src/g3-d-registries.test.ts:921:33
+    919|         payload: { token, name: 'Outra Pessoa', password: 'outra-senha…
+    920|       });
+    921|       expect(reused.statusCode).toBe(404);
+       |                                 ^
+    922|       const members = await call(app, 'GET', `/organizations/${a.org.i…
+    923|         cookie: a.cookie,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  15:54:42
+   Duration  11.13s (transform 2.46s, setup 0ms, import 5.00s, tests 5.88s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-d-registries.test.ts
+
+# exit=1

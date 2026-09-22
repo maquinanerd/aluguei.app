@@ -1,0 +1,5 @@
+# comando: pnpm security:scan
+# árvore: commit ec3a348 (g3/track-d-registries)
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.

@@ -1,0 +1,22 @@
+# comando: grep "Tests " gates-test.txt (contagem por pacote)
+# árvore: commit 1db63fa
+# data (UTC): 2026-09-21T23:53:47Z
+
+Tests 5 passed (5)
+Tests 16 passed (16)
+Tests 7 passed (7)
+Tests 203 passed (203)
+Tests 4 passed (4)
+Tests 4 passed (4)
+Tests 91 passed (91)
+Tests 158 passed (158)
+Tests 10 passed (10)
+Tests 143 passed (143)
+Tests 5 passed (5)
+Tests 7 passed (7)
+Tests 9 passed (9)
+Tests 240 passed (240)
+
+Total: 902 testes em 14 pacotes; nenhum skipped ou todo.
+
+# exit=0

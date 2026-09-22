@@ -1,0 +1,17 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/identity-tokens-concurrency.pg.test.ts
+# árvore: g3/track-d-registries 8805b9d + teste novo de concorrência do token (com FOR UPDATE, como no commit); cluster PostgreSQL 17 descartável (initdb -A trust, porta 54334); TEST_DATABASE_URL=postgresql://postgres@localhost:54334/postgres
+# data (UTC): 2026-09-21T19:24:22Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/tests/integration
+
+(node:1676) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:24:23
+   Duration  6.61s (transform 1.81s, setup 0ms, import 3.43s, tests 2.95s, environment 0ms)
+
+
+# exit=0

@@ -1,0 +1,42 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/app/api/backend
+# árvore: g3/track-d-registries em 7e0521d + teste novo, sem a correção
+# data (UTC): 2026-09-22T00:46:55Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/apps/web
+
+ ❯ src/app/api/backend/[...path]/route.test.ts (7 tests | 1 failed) 24ms
+     × limite de requisições chega ao navegador com o retry-after da API 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/api/backend/[...path]/route.test.ts > /api/backend/[...path] > limite de requisições chega ao navegador com o retry-after da API
+AssertionError: expected null to be '37' // Object.is equality
+
+- Expected:
+"37"
+
++ Received:
+null
+
+ ❯ src/app/api/backend/[...path]/route.test.ts:123:44
+    121|     const res = await POST(request('/leads', { method: 'POST', body: '…
+    122|     expect(res.status).toBe(429);
+    123|     expect(res.headers.get('retry-after')).toBe('37');
+       |                                            ^
+    124|   });
+    125| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  21:46:57
+   Duration  450ms (transform 73ms, setup 0ms, import 173ms, tests 24ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/app/api/backend
+
+# exit=1

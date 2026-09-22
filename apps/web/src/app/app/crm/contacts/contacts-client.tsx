@@ -2,19 +2,18 @@
 
 import { useMemo, useState } from 'react';
 import type { SyntheticEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Avatar,
   Badge,
   Button,
   DataTable,
-  Drawer,
   Group,
   Icon,
   Input,
   Modal,
   Select,
   Stack,
-  Tag,
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
@@ -23,6 +22,8 @@ import { formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { label, PARTY_TYPE_LABELS } from '@/lib/labels';
+import { formatIdentityValue, identityError, IDENTITY_KIND_OPTIONS } from '@/lib/party-rules';
+import type { IdentityKind } from '@/lib/party-rules';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
 
@@ -36,22 +37,20 @@ interface Party {
   createdAt: string;
 }
 
-interface Identity {
-  kind: 'EMAIL' | 'PHONE' | 'CPF' | 'CNPJ' | 'PASSPORT';
-  value: string;
-}
-
 function ContactsBody() {
   const toast = useToast();
+  const router = useRouter();
   const [search, setSearch] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [detailId, setDetailId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
+  // Sem filtro, a API traz só as pessoas ativas; as arquivadas têm filtro próprio (P2-01).
+  const path = showArchived ? '/parties?limit=100&status=ARCHIVED' : '/parties?limit=100';
   const { data, loading, error, permissionDenied, reload } = useQuery<{
     parties: Party[];
     total: number;
-  }>('/parties?limit=100', []);
+  }>(path, [path]);
 
   const parties = useMemo(() => {
     const rows = data?.parties ?? [];
@@ -66,8 +65,6 @@ function ContactsBody() {
 
   if (permissionDenied) return <PermissionDenied title="Sem acesso a contatos" />;
 
-  const detail = detailId ? (data?.parties.find((p) => p.id === detailId) ?? null) : null;
-
   const columns: Column<Party>[] = [
     {
       key: 'name',
@@ -78,7 +75,7 @@ function ContactsBody() {
           <Stack gap={0}>
             <span style={{ fontWeight: 500 }}>{p.name}</span>
             <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-              {p.identities.map((i) => i.value).join(' · ')}
+              {p.identities.map((i) => formatIdentityValue(i.kind, i.value)).join(' · ')}
             </span>
           </Stack>
         </Group>
@@ -110,6 +107,20 @@ function ContactsBody() {
           onChange: setSearch,
           placeholder: 'Buscar por nome ou documento…',
         }}
+        filters={
+          <Select
+            size="sm"
+            value={showArchived ? 'ARCHIVED' : 'ACTIVE'}
+            onChange={(e) => {
+              setShowArchived(e.target.value === 'ARCHIVED');
+            }}
+            options={[
+              { value: 'ACTIVE', label: 'Ativos' },
+              { value: 'ARCHIVED', label: 'Arquivados' },
+            ]}
+            aria-label="Situação dos contatos"
+          />
+        }
         actions={
           <Button
             variant="brand"
@@ -130,9 +141,9 @@ function ContactsBody() {
         selectedIds={selected}
         onSelectIds={setSelected}
         onRowClick={(p) => {
-          setDetailId(p.id);
+          router.push(`/app/crm/contacts/${p.id}`);
         }}
-        emptyTitle="Nenhum contato"
+        emptyTitle={showArchived ? 'Nenhum contato arquivado' : 'Nenhum contato'}
         emptyBody="Cadastre pessoas e empresas para vincular a leads e imóveis."
         emptyActionLabel="Novo contato"
         onEmptyAction={() => {
@@ -152,74 +163,6 @@ function ContactsBody() {
           reload();
         }}
       />
-
-      <Drawer
-        open={detail !== null}
-        onClose={() => {
-          setDetailId(null);
-        }}
-        title={detail?.name ?? 'Contato'}
-        footer={
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setDetailId(null);
-            }}
-          >
-            Fechar
-          </Button>
-        }
-      >
-        {detail ? (
-          <Stack gap={4}>
-            <Group gap={3}>
-              <Avatar name={detail.name} size="lg" brand />
-              <Stack gap={1}>
-                <Badge tone={detail.type === 'COMPANY' ? 'info' : 'neutral'}>
-                  {label(PARTY_TYPE_LABELS, detail.type)}
-                </Badge>
-                <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                  Desde {formatDate(detail.createdAt)}
-                </span>
-              </Stack>
-            </Group>
-            <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                Identificadores
-              </span>
-              <Group gap={2} wrap>
-                {detail.identities.map((i) => (
-                  <Tag key={i.kind} icon="user">
-                    {i.kind}: {i.value}
-                  </Tag>
-                ))}
-              </Group>
-            </Stack>
-            <Stack gap={1}>
-              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                Endereços
-              </span>
-              {detail.addresses.length === 0 ? (
-                <span className="peg-text-secondary" style={{ fontSize: 13 }}>
-                  Nenhum endereço cadastrado.
-                </span>
-              ) : (
-                detail.addresses.map((a, i) => {
-                  const city = typeof a.city === 'string' ? a.city : null;
-                  const street = typeof a.street === 'string' ? a.street : null;
-                  const aLabel = typeof a.label === 'string' ? a.label : null;
-                  const parts = [street, city, aLabel].filter((x): x is string => x !== null);
-                  return (
-                    <span key={i} className="peg-text-secondary" style={{ fontSize: 13 }}>
-                      {parts.length > 0 ? parts.join(', ') : `Endereço ${String(i + 1)}`}
-                    </span>
-                  );
-                })
-              )}
-            </Stack>
-          </Stack>
-        ) : null}
-      </Drawer>
     </div>
   );
 }
@@ -236,8 +179,9 @@ function CreatePartyModal({
   const toast = useToast();
   const [type, setType] = useState<'PERSON' | 'COMPANY'>('PERSON');
   const [name, setName] = useState('');
-  const [identityKind, setIdentityKind] = useState<Identity['kind']>('EMAIL');
+  const [identityKind, setIdentityKind] = useState<IdentityKind>('EMAIL');
   const [identityValue, setIdentityValue] = useState('');
+  const [valueError, setValueError] = useState<string | null>(null);
   const [duplicate, setDuplicate] = useState<
     Array<{ partyId: string; name: string; reasons: string[] }>
   >([]);
@@ -248,12 +192,17 @@ function CreatePartyModal({
     setName('');
     setIdentityKind('EMAIL');
     setIdentityValue('');
+    setValueError(null);
     setDuplicate([]);
   }
 
   async function submit(e: SyntheticEvent) {
     e.preventDefault();
-    if (!name.trim() || !identityValue.trim()) return;
+    if (!name.trim()) return;
+    // CPF e CNPJ com dígito verificador conferido antes de enviar (P2-01).
+    const problem = identityError(identityKind, identityValue);
+    setValueError(problem);
+    if (problem) return;
     setBusy(true);
     setDuplicate([]);
     try {
@@ -281,7 +230,6 @@ function CreatePartyModal({
         toast.warning('Possível duplicado', 'Um contato similar já existe.');
         return;
       }
-      toast.success('Contato criado');
       reset();
       onCreated();
     } catch (err) {
@@ -320,6 +268,7 @@ function CreatePartyModal({
         id="create-party-form"
         className="peg-stack"
         style={{ gap: 16 }}
+        noValidate
         onSubmit={(e) => {
           void submit(e);
         }}
@@ -370,22 +319,19 @@ function CreatePartyModal({
             label="Tipo de identificador"
             value={identityKind}
             onChange={(e) => {
-              setIdentityKind(e.target.value as Identity['kind']);
+              setIdentityKind(e.target.value as IdentityKind);
+              setValueError(null);
             }}
-            options={[
-              { value: 'EMAIL', label: 'E-mail' },
-              { value: 'PHONE', label: 'Telefone' },
-              { value: 'CPF', label: 'CPF' },
-              { value: 'CNPJ', label: 'CNPJ' },
-              { value: 'PASSPORT', label: 'Passaporte' },
-            ]}
+            options={IDENTITY_KIND_OPTIONS}
           />
           <Input
             label="Valor"
             required
             value={identityValue}
+            {...(valueError ? { error: valueError } : {})}
             onChange={(e) => {
               setIdentityValue(e.target.value);
+              setValueError(null);
             }}
             placeholder={identityKind === 'EMAIL' ? 'email@exemplo.com' : '00 0000-0000'}
           />

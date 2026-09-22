@@ -1,0 +1,122 @@
+# comando: pnpm build --force
+# árvore: commit ec3a348 (g3/track-d-registries)
+
+$ turbo run build "--force"
+• turbo 2.10.9
+
+   • Packages in scope: @aluguei/api, @aluguei/config, @aluguei/contracts, @aluguei/db, @aluguei/domain, @aluguei/integrations, @aluguei/meta-mcp, @aluguei/mobile, @aluguei/observability, @aluguei/storage, @aluguei/tests-contract, @aluguei/tests-e2e, @aluguei/tests-integration, @aluguei/ui, @aluguei/web, @aluguei/worker
+   • Running build in 16 packages
+   • Remote caching disabled, using shared worktree cache
+
+@aluguei/config:build: cache bypass, force executing d07c21fd5590c351
+@aluguei/observability:build: cache bypass, force executing 5305faae73dbb2c6
+@aluguei/domain:build: cache bypass, force executing bce97f11fa3eb1d1
+@aluguei/contracts:build: cache bypass, force executing eb0b7607d77a14c1
+@aluguei/storage:build: cache bypass, force executing 790f1b37752f7581
+@aluguei/db:build: cache bypass, force executing 8b52fc6a97dd2f10
+@aluguei/config:build: $ tsc -p tsconfig.json
+@aluguei/observability:build: $ tsc -p tsconfig.json
+@aluguei/domain:build: $ tsc -p tsconfig.json
+@aluguei/contracts:build: $ tsc -p tsconfig.json
+@aluguei/storage:build: $ tsc -p tsconfig.json
+@aluguei/db:build: $ tsc -p tsconfig.json
+@aluguei/integrations:build: cache bypass, force executing f87457363332073b
+@aluguei/ui:build: cache bypass, force executing e2d2becdb8bec176
+@aluguei/integrations:build: $ tsc -p tsconfig.json
+@aluguei/ui:build: $ tsc -p tsconfig.json
+@aluguei/web:build: cache bypass, force executing babf2870a312c857
+@aluguei/api:build: cache bypass, force executing 74650715b1114392
+@aluguei/meta-mcp:build: cache bypass, force executing 0996bfed9266fcec
+@aluguei/web:build: $ next build
+@aluguei/api:build: $ tsc -p tsconfig.json
+@aluguei/meta-mcp:build: $ tsc -p tsconfig.json
+@aluguei/web:build: ▲ Next.js 16.3.4 (Turbopack)
+@aluguei/web:build: ✓ Running next.config.ts took 69ms
+@aluguei/web:build: 
+@aluguei/web:build:   Creating an optimized production build ...
+@aluguei/web:build: ✓ Compiled successfully in 1175ms
+@aluguei/web:build:   Running TypeScript ...
+@aluguei/web:build:   Finished TypeScript in 4.4s ...
+@aluguei/web:build:   Collecting page data using 7 workers ...
+@aluguei/web:build:   Generating static pages using 7 workers (0/15) ...
+@aluguei/web:build:   Generating static pages using 7 workers (3/15) 
+@aluguei/web:build:   Generating static pages using 7 workers (7/15) 
+@aluguei/web:build:   Generating static pages using 7 workers (11/15) 
+@aluguei/web:build: ✓ Generating static pages using 7 workers (15/15) in 416ms
+@aluguei/web:build:   Finalizing page optimization ...
+@aluguei/web:build: 
+@aluguei/web:build: Route (app)
+@aluguei/web:build: ┌ ○ /
+@aluguei/web:build: ├ ○ /_not-found
+@aluguei/web:build: ├ ƒ /api/auth/login
+@aluguei/web:build: ├ ƒ /api/auth/logout
+@aluguei/web:build: ├ ƒ /api/auth/register
+@aluguei/web:build: ├ ƒ /api/backend/[...path]
+@aluguei/web:build: ├ ƒ /api/leads/[id]/status
+@aluguei/web:build: ├ ƒ /api/portal/auth/consume
+@aluguei/web:build: ├ ƒ /api/portal/auth/logout
+@aluguei/web:build: ├ ƒ /app
+@aluguei/web:build: ├ ƒ /app/admin/integrations
+@aluguei/web:build: ├ ƒ /app/admin/members
+@aluguei/web:build: ├ ƒ /app/channels
+@aluguei/web:build: ├ ƒ /app/charges
+@aluguei/web:build: ├ ƒ /app/contract-templates
+@aluguei/web:build: ├ ƒ /app/contracts
+@aluguei/web:build: ├ ƒ /app/contracts/[id]
+@aluguei/web:build: ├ ƒ /app/crm/calendar
+@aluguei/web:build: ├ ƒ /app/crm/contacts
+@aluguei/web:build: ├ ƒ /app/crm/contacts/[id]
+@aluguei/web:build: ├ ƒ /app/crm/leads
+@aluguei/web:build: ├ ƒ /app/crm/leads/[id]
+@aluguei/web:build: ├ ƒ /app/crm/pipeline
+@aluguei/web:build: ├ ƒ /app/crm/tasks
+@aluguei/web:build: ├ ƒ /app/finance
+@aluguei/web:build: ├ ƒ /app/inbox
+@aluguei/web:build: ├ ƒ /app/inspections
+@aluguei/web:build: ├ ƒ /app/inspections/[id]
+@aluguei/web:build: ├ ƒ /app/leases
+@aluguei/web:build: ├ ƒ /app/leases/[id]
+@aluguei/web:build: ├ ƒ /app/ledger
+@aluguei/web:build: ├ ƒ /app/listings
+@aluguei/web:build: ├ ƒ /app/marketing
+@aluguei/web:build: ├ ƒ /app/payments
+@aluguei/web:build: ├ ƒ /app/payouts
+@aluguei/web:build: ├ ƒ /app/properties
+@aluguei/web:build: ├ ƒ /app/properties/[id]
+@aluguei/web:build: ├ ƒ /app/properties/new
+@aluguei/web:build: ├ ƒ /app/proposals
+@aluguei/web:build: ├ ƒ /app/reconciliation
+@aluguei/web:build: ├ ƒ /app/reporting
+@aluguei/web:build: ├ ƒ /app/screening
+@aluguei/web:build: ├ ƒ /app/screening/[id]
+@aluguei/web:build: ├ ƒ /app/settings
+@aluguei/web:build: ├ ƒ /app/visits
+@aluguei/web:build: ├ ƒ /convite
+@aluguei/web:build: ├ ƒ /dashboard
+@aluguei/web:build: ├ ○ /dev/calibration
+@aluguei/web:build: ├ ○ /esqueci-senha
+@aluguei/web:build: ├ ƒ /imoveis
+@aluguei/web:build: ├ ƒ /imoveis/[slug]
+@aluguei/web:build: ├ ƒ /inquilino
+@aluguei/web:build: ├ ○ /login
+@aluguei/web:build: ├ ƒ /plataforma
+@aluguei/web:build: ├ ƒ /plataforma/imobiliarias
+@aluguei/web:build: ├ ƒ /plataforma/imobiliarias/[id]
+@aluguei/web:build: ├ ƒ /plataforma/planos
+@aluguei/web:build: ├ ○ /portal/entrar
+@aluguei/web:build: ├ ƒ /proprietario
+@aluguei/web:build: ├ ƒ /redefinir-senha
+@aluguei/web:build: ├ ○ /register
+@aluguei/web:build: └ ƒ /situacao-da-conta
+@aluguei/web:build: 
+@aluguei/web:build: 
+@aluguei/web:build: ○  (Static)   prerendered as static content
+@aluguei/web:build: ƒ  (Dynamic)  server-rendered on demand
+@aluguei/web:build: 
+@aluguei/worker:build: cache bypass, force executing 00e3fd01906a38db
+@aluguei/worker:build: $ tsc -p tsconfig.json
+
+ Tasks:    12 successful, 12 total
+Cached:    0 cached, 12 total
+  Time:    34.43s 
+

@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 /**
@@ -88,20 +88,58 @@ function sessionCookie(res: Response): string {
   return token ?? '';
 }
 
+/** Tentativas de cadastro: a primeira e uma depois de cada 429. */
+const REGISTER_ATTEMPTS = 3;
+
+/**
+ * O cadastro tem limite por IP (10 por minuto) e a suíte inteira cadastra de um IP só. No 429 o
+ * teste espera o `retry-after` que a API mandou, como um cliente correto, e ganha esse tempo a mais
+ * de timeout; o limite continua valendo.
+ */
+export async function waitForRetryAfter(retryAfter: string | null): Promise<void> {
+  const seconds = Number(retryAfter);
+  const waitMs = (Number.isFinite(seconds) && seconds > 0 ? seconds : 60) * 1000 + 1000;
+  test.info().setTimeout(test.info().timeout + waitMs);
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
+}
+
+/** Clica em "Criar conta" e repete depois do `retry-after` se o cadastro bater no limite. */
+export async function submitRegistration(page: Page): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    const response = page.waitForResponse(
+      (r) => r.url().endsWith('/api/auth/register') && r.request().method() === 'POST',
+    );
+    await page.getByRole('button', { name: 'Criar conta' }).click();
+    const res = await response;
+    if (res.status() !== 429 || attempt === REGISTER_ATTEMPTS) {
+      expect(res.status(), 'cadastro pela tela').toBe(201);
+      return;
+    }
+    await waitForRetryAfter(res.headers()['retry-after'] ?? null);
+  }
+}
+
 export async function registerViaApi(label: string): Promise<Account> {
   const id = uniq();
   const email = `b1-${label}-${id}@teste.com`;
   const password = 'e2e-password-123';
-  const res = await fetch(`${API}/auth/register`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      name: `Corretor ${label}`,
-      email,
-      password,
-      organizationName: `Imob B1 ${label} ${id}`,
-    }),
-  });
+  let res: Response;
+  for (let attempt = 1; ; attempt += 1) {
+    res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name: `Corretor ${label}`,
+        email,
+        password,
+        organizationName: `Imob B1 ${label} ${id}`,
+      }),
+    });
+    if (res.status !== 429 || attempt === REGISTER_ATTEMPTS) {
+      break;
+    }
+    await waitForRetryAfter(res.headers.get('retry-after'));
+  }
   expect(res.status, 'cadastro na API').toBe(201);
   const body = (await res.json()) as { org: { id: string } };
   // Estes specs não verificam o cadastro: a imobiliária é aprovada logo em seguida.

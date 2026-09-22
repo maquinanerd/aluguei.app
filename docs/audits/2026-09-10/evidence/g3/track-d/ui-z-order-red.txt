@@ -1,0 +1,49 @@
+# comando: pnpm --filter @aluguei/ui exec vitest run src/styles/z-order.test.ts
+# árvore: g3/track-d-registries 98be64c + teste da ordem das camadas, com os tokens antigos (toast 120, modal 130, drawer 140)
+# data (UTC): 2026-09-21T19:35:27Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/packages/ui
+
+ ❯ src/styles/z-order.test.ts (1 test | 1 failed) 11ms
+     × dropdown < tooltip < drawer < modal < toast 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/styles/z-order.test.ts > ordem das camadas > dropdown < tooltip < drawer < modal < toast
+AssertionError: expected [ 100, 110, 140, 130, 120 ] to deeply equal [ 100, 110, 120, 130, 140 ]
+
+- Expected
++ Received
+
+  [
+    100,
+    110,
+-   120,
+-   130,
+    140,
++   130,
++   120,
+  ]
+
+ ❯ src/styles/z-order.test.ts:23:19
+     21|   it('dropdown < tooltip < drawer < modal < toast', () => {
+     22|     const order = ['dropdown', 'tooltip', 'drawer', 'modal', 'toast'].…
+     23|     expect(order).toEqual([...order].sort((a, b) => a - b));
+       |                   ^
+     24|     expect(new Set(order).size).toBe(order.length);
+     25|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  16:35:28
+   Duration  301ms (transform 22ms, setup 0ms, import 41ms, tests 11ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\packages\ui:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/styles/z-order.test.ts
+
+# exit=1

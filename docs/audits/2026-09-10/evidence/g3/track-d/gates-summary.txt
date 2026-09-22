@@ -1,0 +1,16 @@
+# comando: gates sem cache da trilha D (um arquivo gates-*.txt por gate)
+# árvore: commit 1db63fa (g3/track-d-registries) — trilha D completa; fora do commit só o README das evidências em rascunho e os logs dos gates
+# data (UTC): 2026-09-21T23:40:37Z
+
+install          exit=0
+format           exit=0
+lint             exit=0
+typecheck        exit=0
+test             exit=0
+build            exit=0
+secscan          exit=0
+audit-critical   exit=0
+dbgen            exit=0
+db-drift=NO
+
+# exit=0

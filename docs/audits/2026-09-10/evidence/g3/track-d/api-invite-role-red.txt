@@ -1,0 +1,49 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-d-registries.test.ts -t convite por e-mail
+# árvore: g3/track-d-registries 98be64c + asserção nova da função em português na mensagem do convite, sem a correção
+# data (UTC): 2026-09-21T19:48:23Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/tests/integration
+
+(node:12860) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-d-registries.test.ts (18 tests | 1 failed | 17 skipped) 3981ms
+       × convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único 223ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-d-registries.test.ts > G3 trilha D — cadastros e identidade pela API > P2-04: identidade > convite por e-mail: caixa de saída da org, aceite cria a conta e o vínculo; uso único
+AssertionError: expected 'Olá, Pessoa Convidada.\n\nVocê foi co…' to contain 'como Corretor'
+
+- Expected
++ Received
+
+- como Corretor
++ Olá, Pessoa Convidada.
++
++ Você foi convidado para a equipe de Imobiliária i4rqz3mx como agent.
++ O convite vale por 72 horas e só pode ser usado uma vez.
++
++ http://localhost:3000/convite?token=iSFjO8tlRJj67DVLOnf4pqsh0NN_NuduTgWOZrgGYD4
+
+ ❯ src/g3-d-registries.test.ts:920:29
+    918|       expect(message).toMatchObject({ kind: 'MEMBER_INVITE', status: '…
+    919|       // A mensagem é para uma pessoa: a função vai em português, não …
+    920|       expect(message?.body).toContain('como Corretor');
+       |                             ^
+    921|       expect(message?.body).not.toContain('como agent');
+    922|       const token = tokenFrom(message?.body ?? '');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 skipped (18)
+   Start at  16:48:25
+   Duration  8.20s (transform 1.84s, setup 0ms, import 3.94s, tests 3.98s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-d-registries.test.ts -t "convite por e-mail"
+
+# exit=1

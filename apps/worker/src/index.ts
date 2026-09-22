@@ -17,6 +17,7 @@ import type { HealthServer } from './health.js';
 import type { JobLogger } from './job-log.js';
 
 export { runChannelJobs, runInboxJobs, runMetaJobs };
+export { processProposalExpiryJob } from './crmJobs.js';
 export {
   advanceBillingLifecycle,
   processPaymentJob,

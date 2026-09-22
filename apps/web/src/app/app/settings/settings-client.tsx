@@ -1,8 +1,12 @@
 'use client';
 
-import { Badge, Card, Group, Stack, ToastProvider } from '@aluguei/ui';
+import { useState } from 'react';
+import { Badge, Button, Card, Group, Input, Stack, ToastProvider, useToast } from '@aluguei/ui';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied } from '@aluguei/ui';
+import { apiClient } from '@/lib/api-client';
+import { changePasswordErrors, revokedSessionsText } from '@/lib/account-rules';
+import type { FieldErrors } from '@/lib/account-rules';
 import { useQuery } from '@/lib/use-query';
 import { ROLE_LABELS } from '@/lib/labels';
 
@@ -24,6 +28,8 @@ function SettingsBody() {
       <PageToolbar title="Configurações" description="Preferências e funções da sua conta." />
 
       <div className="peg-grid cols-2" style={{ alignItems: 'start' }}>
+        <ChangePasswordCard />
+
         <Card title="Minhas organizações" padless>
           <Stack gap={2} style={{ padding: 16 }}>
             {(membershipsQ.data?.memberships ?? []).map((m) => (
@@ -65,6 +71,101 @@ function SettingsBody() {
         </Card>
       </div>
     </div>
+  );
+}
+
+/**
+ * Troca de senha pela conta (auditoria 2026-09-10, P2-04): exige a senha atual e encerra as outras
+ * sessões — a desta tela continua.
+ */
+function ChangePasswordCard() {
+  const toast = useToast();
+  const [current, setCurrent] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [errors, setErrors] = useState<FieldErrors<'current' | 'password' | 'confirm'>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.SyntheticEvent) {
+    e.preventDefault();
+    setServerError(null);
+    const found = changePasswordErrors({ current, password, confirm });
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+    setBusy(true);
+    try {
+      const res = await apiClient<{ ok: true; revokedSessions: number }>('/auth/change-password', {
+        method: 'POST',
+        body: { currentPassword: current, newPassword: password },
+      });
+      toast.success('Senha alterada', revokedSessionsText(res.revokedSessions));
+      setCurrent('');
+      setPassword('');
+      setConfirm('');
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Falha ao trocar a senha');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card title="Trocar senha" padless>
+      <form
+        className="peg-stack"
+        style={{ gap: 12, padding: 16 }}
+        noValidate
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        {serverError ? (
+          <span className="peg-field__error" role="alert">
+            {serverError}
+          </span>
+        ) : null}
+        <Input
+          label="Senha atual"
+          type="password"
+          autoComplete="current-password"
+          value={current}
+          onChange={(e) => {
+            setCurrent(e.target.value);
+          }}
+          {...(errors.current ? { error: errors.current } : {})}
+        />
+        <Input
+          label="Nova senha"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          helper="De 8 a 128 caracteres."
+          {...(errors.password ? { error: errors.password } : {})}
+        />
+        <Input
+          label="Confirme a nova senha"
+          type="password"
+          autoComplete="new-password"
+          value={confirm}
+          onChange={(e) => {
+            setConfirm(e.target.value);
+          }}
+          {...(errors.confirm ? { error: errors.confirm } : {})}
+        />
+        <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+          As outras sessões abertas com esta conta são encerradas.
+        </span>
+        <div>
+          <Button variant="primary" type="submit" loading={busy}>
+            Trocar senha
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }
 

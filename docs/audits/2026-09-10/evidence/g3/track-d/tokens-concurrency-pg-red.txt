@@ -1,0 +1,64 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/identity-tokens-concurrency.pg.test.ts
+# árvore: g3/track-d-registries 8805b9d + teste novo de concorrência do token, com a redefinição de senha e o aceite do convite SEM FOR UPDATE (alteração temporária, desfeita logo depois); cluster PostgreSQL 17 descartável (initdb -A trust, porta 54334); TEST_DATABASE_URL=postgresql://postgres@localhost:54334/postgres
+# data (UTC): 2026-09-21T19:23:52Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a263a5240fc0288e6/tests/integration
+
+(node:18528) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/identity-tokens-concurrency.pg.test.ts (2 tests | 2 failed) 3075ms
+     × redefinição de senha: o segundo uso do link espera o primeiro e recebe 404 671ms
+     × convite: o segundo aceite espera o primeiro e recebe 404, sem segunda conta 574ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/identity-tokens-concurrency.pg.test.ts > concorrência real (PostgreSQL): token de uso único > redefinição de senha: o segundo uso do link espera o primeiro e recebe 404
+AssertionError: {"ok":true,"revokedSessions":1}: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ src/identity-tokens-concurrency.pg.test.ts:131:38
+    129|     await first.done;
+    130|     const res = await second;
+    131|     expect(res.statusCode, res.body).toBe(404);
+       |                                      ^
+    132|
+    133|     const completed = (
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/identity-tokens-concurrency.pg.test.ts > concorrência real (PostgreSQL): token de uso único > convite: o segundo aceite espera o primeiro e recebe 404, sem segunda conta
+AssertionError: {"membership":{"id":"6293416b-c469-48fd-a585-a4e561e4b05a","orgId":"4495cf4c-a25c-489d-8afe-41e0dadd7d2f","role":"agent","createdAt":"2026-09-21T19:23:59.743Z"},"created":true}: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ❯ src/identity-tokens-concurrency.pg.test.ts:179:38
+    177|     await first.done;
+    178|     const res = await second;
+    179|     expect(res.statusCode, res.body).toBe(404);
+       |                                      ^
+    180|
+    181|     const users = (
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  16:23:54
+   Duration  6.52s (transform 1.69s, setup 0ms, import 3.20s, tests 3.08s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a263a5240fc0288e6\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/identity-tokens-concurrency.pg.test.ts
+
+# exit=1

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { approveOrganization } from './g2-b1-support';
+import { approveOrganization, submitRegistration } from './g2-b1-support';
 
 /**
  * Jornada principal E2E (browser + API, providers FAKE):
@@ -78,7 +78,7 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
     await page.getByLabel('Senha').fill(password);
     await page.getByLabel('Nome da imobiliária').fill(orgName);
     await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
-    await page.getByRole('button', { name: 'Criar conta' }).click();
+    await submitRegistration(page);
 
     // Cadastro aberto nasce em análise (admin da plataforma): aprova pela API e segue.
     await expect(page).toHaveURL(/\/situacao-da-conta/, { timeout: 20_000 });

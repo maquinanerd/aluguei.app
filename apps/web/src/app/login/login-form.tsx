@@ -90,6 +90,12 @@ export function LoginForm() {
       <Button type="submit" variant="primary" fullWidth loading={submitting}>
         Entrar
       </Button>
+      {/* Recuperação de senha (auditoria 2026-09-10, P2-04). */}
+      <p style={{ fontSize: 13 }}>
+        <a href="/esqueci-senha" style={{ fontWeight: 500 }}>
+          Esqueci minha senha
+        </a>
+      </p>
       <p style={{ fontSize: 13, color: 'var(--peg-text-tertiary)' }}>
         Ainda não tem conta?{' '}
         <a href="/register" style={{ fontWeight: 500 }}>

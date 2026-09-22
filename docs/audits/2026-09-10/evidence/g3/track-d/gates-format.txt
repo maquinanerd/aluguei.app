@@ -1,0 +1,9 @@
+# comando: pnpm format:check
+# árvore: commit 1db63fa (g3/track-d-registries) — trilha D completa; fora do commit só o README das evidências em rascunho e os logs dos gates
+# data (UTC): 2026-09-21T23:40:39Z
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+
+# exit=0

@@ -1,0 +1,9 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 1db63fa (g3/track-d-registries) — trilha D completa; fora do commit só o README das evidências em rascunho e os logs dos gates
+# data (UTC): 2026-09-21T23:40:37Z
+
+Scope: all 17 workspace projects
+Already up to date
+Done in 582ms using pnpm v11.15.1
+
+# exit=0

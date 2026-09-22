@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Avatar,
@@ -9,19 +9,26 @@ import {
   Button,
   Group,
   Icon,
+  Input,
   Inspector,
   InspectorRows,
   InspectorSection,
+  Modal,
+  MoneyInput,
+  Select,
   Stack,
   Tabs,
+  Textarea,
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
 import { formatBRL, formatDateTime, formatRelative } from '@aluguei/ui';
+import { ReasonModal } from '@/components/reason-modal';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
 import { useLookup } from '@/lib/lookup';
-import { label, FUNNEL_LABELS, FUNNEL_TONES } from '@/lib/labels';
+import { formatIdentityValue } from '@/lib/party-rules';
+import { label, FUNNEL_LABELS, FUNNEL_TONES, ROLE_LABELS } from '@/lib/labels';
 import { PermissionDenied, ErrorState, EmptyState } from '@aluguei/ui';
 
 interface Lead {
@@ -59,6 +66,13 @@ interface TimelineEvent {
   occurredAt: string;
 }
 
+interface TeamMember {
+  id: string;
+  userId: string;
+  name: string;
+  role: string;
+}
+
 const TABS = [
   { value: 'overview', label: 'Visão geral' },
   { value: 'conversas', label: 'Conversas' },
@@ -80,23 +94,24 @@ function LeadBody() {
   const toast = useToast();
   const [tab, setTab] = useState('overview');
   const [busy, setBusy] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [lostOpen, setLostOpen] = useState(false);
 
-  const leadsQ = useQuery<{ leads: Lead[] }>('/leads?limit=100', [id]);
+  // Detalhe pela rota própria (auditoria 2026-09-10, P2-03: antes a lista inteira era filtrada).
+  const leadQ = useQuery<{ lead: Lead; interestedPropertyIds: string[] }>(`/leads/${id}`, [id]);
+  const teamQ = useQuery<{ members: TeamMember[] }>('/me/members', []);
   const convQ = useQuery<{ conversations: Conversation[] }>(`/leads/${id}/conversations`, [id]);
   const timelineQ = useQuery<{ events: TimelineEvent[] }>(
     `/timeline?entityType=LEAD&entityId=${id}`,
     [id],
   );
 
-  const lead = useMemo(
-    () => leadsQ.data?.leads.find((l) => l.id === id) ?? null,
-    [leadsQ.data, id],
-  );
+  const lead = leadQ.data?.lead ?? null;
   // Contato do lead por `ids` (antes limit=200 → 400 — P1-01).
   const partyLookup = useLookup<Party>('parties', [lead?.partyId]);
   const party = lead?.partyId ? (partyLookup.map.get(lead.partyId) ?? null) : null;
 
-  if (leadsQ.permissionDenied) return <PermissionDenied title="Sem acesso a leads" />;
+  if (leadQ.permissionDenied) return <PermissionDenied title="Sem acesso a leads" />;
 
   if (!lead) {
     const emptyProps: {
@@ -106,10 +121,10 @@ function LeadBody() {
       actionLabel?: string;
       onAction?: () => void;
     } = {
-      title: leadsQ.loading ? 'Carregando lead…' : 'Lead não encontrado',
-      icon: leadsQ.loading ? 'activity' : 'helpCircle',
+      title: leadQ.loading ? 'Carregando lead…' : 'Lead não encontrado',
+      icon: leadQ.loading ? 'activity' : 'helpCircle',
     };
-    if (!leadsQ.loading) {
+    if (!leadQ.loading) {
       emptyProps.body = 'Verifique o endereço ou volte para a lista.';
       emptyProps.actionLabel = 'Voltar para leads';
       emptyProps.onAction = () => {
@@ -120,14 +135,20 @@ function LeadBody() {
   }
 
   const current = lead;
+  const team = teamQ.data?.members ?? [];
+  const owner = team.find((member) => member.userId === current.ownerUserId) ?? null;
 
-  async function transition(next: string) {
+  async function transition(next: string, reason?: string) {
     setBusy(true);
     try {
-      const reason = next === 'LOST' ? (window.prompt('Motivo do LOST:') ?? undefined) : undefined;
-      await apiClient(`/leads/${id}/status`, { method: 'PATCH', body: { status: next, reason } });
+      await apiClient(`/leads/${id}/status`, {
+        method: 'PATCH',
+        body: reason === undefined ? { status: next } : { status: next, reason },
+      });
       toast.success('Status atualizado', label(FUNNEL_LABELS, next));
-      leadsQ.reload();
+      setLostOpen(false);
+      leadQ.reload();
+      timelineQ.reload();
     } catch (err) {
       toast.error('Falha na transição', err instanceof Error ? err.message : undefined);
     } finally {
@@ -165,14 +186,30 @@ function LeadBody() {
               </span>
             </Stack>
           </Group>
-          <Group gap={2}>
+          <Group gap={2} wrap>
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<Icon name="edit" size={14} />}
+              onClick={() => {
+                setEditOpen(true);
+              }}
+            >
+              Editar lead
+            </Button>
             {nextStatuses.map((s) => (
               <Button
                 key={s}
                 size="sm"
                 variant={s === 'LOST' ? 'danger-subtle' : 'brand'}
                 loading={busy}
-                onClick={() => void transition(s)}
+                onClick={() => {
+                  if (s === 'LOST') {
+                    setLostOpen(true);
+                    return;
+                  }
+                  void transition(s);
+                }}
               >
                 Mover para {label(FUNNEL_LABELS, s)}
               </Button>
@@ -193,16 +230,23 @@ function LeadBody() {
                   <Info label="Fonte" value={current.source ?? '—'} />
                   <Info label="Canal" value={current.channel ?? '—'} />
                   <Info label="Orçamento" value={budgetRange(current)} />
+                  <Info label="Responsável" value={owner?.name ?? 'Sem responsável'} />
                   <Info
                     label="Contato"
                     value={party ? `${party.name} · ${identityLabel(party)}` : 'Não vinculado'}
+                  />
+                  <Info
+                    label="Imóveis de interesse"
+                    value={String(leadQ.data?.interestedPropertyIds.length ?? 0)}
                   />
                 </div>
                 <Stack gap={1}>
                   <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
                     Observações
                   </span>
-                  <p style={{ fontSize: 14, lineHeight: '21px' }}>{current.notes ?? '—'}</p>
+                  <p style={{ fontSize: 14, lineHeight: '21px', whiteSpace: 'pre-wrap' }}>
+                    {current.notes ?? '—'}
+                  </p>
                 </Stack>
               </Stack>
             </div>
@@ -281,6 +325,14 @@ function LeadBody() {
 
         {/* Context rail */}
         <Inspector>
+          <InspectorSection title="Responsável">
+            <InspectorRows
+              rows={[
+                { label: 'Nome', value: owner?.name ?? 'Sem responsável' },
+                { label: 'Função', value: owner ? label(ROLE_LABELS, owner.role) : '—' },
+              ]}
+            />
+          </InspectorSection>
           <InspectorSection title="Contato">
             <InspectorRows
               rows={[
@@ -323,8 +375,186 @@ function LeadBody() {
         </Inspector>
       </Group>
 
-      {leadsQ.error ? <ErrorState body={leadsQ.error} onRetry={leadsQ.reload} /> : null}
+      {leadQ.error ? <ErrorState body={leadQ.error} onRetry={leadQ.reload} /> : null}
+
+      {editOpen ? (
+        <EditLeadModal
+          lead={current}
+          team={team}
+          onClose={() => {
+            setEditOpen(false);
+          }}
+          onSaved={() => {
+            toast.success('Lead atualizado');
+            setEditOpen(false);
+            leadQ.reload();
+            timelineQ.reload();
+          }}
+        />
+      ) : null}
+      {lostOpen ? (
+        <ReasonModal
+          title="Marcar como perdido"
+          confirmLabel="Marcar como perdido"
+          busy={busy}
+          hint="O lead sai do funil e não volta. O motivo fica no histórico."
+          onClose={() => {
+            setLostOpen(false);
+          }}
+          onConfirm={(reason) => void transition('LOST', reason)}
+        />
+      ) : null}
     </Stack>
+  );
+}
+
+type LeadPatch = Partial<{
+  ownerUserId: string | null;
+  source: string | null;
+  channel: string | null;
+  budgetMinCents: number | null;
+  budgetMaxCents: number | null;
+  notes: string | null;
+}>;
+
+/** Edição de dados e responsável (P2-03). O status muda só pelo funil. */
+function EditLeadModal({
+  lead,
+  team,
+  onClose,
+  onSaved,
+}: {
+  lead: Lead;
+  team: TeamMember[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [ownerUserId, setOwnerUserId] = useState(lead.ownerUserId ?? '');
+  const [source, setSource] = useState(lead.source ?? '');
+  const [channel, setChannel] = useState(lead.channel ?? '');
+  const [budgetMin, setBudgetMin] = useState<number | null>(lead.budgetMinCents);
+  const [budgetMax, setBudgetMax] = useState<number | null>(lead.budgetMaxCents);
+  const [notes, setNotes] = useState(lead.notes ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.SyntheticEvent) {
+    e.preventDefault();
+    setError(null);
+    if (budgetMin !== null && budgetMax !== null && budgetMin > budgetMax) {
+      setError('O orçamento mínimo não pode passar do máximo');
+      return;
+    }
+    const text = (value: string): string | null => (value.trim() === '' ? null : value.trim());
+    // Só o que mudou: a auditoria guarda o diff campo a campo.
+    const body: LeadPatch = {};
+    if ((ownerUserId || null) !== lead.ownerUserId) body.ownerUserId = ownerUserId || null;
+    if (text(source) !== lead.source) body.source = text(source);
+    if (text(channel) !== lead.channel) body.channel = text(channel);
+    if (budgetMin !== lead.budgetMinCents) body.budgetMinCents = budgetMin;
+    if (budgetMax !== lead.budgetMaxCents) body.budgetMaxCents = budgetMax;
+    if (text(notes) !== lead.notes) body.notes = text(notes);
+    if (Object.keys(body).length === 0) {
+      onClose();
+      return;
+    }
+    setBusy(true);
+    try {
+      await apiClient(`/leads/${lead.id}`, { method: 'PATCH', body });
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao salvar');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Editar lead"
+      footer={
+        <>
+          <Button variant="tertiary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit" form="edit-lead-form" loading={busy}>
+            Salvar
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="edit-lead-form"
+        className="peg-stack"
+        style={{ gap: 16 }}
+        noValidate
+        onSubmit={(e) => {
+          void submit(e);
+        }}
+      >
+        {error ? (
+          <span className="peg-field__error" role="alert">
+            {error}
+          </span>
+        ) : null}
+        <Select
+          label="Responsável"
+          value={ownerUserId}
+          onChange={(e) => {
+            setOwnerUserId(e.target.value);
+          }}
+          placeholder="Sem responsável"
+          options={team.map((member) => ({
+            value: member.userId,
+            label: `${member.name} · ${label(ROLE_LABELS, member.role)}`,
+          }))}
+        />
+        <div className="peg-grid cols-2">
+          <Input
+            label="Fonte"
+            optional
+            maxLength={100}
+            value={source}
+            onChange={(e) => {
+              setSource(e.target.value);
+            }}
+          />
+          <Input
+            label="Canal"
+            optional
+            maxLength={100}
+            value={channel}
+            onChange={(e) => {
+              setChannel(e.target.value);
+            }}
+          />
+          <MoneyInput
+            label="Orçamento mínimo (R$)"
+            optional
+            valueCents={budgetMin}
+            onValueChange={setBudgetMin}
+          />
+          <MoneyInput
+            label="Orçamento máximo (R$)"
+            optional
+            valueCents={budgetMax}
+            onValueChange={setBudgetMax}
+          />
+        </div>
+        <Textarea
+          label="Observações"
+          optional
+          rows={4}
+          maxLength={5000}
+          value={notes}
+          onChange={(e) => {
+            setNotes(e.target.value);
+          }}
+        />
+      </form>
+    </Modal>
   );
 }
 
@@ -349,13 +579,16 @@ function budgetRange(lead: Lead): string {
 
 function identityLabel(party: Party | null): string {
   if (!party || party.identities.length === 0) return '—';
-  return party.identities.map((i) => `${i.kind}: ${i.value}`).join(', ');
+  return party.identities
+    .map((i) => `${i.kind}: ${formatIdentityValue(i.kind, i.value)}`)
+    .join(', ');
 }
 
 function eventLabel(eventType: string): string {
   const map: Record<string, string> = {
     LEAD_CREATED: 'Lead criado',
     LEAD_STATUS_CHANGED: 'Estágio alterado',
+    LEAD_UPDATED: 'Dados do lead alterados',
     MESSAGE_RECEIVED: 'Mensagem recebida',
     MESSAGE_SENT: 'Mensagem enviada',
     VISIT_SCHEDULED: 'Visita agendada',

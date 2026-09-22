@@ -103,11 +103,13 @@
   --peg-shadow-app: 0 1px 0 rgba(47, 51, 43, 0.04), 0 2px 6px rgba(47, 51, 43, 0.05);
 
   /* ---- Z-index ---- */
+  /* Diálogo aberto a partir de um drawer fica por cima dele, e o toast por cima de tudo (G3,
+     trilha D) — a mesma ordem do design system de referência. */
   --peg-z-dropdown: 100;
   --peg-z-tooltip: 110;
-  --peg-z-toast: 120;
-  --peg-z-modal: 130;
-  --peg-z-drawer: 140;
+  --peg-z-drawer: 130;
+  --peg-z-modal: 140;
+  --peg-z-toast: 150;
 
   /* ---- Motion ---- */
   --peg-duration-fast: 120ms;

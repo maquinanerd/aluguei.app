@@ -199,16 +199,26 @@ async function seedOrganization(
     },
     { orgId, propertyId: p1.id, status: 'CONFIRMED', scheduledAt: laterToday },
     { orgId, status: 'SCHEDULED', scheduledAt: at(now - 3 * DAY_MS) },
-    { orgId, status: 'CANCELLED', scheduledAt: at(day.end.getTime() + 2 * DAY_MS) },
+    // Desde a migration 0020 (trilha D do G3, P2-02), visita cancelada tem motivo.
+    {
+      orgId,
+      status: 'CANCELLED',
+      cancelReason: 'interessado desistiu',
+      scheduledAt: at(day.end.getTime() + 2 * DAY_MS),
+    },
     { orgId, status: 'NO_SHOW', scheduledAt: at(now - DAY_MS) },
     { orgId, status: 'DONE', scheduledAt: at(now - 2 * DAY_MS) },
   ]);
 
+  // Desde a migration 0020 (trilha D do G3, P2-02), proposta enviada tem validade e recusada tem
+  // motivo. As contagens do dashboard não dependem disso.
   await db.insert(proposals).values(
     ['DRAFT', 'SENT', 'SENT', 'REJECTED'].map((status) => ({
       orgId,
       status,
       monthlyRentCents: 100_000,
+      validUntil: status === 'DRAFT' ? null : '2099-12-31',
+      decisionReason: status === 'REJECTED' ? 'fora do orçamento' : null,
     })),
   );
 

@@ -1,0 +1,9 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit 1db63fa (g3/track-d-registries) — trilha D completa; fora do commit só o README das evidências em rascunho e os logs dos gates
+# data (UTC): 2026-09-21T23:53:06Z
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high
+
+# exit=0

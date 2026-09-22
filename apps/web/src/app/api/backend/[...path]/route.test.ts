@@ -110,4 +110,16 @@ describe('/api/backend/[...path]', () => {
     expect(res.headers.get('content-disposition')).toBe('attachment; filename="leads.csv"');
     expect(await res.text()).toBe(csv);
   });
+
+  it('limite de requisições chega ao navegador com o retry-after da API', async () => {
+    stubFetch(() =>
+      Response.json(
+        { code: 'RATE_LIMITED', message: 'Muitas requisições' },
+        { status: 429, headers: { 'retry-after': '37' } },
+      ),
+    );
+    const res = await POST(request('/leads', { method: 'POST', body: '{}' }));
+    expect(res.status).toBe(429);
+    expect(res.headers.get('retry-after')).toBe('37');
+  });
 });

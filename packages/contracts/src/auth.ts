@@ -88,3 +88,37 @@ export const meResponseSchema = z.object({
 
 export const switchOrgRequestSchema = z.object({ orgId: uuidSchema });
 export const switchOrgResponseSchema = z.object({ activeOrg: organizationSchema });
+
+/**
+ * Troca e recuperação de senha (auditoria 2026-09-10, P2-04). A recuperação **não envia nada**: a
+ * mensagem vai para a caixa de saída local (`email_outbox`).
+ */
+export const changePasswordRequestSchema = z
+  .object({
+    currentPassword: z.string().min(1).max(128),
+    newPassword: z.string().min(8).max(128),
+  })
+  .strict();
+
+/** Trocar a senha encerra as outras sessões; a resposta diz quantas. */
+export const changePasswordResponseSchema = z.object({
+  ok: z.literal(true),
+  revokedSessions: z.number().int().nonnegative(),
+});
+
+export const forgotPasswordRequestSchema = z.object({ email: z.email() }).strict();
+
+/** Resposta única: e-mail cadastrado ou não responde igual (sem enumeração de contas). */
+export const forgotPasswordResponseSchema = z.object({ ok: z.literal(true) });
+
+export const resetPasswordRequestSchema = z
+  .object({
+    token: z.string().min(20).max(200),
+    newPassword: z.string().min(8).max(128),
+  })
+  .strict();
+
+export const resetPasswordResponseSchema = z.object({
+  ok: z.literal(true),
+  revokedSessions: z.number().int().nonnegative(),
+});

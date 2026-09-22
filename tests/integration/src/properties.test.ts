@@ -48,7 +48,7 @@ describe('Fase 03: Properties + Listings', () => {
       payload: {
         type: 'PERSON',
         name: 'Proprietário',
-        identities: [{ kind: 'CPF', value: '99988877766' }],
+        identities: [{ kind: 'CPF', value: '24681357928' }],
       },
     });
     expect(party.statusCode).toBe(201);
