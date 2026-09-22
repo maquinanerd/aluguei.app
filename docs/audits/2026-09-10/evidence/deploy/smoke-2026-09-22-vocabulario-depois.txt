@@ -1,0 +1,42 @@
+# smoke da homologação — homologação depois do deploy zcca8mzoj7pgpmyoxd25kqfy (662901c, PR #24)
+# data (UTC): 2026-09-22T15:58:38Z
+# sem conta, sem login, sem escrita: só respostas públicas e de acesso negado
+
+## já existentes (regressão)
+OK   API /health/ready → 200
+OK   API /auth/me sem sessão → 401
+OK   API site público de imobiliária inexistente → 404
+OK   API consumo de token do portal inválido → 401
+OK   API PATCH /leases/:id/terms sem sessão (trilha C) → 401
+OK   API GET /portal/tenant/statement sem sessão do portal → 401
+OK   API GET /portal/tenant/inspections sem sessão do portal → 401
+OK   WEB /login → 200
+OK   WEB /portal/entrar → 200
+OK   WEB /app/inbox sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login
+
+## trilhas C e E1 (continuam no ar depois do fail-fast)
+OK   API POST /conversations/:id/resume → 401
+OK   WEB → BFF → API POST /conversations/:id/resume sem sessão → 401
+
+## trilha D (cadastros e identidade)
+OK   API GET /me/members sem sessão → 401
+OK   API GET /parties/:id sem sessão → 401
+OK   API GET /leads/:id sem sessão → 401
+OK   API POST /visits/:id/reschedule sem sessão → 401
+OK   API POST /auth/change-password sem sessão → 401
+OK   API POST /auth/reset-password com link inválido → 404
+OK   API POST /invites/describe com convite inválido → 404
+OK   API GET /dev/email-outbox fora do ar em produção → 404
+OK   WEB /esqueci-senha → 200
+
+## trilha E2 (posse do número do WhatsApp)
+OK   API GET /whatsapp/connections sem sessão → 401
+OK   API POST /whatsapp/connections/:id/verify sem sessão → 401
+OK   WEB → BFF → API POST /whatsapp/connections/:id/verify sem sessão → 401
+
+## vocabulário (ADR-093; sem sessão responde 401 antes de validar a query)
+OK   API GET /timeline?entityType=CONVERSATION sem sessão → 401
+OK   API GET /reconciliations?status=MATCHED sem sessão → 401
+
+resultado: 26 ok, 0 falhas
+# exit=0
