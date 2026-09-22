@@ -85,3 +85,25 @@ Nenhuma asserção foi removida ou afrouxada.
   cada execução (sem chave, a API recusa guardar o token).
 - O teste das regras do web (`whatsapp-connection-rules.test.ts`) foi só reformatado pelo Prettier
   no commit da tela (`710f448`).
+
+## Verificação do orquestrador (`orquestrador/`)
+
+Refeita pelo orquestrador em `51f751e` (a trilha e um commit que só melhora a mensagem de uma
+asserção do Playwright da trilha C).
+
+| Arquivo             | Resultado                                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `gates-summary.txt` | 9 gates sem cache com exit 0; `db-drift=NO`. `gates-test-counts.txt`: 1092 testes em 14 pacotes, nenhum ignorado |
+| `testpg.txt`        | `pnpm test:pg` num cluster PostgreSQL 17 descartável na porta 54336: 32/32                                       |
+| `e2e-full.txt`      | Playwright completo, rodada 1: 43/43 (web 3360, API 4360, PostgreSQL 5593)                                       |
+| `e2e-full-run2.txt` | Playwright completo, rodada 2: 43/43                                                                             |
+
+**Falha intermitente da trilha C (não resolvida, registrada).** Na primeira rodada completa do agente,
+`g3-c-lease-lifecycle.spec.ts:208` falhou uma vez: a cobrança existia na API com o vencimento certo,
+mas a linha não apareceu na lista em 30 s. Nas outras três rodadas completas (a segunda do agente e
+as duas do orquestrador) e em quatro rodadas isoladas do spec, passou. O código da lista (`useQuery`
+com descarte de resposta velha e `reload` depois do `POST`) não mostra corrida. A captura e o trace
+da falha foram sobrescritos pela rodada seguinte. Hipótese não provada: o limite global de 300
+requisições por minuto por IP da API, que a suíte inteira divide. Para não depender de sorte na
+próxima vez, a asserção da linha passou a trazer na mensagem as falhas do backend e os erros da
+página vistos pela tela (`51f751e`); a asserção é a mesma.
