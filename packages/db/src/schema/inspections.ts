@@ -16,6 +16,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { organizations, properties, users } from './index.js';
+import { domainCheck } from './checks.js';
 
 /** Vistoria — status/type em text validados no domínio. */
 export const inspections = pgTable(
@@ -46,6 +47,15 @@ export const inspections = pgTable(
       columns: [t.orgId, t.propertyId],
       foreignColumns: [properties.orgId, properties.id],
     }).onDelete('cascade'),
+    domainCheck('inspections_type_valid', t.type, ['CHECKIN', 'CHECKOUT', 'INTERMEDIATE']),
+    domainCheck('inspections_status_valid', t.status, [
+      'DRAFT',
+      'CAPTURING',
+      'PROCESSING',
+      'REVIEW',
+      'COMPLETED',
+      'SIGNED',
+    ]),
   ],
 );
 
@@ -100,6 +110,7 @@ export const inspectionMedia = pgTable(
       columns: [t.orgId, t.roomId],
       foreignColumns: [inspectionRooms.orgId, inspectionRooms.id],
     }).onDelete('set null'),
+    domainCheck('inspection_media_kind_valid', t.kind, ['PHOTO', 'AUDIO', 'VIDEO']),
   ],
 );
 
@@ -127,6 +138,11 @@ export const inspectionTranscripts = pgTable(
     uniqueIndex('inspection_transcripts_media_unique').on(t.mediaId),
     index('inspection_transcripts_inspection_idx').on(t.inspectionId),
     index('inspection_transcripts_status_idx').on(t.status),
+    domainCheck('inspection_transcripts_status_valid', t.status, [
+      'PENDING',
+      'PROCESSED',
+      'FAILED',
+    ]),
   ],
 );
 
@@ -161,6 +177,7 @@ export const inspectionAiSuggestions = pgTable(
       'inspection_ai_suggestions_status_valid',
       sql`${t.status} in ('PENDING', 'ACCEPTED', 'REJECTED', 'EDITED')`,
     ),
+    domainCheck('inspection_ai_suggestions_kind_valid', t.kind, ['VISUAL', 'TRANSCRIPT']),
   ],
 );
 
@@ -204,6 +221,27 @@ export const inspectionObservations = pgTable(
       columns: [t.orgId, t.mediaId],
       foreignColumns: [inspectionMedia.orgId, inspectionMedia.id],
     }).onDelete('set null'),
+    domainCheck('inspection_observations_category_valid', t.category, [
+      'DAMAGE',
+      'CONDITION',
+      'CLEANLINESS',
+      'FURNITURE',
+      'INSTALLATION',
+      'OTHER',
+    ]),
+    domainCheck('inspection_observations_severity_valid', t.severity, [
+      'NONE',
+      'LOW',
+      'MEDIUM',
+      'HIGH',
+    ]),
+    domainCheck('inspection_observations_source_valid', t.source, ['HUMAN', 'AI']),
+    domainCheck('inspection_observations_status_valid', t.status, [
+      'DRAFT',
+      'CONFIRMED',
+      'REJECTED',
+      'EDITED',
+    ]),
   ],
 );
 
@@ -233,5 +271,6 @@ export const inspectionComparisons = pgTable(
       t.checkoutInspectionId,
     ),
     index('inspection_comparisons_org_idx').on(t.orgId),
+    domainCheck('inspection_comparisons_status_valid', t.status, ['DRAFT', 'COMPLETED']),
   ],
 );

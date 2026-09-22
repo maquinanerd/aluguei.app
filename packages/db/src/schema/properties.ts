@@ -13,6 +13,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { organizations, parties } from './index.js';
+import { domainCheck } from './checks.js';
 
 export const properties = pgTable(
   'properties',
@@ -42,6 +43,13 @@ export const properties = pgTable(
     uniqueIndex('properties_org_code_unique').on(t.orgId, t.code),
     // Alvo de FK composta: a referência passa a carregar a organização (P0-05).
     unique('properties_org_id_unique').on(t.orgId, t.id),
+    domainCheck('properties_status_valid', t.status, ['ACTIVE', 'ARCHIVED']),
+    domainCheck('properties_property_type_valid', t.propertyType, [
+      'APARTMENT',
+      'HOUSE',
+      'COMMERCIAL',
+      'LAND',
+    ]),
   ],
 );
 
@@ -156,7 +164,10 @@ export const propertyMedia = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('property_media_property_idx').on(t.propertyId)],
+  (t) => [
+    index('property_media_property_idx').on(t.propertyId),
+    domainCheck('property_media_kind_valid', t.kind, ['PHOTO', 'DOCUMENT', 'FLOORPLAN']),
+  ],
 );
 
 export const listings = pgTable(
@@ -180,5 +191,12 @@ export const listings = pgTable(
   (t) => [
     uniqueIndex('listings_org_slug_unique').on(t.orgId, t.slug),
     index('listings_org_status_idx').on(t.orgId, t.status),
+    domainCheck('listings_status_valid', t.status, [
+      'DRAFT',
+      'READY',
+      'PUBLISHED',
+      'PAUSED',
+      'ARCHIVED',
+    ]),
   ],
 );

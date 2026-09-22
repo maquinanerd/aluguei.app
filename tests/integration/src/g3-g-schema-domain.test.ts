@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { is, sql } from 'drizzle-orm';
 import { PgTable, getTableConfig } from 'drizzle-orm/pg-core';
@@ -121,6 +123,10 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'meta_sync_jobs.job_type': { values: c.metaJobTypeSchema.options },
 };
 
+const MIGRATION_0022 = fileURLToPath(
+  new URL('../../../packages/db/drizzle/0022_domain_checks_bigint_totals.sql', import.meta.url),
+);
+
 /** Totais que somam muitas linhas: `int4` estoura acima de R$ 21.474.836,47. */
 const BIGINT_TOTALS = ['reconciliations.provider_total_cents', 'reconciliations.local_total_cents'];
 
@@ -143,7 +149,9 @@ function sorted(values: readonly string[]): string[] {
 }
 
 function schemaTables(): PgTable[] {
-  return Object.values(dbSchema).filter((value): value is PgTable => is(value, PgTable));
+  return (Object.values(dbSchema) as unknown[]).filter((value): value is PgTable =>
+    is(value, PgTable),
+  );
 }
 
 describe('G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos', () => {
@@ -215,6 +223,24 @@ describe('G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contra
     }
     expect(code, 'status fora do funil é recusado pelo banco').toBe('23514');
   });
+
+  it('o pré-voo da 0022 confere exatamente as colunas e listas dos CHECKs que a 0022 cria', () => {
+    const text = readFileSync(MIGRATION_0022, 'utf8');
+    const quoted = (list: string): string[] =>
+      [...list.matchAll(/'([^']*)'/g)].map((m) => m[1] ?? '').sort();
+    const created = [
+      ...text.matchAll(
+        /ADD CONSTRAINT "[a-z_]+_valid" CHECK \((?:"[a-z_]+"\."[a-z_]+" is null or )?"([a-z_]+)"\."([a-z_]+)" in \(([^)]*)\)\)/g,
+      ),
+    ].map((m) => [`${m[1] ?? ''}.${m[2] ?? ''}`, quoted(m[3] ?? '')] as const);
+    const preflight = [...text.matchAll(/\('([a-z_]+)', '([a-z_]+)', ARRAY\[([^\]]*)\]\)/g)].map(
+      (m) => [`${m[1] ?? ''}.${m[2] ?? ''}`, quoted(m[3] ?? '')] as const,
+    );
+    expect(created.length, 'a 0022 cria CHECKs de domínio').toBeGreaterThan(0);
+    const byColumn = (a: readonly [string, string[]], b: readonly [string, string[]]): number =>
+      a[0].localeCompare(b[0]);
+    expect([...preflight].sort(byColumn)).toEqual([...created].sort(byColumn));
+  });
 });
 
 describe('G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco', () => {
@@ -237,7 +263,7 @@ describe('G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco',
         declared.add(index.config.name ?? '');
       }
       for (const unique of config.uniqueConstraints) {
-        declared.add(unique.getName());
+        declared.add(unique.getName() ?? '');
       }
       for (const column of config.columns) {
         if (column.isUnique && column.uniqueName) {

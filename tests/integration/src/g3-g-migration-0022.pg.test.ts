@@ -165,8 +165,9 @@ describe('migration 0022 (PostgreSQL real): pré-voo dos CHECKs de domínio', ()
     );
     await db.execute(sql`update leases set status = 'TERMINATED' where id = ${owner.lease}`);
     // Linha válida: nunca aparece na lista do pré-voo.
+    const validLead = randomUUID();
     await db.execute(
-      sql`insert into leads (id, org_id, status) values (${randomUUID()}, ${owner.org}, 'QUALIFIED')`,
+      sql`insert into leads (id, org_id, status) values (${validLead}, ${owner.org}, 'QUALIFIED')`,
     );
 
     let failure: string | null = null;
@@ -181,7 +182,9 @@ describe('migration 0022 (PostgreSQL real): pré-voo dos CHECKs de domínio', ()
     expect(failure).toContain(`leads.status ${lead} = CONTACTED`);
     expect(failure).toContain(`tasks.status ${task} = TODO`);
     expect(failure).toContain(`leases.status ${owner.lease} = TERMINATED`);
-    expect(failure).not.toContain('QUALIFIED');
+    // O texto da query falha junto com a mensagem (e o SQL lista QUALIFIED como permitido):
+    // o que não pode aparecer é o id da linha válida.
+    expect(failure).not.toContain(validLead);
 
     // Nada aplicado: nenhum CHECK novo, totais ainda int4.
     expect(

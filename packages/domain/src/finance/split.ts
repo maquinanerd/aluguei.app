@@ -1,7 +1,11 @@
 import { mulBpsFloor, splitAmount } from './money.js';
 
+/** Papéis de uma alocação do split (CHECK `split_allocations_role_valid` no banco). */
+export const SPLIT_ALLOCATION_ROLES = ['LANDLORD', 'AGENCY'] as const;
+export type SplitAllocationRole = (typeof SPLIT_ALLOCATION_ROLES)[number];
+
 export interface SplitAllocation {
-  role: 'LANDLORD' | 'AGENCY';
+  role: SplitAllocationRole;
   amountCents: number;
 }
 

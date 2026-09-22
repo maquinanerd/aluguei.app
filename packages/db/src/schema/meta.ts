@@ -15,6 +15,11 @@ import {
 } from 'drizzle-orm/pg-core';
 import { organizations } from './identity.js';
 import { listings, properties } from './properties.js';
+import { domainCheck } from './checks.js';
+
+/** Objetivo de campanha e status da campanha espelhada (`packages/contracts/src/meta.ts`). */
+const META_OBJECTIVES = ['OUTCOME_TRAFFIC', 'OUTCOME_LEADS', 'OUTCOME_ENGAGEMENT'] as const;
+const META_CAMPAIGN_STATUSES = ['CREATED_PAUSED', 'ACTIVE', 'PAUSED', 'ARCHIVED'] as const;
 
 /** Conexão Meta da organização (segredo criptografado, nunca em texto). */
 export const metaConnections = pgTable(
@@ -39,6 +44,12 @@ export const metaConnections = pgTable(
     index('meta_connections_org_idx').on(t.orgId),
     index('meta_connections_org_status_idx').on(t.orgId, t.status),
     unique('meta_connections_org_id_unique').on(t.orgId, t.id),
+    domainCheck('meta_connections_status_valid', t.status, [
+      'CONNECTING',
+      'ACTIVE',
+      'EXPIRED',
+      'REVOKED',
+    ]),
   ],
 );
 
@@ -73,6 +84,12 @@ export const metaAssets = pgTable(
       columns: [t.orgId, t.connectionId],
       foreignColumns: [metaConnections.orgId, metaConnections.id],
     }).onDelete('cascade'),
+    domainCheck('meta_assets_kind_valid', t.kind, [
+      'AD_ACCOUNT',
+      'PAGE',
+      'INSTAGRAM_ACCOUNT',
+      'BUSINESS',
+    ]),
   ],
 );
 
@@ -132,6 +149,15 @@ export const metaAdProfiles = pgTable(
       columns: [t.orgId, t.instagramAssetId],
       foreignColumns: [metaAssets.orgId, metaAssets.id],
     }).onDelete('set null'),
+    domainCheck('meta_ad_profiles_objective_valid', t.objective, META_OBJECTIVES),
+    domainCheck('meta_ad_profiles_status_valid', t.status, [
+      'DRAFT',
+      'PREPARED',
+      'CREATED',
+      'PUBLISHED',
+      'PAUSED',
+      'ARCHIVED',
+    ]),
   ],
 );
 
@@ -162,6 +188,8 @@ export const metaCampaignLinks = pgTable(
   (t) => [
     uniqueIndex('meta_campaign_links_provider_campaign_unique').on(t.providerCampaignId),
     index('meta_campaign_links_org_profile_idx').on(t.orgId, t.adProfileId),
+    domainCheck('meta_campaign_links_objective_valid', t.objective, META_OBJECTIVES),
+    domainCheck('meta_campaign_links_status_valid', t.status, META_CAMPAIGN_STATUSES),
   ],
 );
 
@@ -306,6 +334,17 @@ export const metaSyncJobs = pgTable(
     uniqueIndex('meta_sync_jobs_org_idempotency_unique').on(t.orgId, t.idempotencyKey),
     index('meta_sync_jobs_status_run_idx').on(t.status, t.runAt),
     index('meta_sync_jobs_org_profile_idx').on(t.orgId, t.adProfileId),
+    domainCheck('meta_sync_jobs_job_type_valid', t.jobType, [
+      'SYNC_INSIGHTS',
+      'CREATE_CAMPAIGN',
+      'PUBLISH_INTENT',
+      'PAUSE',
+      'RESUME',
+      'UPDATE_BUDGET',
+      'UPDATE_SCHEDULE',
+      'UPDATE_CREATIVE',
+      'ARCHIVE',
+    ]),
   ],
 );
 

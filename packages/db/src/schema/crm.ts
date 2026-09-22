@@ -17,6 +17,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { organizations, users } from './identity.js';
 import { properties } from './properties.js';
+import { domainCheck } from './checks.js';
 
 export const parties = pgTable(
   'parties',
@@ -58,6 +59,13 @@ export const partyRoles = pgTable(
   (t) => [
     uniqueIndex('party_roles_party_role_unique').on(t.partyId, t.role),
     index('party_roles_org_idx').on(t.orgId),
+    domainCheck('party_roles_role_valid', t.role, [
+      'OWNER',
+      'TENANT',
+      'GUARANTOR',
+      'BROKER',
+      'LEGAL_REPRESENTATIVE',
+    ]),
   ],
 );
 
@@ -165,7 +173,14 @@ export const partyConsents = pgTable(
     grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
   },
-  (t) => [index('party_consents_party_purpose_idx').on(t.partyId, t.purpose)],
+  (t) => [
+    index('party_consents_party_purpose_idx').on(t.partyId, t.purpose),
+    // Um consentimento ativo por pessoa e finalidade. Existia só no SQL escrito à mão da 0007,
+    // invisível ao `db:generate` (auditoria 2026-09-10, P2-12); a 0022 recria pelo schema.
+    uniqueIndex('party_consents_active_unique')
+      .on(t.partyId, t.purpose)
+      .where(sql`${t.revokedAt} is null`),
+  ],
 );
 
 export const leads = pgTable(
@@ -190,6 +205,16 @@ export const leads = pgTable(
     index('leads_org_status_idx').on(t.orgId, t.status),
     index('leads_org_created_idx').on(t.orgId, t.createdAt),
     unique('leads_org_id_unique').on(t.orgId, t.id),
+    domainCheck('leads_status_valid', t.status, [
+      'NEW',
+      'QUALIFYING',
+      'QUALIFIED',
+      'VISIT',
+      'PROPOSAL',
+      'APPLICATION',
+      'WON',
+      'LOST',
+    ]),
     // Lead de uma imobiliária não aponta para pessoa de outra, mesmo que uma
     // rota futura esqueça a checagem (auditoria 2026-09-10, P0-05).
     foreignKey({
@@ -249,6 +274,7 @@ export const tasks = pgTable(
   (t) => [
     index('tasks_org_status_idx').on(t.orgId, t.status),
     index('tasks_assignee_idx').on(t.assigneeUserId),
+    domainCheck('tasks_status_valid', t.status, ['OPEN', 'DONE', 'CANCELLED']),
   ],
 );
 
