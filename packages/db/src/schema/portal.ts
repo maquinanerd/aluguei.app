@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { organizations, users } from './identity.js';
 import { parties } from './crm.js';
@@ -26,12 +27,12 @@ export const portalAccess = pgTable(
   },
   (t) => [
     index('portal_access_org_party_idx').on(t.orgId, t.partyId),
-    uniqueIndex('portal_access_org_party_kind_active_unique').on(
-      t.orgId,
-      t.partyId,
-      t.kind,
-      t.revokedAt,
-    ),
+    // Uma concessão ativa por pessoa e tipo (G3, trilha E2; pendência do ADR-061). O índice
+    // antigo incluía `revoked_at`, e o PostgreSQL trata nulos como distintos: não impedia duas
+    // ativas. O índice parcial só olha as não revogadas.
+    uniqueIndex('portal_access_org_party_kind_active_unique')
+      .on(t.orgId, t.partyId, t.kind)
+      .where(sql`${t.revokedAt} is null`),
     index('portal_access_token_hash_idx').on(t.oneTimeTokenHash),
   ],
 );

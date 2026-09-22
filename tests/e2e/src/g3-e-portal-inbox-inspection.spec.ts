@@ -23,11 +23,22 @@ test.describe('G3 trilha E — portal, caixa de entrada e vistoria pela interfac
     test.setTimeout(300_000);
     const account = await registerViaApi('handoff');
     const phoneNumberId = `8${String(Date.now()).slice(-9)}`;
-    const connection = await api('POST', '/whatsapp/connections', {
+    // Desde a trilha E2 (P1-18) o número só recebe webhook depois da prova de posse: a conexão
+    // leva o token da conta (o FAKE aceita `fake-wa-owner:<id>`) e é verificada.
+    const connection = await api<{ connection: { id: string } }>('POST', '/whatsapp/connections', {
       cookie: account.cookie,
-      json: { phoneNumberId },
+      json: { phoneNumberId, accessToken: `fake-wa-owner:${phoneNumberId}` },
     });
     expect(connection.status, 'conexão do WhatsApp').toBe(201);
+    const verified = await api(
+      'POST',
+      `/whatsapp/connections/${connection.body.connection.id}/verify`,
+      {
+        cookie: account.cookie,
+        json: {},
+      },
+    );
+    expect(verified.status, 'posse do número verificada').toBe(200);
     const from = '5511977776666';
     const webhook = await api('POST', '/webhooks/whatsapp', {
       json: {

@@ -110,6 +110,23 @@ export {
 } from './whatsapp/conversation.js';
 export type { ConversationStatus } from './whatsapp/conversation.js';
 
+export {
+  WHATSAPP_CONNECTION_STATUSES,
+  WHATSAPP_CLAIM_TTL_MS,
+  isWhatsAppConnectionStatus,
+  whatsappClaimExpiresAt,
+  canReceiveWhatsAppWebhook,
+  canVerifyWhatsAppConnection,
+  isWhatsAppClaimExpired,
+  decideWhatsAppClaim,
+} from './whatsapp/connection.js';
+export type {
+  WhatsAppConnectionStatus,
+  WhatsAppClaimHolder,
+  WhatsAppClaimConflict,
+  WhatsAppClaimDecision,
+} from './whatsapp/connection.js';
+
 export { extractIntentByRule } from './whatsapp/intents.js';
 export type { IntentKind, IntentExtraction } from './whatsapp/intents.js';
 

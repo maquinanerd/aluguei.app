@@ -66,6 +66,12 @@ export const AUDIT_ACTIONS = {
   CONVERSATION_MESSAGE_SENT: 'conversation.message_sent',
   WHATSAPP_WEBHOOK_RECEIVED: 'whatsapp.webhook_received',
   WHATSAPP_INBOX_PROCESSED: 'whatsapp.inbox_processed',
+  // Prova de posse do número (P1-18, segunda parte).
+  WHATSAPP_CONNECTION_CLAIMED: 'whatsapp.connection_claimed',
+  WHATSAPP_CONNECTION_CLAIM_REFUSED: 'whatsapp.connection_claim_refused',
+  WHATSAPP_CONNECTION_CLAIM_EXPIRED: 'whatsapp.connection_claim_expired',
+  WHATSAPP_CONNECTION_VERIFIED: 'whatsapp.connection_verified',
+  WHATSAPP_CONNECTION_VERIFICATION_FAILED: 'whatsapp.connection_verification_failed',
   INSPECTION_CREATED: 'inspection.created',
   INSPECTION_STATUS_CHANGED: 'inspection.status_changed',
   INSPECTION_MEDIA_CONFIRMED: 'inspection.media_confirmed',

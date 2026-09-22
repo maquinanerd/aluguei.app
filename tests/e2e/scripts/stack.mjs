@@ -24,7 +24,7 @@
  *     processos no POSIX) e para o postgres com `pg_ctl stop`.
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import {
   closeSync,
   existsSync,
@@ -337,6 +337,8 @@ function stackEnv(databaseUrl) {
     API_BASE_URL: `http://127.0.0.1:${PORTS.api}`,
     COOKIE_SECURE: 'false',
     META_MODE: 'dry_run',
+    // Cifra dos tokens por conexão (Meta Ads e WhatsApp, ADR-028): chave descartável por stack.
+    META_TOKEN_ENCRYPTION_KEY: env.META_TOKEN_ENCRYPTION_KEY ?? randomBytes(32).toString('hex'),
     AI_PROVIDER: 'mock',
     PAYMENT_PROVIDER: 'FAKE',
     SIGNATURE_PROVIDER: 'FAKE',

@@ -141,6 +141,13 @@
       "when": 1789671273880,
       "tag": "0020_party_visit_proposal_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790041048309,
+      "tag": "0021_whatsapp_ownership_portal_active_index",
+      "breakpoints": true
     }
   ]
 }
