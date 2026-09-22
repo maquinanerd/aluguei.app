@@ -1,0 +1,16 @@
+# comando: gates sem cache da trilha G (um arquivo gates-*.txt por gate) + git status --porcelain -- packages/db depois do db:generate
+# árvore: commit 6f6af3e (g3/track-g-db) — trilha G completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T04:00:53Z
+
+install          exit=0   (pnpm install --frozen-lockfile)
+format           exit=0   (pnpm format:check)
+lint             exit=0   (pnpm lint --force --continue)
+typecheck        exit=0   (pnpm typecheck --force)
+test             exit=0   (pnpm test --force: 1165 testes em 14 pacotes, nenhum ignorado)
+build            exit=0   (pnpm build --force)
+secscan          exit=0   (pnpm security:scan)
+audit-critical   exit=0   (pnpm security:audit --audit-level=critical: 22 high e 9 moderate de antes da trilha, nenhum critical)
+dbgen            exit=0   (pnpm db:generate: "No schema changes, nothing to migrate")
+db-drift=NO      (git status --porcelain -- packages/db vazio depois do db:generate: a 0022 já está no repositório)
+
+# exit=0

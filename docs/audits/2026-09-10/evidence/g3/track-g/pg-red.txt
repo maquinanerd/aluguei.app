@@ -1,0 +1,150 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54337/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/g3-g-migration-0022.pg.test.ts
+# árvore: g3/track-g-db sobre bef9660 com os testes RED e sem a correção (sem 0022); cluster PostgreSQL 17 descartável (initdb -A trust -E UTF8, porta 54337)
+# data (UTC): 2026-09-22T03:25:37Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/tests/integration
+
+ ❯ src/g3-g-migration-0022.pg.test.ts (5 tests | 4 failed) 2990ms
+     × dado fora do domínio aborta sem aplicar nada e nomeia cada linha; corrigido, migra 39ms
+     × valor fora do domínio é recusado (23514) em cadastro, locação, cobrança e pagamento 37ms
+     × conciliação com cobranças pagas somando mais de 2^31 − 1 centavos grava e lê o total exato 17ms
+     × total do provider acima de 2^31 − 1 centavos grava e volta exato pelo drizzle 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-g-migration-0022.pg.test.ts > migration 0022 (PostgreSQL real): pré-voo dos CHECKs de domínio > dado fora do domínio aborta sem aplicar nada e nomeia cada linha; corrigido, migra
+AssertionError: o pré-voo tem de abortar a 0022: expected null not to be null
+ ❯ src/g3-g-migration-0022.pg.test.ts:178:60
+    176|       failure = errorMessages(error);
+    177|     }
+    178|     expect(failure, 'o pré-voo tem de abortar a 0022').not.toBeNull();
+       |                                                            ^
+    179|     expect(failure).toContain('Migracao 0022 abortada');
+    180|     expect(failure).toContain(`properties.property_type ${owner.proper…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/g3-g-migration-0022.pg.test.ts > 0022 aplicada (PostgreSQL real): domínio fechado e totais acima de 2^31 − 1 > valor fora do domínio é recusado (23514) em cadastro, locação, cobrança e pagamento
+AssertionError: expected [ [ 'leads.status', null ], …(8) ] to deeply equal [ [ 'leads.status', '23514' ], …(8) ]
+
+- Expected
++ Received
+
+  [
+    [
+      "leads.status",
+-     "23514",
++     null,
+    ],
+    [
+      "tasks.status",
+-     "23514",
++     null,
+    ],
+    [
+      "properties.property_type",
+-     "23514",
++     null,
+    ],
+    [
+      "party_roles.role",
+-     "23514",
++     null,
+    ],
+    [
+      "portal_access.kind",
+-     "23514",
++     null,
+    ],
+    [
+      "leases.status",
+-     "23514",
++     null,
+    ],
+    [
+      "charges.status",
+-     "23514",
++     null,
+    ],
+    [
+      "payments.method",
+-     "23514",
++     null,
+    ],
+    [
+      "payments.status",
+-     "23514",
++     null,
+    ],
+  ]
+
+ ❯ src/g3-g-migration-0022.pg.test.ts:296:21
+    294|       results.push([column, await attempt(db, statement)]);
+    295|     }
+    296|     expect(results).toEqual(cases.map(([column]) => [column, '23514'])…
+       |                     ^
+    297|
+    298|     // Os valores do domínio continuam aceitos.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/g3-g-migration-0022.pg.test.ts > 0022 aplicada (PostgreSQL real): domínio fechado e totais acima de 2^31 − 1 > conciliação com cobranças pagas somando mais de 2^31 − 1 centavos grava e lê o total exato
+Error: Failed query: insert into "reconciliations" ("id", "org_id", "provider", "period_start", "period_end", "status", "provider_total_cents", "local_total_cents", "differences", "created_at") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, default)
+params: db7e1e18-355e-4068-b7c2-c8ecaa52d62c,4c57dde4-9b3d-4f7e-a326-a5e122560911,NONE,2026-04-01,2026-04-01,DISCREPANCY,0,3000000000,[{"providerTotal":0,"localTotal":3000000000}]
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ processReconcileJob ../../apps/worker/src/paymentJobs.ts:336:3
+    334|   const localTotal = localCharges.reduce((sum, charge) => sum + charge…
+    335|   const matched = providerTotal === localTotal;
+    336|   await db.insert(reconciliations).values({
+       |   ^
+    337|     orgId: job.orgId,
+    338|     provider: provider?.name ?? 'NONE',
+ ❯ src/g3-g-migration-0022.pg.test.ts:320:5
+
+Caused by: error: value "3000000000" is out of range for type integer
+ ❯ ../../node_modules/.pnpm/pg-pool@3.14.0_pg@8.23.0/node_modules/pg-pool/index.js:45:11
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:113:20
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:39:16
+ ❯ processReconcileJob ../../apps/worker/src/paymentJobs.ts:336:3
+ ❯ src/g3-g-migration-0022.pg.test.ts:320:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 153, severity: 'ERROR', code: '22003', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: 'unnamed portal parameter $8 = \'...\'', schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'numutils.c', routine: 'pg_strtoint32_safe' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/g3-g-migration-0022.pg.test.ts > 0022 aplicada (PostgreSQL real): domínio fechado e totais acima de 2^31 − 1 > total do provider acima de 2^31 − 1 centavos grava e volta exato pelo drizzle
+Error: Failed query: insert into "reconciliations" ("id", "org_id", "provider", "period_start", "period_end", "status", "provider_total_cents", "local_total_cents", "differences", "created_at") values ($1, $2, $3, $4, $5, $6, $7, $8, default, default) returning "id", "org_id", "provider", "period_start", "period_end", "status", "provider_total_cents", "local_total_cents", "differences", "created_at"
+params: 76b6f5a1-8c5c-4339-9a7f-4c2750991ee8,18013564-f8e6-441b-a043-0d9f1248833d,FAKE,2026-05-01,2026-05-31,MATCHED,9007199254740991,2147483648
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/node-postgres/session.ts:154:18
+ ❯ src/g3-g-migration-0022.pg.test.ts:338:24
+    336|     const owner = await seed(db);
+    337|     const total = 9_007_199_254_740_991; // Number.MAX_SAFE_INTEGER: o…
+    338|     const [inserted] = await db
+       |                        ^
+    339|       .insert(reconciliations)
+    340|       .values({
+
+Caused by: error: value "9007199254740991" is out of range for type integer
+ ❯ ../../node_modules/.pnpm/pg-pool@3.14.0_pg@8.23.0/node_modules/pg-pool/index.js:45:11
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:124:18
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:39:16
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:117:22
+ ❯ src/g3-g-migration-0022.pg.test.ts:338:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 159, severity: 'ERROR', code: '22003', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: 'unnamed portal parameter $7 = \'...\'', schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'numutils.c', routine: 'pg_strtoint32_safe' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  00:25:39
+   Duration  6.16s (transform 1.07s, setup 0ms, import 2.87s, tests 2.99s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-aa17b397051018450\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/g3-g-migration-0022.pg.test.ts
+
+# exit=1
