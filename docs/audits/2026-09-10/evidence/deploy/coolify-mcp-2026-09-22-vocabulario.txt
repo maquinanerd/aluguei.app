@@ -1,0 +1,23 @@
+Vocabulário da timeline e da conciliação (ADR-093) na homologação — MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido. Nenhuma conta criada, nenhuma escrita.
+
+=== PR #24, merge 662901c (migration 0023_timeline_reconciliation_vocabulary)
+
+--- Antes do deploy
+smoke-2026-09-22-vocabulario-antes.txt: 26 ok, 0 falhas. As duas checagens novas (timeline de
+CONVERSATION e filtro MATCHED, sem sessão) já davam 401 antes: a sessão é conferida antes da
+query, então elas cobrem só a regressão. O comportamento novo com sessão está provado nos testes
+(docs/audits/2026-09-10/evidence/g3/vocabulario/).
+
+--- Deploy (deploy + get_deployment zcca8mzoj7pgpmyoxd25kqfy)
+status   finished (primeira tentativa)
+commit   662901c62411f602fdc18a2f209c4670aa3b3e6a
+criado   15:51:19   terminado 15:53:45
+A API só sobe depois do migrate: o deploy terminado prova a 0023 aplicada, com o pré-voo sem
+linha fora do vocabulário em timeline_events.entity_type e reconciliations.provider.
+
+--- Depois do deploy
+list_unhealthy_resources: 0.
+smoke-2026-09-22-vocabulario-depois.txt: 26 ok, 0 falhas.
