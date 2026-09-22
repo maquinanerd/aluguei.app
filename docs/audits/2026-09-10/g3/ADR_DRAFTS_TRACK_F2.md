@@ -1,5 +1,7 @@
 # G3 — Rascunho de ADR da trilha F2 (backup e restauração)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-079 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 Rascunho para consolidar em `docs/DECISIONS.md` no fechamento do G3. Evidência em
 `docs/audits/2026-09-10/evidence/g3/track-f2/`.
 

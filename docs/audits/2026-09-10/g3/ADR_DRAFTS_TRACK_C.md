@@ -1,5 +1,7 @@
 # G3 — Rascunhos de ADR da trilha C (finanças e locação)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-063 a ADR-065 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 Rascunhos para consolidar em `docs/DECISIONS.md` a partir do ADR-063 no fechamento do G3. Evidência
 em `docs/audits/2026-09-10/evidence/g3/track-c/`.
 

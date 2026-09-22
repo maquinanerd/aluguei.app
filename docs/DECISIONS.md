@@ -547,3 +547,853 @@ Decisões:
 - Apagar o volume é irreversível e depende de pedido explícito do usuário. O procedimento, e o de voltar a ler os dados antigos, está em `docs/DEPLOY_COOLIFY.md`.
 
 Consequências: o servidor deixa de manter um PostgreSQL ocioso. A prova da cópia continua indireta; os dados originais seguem no volume até a decisão de apagá-lo. Evidência: `docs/audits/2026-09-10/evidence/ops/embedded-postgres-exit-red.txt` (compose de `main` em `a31c88e`: 6 falhas) e `embedded-postgres-exit-green.txt` (11/11).
+
+## ADR-063 — Multa, juros e vencimento por locação (P1-07) (Gate G3, trilha C, 2026-09-17)
+
+Status: Aceito com o merge do PR #10 (`8409420`) e implantado na homologação.
+
+Contexto: o cálculo da cobrança usava juros de mora de **1% ao dia** e multa de 2%, fixos no código
+(`chargeCalc.ts`), sem teto: 100 dias de atraso dobravam o aluguel. O vencimento era o dia 10 em UTC
+e não havia dia útil. O teste antigo de `finance.test.ts` fixava o valor errado dos juros.
+
+Decisões:
+
+- A locação guarda `late_fee_bps` (padrão 200 = 2%, de 0 a 1.000), `interest_monthly_bps` (padrão
+  100 = 1% ao mês, de 0 a 100) e `due_day` (padrão 10, de 1 a 28), com CHECK no banco e validação no
+  domínio (`assertLateChargeTerms`). `PATCH /leases/:id/terms` muda os três, com o diff (`from`,
+  `to`) na auditoria.
+- Juros de mora de 1% ao mês **pro rata die** (mês comercial de 30 dias), contados desde o
+  vencimento, e multa uma vez só. Os dois incidem sobre o valor em atraso: aluguel, condomínio e
+  tributos. O desconto abate no fim. A conta usa `BigInt` e trunca o centavo.
+- Vencimento no dia `due_day` do mês do período. A data gravada é o dia combinado; em sábado,
+  domingo ou feriado bancário nacional (datas fixas, Carnaval, Sexta-feira Santa, Corpus Christi e
+  Consciência Negra desde 2024), o pagamento sem encargos vale até o próximo dia útil. Feriados
+  estaduais e municipais ficam fora.
+- "Hoje" é a data civil de São Paulo (`saoPauloDate`) na criação da cobrança, no recálculo do
+  pagamento e na varredura diária. Entre 21h e meia-noite, a data UTC já é o dia seguinte.
+- A cobrança nova usa as taxas da locação; o pagamento pelo backoffice recalcula com elas na data de
+  São Paulo.
+- `POST /charges` aceita `periodStart` e `dueDate` só como data civil `AAAA-MM-DD`. Antes aceitava
+  qualquer texto e respondia 500 ("abc"). O diálogo "Nova cobrança" mandava o vencimento como
+  instante UTC e oferecia "+30 dias", que ignorava o dia de vencimento da locação. Agora pede o mês
+  de referência e, opcionalmente, a data; sem data, vale o dia da locação.
+- O painel mostra data civil sem fuso (`formatDate` de `packages/ui`). `new Date('2026-10-10')` é
+  meia-noite UTC, que em São Paulo ainda é o dia 9: vencimentos, períodos, início e término
+  apareciam um dia antes.
+
+Consequências: locações existentes recebem os padrões na migration 0019. O pagamento pelo portal
+ainda usa o valor de face (`recalculate: false`) e fica na trilha E. Os juros de 1% ao mês são o
+teto; contrato com juros menores é configurado por locação.
+
+## ADR-064 — Repasse entre coproprietários (P1-08) (Gate G3, trilha C, 2026-09-17)
+
+Status: Aceito com o merge do PR #10 (`8409420`) e implantado na homologação.
+
+Contexto: a locação guardava um único `landlord_party_id` e 100% do repasse ia para ele. A soma das
+participações dos proprietários do imóvel não era validada (120% aceito pela API).
+
+Decisões:
+
+- Tabela `lease_landlords` (`lease_id`, `party_id`, `share_bps` de 1 a 10.000, única por locação e
+  pessoa, FKs compostas com a organização). A locação é criada com as participações dos
+  proprietários do imóvel: proprietário único sem participação (ou com 100%) recebe 100%;
+  coproprietários precisam ter participação registrada e somar exatamente 100%, senão 409.
+- `POST /properties/:id/owners` recusa soma acima de 100% (409).
+- A liquidação divide a parte dos proprietários com `splitAmong` (maior resto, sem perder centavo): uma
+  alocação, um repasse e um lançamento `PAYOUT` por proprietário com valor.
+- Os portais do proprietário (extrato e contratos) usam `lease_landlords`, e cada coproprietário vê
+  só a sua parte. `leases.landlord_party_id` continua sendo o de maior participação.
+- A migration 0019 cria `lease_landlords` para as locações existentes com 100% para o proprietário
+  que elas já tinham.
+- Interface: a tela do imóvel lista os proprietários com participação, adiciona (pessoa buscada no
+  servidor e participação de 1% a 100%) e remove, e avisa quando a locação seria recusada. A tela da
+  locação mostra cada proprietário com a participação e o acesso ao portal.
+
+Consequências: mudar participação depois de criada a locação não altera a locação (ela guarda as
+suas); a troca de participações de uma locação em vigor não tem fluxo e fica fora do G3. Remover
+proprietário do imóvel não mexe em locações.
+
+## ADR-065 — Renovação, reajuste, encerramento e scheduler (P1-20) (Gate G3, trilha C, 2026-09-17)
+
+Status: Aceito com o merge do PR #10 (`8409420`) e implantado na homologação.
+
+Contexto: o scheduler escolhia locações com `lt(status, 'TERMINATING')`, comparação alfabética que
+incluía `ENDED` e `PENDING` e deixava de fora `TERMINATING`. Não existia renovação, reajuste nem
+encerramento.
+
+Decisões:
+
+- Status cobrados: `ACTIVE`, `DELINQUENT` e `TERMINATING`, só nos meses da vigência (do mês de
+  início ao mês de término).
+- Tabela `lease_amendments` (`RENEWAL`, `READJUSTMENT`, `TERMINATION`) guarda o histórico: término
+  anterior e novo, aluguel anterior e novo com o mês de início, índice e variação, motivo e autor.
+  Mudança de aluguel exige os três campos (CHECK). As rotas travam a locação (`FOR UPDATE`).
+- `POST /leases/:id/renew` (ativa ou inadimplente): novo término depois do atual e, opcionalmente,
+  aluguel novo a partir do mês do dia seguinte ao término atual (sem término, o mês que vem).
+- `POST /leases/:id/readjust` (em vigor): índice (IGP-M, IPCA, INPC, IVAR ou outro) com variação em
+  basis points (arredondamento meio centavo para cima, aceita negativa) ou novo valor, a partir do
+  primeiro dia de um mês dentro da vigência.
+- Histórico encadeado: cada mudança guarda o aluguel anterior, então uma mudança nova não pode começar
+  antes da última registrada (409); no mesmo mês, vale a mais recente. O aluguel de cada período sai
+  do histórico (`rentForPeriod`), e o aluguel em vigor da locação muda na hora quando a mudança já
+  começou.
+- `POST /leases/:id/end`: término não antes do início, com motivo. Término já passado leva a `ENDED`;
+  senão, `TERMINATING`, e a varredura diária encerra depois da data. Cobranças agendadas ou abertas
+  de meses depois do mês do término, sem nenhuma tentativa de pagamento, são canceladas com estorno
+  contábil e auditoria. Vencidas e com pagamento continuam, e a tela da locação avisa.
+- Varredura diária no job de conciliação: agendada abre no início do período, aberta vence depois do
+  vencimento (com a regra do dia útil), locação em encerramento termina depois da data de fim e o
+  aluguel em vigor acompanha o histórico.
+- Interface: "Reajustar", "Renovar" e "Encerrar" na locação, conforme o status; "Encargos e
+  vencimento" com edição; "Histórico da locação". As regras de tela ficam em
+  `apps/web/src/lib/lease-rules.ts` e `property-owners.ts`, comparadas com o domínio nos testes (o
+  mesmo padrão do ADR-058).
+
+Consequências: o mês do término é cobrado inteiro (sem proporcional); proporcional de entrada e saída
+fica fora do G3. O scheduler mensal continua sem cobrar locação criada depois da execução do mês
+(comportamento anterior).
+
+## ADR-066 — Portal: extrato, contagem, vistoria visível e pagamento com encargos (P2-05) (Gate G3, trilha E1, 2026-09-21)
+
+Status: Aceito com o merge do PR #12 (`aec1ca5`) e implantado na homologação.
+
+Contexto: o extrato do locatário somava a cobrança cancelada em `billedCents`. `GET
+/portal/tenant/charges` devolvia em `total` o id de uma cobrança, porque selecionava `charges.id`
+como se fosse contagem. As listas de vistoria do portal ignoravam `canPortalReadInspection`, que
+já existia no domínio: o locatário e o proprietário viam vistoria intermediária e rascunho. E o
+pagamento pelo portal usava o valor de face (`recalculate: false`), sem a multa e os juros do
+atraso (achado da trilha C).
+
+Decisões:
+
+- `buildTenantStatement` mantém a cobrança cancelada na lista, para o locatário ver o que
+  aconteceu, e a deixa fora dos totais. A cobrança estornada continua em `billedCents` (foi
+  cobrada) e fora de `paidCents`.
+- `total` da lista de cobranças do locatário é `count(*)` com o mesmo filtro da página.
+- `canPortalSeeInspection` (domínio) junta tipo e status: o portal só vê vistoria de entrada ou saída
+  já concluída ou assinada. As duas listas de vistoria do portal passam por ela.
+- O pagamento pelo portal recalcula multa e juros na data de São Paulo, como o backoffice. O
+  caminho idempotente segue devolvendo o QR emitido pelo provider (teste de regressão: a segunda
+  tentativa traz o mesmo QR, com o id da cobrança no provider).
+
+Consequências: a tela do portal não muda; os números passam a bater com o que é devido.
+
+## ADR-067 — Evidência de vistoria imutável depois de concluída (P1-24) (Gate G3, trilha E1, 2026-09-21)
+
+Status: Aceito com o merge do PR #12 (`aec1ca5`) e implantado na homologação.
+
+Contexto: ambiente, mídia, observação e sugestão de IA continuavam mutáveis depois de COMPLETED, e
+apagar mídia não deixava rastro na auditoria.
+
+Decisões:
+
+- `INSPECTION_EVIDENCE_WRITABLE_STATUSES` (DRAFT, CAPTURING, PROCESSING, REVIEW) e
+  `assertInspectionEvidenceWritable` no domínio, no mesmo padrão do conteúdo do contrato (ADR-047).
+  Ambiente, URL de upload, confirmação de mídia, remoção de mídia, observação e resolução de
+  sugestão recusam com 409 depois de COMPLETED ou SIGNED.
+- Remover mídia grava `inspection.media_removed` na auditoria (mídia e tipo).
+- A tela da vistoria esconde as ações de evidência e explica por quê
+  (`apps/web/src/lib/inspection-rules.ts`, comparado com o domínio no teste).
+
+Consequências: a comparação entrada × saída passa a exigir que as observações entrem antes de
+concluir cada vistoria (o teste antigo registrava observação depois de COMPLETED). Correção de
+vistoria concluída exige uma vistoria nova; não há "reabrir".
+
+## ADR-068 — Handoff do WhatsApp até a equipe devolver (P1-18, primeira parte) (Gate G3, trilha E1, 2026-09-21)
+
+Status: Aceito com o merge do PR #12 (`aec1ca5`) e implantado na homologação.
+
+Contexto: o gateway voltava a conversa para ACTIVE a cada mensagem recebida, então o handoff durava
+uma mensagem só. Na caixa de entrada, o botão de uma conversa já em atendimento humano chamava o
+próprio handoff de novo ("Assumir"), sem efeito, e não havia como devolver a conversa ao bot.
+
+Decisões:
+
+- O gateway não tira a conversa de NEEDS_HUMAN. O UPDATE para ACTIVE exclui NEEDS_HUMAN no
+  próprio filtro, o que também cobre o handoff pedido pela equipe enquanto a mensagem é processada.
+- `POST /conversations/:id/resume` (permissão `conversation:write`) devolve ao atendimento
+  automático: só de NEEDS_HUMAN (senão 409), com compare-and-set, evento `HANDOFF_RETURNED` na linha
+  do tempo e auditoria `conversation.handoff_returned`. O handoff pedido pela equipe passa a ser
+  auditado também.
+- Caixa de entrada: "Passar para a equipe" em conversa aberta ou ativa e "Devolver ao atendimento
+  automático" em conversa com a equipe (`apps/web/src/lib/conversation-rules.ts`, comparado com
+  `canTransitionConversation`).
+
+## ADR-069 — Configuração explícita: NODE_ENV obrigatório e fail-fast em produção (P1-12) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: `NODE_ENV` tinha default `development` no schema, então um deploy sem a variável
+subia com rotas de simulação de pagamento, cookie sem `Secure`, webhooks sem exigir segredo e
+providers FAKE. A API e o worker subiam em produção sem banco e sem segredo de webhook, e só
+falhavam na primeira requisição (ou silenciosamente, no caso do worker, que pulava o ciclo).
+
+Decisões:
+
+- `loadRuntimeEnv(serviço, source)` (`packages/config/src/runtime.ts`) é o único ponto de
+  entrada de configuração da API e do worker. **NODE_ENV é obrigatório**: não há ambiente
+  padrão. O default `development` continua no `envSchema` apenas para uso como biblioteca e nos
+  testes (`loadEnv`, `envSchema.parse`).
+- Em produção, a validação lista **todos** os problemas de uma vez, um por linha, e o processo
+  termina com `exitCode 1` sem subir servidor nem loop. Exigências: `DATABASE_URL`
+  (postgres/postgresql); na API, `APP_BASE_URL` https explícita, `COOKIE_SECURE` diferente de
+  `false`, os quatro segredos de webhook (`ASAAS_WEBHOOK_TOKEN`, `SIGNATURE_WEBHOOK_TOKEN`,
+  `META_APP_SECRET`, `META_WEBHOOK_VERIFY_TOKEN`), `META_TOKEN_ENCRYPTION_KEY` em hex de 64 e
+  escolha explícita de `PAYMENT_PROVIDER`, `SIGNATURE_PROVIDER`, `META_MODE` e `AI_PROVIDER`;
+  no worker, `PAYMENT_PROVIDER`, `SCREENING_PROVIDER`, `META_MODE` e `AI_PROVIDER`. Provider
+  real exige credencial (`ASAAS_API_KEY` + `ASAAS_ENV`, `CLICKSIGN_API_TOKEN`, `SERASA_CLIENT_*`,
+  tokens da Meta/WhatsApp no `live`, chave do OpenAI/Gemini). `D4SIGN` e `SPC` são recusados por
+  não terem adapter. A mensagem nunca repete o valor de uma variável.
+- **FAKE, mock e dry_run em produção só com `ALLOW_FAKE_PROVIDERS=true`** (valor exato). Com a
+  permissão, o processo sobe e registra em `warn` quais providers são FAKE. A homologação recebe
+  a permissão no `docker-compose.prod.yml` (api e worker).
+- Fallbacks silenciosos removidos: WhatsApp e Meta Ads só usam FAKE com `dry_run` **explícito**
+  (antes: qualquer modo diferente de `live`); o worker não escolhe pagamento FAKE sem
+  `PAYMENT_PROVIDER` nem o esqueleto Serasa em produção sem `SCREENING_PROVIDER`. `dry_run` e
+  screening FAKE continuam padrão **fora** de produção (`resolveMetaMode`,
+  `resolveScreeningProvider`).
+- Scripts de desenvolvimento declaram o ambiente: `dev` da API e do worker pré-carregam
+  `scripts/node-env-development.mjs` (define `NODE_ENV=development` se o shell não trouxer) e a
+  stack E2E passa `NODE_ENV=development` explícito.
+
+Consequências: qualquer processo novo (CLI, job, cron) que leia configuração deve usar
+`loadRuntimeEnv` e declarar o que precisa; um provider novo entra na tabela de validação e na
+lista de FAKE. Rodar a API ou o worker "na mão" exige `NODE_ENV` no comando.
+
+## ADR-070 — `.env.example` é contrato do schema, verificado por teste (P1-12) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o exemplo tinha 18 chaves de menos (incluindo `PAYMENT_PROVIDER`,
+`SIGNATURE_WEBHOOK_TOKEN` e `PLATFORM_ADMIN_EMAILS`) e duas que nenhum processo lia
+(`API_BASE_URL` não estava no schema; `SENTRY_DSN` não tinha implementação).
+
+Decisões: `packages/config/src/env-example.test.ts` falha quando uma chave existe num lado e
+não no outro, quando uma chave se repete, quando o exemplo (sem os vazios) não é configuração
+válida de desenvolvimento para API e worker, ou quando um campo de segredo vem preenchido. As
+variáveis lidas pelo web (`API_BASE_URL`, `API_BASE_URL_ALLOW_HTTP`, `PUBLIC_ORG_SLUG`) entram
+no schema como opcionais — o web não depende de `@aluguei/config`, mas a documentação das
+variáveis fica num lugar só. `SENTRY_DSN` sai do exemplo (ver ADR-075).
+
+Consequências: chave nova no schema exige linha no exemplo (e vice-versa) no mesmo commit.
+
+## ADR-071 — Rate limit com Redis: client do ioredis e falha aberta (P1-14) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: com `REDIS_URL` preenchida a API caía no boot com
+`TypeError: this.redis.defineCommand is not a function`: o `@fastify/rate-limit` registra
+comandos Lua e precisa do client do ioredis, mas recebia o adapter `get/set/del` de
+`createRedisClient`.
+
+Decisões: `createRateLimitRedis` (`packages/integrations/src/redis/rate-limit.ts`) devolve o
+client do ioredis com `enableOfflineQueue: false`, `maxRetriesPerRequest: 1`,
+`commandTimeout: 500 ms`, `connectTimeout: 2 s` e reconexão progressiva até 5 s — nenhuma
+requisição espera pelo cache. Erro de conexão vai para o log em `warn` e o client fecha no
+`onClose` (QUIT se conectado, senão só desconecta). Chaves com prefixo `aluguei:rate-limit:`.
+Com o Redis fora do ar, `skipOnError: true`: **a requisição passa sem contar**. Preferimos
+perder o limite temporariamente a derrubar a API inteira por causa do cache do contador; o erro
+de conexão fica no log e a proteção volta sozinha.
+
+Consequências: durante uma queda do Redis, brute-force de login fica só com as defesas do
+domínio (hash com custo, mesma resposta para e-mail inexistente). Se o limite passar a ser
+controle de segurança crítico, a decisão deve ser revista para falha fechada com página de erro.
+
+## ADR-072 — API interna por http no web só com permissão explícita (P1-15) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o web de produção exige `API_BASE_URL` https (o BFF repassa o cookie de sessão).
+Com a API na rede interna do deploy (`http://api:4000`) o painel caía no login, então a
+homologação fala com a API pelo domínio público — tráfego interno saindo e voltando pelo proxy.
+
+Decisões: `assertSecureApiBase` continua exigindo https em produção. Com
+`API_BASE_URL_ALLOW_HTTP=true` (valor exato) aceita http **apenas** para endereço interno: nome
+de serviço sem domínio (Docker/Coolify), `localhost`/loopback, IPv4 privado (10/8, 172.16/12,
+192.168/16) ou domínio `.internal`/`.local`. http para endereço público continua recusado, com
+mensagem própria. Produção sem `API_BASE_URL` passa a ser recusada em vez de cair em
+`http://localhost:4000`.
+
+Consequências: a homologação pode passar a chamar a API pela rede interna com duas variáveis
+(`API_BASE_URL=http://api:4000` e a permissão), o que também tira o tráfego do proxy do rate
+limit — a troca fica para o deploy, com smoke (não foi ativada nesta trilha).
+
+## ADR-073 — Worker operável: log por job, health HTTP e parada graciosa (P2-10) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o worker só logava "worker started" (um job que falhava não deixava rastro), não tinha
+health — um worker travado ou sem banco parecia saudável — e no SIGTERM chamava `process.exit`
+na hora, cortando o job em andamento e deixando o pool aberto.
+
+Decisões:
+
+- **Log por job** nas três filas (inbox, canais, Meta): `job.started`, `job.finished` e
+  `job.failed` com fila, id, tipo, tentativa, organização, duração em ms, status gravado na fila
+  e a mensagem de erro saneada (mais tipo e pilha, ver ADR-075). Ciclo em `debug`
+  (`worker.cycle`), falha de ciclo em `error`.
+- **Loop com parada** (`job-loop.ts`): um ciclo por vez, o primeiro logo ao iniciar; `stop`
+  para de pegar jobs e espera o ciclo em andamento até o limite, devolvendo `drained` ou
+  `timeout`. O estado (falhas seguidas, último ciclo bem-sucedido, ciclo em andamento) alimenta
+  o health.
+- **Health HTTP** em `WORKER_HEALTH_PORT` (ausente: sem servidor): `GET /health` responde 200
+  com o loop saudável e 503 com o motivo — `stopping`, `not_started`, `cycle_stuck` (ciclo
+  passando de 5 min, o mesmo limite do reaper), `failing` (3 falhas seguidas) ou `stale` (sem
+  ciclo bem-sucedido por 12 intervalos de poll, no mínimo 60 s). O corpo só tem estado do loop.
+- **SIGTERM/SIGINT**: registra `worker.stopping`, para de pegar jobs, espera os em andamento até
+  `WORKER_SHUTDOWN_TIMEOUT_MS` (padrão 20 s), fecha health e pool e deixa o processo terminar
+  sozinho (`worker.stopped`). Estourado o limite: `worker.shutdown_timeout` em `error`,
+  `exitCode 1` e `process.exit(1)` só depois de 1 s de folga — a execução interrompida volta à
+  fila pelo reaper. No compose, `stop_grace_period: 30s` e healthcheck na porta 4001.
+
+Consequências: o orquestrador passa a ter sinal de saúde do worker (o Coolify mostra
+`unhealthy` sem reiniciar); um deploy derruba o worker esperando os jobs em andamento. Job
+travado além do limite ainda termina em exit forçado — com log e reenfileiramento.
+
+## ADR-074 — OTEL: instrumentação de HTTP, fetch e pg, ligada por endpoint (P2-11) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o tracer subia sem instrumentação nenhuma — com `OTEL_EXPORTER_OTLP_ENDPOINT`
+definido, nenhum span era criado. O endpoint ia cru para o exportador (o coletor recebia POST na
+raiz, não em `/v1/traces`) e o SDK ligava também exportadores de métricas e logs para
+`localhost:4318`.
+
+Decisões:
+
+- `startTelemetry` (`packages/observability/src/telemetry.ts`) substitui `initTracer` e registra
+  `@opentelemetry/instrumentation-http` (servidor e cliente `node:http`),
+  `@opentelemetry/instrumentation-undici` (`fetch`, usado por todos os providers) e
+  `@opentelemetry/instrumentation-pg`. Versões exatas do mesmo trem do `sdk-node` 0.221.0 já
+  usado (`0.221.0`, `0.73.0` e `0.31.0`, todas Apache-2.0, do repositório oficial
+  open-telemetry). Métricas e logs OTLP ficam desligados (esta fase é só tracing) e não há
+  detectores de recurso — nada de linha de comando, usuário e máquina no recurso.
+- Só liga com `OTEL_EXPORTER_OTLP_ENDPOINT` (a base do coletor; `/v1/traces` é acrescentado uma
+  vez) ou com exportador injetado nos testes. Sem endpoint, nenhum instrumentador é registrado:
+  a homologação atual não paga nada por telemetria.
+- **Ordem de carga**: os instrumentadores só enxergam módulos carregados depois do
+  `startTelemetry`. Os pontos de entrada validam a configuração, sobem a telemetria e só então
+  importam o app por **import dinâmico**. O worker passa a entrar por
+  `apps/worker/src/main.ts` (o `index.ts` continua sendo a biblioteca, importada pelos testes e
+  pela API); compose, stack E2E e scripts apontam para o novo caminho.
+- Spans do produto: request com a rota do Fastify (`http.route` e nome `GET /rota`), ciclo do
+  worker (`worker.cycle`) e job (`job <tipo>`, com fila, id, tipo, tentativa e organização) —
+  as queries pg e as chamadas de provider de cada job entram no mesmo trace.
+
+Consequências: quem quiser traces aponta `OTEL_EXPORTER_OTLP_ENDPOINT` para um coletor e recebe
+HTTP + pg + jobs correlacionados. Qualquer ponto de entrada novo precisa repetir a ordem
+(configuração → telemetria → import dinâmico do app), e o `index.ts` do worker não deve voltar a
+ser o comando do container.
+
+## ADR-075 — Captura de erro sem Sentry: log estruturado com pilha e marca no span (P2-11) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: não havia captura de erro. Um 5xx saía como `unhandled error` sem rota nem pilha
+utilizável; falha de job só deixava a mensagem; `unhandledRejection` e `uncaughtException`
+derrubavam o processo sem rastro. A opção óbvia seria o Sentry (`SENTRY_DSN` já aparecia no
+`.env.example`, sem implementação).
+
+Decisões: **não adotar Sentry nesta fase**. O SDK atual do Sentry para Node traz o próprio
+OpenTelemetry e registra provider e instrumentadores por conta — conviveria com o tracing desta
+trilha exigindo configuração para não duplicar, além de mandar dado de erro (com PII potencial)
+para fora do servidor, o que a homologação não precisa. No lugar:
+
+- `captureError` (`packages/observability/src/errors.ts`) registra `event=error.captured` com
+  origem (`http_5xx`, `job_failed`, `unhandled_rejection`, `uncaught_exception`), contexto e
+  pilha, e marca o span ativo com exceção e status de erro — o mesmo trace que já carrega HTTP e
+  pg. `errorDetails` troca a primeira linha da pilha pela mensagem saneada, para que URL e token
+  do provider não voltem pela pilha.
+- 5xx da API sai com método, rota, código do Postgres e causa; 4xx não vira erro de servidor.
+  Falha de job leva tipo e pilha junto da mensagem saneada. `unhandledRejection` e
+  `uncaughtException` registram e levam ao encerramento gracioso com `exitCode 1`.
+- `SENTRY_DSN` sai do `.env.example`. Se o produto precisar de agregação com alerta, o caminho é
+  um coletor OTLP (os spans de erro já vão para lá) ou o Sentry com
+  `skipOpenTelemetrySetup`, reutilizando o tracer desta trilha — decisão de outra fase.
+
+Consequências: alerta depende de quem lê log/coletor; não há notificação automática de erro
+enquanto não houver coletor na homologação.
+
+## ADR-076 — Redação de dado pessoal nos logs: por caminho e por padrão de valor (P2-11) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o `redact` do logger cobria senha, token e `authorization`, mas não cookie, CPF,
+e-mail nem telefone. A busca de pessoas aceita CPF, e-mail e telefone em `q`, e a URL inteira ia
+para o log de requisição; mensagens de violação de unicidade do PostgreSQL trazem o valor
+(`Key (email)=(...)`).
+
+Decisões:
+
+- **Por caminho** (pino `redact`): `cookie` e `set-cookie` em qualquer cabeçalho até dois
+  níveis, além de `cpf`, `cnpj`, `document`, `email`, `phone`, `waContactId` e o valor das
+  identidades.
+- **Por padrão de valor** (`packages/observability/src/pii.ts`): e-mail, CPF e CNPJ formatados,
+  telefone com `+55`, com DDD entre parênteses ou com hífen, `wa_id` (55 + 10 ou 11 dígitos) e
+  11 dígitos soltos (ambíguos entre CPF sem máscara e celular com DDD, marcados como
+  `[REDACTED:DOC]`). Vale na mensagem e nos argumentos (hook `logMethod`), numa **cópia** do
+  objeto do log (o objeto de quem loga não é alterado) e no erro serializado — mensagem, pilha e
+  causas.
+- **Requisição do Fastify**: serializer próprio com os campos do padrão e a URL redigida; os
+  valores de `q`, `query`, `search`, `email`, `cpf`, `cnpj` e `phone` saem inteiros.
+- Identificador (UUID), data ISO, epoch em ms e s e valores em centavos continuam legíveis —
+  há teste para isso, porque uma redação gulosa deixaria o log inútil.
+
+Consequências: log de produção não serve para achar "o CPF que a pessoa digitou"; a
+investigação usa id de entidade e de requisição. Padrão novo (por exemplo, RG ou CNH) precisa
+entrar na lista com teste.
+
+## ADR-077 — `audit_events.payload` com o diff dos campos alterados, sem dado pessoal (P2-11) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: o payload chegava vazio nas atualizações — a trilha dizia "imóvel atualizado" sem
+dizer o que mudou, e quem operasse não tinha como conferir uma alteração indevida.
+
+Decisões: `auditDiff(before, after, opts)` (`apps/api/src/plugins/audit.ts`) compara o corpo da
+atualização com o registro atual **pelo conteúdo** (datas em ISO; objeto e lista pela
+serialização) e devolve `{ fields, changes: { campo: { from, to } } }` só com o que mudou.
+`id`, `orgId`, `createdAt` e `updatedAt` ficam fora. Campo conhecido como pessoal (nome, e-mail,
+telefone, documento, CPF, CNPJ, nascimento, contato de WhatsApp, IP, user agent, senha) aparece
+como alterado com valor `[REDACTED]`; texto livre passa pela redação por padrão de valor e é
+cortado em 200 caracteres. Aplicado em `PATCH /properties/:id` e na troca de papel de membro
+(que grava só o id do usuário ao lado do diff do papel).
+
+Consequências: rota de atualização nova deve passar o diff no `writeAudit`; campo pessoal novo
+entra na lista de `PERSONAL_FIELDS` (ou é declarado por quem chama). O payload é trilha, não
+cópia do registro: não serve para restaurar valor antigo de texto longo.
+
+## ADR-078 — Runner de migration com trava consultiva e saída sem segredo (P2-12) (Gate G3, trilha F, 2026-09-21)
+
+Status: Aceito com o merge do PR #13 (`52e2582`) e implantado na homologação.
+
+Contexto: duas execuções simultâneas de `packages/db/scripts/apply-migrations.mjs` (dois
+deploys, ou `migrate` reiniciado antes de o anterior terminar) leem "nada aplicado" e aplicam a
+mesma cadeia ao mesmo tempo: a segunda falha no meio (`23505` em `pg_type`), deixando o deploy
+vermelho com o banco em estado indefinido. A saída do script vai para o log do deploy.
+
+Decisões: o runner usa um único cliente e uma trava consultiva do PostgreSQL —
+`pg_try_advisory_lock` e, se ocupada, log de espera e `pg_advisory_lock` com `lock_timeout` de
+10 minutos. Quem chega depois encontra a cadeia aplicada e não faz nada. A trava é da sessão:
+se o processo morrer, o servidor a solta. Falha vira uma linha com motivo e código (sem pilha
+nem objeto do driver), com a URL e a senha trocadas por `***`; em produção, sem `DATABASE_URL`,
+o runner não cai no banco local padrão. Saída por `process.exitCode`, sem `process.exit`.
+
+Consequências: o serviço `migrate` pode ser reexecutado sem risco de disputa; uma execução presa
+bloqueia as outras por até 10 minutos (com log dizendo que está esperando).
+
+## ADR-079 — Backup cifrado com restauração provada (Gate G3, trilha F2, 2026-09-22)
+
+Status: Aceito com o merge do PR #15 (`901bb3c`) e implantado na homologação.
+
+Contexto: a homologação tinha só o backup diário do próprio Coolify (dump sem cifra, no disco do
+servidor, 14 cópias), e nenhuma restauração tinha sido provada. O plano pede backup com `pg_dump`,
+retenção e criptografia, e restauração testada de forma automatizada; a cópia fora do servidor
+depende de um destino do usuário (Fase 7).
+
+Decisões:
+
+- Linha de comando `packages/db/src/backup/cli.ts` (`@aluguei/db/backup`), com cinco comandos:
+  `backup`, `restore`, `verify`, `schedule` e `health`.
+- **Formato:** `ALUGUEI-BKP1` + IV + dump em formato custom cifrado com AES-256-GCM + etiqueta. A
+  etiqueta autentica o arquivo inteiro: adulteração, truncamento ou chave errada falham antes de
+  qualquer escrita no destino.
+- **Cifra no backup:** em fluxo, direto da saída do `pg_dump`, então o dump não toca o disco em
+  claro.
+- **Decifra na restauração:** vai para um arquivo temporário que só sobrevive se a autenticação
+  passar. Depois vem o `pg_restore --single-transaction --exit-on-error`.
+- **Chave:** 32 bytes em hex (`BACKUP_ENCRYPTION_KEY`), na homologação `SERVICE_HEX_64_BACKUPKEY`
+  do Coolify (`bin2hex(random_bytes(32))`). Nada de senha derivada: a chave já é aleatória e do
+  tamanho certo.
+- **Conexão:** por variáveis de ambiente (PGHOST, PGPASSWORD…), nunca em argumento. O log traz host,
+  porta e banco, sem usuário e senha.
+- **Restauração só em banco vazio:** um destino com tabelas é recusado, para ninguém restaurar por
+  cima do banco em uso.
+- **Retenção:** os `BACKUP_KEEP` mais novos (padrão 14), escolhidos pelo nome, que carrega o
+  instante UTC. Arquivos com outro nome não são tocados.
+- **Agendamento:** serviço `backup` no compose, na imagem `server` com `pg_dump` 17 do repositório
+  oficial do PostgreSQL. O bookworm traz a 15, que não lê um banco 17. Um backup por dia às 06:00
+  UTC, e um na subida se o último tiver mais de 24 h.
+- **Saúde:** `status.json` com o último backup bom, o último erro e a próxima execução. O
+  healthcheck fica vermelho sem backup bom em 26 h, e o Coolify mostra a aplicação sem saúde.
+- **Prova:** `backup-restore.pg.test.ts`, em `pnpm test:pg` no CI, com o cliente 17 instalado no
+  job. Faz backup de um banco com locação, cobrança paga, split, repasse e razão pela mesma linha de
+  comando, restaura num banco vazio e compara todas as tabelas (contagem e hash das linhas).
+
+Consequências:
+
+- **Chave:** a chave existe só no Coolify. Sem uma cópia dela fora do servidor, os backups cifrados
+  não abrem se o VPS se perder. A guarda da chave e o destino externo são do usuário (Fase 7).
+- **Dois backups:** o backup do Coolify continua, como segundo caminho, sem cifra.
+- **Sem PITR:** não há backup contínuo; depende de WAL archiving ou de destino externo.
+- **Arquivos do MinIO:** seguem sem backup (limitação registrada no deploy).
+
+## ADR-080 — CPF e CNPJ com dígito verificador (P2-01) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: `POST /parties` só normalizava o documento (dígitos) e aceitava `12345678900` como CPF. O
+dígito verificador não era conferido em lugar nenhum.
+
+Decisões:
+
+- `packages/domain/src/values/documents.ts`: CPF e CNPJ pelo módulo 11, recusando sequência de
+  dígitos iguais (`11111111111` passa no módulo 11 e não é CPF). `assertValidIdentityValue` valida
+  cada tipo de identidade — CPF, CNPJ, e-mail com domínio, telefone com DDD (10 a 13 dígitos) e
+  passaporte alfanumérico — com `INVALID_INPUT` (400).
+- A validação vale na criação e na edição da pessoa. A deduplicação (`POST /parties/dedupe`)
+  continua aceitando valor mal formado: ela procura, não cadastra.
+- A tela confere antes de enviar (`apps/web/src/lib/party-rules.ts`), comparada com o domínio em
+  milhares de números gerados; o servidor continua sendo a regra.
+- Três testes antigos cadastravam CPF inválido e passaram a usar CPFs válidos (só o dado mudou).
+
+Consequências: pessoas já gravadas com documento inválido não são corrigidas pela migration; a
+primeira edição da pessoa exige documento válido. O documento da imobiliária no cadastro aberto
+(`POST /auth/register`) continua só com o tamanho: fica fora da trilha D.
+
+## ADR-081 — Detalhe, edição, arquivamento e documentos da pessoa (P2-01) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: não existia `GET /parties/:id` nem edição, e a tabela `party_documents` não tinha rota.
+
+Decisões:
+
+- `GET /parties/:id` traz identidades, endereços, papéis, consentimentos e documentos; pessoa de
+  outra organização responde o mesmo 404 da inexistente (ADR-044).
+- `PATCH /parties/:id` com trava de linha. Nome, tipo e status mudam campo a campo; identidades,
+  papéis e endereços chegam como lista completa e substituem as atuais. Identidade que já é de outra
+  pessoa da organização responde 409 (antes a UNIQUE viraria 500).
+- Não há exclusão: a pessoa é arquivada (`status` `ACTIVE` | `ARCHIVED`, com CHECK). A lista mostra
+  só as ativas; `?status=ARCHIVED` mostra as arquivadas; `?ids=` resolve qualquer uma (linhas
+  antigas continuam com o nome).
+- Auditoria com diff (`party.updated`, `party.archived`, `party.reactivated`). Das identidades o
+  diff guarda só os tipos, nunca o valor do documento ou do telefone.
+- Documentos: `POST /parties/:id/documents/upload-url` (chave gerada no servidor com o prefixo da
+  organização e da pessoa, até 20 MB), `…/confirm` (confere o objeto no storage e o tamanho real,
+  idempotente pela chave única), `GET …/documents` e `DELETE …/documents/:documentId`. Tipos
+  fechados com CHECK: identidade, CPF, comprovante de renda, comprovante de endereço, estado civil,
+  contrato social e outro.
+- Interface: detalhe em `/app/crm/contacts/[id]` com dados, documentos e consentimentos; edição
+  (nome, tipo, papéis, identificadores e endereços), arquivar e reativar com confirmação.
+
+Consequências: excluir um documento apaga o registro, não o objeto no storage (limpeza de órfãos é o
+P2-13). Sem bucket configurado, o envio mostra o erro da API ("Storage não configurado").
+
+## ADR-082 — Ciclo de vida da visita (P2-02) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: a visita nascia `SCHEDULED` e nunca mudava.
+
+Decisões:
+
+- Máquina de estado em `packages/domain/src/crm/visit.ts`: agendada → confirmada, realizada, não
+  compareceu ou cancelada; confirmada → realizada, não compareceu, cancelada ou agendada de novo
+  (reagendar tira a confirmação). Cancelar exige motivo. Status final não volta.
+- `PATCH /visits/:id/status` e `POST /visits/:id/reschedule` (nova data e hora; volta para
+  agendada), com trava de linha, compare-and-set no status, evento na timeline e auditoria com diff.
+  `GET /visits/:id`. A criação só aceita agendada ou confirmada.
+- Banco: CHECK do status e CHECK de que cancelada tem motivo (`cancel_reason`); `status_changed_at`.
+- Interface: ações no detalhe da visita conforme o status, reagendamento e cancelamento em diálogo
+  (motivo obrigatório).
+
+## ADR-083 — Ciclo de vida e expiração da proposta (P2-02) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: a proposta nascia `DRAFT` e nunca saía dali; `valid_until` era instante e não tinha efeito.
+O formulário mandava a data do campo como instante UTC.
+
+Decisões:
+
+- `valid_until` passa a ser data civil (o último dia em que a proposta vale). A migration 0020 foi
+  editada à mão para converter no fuso de São Paulo (`USING (valid_until AT TIME ZONE
+'America/Sao_Paulo')::date`); sem isso a conversão usaria o fuso da sessão. A API aceita só
+  `AAAA-MM-DD` que existe (`isoDateSchema`).
+- Máquina de estado em `packages/domain/src/crm/proposal.ts`: rascunho → enviada (exige validade);
+  enviada → aceita, recusada (exige motivo) ou expirada. Só o rascunho é editável (valor, condições
+  e validade). O envio recusa validade anterior a hoje (data de São Paulo).
+- `PATCH /proposals/:id`, `PATCH /proposals/:id/status` e `GET /proposals/:id`, com trava de linha,
+  compare-and-set, timeline e auditoria com diff. `sent_at`, `decided_at` e `decision_reason`.
+- Banco: CHECK do status, de que enviada tem validade e de que recusada tem motivo.
+- Worker: job diário `PROPOSAL_EXPIRY` por organização (mesma fila dos jobs de cobrança). Proposta
+  enviada com a validade anterior a hoje em São Paulo vira `EXPIRED` por compare-and-set (uma
+  aceitação no mesmo instante vence), com timeline e `proposal.expired` na auditoria.
+- Interface: validade como data civil no formulário e na exibição; editar no rascunho, enviar com a
+  validade, aceitar e recusar com motivo no detalhe.
+
+Consequências: expirar é só do worker; a tela não oferece "expirar". Aceitar a proposta não cria
+candidatura nem locação — continua sendo passo manual.
+
+## ADR-084 — Detalhe e edição do lead (P2-03) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: não existia `GET /leads/:id`; a tela do lead buscava a lista inteira e filtrava. Não havia
+edição de dados nem de responsável.
+
+Decisões:
+
+- `GET /leads/:id` com os imóveis de interesse; `PATCH /leads/:id` para origem, canal, responsável,
+  orçamento, observações, pessoa e imóveis de interesse (lista completa). O status continua só em
+  `PATCH /leads/:id/status`, pelo funil do domínio (`status` no corpo do PATCH → 400).
+- O responsável precisa ser membro da organização (404 uniforme). Orçamento mínimo acima do máximo →
+  400, considerando o valor já gravado quando só um limite chega; `null` limpa o limite.
+- Auditoria com diff; das observações o diff guarda só o tamanho.
+- `GET /me/members`: nome e função da equipe da organização ativa, sem e-mail, para qualquer membro
+  (o corretor edita lead e não tem `member:read`). Usa o `meMembersResponseSchema` que já existia.
+- Interface: o detalhe usa a rota própria; "Editar lead" com responsável, canal, fonte, orçamento e
+  observações.
+
+## ADR-085 — Troca e recuperação de senha (P2-04) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Decisões:
+
+- `POST /auth/change-password`: exige a senha atual (401 se errada), recusa a igual à atual e
+  encerra as outras sessões do usuário — a sessão que trocou continua.
+- `POST /auth/forgot-password`: resposta única com ou sem conta (sem enumeração). Token opaco de
+  32 bytes; o banco guarda só o SHA-256 (`password_reset_tokens`), validade de 30 minutos, e um
+  pedido novo invalida os anteriores.
+- `POST /auth/reset-password`: uso único com trava na linha do token (`FOR UPDATE`) — provado em
+  PostgreSQL real: um segundo uso em paralelo espera e recebe 404. Encerra todas as sessões.
+- Token vencido, usado, revogado ou inexistente: o mesmo 404. O token nunca entra na auditoria.
+- Interface: "Trocar senha" em Configurações; "Esqueci minha senha" no login leva a
+  `/esqueci-senha`, e o link leva a `/redefinir-senha`.
+
+## ADR-086 — Convite de membro por e-mail e caixa de saída local (P2-04) (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: `POST /organizations/:orgId/members` exigia o `userId` de quem já tinha conta. Não há
+provider de e-mail no produto, e nenhuma trilha do G3 pode ter efeito externo.
+
+Decisões:
+
+- `POST /organizations/:orgId/invites` (`member:manage`): e-mail normalizado, função, token opaco
+  com hash e validade de 72 horas. Quem já é membro ou já tem convite pendente → 409. O limite de
+  usuários do plano é conferido no convite e de novo no aceite.
+- `GET …/invites` (situação derivada: pendente, aceito, revogado, expirado) e `DELETE
+…/invites/:inviteId` (revoga).
+- `POST /invites/describe` e `POST /invites/accept` sem sessão, com o token no corpo (não na URL da
+  API). Sem conta, o aceite cria o usuário com o nome e a senha que a própria pessoa escolhe e abre
+  a sessão; com conta, só acrescenta o vínculo — a senha existente não muda e nenhuma sessão é
+  aberta. Aceitar é usar o token (`accepted_at`); o reuso responde 404. Trava na linha do convite,
+  provada em PostgreSQL real (sem ela o segundo aceite criava outra conta).
+- Caixa de saída local `email_outbox` (tipo e status com CHECK): a recuperação de senha e o convite
+  **gravam a mensagem e não enviam nada**. `GET /email-outbox` exige `org:manage` e só mostra a
+  própria organização; a mensagem de senha nasce sem organização e não aparece para ninguém da
+  imobiliária. `GET /dev/email-outbox?to=` existe só fora de produção (como `/dev/fake-payments`)
+  para o E2E abrir o link.
+- Interface: "Convidar membro" por e-mail e função, lista de convites com revogação, "Caixa de
+  saída" (avisa que nenhum e-mail é enviado) e a tela `/convite`.
+
+Consequências: sem provider de e-mail, em produção a pessoa convidada ou que esqueceu a senha não
+recebe nada — o link só existe na caixa de saída. Enviar de verdade exige escolher um provider e uma
+credencial (decisão de produto, fora do G3). O convite pendente não conta no limite do plano até
+ser aceito.
+
+## ADR-087 — Ordem das camadas do design system (Gate G3, trilha D, 2026-09-22)
+
+Status: Aceito com o merge do PR #18 (`0d9e352`) e implantado na homologação.
+
+Contexto: o drawer (140) ficava por cima do modal (130), e o modal por cima do toast (120). Um
+diálogo aberto a partir do detalhe em drawer (cancelar visita, recusar proposta) ficava escondido.
+
+Decisão: `--peg-z-drawer: 130`, `--peg-z-modal: 140`, `--peg-z-toast: 150` — a mesma ordem do design
+system de referência (Kal El: drawer, modal, toast). Teste em `packages/ui/src/styles/z-order.test.ts`.
+
+## ADR-088 — Prova de posse do número do WhatsApp (P1-18, segunda parte) (Gate G3, trilha E2, 2026-09-22)
+
+Status: Aceito com o merge do PR #20 (`bef9660`) e implantado na homologação.
+
+Contexto: qualquer organização com `org:manage` reivindicava qualquer `phoneNumberId` com
+`POST /whatsapp/connections`, e o webhook entregava as mensagens daquele número à organização que
+reivindicou primeiro — inclusive as dos clientes de outra imobiliária. A credencial da Meta era uma
+só para a plataforma, então não havia com o que provar a posse. A tela de integrações ainda tinha o
+botão "Conectar (teste)", que reivindicava o número fixo `fake-phone-1` sem token.
+
+Decisões:
+
+- **Credencial por conexão.** `POST /whatsapp/connections` exige `accessToken`: o token da conta do
+  WhatsApp Business da própria imobiliária (usuário do sistema da WABA). O token é cifrado com o
+  mesmo helper e a mesma chave do token da Meta Ads (`encryptSecret`, AES-256-GCM,
+  `META_TOKEN_ENCRYPTION_KEY`, formato `keyId:iv:ciphertext` e `token_key_id`, ADR-028). Sem a
+  chave, o pedido é recusado (400) — o token nunca é guardado em claro. O token não volta em
+  nenhuma resposta nem na auditoria (a auditoria já redige chaves `token`, e o payload nem as
+  contém). `phoneNumberId` e `businessAccountId` passam a aceitar só dígitos.
+- **Status com CHECK.** `PENDING | VERIFIED | DISABLED` (`whatsapp_connections_status_valid`), com
+  `VERIFIED` exigindo `verified_at` e `PENDING` exigindo `claim_expires_at`. O padrão da coluna
+  passa a `PENDING`. O `ACTIVE` antigo deixa de existir: a 0021 converte as conexões antigas em
+  `PENDING` já vencidas e sem token — elas nunca provaram a posse. A organização informa o token e
+  verifica de novo; enquanto isso, o número não recebe mensagens.
+- **Só VERIFIED recebe webhook.** O webhook resolve a conexão pelo número e, se o status não passa
+  em `canReceiveWhatsAppWebhook` (domínio), ignora com 200 e registra só o número e o status no log
+  — nada é enfileirado, nenhum conteúdo é gravado, e nada chega a outra organização. Não há
+  dead-letter: guardar a mensagem de um número sem dono comprovado seria justamente reter dado de
+  cliente de terceiro.
+- **Quem pode reivindicar** (`decideWhatsAppClaim`, domínio): número livre cria a reivindicação
+  `PENDING` com prazo de 24 h; a própria organização troca o token (e renova o prazo) enquanto
+  pendente ou desativada; número `VERIFIED` responde 409 para todos (a própria dona também, porque
+  trocar o token de um número verificado sem nova prova o devolveria a um estado sem prova);
+  pendente de outra organização responde 409 no prazo; **vencida, só é tomada por quem provar a
+  posse no próprio pedido** — a reivindicação antiga continua até alguém provar. Assim quem só
+  reivindica sem token válido bloqueia o número por no máximo 24 h, uma vez.
+- **Concorrência.** A decisão roda com a linha do número travada (`SELECT … FOR UPDATE`); duas
+  criações simultâneas do mesmo número esbarram no `UNIQUE (phone_number_id)`, e a segunda
+  responde 409. Na tomada, a prova (chamada externa) fica fora da transação, e a confirmação trava
+  a linha de novo e confere que é a mesma reivindicação, ainda vencida: um único vencedor
+  (`whatsapp-claim-concurrency.pg.test.ts`). A tomada apaga a linha antiga e grava uma nova (id
+  novo): a organização que perdeu recebe 404 no id antigo.
+- **Verificação.** `POST /whatsapp/connections/:id/verify` (`org:manage`, 404 fora da
+  organização) decifra o token e chama o `WhatsAppNumberVerifier`: em `live`,
+  `MetaWhatsAppNumberVerifier` reusa `MetaWhatsAppAdapter.testConnection()`
+  (`GET /<PHONE_NUMBER_ID>`) com o token da conexão — nunca com `WHATSAPP_ACCESS_TOKEN`; em `dry_run`,
+  `FakeWhatsAppNumberVerifier` (sem rede) aceita `fake-wa-owner:<phoneNumberId>` e falha com
+  qualquer outro como a Graph API (400, código 100). Sem modo, não há verificador e a rota responde
+  502 "WhatsApp não configurado". Erro não transitório ou número diferente do pedido → 409 "Não foi
+  possível comprovar a posse"; erro transitório (429/5xx, timeout, rede) → 502. A gravação de
+  `VERIFIED` é compare-and-set (continua `PENDING`, da organização e com o mesmo token conferido).
+  Verificar um número já verificado devolve a conexão sem chamar a Meta.
+- **Auditoria** (`entity_type = WHATSAPP_CONNECTION`): `whatsapp.connection_claimed` (com
+  `renewed` e `takeover`), `whatsapp.connection_claim_refused` (na organização que tentou, com o
+  motivo e sem dado da dona), `whatsapp.connection_claim_expired` (na organização que perdeu a
+  reivindicação vencida, sem dizer quem tomou), `whatsapp.connection_verified` e
+  `whatsapp.connection_verification_failed` (motivo, status e código da Meta; sem token).
+- **Tela** (`/app/admin/integrations`): "Conectar número" (ID do número, ID da conta opcional e
+  token em campo de senha), situação "Aguardando verificação" com o prazo ou o aviso de vencida,
+  "Verificar posse", "Trocar token" e, verificada, o número exibido pela Meta e "Recebe mensagens
+  desde". As regras ficam em `apps/web/src/lib/whatsapp-connection-rules.ts`, comparadas com o
+  domínio e com o contrato da API no teste. `GET /whatsapp/connections` informa o verificador
+  (`FAKE`, `META` ou null) para a tela mostrar a dica do token FAKE só em ambiente de teste.
+
+Consequências: a homologação (META_MODE=dry_run) verifica com o token FAKE, sem chamada real. As
+conexões existentes param de receber mensagens até a organização informar o token e verificar —
+aviso necessário no deploy da 0021. O envio continua pela credencial da plataforma
+(`WHATSAPP_ACCESS_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID`); enviar pelo token de cada conexão, remover e
+desativar conexão pela tela e revalidar o token periodicamente ficam fora desta trilha (ver
+"Pendências").
+
+## ADR-089 — Uma concessão ativa do portal garantida pelo banco (pendência do ADR-061) (Gate G3, trilha E2, 2026-09-22)
+
+Status: Aceito com o merge do PR #20 (`bef9660`) e implantado na homologação.
+
+Contexto: `portal_access_org_party_kind_active_unique` incluía `revoked_at`, e o PostgreSQL trata
+nulos como distintos: o banco aceitava duas concessões ativas da mesma pessoa e tipo. A garantia
+era só a trava da rota (`SELECT … FOR UPDATE` na pessoa, ADR-061).
+
+Decisões:
+
+- O índice passa a ser parcial: `UNIQUE (org_id, party_id, kind) WHERE revoked_at IS NULL`. Mesmo
+  nome, para as consultas e a documentação que o citam.
+- Pré-voo na 0021, no padrão das 0013/0014: se já houver duplicata ativa, a migração para com a
+  lista (organização, pessoa, tipo e quantidade) e a dica de revogar a sobra, sem aplicar nada (o
+  runner aplica as migrations pendentes numa transação só). A limpeza não é automática: escolher
+  qual link continua valendo é decisão da imobiliária.
+- A trava da rota continua: ela reaproveita a concessão ativa (troca o token) em vez de gravar
+  outra, e o índice é a segunda linha de defesa para qualquer caminho futuro que esqueça a trava.
+
+Consequências: provado em PostgreSQL real (`g3-e2-migration-0021.pg.test.ts`): pré-voo aborta com a
+duplicata e conclui depois da revogação; segunda ativa recusada com 23505; duas transações
+simultâneas sem a trava da rota confirmam uma só; pedidos simultâneos pela rota deixam uma ativa
+por tipo.
+
+## ADR-090 — CHECK nas colunas de domínio fechado, preso ao domínio (P2-12, DB-4) (Gate G3, trilha G, 2026-09-22)
+
+Status: Aceito com o merge do PR #22 (`761f2a3`) e implantado na homologação.
+
+Contexto: o banco tinha 35 CHECKs, 13 deles de vocabulário; as outras colunas `text` de status,
+tipo e papel aceitavam qualquer texto. A validação existia só nas rotas e nas máquinas de estado do
+domínio: uma rota nova, um job ou um script que gravasse `'TERMINATED'` numa locação, `'CASH'` num
+pagamento ou `'CONTACTED'` num lead gravava sem erro, e a leitura seguinte quebrava no contrato da
+API ou caía num `switch` sem caso.
+
+Decisões:
+
+- **Um CHECK por coluna, com nome fixo** `<tabela>_<coluna>_valid` e a forma
+  `coluna in (...)` (coluna anulável: `coluna is null or coluna in (...)`). O helper
+  `domainCheck` (`packages/db/src/schema/checks.ts`) monta a expressão; a lista fica escrita no
+  schema do drizzle, ao lado da coluna, e o `db:generate` gera o SQL.
+- **A lista é a do domínio.** Fonte, nesta ordem: a constante de `packages/domain` (máquinas de
+  estado: `LEASE_STATUSES`, `CHARGE_STATUSES`, `PAYMENT_STATUSES`, `CONTRACT_STATUSES`,
+  `INSPECTION_STATUSES`, `FUNNEL_STATUSES`, `LISTING_STATUSES`, canais, conversa, candidatura...);
+  sem constante no domínio, o enum do contrato da API em `packages/contracts`. O `@aluguei/db` não
+  passa a depender do domínio: quem prende as três cópias é o teste
+  `tests/integration/src/g3-g-schema-domain.test.ts`, que lê cada CHECK no banco migrado
+  (`pg_get_constraintdef`) e compara com a constante. Mudou o domínio sem migration (ou o
+  contrário), o teste falha. O mesmo teste recusa um CHECK `_valid` novo que não esteja mapeado.
+- **Só entra coluna cujo vocabulário o domínio ou o contrato já fecham.** Colunas cujo valor vem
+  de fora (nome do provider, status devolvido pela Meta), cujo contrato é `z.string()` ou cujo
+  vocabulário vive só no código da API ficam sem CHECK e listadas no README com o motivo — pôr um
+  CHECK sem fonte única criaria uma quarta cópia sem teste. O domínio ganhou uma constante,
+  `SPLIT_ALLOCATION_ROLES` (`LANDLORD`, `AGENCY`), que antes era só um tipo.
+- **Pré-voo no padrão das 0013/0014/0021.** Antes de qualquer `ALTER`, um bloco `DO` percorre a
+  lista de cada CHECK novo e, se houver linha fora do domínio, aborta com
+  `Migracao 0022 abortada: dados fora do dominio fechado -- tabela.coluna <id> = <valor>; ...`
+  (até 20 por coluna, com a contagem do resto). Nada é aplicado: o runner aplica as pendentes
+  numa transação só. A correção dos dados não é automática — o valor certo de uma linha antiga é
+  decisão de quem opera. Um teste confere que o pré-voo e os `ADD CONSTRAINT` da 0022 têm as mesmas
+  colunas e as mesmas listas.
+
+Consequências: 52 CHECKs novos (65 de vocabulário ao todo). Provado em PostgreSQL real
+(`g3-g-migration-0022.pg.test.ts`): o pré-voo nomeia cada linha inválida e não aplica nada;
+corrigidos os dados, a 0022 conclui; valores fora do domínio passam a dar `23514` em lead, tarefa,
+imóvel, papel da pessoa, portal, locação, cobrança e pagamento. A suíte de integração inteira
+(342 testes) e o Playwright passam sem mudar nenhum dado de teste: nenhum caminho do código grava
+valor fora do vocabulário. Acrescentar um status passa a exigir migration — de propósito.
+
+## ADR-091 — `bigint` nos totais que somam muitas linhas (P2-12, DB-5) (Gate G3, trilha G, 2026-09-22)
+
+Status: Aceito com o merge do PR #22 (`761f2a3`) e implantado na homologação.
+
+Contexto: todas as 34 colunas `*_cents` eram `int4` (teto de R$ 21.474.836,47). Por linha isso
+basta (uma cobrança, um repasse, um orçamento). Mas `reconciliations.local_total_cents` recebe a
+soma de **todas** as cobranças pagas da organização e `provider_total_cents` a soma do provider:
+com o histórico acumulado, o total passa desse teto (por exemplo, 1.000 locações de R$ 2.000 em 11
+meses), e daí em diante o job de conciliação terminava em erro (`integer out of range`) a cada
+execução, sem gravar a conciliação.
+
+Decisões:
+
+- Só as duas colunas de total viram `bigint`, no schema com `bigint(..., { mode: 'number' })`: o
+  drizzle devolve `number` (o driver entrega o `int8` como texto e o drizzle converte), exato até
+  2^53 − 1 centavos; o contrato da API (`z.number().int()`) e quem lê não mudam. Alargar o tipo
+  não perde valor e não precisa de pré-voo.
+- As demais colunas `*_cents` continuam `int4`: cada uma guarda um valor de uma linha (cobrança,
+  pagamento, repasse, lançamento, orçamento ou teto de orçamento), e nenhuma é soma. Saldos do
+  ledger, totais do painel e do portal são calculados na consulta (`sum` do PostgreSQL devolve
+  `bigint`, lido com `mapWith(Number)`) ou em JavaScript, sem coluna que estoure. Converter tudo às
+  cegas mudaria o tipo lido pelo código em outras 32 colunas sem ganho.
+
+Consequências: provado em PostgreSQL real: duas cobranças pagas de R$ 15 milhões (cada uma cabe em
+`int4`) fazem a conciliação gravar e ler `3.000.000.000` centavos como número; um total de
+`Number.MAX_SAFE_INTEGER` volta exato pelo drizzle. Antes da correção, o mesmo teste falhava com
+`value "3000000000" is out of range for type integer`.
+
+## ADR-092 — O schema do drizzle é a fonte de índices e CHECKs (P2-12, DB-6) (Gate G3, trilha G, 2026-09-22)
+
+Status: Aceito com o merge do PR #22 (`761f2a3`) e implantado na homologação.
+
+Contexto: `party_consents_active_unique` (um consentimento ativo por pessoa e finalidade,
+`WHERE revoked_at IS NULL`) foi criado à mão na 0007 e nunca entrou em `crm.ts`: o gate de drift
+(`db:generate` sem diferença) não o via, e um `db:generate` futuro podia gerar migration que o
+ignorasse.
+
+Decisões:
+
+- O índice passa a ser declarado em `crm.ts` (`uniqueIndex(...).where(revoked_at is null)`). A
+  0022 faz `DROP INDEX IF EXISTS` e recria pelo schema (a grafia da 0007 era outra); o pré-voo
+  também recusa consentimento ativo duplicado, caso algum ambiente não tivesse o índice.
+- Um teste permanente compara o banco migrado com o schema: o conjunto de índices e UNIQUE do
+  `pg_indexes` tem de ser igual ao declarado (`getTableConfig`: índices, UNIQUE de tabela e de
+  coluna, chaves primárias), e o conjunto de CHECKs do `pg_constraint` igual ao dos `check()` do
+  schema. Índice ou CHECK escrito só no SQL faz o teste falhar.
+- Fica fora do schema, por limite do drizzle, o que ele não modela: as funções e gatilhos de
+  imutabilidade do contrato da 0014 (`contracts_guard_immutable`, `contract_versions_guard_immutable`)
+  e o enum `role`, que já é declarado (`pgEnum`). Os gatilhos continuam cobertos pelos testes da
+  trilha A do G2.
+
+Consequências: com a 0022, o inventário encontrou um único objeto fora do schema (o índice acima);
+depois dela, `db:generate` não gera nada e o teste de paridade passa.

@@ -1,5 +1,7 @@
 # G3 — Rascunhos de ADR da trilha G (banco: CHECK de domínio, bigint nos totais e schema como fonte)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-090 a ADR-092 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 Rascunhos para consolidar em `docs/DECISIONS.md` no fechamento do G3. Evidência em
 `docs/audits/2026-09-10/evidence/g3/track-g/` (o `README.md` de lá tem o inventário coluna por
 coluna). A trilha G fecha o que restava do P2-12 (`02_DATABASE_AUDIT.md`, DB-4, DB-5 e DB-6), tudo

@@ -1,5 +1,7 @@
 # ADRs propostos — Gate G3, Trilha F (operação e observabilidade)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-069 a ADR-078 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 > Rascunhos da Trilha F (achados P1-12, P1-14, P1-15, P2-10, P2-11 e o runner de migration de
 > P2-12). A consolidação em `docs/DECISIONS.md` (a partir do ADR-063) é da integração do G3;
 > aqui ficam o contexto e a decisão como foram implementados. Evidências em

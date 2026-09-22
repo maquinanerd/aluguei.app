@@ -1,0 +1,25 @@
+Trilha G do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+
+=== Trilha G — PR #22, merge 761f2a3 (migration 0022_domain_checks_bigint_totals)
+
+A trilha G não tem rota nova: o smoke é a regressão completa das trilhas anteriores (24 checagens).
+A prova de que a 0022 foi aplicada é o deploy terminar: o migrate roda antes da API
+(service_completed_successfully), e um pré-voo que abortasse deixaria o deploy como failed com a
+versão anterior no ar, como nas duas falhas rápidas registradas antes.
+
+--- Antes do deploy
+smoke-2026-09-22-trilha-g-antes.txt: 24 ok, 0 falhas (bef9660/8a40a42 no ar).
+
+--- Deploy (deploy + get_deployment nt6zqwe3y8akzh7iquayiokm)
+status   finished (primeira tentativa)
+commit   761f2a3c95c2fcb4f0f69d1590dae5809aa378e1
+criado   04:43:49   terminado 04:50:43   (pedido pela API, sem force rebuild, sem rollback)
+O pré-voo da 0022 não achou linha fora das listas dos 52 CHECKs novos nem consentimento ativo
+duplicado nos dados da homologação.
+
+--- Depois do deploy
+list_unhealthy_resources: 0.
+smoke-2026-09-22-trilha-g-depois.txt: 24 ok, 0 falhas.
