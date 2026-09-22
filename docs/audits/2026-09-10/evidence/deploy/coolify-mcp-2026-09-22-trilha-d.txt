@@ -1,0 +1,34 @@
+Trilha D do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+
+=== Trilha D — PR #18, merge 0d9e352 (migration 0020_party_visit_proposal_identity)
+
+--- Antes do deploy
+list_unhealthy_resources: 0 recursos não saudáveis
+smoke-2026-09-22-trilha-d-antes.txt: 15 ok, 6 falhas — as rotas novas da trilha D (/me/members,
+/parties/:id, /leads/:id, /visits/:id/reschedule, /auth/change-password) respondiam 404 e a tela
+/esqueci-senha não existia. Os três testes sem diferença (reset e convite com token inválido, caixa
+de saída de dev) já davam 404 e continuam dando.
+
+--- Deploy (deploy + get_deployment aa0kjmizcc16e05o9oqhxark)
+status   finished
+commit   0d9e3526e0453c7342e2db018e5f677f80ad4ead
+criado   01:18:15   terminado 01:20:15   (pedido pela API, sem force rebuild, sem rollback)
+
+--- Aplicação depois do deploy (get_application)
+status              running:healthy
+container_present   true
+last_online_at      2026-09-22 01:24:07
+A API só sobe depois do serviço migrate terminar com sucesso (depends_on
+service_completed_successfully): /health/ready 200 prova a migration 0020 aplicada.
+
+--- Smoke depois
+smoke-2026-09-22-trilha-d-depois.txt: 21 ok, 0 falhas — rotas novas com 401 sem sessão, reset de
+senha e convite com token inválido em 404 sem gravar nada, caixa de saída de dev fora do ar em
+produção (404), tela /esqueci-senha no ar, e a regressão das trilhas C, E1, F e F2 de pé.
+
+--- Sem efeito externo
+A recuperação de senha e o convite gravam a mensagem na caixa de saída local (email_outbox);
+nenhum e-mail é enviado. O smoke não chama /auth/forgot-password (seria uma escrita).
