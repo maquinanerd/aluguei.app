@@ -1,0 +1,120 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-vocabulario-timeline-conciliacao.test.ts src/g3-g-schema-domain.test.ts
+# árvore: fix/g3-vocabulario-timeline-conciliacao em 84723b3 + testes novos, sem a correção
+# data (UTC): 2026-09-22T14:46:43Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/tests/integration
+
+(node:23956) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-vocabulario-timeline-conciliacao.test.ts (5 tests | 4 failed) 4730ms
+     × timeline da conversa devolvida ao atendimento automático (CONVERSATION) 172ms
+     × timeline do anúncio com a troca de status (LISTING) 125ms
+     × timeline da candidatura com a decisão do screening (RENTAL_APPLICATION) 357ms
+     × filtro de status da conciliação usa o vocabulário gravado; sem provider, NONE 273ms
+ ❯ src/g3-g-schema-domain.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts [ src/g3-g-schema-domain.test.ts ]
+TypeError: Cannot read properties of undefined (reading 'options')
+ ❯ src/g3-g-schema-domain.test.ts:116:72
+    114|   'ledger_accounts.type': { values: c.ledgerAccountSchema.shape.type.o…
+    115|   'reconciliations.status': { values: c.reconciliationSchema.shape.sta…
+    116|   'reconciliations.provider': { values: c.reconciliationProviderSchema…
+       |                                                                        ^
+    117|   'party_bank_accounts.status': { values: c.bankAccountSchema.shape.st…
+    118|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-vocabulario-timeline-conciliacao.test.ts > vocabulário da timeline e da conciliação igual ao contrato > timeline da conversa devolvida ao atendimento automático (CONVERSATION)
+AssertionError: {"error":"ValidationError","code":"VALIDATION","message":"entityType: Invalid option: expected one of \"LEAD\"|\"PARTY\"|\"PROPOSAL\"|\"VISIT\"|\"TASK\""}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/g3-vocabulario-timeline-conciliacao.test.ts:81:38
+     79|
+     80|     const res = await timeline(cookie, 'CONVERSATION', conversationId);
+     81|     expect(res.statusCode, res.body).toBe(200);
+       |                                      ^
+     82|     expect((res.json() as TimelineBody).events).toEqual([
+     83|       expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/g3-vocabulario-timeline-conciliacao.test.ts > vocabulário da timeline e da conciliação igual ao contrato > timeline do anúncio com a troca de status (LISTING)
+AssertionError: {"error":"ValidationError","code":"VALIDATION","message":"entityType: Invalid option: expected one of \"LEAD\"|\"PARTY\"|\"PROPOSAL\"|\"VISIT\"|\"TASK\""}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/g3-vocabulario-timeline-conciliacao.test.ts:117:38
+    115|
+    116|     const res = await timeline(cookie, 'LISTING', listingId);
+    117|     expect(res.statusCode, res.body).toBe(200);
+       |                                      ^
+    118|     expect((res.json() as TimelineBody).events).toEqual([
+    119|       expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/g3-vocabulario-timeline-conciliacao.test.ts > vocabulário da timeline e da conciliação igual ao contrato > timeline da candidatura com a decisão do screening (RENTAL_APPLICATION)
+AssertionError: {"error":"ValidationError","code":"VALIDATION","message":"entityType: Invalid option: expected one of \"LEAD\"|\"PARTY\"|\"PROPOSAL\"|\"VISIT\"|\"TASK\""}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/g3-vocabulario-timeline-conciliacao.test.ts:136:38
+    134|
+    135|     const res = await timeline(lease.cookie, 'RENTAL_APPLICATION', app…
+    136|     expect(res.statusCode, res.body).toBe(200);
+       |                                      ^
+    137|     expect((res.json() as TimelineBody).events.map((event) => event.ev…
+    138|       'SCREENING_DECIDED',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/g3-vocabulario-timeline-conciliacao.test.ts > vocabulário da timeline e da conciliação igual ao contrato > filtro de status da conciliação usa o vocabulário gravado; sem provider, NONE
+AssertionError: MATCHED: {"error":"ValidationError","code":"VALIDATION","message":"status: Invalid option: expected one of \"PENDING\"|\"RUNNING\"|\"COMPLETED\"|\"FAILED\""}: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ src/g3-vocabulario-timeline-conciliacao.test.ts:197:56
+    195|     for (const status of ['PENDING', 'MATCHED', 'DISCREPANCY']) {
+    196|       const res = await list(`?status=${status}`);
+    197|       expect(res.statusCode, `${status}: ${res.body}`).toBe(200);
+       |                                                        ^
+    198|       const filtered = res.json() as ReconciliationsBody;
+    199|       const expected = rows.filter((row) => row.status === status).map…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 1 passed (5)
+   Start at  11:46:44
+   Duration  10.76s (transform 2.05s, setup 0ms, import 4.50s, tests 4.73s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-vocabulario-timeline-conciliacao.test.ts src/g3-g-schema-domain.test.ts
+
+# exit=1
