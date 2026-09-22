@@ -1,5 +1,7 @@
 # G3 — Rascunhos de ADR da trilha E2 (posse do número do WhatsApp e concessão ativa do portal)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-088 e ADR-089 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 Rascunhos para consolidar em `docs/DECISIONS.md` no fechamento do G3. Evidência em
 `docs/audits/2026-09-10/evidence/g3/track-e2/`. A E2 fecha as duas pendências da E1
 (`ADR_DRAFTS_TRACK_E.md`, "Pendente para a E2"), ambas na migration 0021.

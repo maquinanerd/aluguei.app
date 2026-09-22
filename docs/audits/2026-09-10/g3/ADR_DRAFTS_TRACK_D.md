@@ -1,5 +1,7 @@
 # G3 — Rascunhos de ADR da trilha D (cadastros e identidade)
 
+> **Consolidado** em `docs/DECISIONS.md` como ADR-080 a ADR-087 no fechamento do G3 (2026-09-22). Este arquivo fica como registro do rascunho.
+
 Rascunhos para consolidar em `docs/DECISIONS.md` no fechamento do G3, depois dos da trilha C.
 Evidência em `docs/audits/2026-09-10/evidence/g3/track-d/`.
 
