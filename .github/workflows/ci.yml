@@ -148,3 +148,21 @@ jobs:
         with:
           name: e2e-stack-logs
           path: ${{ runner.temp }}/e2e-runs
+
+  image:
+    # As imagens da homologação (Dockerfile → server e web), construídas como o Coolify faz. Sem este
+    # job, um Dockerfile quebrado só aparecia no deploy (G3, trilha F2).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build da imagem server (API, worker, migrations e backup)
+        run: docker build --progress=plain --target server -t aluguei-server:ci .
+
+      - name: pg_dump e pg_restore 17 na imagem server
+        run: |
+          docker run --rm aluguei-server:ci sh -c '"$PG_DUMP" --version && "$PG_RESTORE" --version'
+          docker run --rm aluguei-server:ci sh -c 'test -d /backups && test -w /backups && echo "/backups gravável pelo $(id -un)"'
+
+      - name: Build da imagem web
+        run: docker build --progress=plain --target web -t aluguei-web:ci .
