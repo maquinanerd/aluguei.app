@@ -1,0 +1,17 @@
+Teto dos centavos (ADR-094) na homologação — MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main. Nenhum valor de variável lido;
+nenhuma conta criada, nenhuma escrita.
+
+=== PR #26, merge 27c1c28 (sem migration)
+
+--- Deploy (deploy + get_deployment 8t0jon8lhwtpwcqrxptellmj)
+status   finished (primeira tentativa)
+commit   27c1c283c2ba0a7598c2f0a0c808791a9292bfdd
+criado   17:26:03   terminado 17:28:41
+
+--- Depois do deploy
+list_unhealthy_resources: 0.
+smoke-2026-09-22-teto-centavos-depois.txt: 26 ok, 0 falhas (regressão completa). O teto em si
+só é observável com sessão (a API responde 401 antes de validar o corpo); ele está provado nos
+testes (docs/audits/2026-09-10/evidence/g3/teto-centavos/).
