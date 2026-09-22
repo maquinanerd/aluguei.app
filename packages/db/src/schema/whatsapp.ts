@@ -16,6 +16,7 @@ import {
 import { organizations } from './identity.js';
 import { leads, parties } from './crm.js';
 import { properties } from './properties.js';
+import { domainCheck } from './checks.js';
 
 export const conversations = pgTable(
   'conversations',
@@ -37,6 +38,12 @@ export const conversations = pgTable(
   (t) => [
     index('conversations_org_status_updated_idx').on(t.orgId, t.status, t.updatedAt),
     index('conversations_org_channel_contact_idx').on(t.orgId, t.channel, t.waContactId),
+    domainCheck('conversations_status_valid', t.status, [
+      'OPEN',
+      'ACTIVE',
+      'NEEDS_HUMAN',
+      'CLOSED',
+    ]),
   ],
 );
 
@@ -62,6 +69,8 @@ export const messages = pgTable(
   },
   (t) => [
     index('messages_org_conversation_created_idx').on(t.orgId, t.conversationId, t.createdAt),
+    domainCheck('messages_direction_valid', t.direction, ['INBOUND', 'OUTBOUND']),
+    domainCheck('messages_sender_type_valid', t.senderType, ['USER', 'AGENT', 'BOT']),
   ],
 );
 
@@ -89,6 +98,13 @@ export const conversationIntents = pgTable(
   (t) => [
     index('conversation_intents_org_conversation_idx').on(t.orgId, t.conversationId, t.createdAt),
     index('conversation_intents_org_intent_idx').on(t.orgId, t.intent, t.createdAt),
+    domainCheck('conversation_intents_intent_valid', t.intent, [
+      'VISIT_REQUEST',
+      'PRICE_QUERY',
+      'AVAILABILITY',
+      'OTHER',
+    ]),
+    domainCheck('conversation_intents_extracted_by_valid', t.extractedBy, ['AI', 'RULE']),
   ],
 );
 

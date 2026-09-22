@@ -16,6 +16,7 @@ import {
 import { organizations, users } from './identity.js';
 import { leads, parties, partyConsents, proposals } from './crm.js';
 import { properties } from './properties.js';
+import { domainCheck } from './checks.js';
 
 export const rentalApplications = pgTable(
   'rental_applications',
@@ -78,6 +79,15 @@ export const rentalApplications = pgTable(
       'rental_applications_decision_recorded',
       sql`${t.status} not in ('APPROVED', 'REJECTED', 'CONTRACTING') or (${t.decisionReason} is not null and btrim(${t.decisionReason}) <> '' and ${t.decidedAt} is not null and ${t.decisionSource} is not null)`,
     ),
+    domainCheck('rental_applications_status_valid', t.status, [
+      'DRAFT',
+      'SUBMITTED',
+      'SCREENING',
+      'MANUAL_REVIEW',
+      'APPROVED',
+      'REJECTED',
+      'CONTRACTING',
+    ]),
   ],
 );
 
@@ -126,7 +136,10 @@ export const screeningResults = pgTable(
     decisionRules: jsonb('decision_rules').notNull().default([]),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('screening_results_org_application_idx').on(t.orgId, t.applicationId, t.createdAt)],
+  (t) => [
+    index('screening_results_org_application_idx').on(t.orgId, t.applicationId, t.createdAt),
+    domainCheck('screening_results_decision_valid', t.decision, ['APPROVE', 'REVIEW', 'REJECT']),
+  ],
 );
 
 export const contractTemplates = pgTable(
@@ -148,6 +161,7 @@ export const contractTemplates = pgTable(
   (t) => [
     uniqueIndex('contract_templates_org_name_version_unique').on(t.orgId, t.name, t.version),
     index('contract_templates_org_status_idx').on(t.orgId, t.status),
+    domainCheck('contract_templates_status_valid', t.status, ['DRAFT', 'APPROVED', 'ARCHIVED']),
   ],
 );
 
@@ -179,6 +193,14 @@ export const contracts = pgTable(
     index('contracts_org_status_idx').on(t.orgId, t.status),
     index('contracts_org_application_idx').on(t.orgId, t.applicationId),
     unique('contracts_org_id_unique').on(t.orgId, t.id),
+    domainCheck('contracts_status_valid', t.status, [
+      'DRAFT',
+      'GENERATED',
+      'SENT_FOR_SIGNATURE',
+      'PARTIALLY_SIGNED',
+      'SIGNED',
+      'VOID',
+    ]),
   ],
 );
 
@@ -235,6 +257,7 @@ export const contractParties = pgTable(
   (t) => [
     uniqueIndex('contract_parties_contract_party_unique').on(t.contractId, t.partyId),
     index('contract_parties_org_idx').on(t.orgId),
+    domainCheck('contract_parties_role_valid', t.role, ['LANDLORD', 'TENANT', 'GUARANTOR']),
   ],
 );
 
@@ -261,6 +284,13 @@ export const signatureEnvelopes = pgTable(
   (t) => [
     uniqueIndex('signature_envelopes_provider_id_unique').on(t.provider, t.providerEnvelopeId),
     index('signature_envelopes_org_contract_idx').on(t.orgId, t.contractId),
+    domainCheck('signature_envelopes_status_valid', t.status, [
+      'PENDING',
+      'SENT',
+      'PARTIALLY_SIGNED',
+      'SIGNED',
+      'FAILED',
+    ]),
   ],
 );
 
@@ -283,5 +313,10 @@ export const signatureEvents = pgTable(
   (t) => [
     uniqueIndex('signature_events_provider_id_unique').on(t.provider, t.providerEventId),
     index('signature_events_org_envelope_idx').on(t.orgId, t.envelopeId),
+    domainCheck('signature_events_event_type_valid', t.eventType, [
+      'SIGNER_SIGNED',
+      'COMPLETED',
+      'FAILED',
+    ]),
   ],
 );

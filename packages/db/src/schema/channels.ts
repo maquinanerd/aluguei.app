@@ -10,6 +10,10 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { listings, organizations } from './index.js';
+import { domainCheck } from './checks.js';
+
+/** Canais de publicação (`CHANNEL_TYPES` do domínio). */
+const CHANNEL_TYPES = ['fake', 'canalpro', 'vivareal', 'zap', 'olx', 'imovelweb'] as const;
 
 /** Estado desejado por (listing, canal) — independente do status do listing principal. */
 export const listingChannelPublications = pgTable(
@@ -33,6 +37,17 @@ export const listingChannelPublications = pgTable(
   (t) => [
     uniqueIndex('channel_publications_listing_channel_unique').on(t.listingId, t.channel),
     index('channel_publications_org_status_idx').on(t.orgId, t.status),
+    domainCheck('listing_channel_publications_channel_valid', t.channel, CHANNEL_TYPES),
+    domainCheck('listing_channel_publications_status_valid', t.status, [
+      'PENDING',
+      'PUBLISHING',
+      'PUBLISHED',
+      'UPDATE_PENDING',
+      'REMOVING',
+      'REMOVED',
+      'FAILED',
+      'RECONCILING',
+    ]),
   ],
 );
 
@@ -60,5 +75,19 @@ export const channelSyncJobs = pgTable(
   (t) => [
     index('channel_sync_jobs_org_status_run_idx').on(t.orgId, t.status, t.runAt),
     index('channel_sync_jobs_org_channel_status_idx').on(t.orgId, t.channel, t.status),
+    domainCheck('channel_sync_jobs_channel_valid', t.channel, CHANNEL_TYPES),
+    domainCheck('channel_sync_jobs_job_type_valid', t.jobType, [
+      'PUBLISH',
+      'UPDATE',
+      'REMOVE',
+      'RECONCILE',
+      'IMPORT_LEADS',
+    ]),
+    domainCheck('channel_sync_jobs_status_valid', t.status, [
+      'PENDING',
+      'RUNNING',
+      'SUCCESS',
+      'FAILED',
+    ]),
   ],
 );

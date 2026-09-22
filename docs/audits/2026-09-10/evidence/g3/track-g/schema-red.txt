@@ -1,0 +1,772 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-g-schema-domain.test.ts
+# árvore: g3/track-g-db sobre bef9660 com os testes RED e sem a correção (sem 0022); PGlite
+# data (UTC): 2026-09-22T03:25:54Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/tests/integration
+
+ ❯ src/g3-g-schema-domain.test.ts (72 tests | 57 failed) 5448ms
+     × party_roles.role 4ms
+     × leads.status 1ms
+     × tasks.status 0ms
+     × properties.status 0ms
+     × properties.property_type 0ms
+     × property_media.kind 0ms
+     × listings.status 0ms
+     × portal_access.kind 0ms
+     × listing_channel_publications.channel 1ms
+     × listing_channel_publications.status 1ms
+     × channel_sync_jobs.channel 0ms
+     × channel_sync_jobs.job_type 0ms
+     × channel_sync_jobs.status 0ms
+     × conversations.status 0ms
+     × messages.direction 0ms
+     × messages.sender_type 0ms
+     × conversation_intents.intent 0ms
+     × conversation_intents.extracted_by 0ms
+     × rental_applications.status 0ms
+     × screening_results.decision 0ms
+     × contract_templates.status 0ms
+     × contracts.status 0ms
+     × contract_parties.role 0ms
+     × signature_envelopes.status 0ms
+     × signature_events.event_type 0ms
+     × inspections.type 0ms
+     × inspections.status 0ms
+     × inspection_media.kind 0ms
+     × inspection_transcripts.status 0ms
+     × inspection_ai_suggestions.kind 0ms
+     × inspection_observations.category 0ms
+     × inspection_observations.severity 0ms
+     × inspection_observations.source 0ms
+     × inspection_observations.status 0ms
+     × inspection_comparisons.status 0ms
+     × leases.status 0ms
+     × lease_amendments.index_name 0ms
+     × charges.status 0ms
+     × payments.method 0ms
+     × payments.status 0ms
+     × split_allocations.role 0ms
+     × payouts.status 0ms
+     × ledger_accounts.type 0ms
+     × reconciliations.status 0ms
+     × party_bank_accounts.status 0ms
+     × meta_connections.status 0ms
+     × meta_assets.kind 0ms
+     × meta_ad_profiles.objective 0ms
+     × meta_ad_profiles.status 0ms
+     × meta_campaign_links.objective 0ms
+     × meta_campaign_links.status 0ms
+     × meta_sync_jobs.job_type 0ms
+     × o CHECK recusa valor fora do domínio e aceita os do domínio (leads.status) 12ms
+     × índices e UNIQUE do banco migrado = índices e UNIQUE declarados no schema 17ms
+     × consentimento ativo único por pessoa e finalidade: índice parcial declarado no schema 0ms
+     × reconciliations.provider_total_cents é bigint no schema e no banco 9ms
+     × reconciliations.local_total_cents é bigint no schema e no banco 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 57 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > party_roles.role
+AssertionError: falta o CHECK party_roles_role_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > leads.status
+AssertionError: falta o CHECK leads_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > tasks.status
+AssertionError: falta o CHECK tasks_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > properties.status
+AssertionError: falta o CHECK properties_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > properties.property_type
+AssertionError: falta o CHECK properties_property_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > property_media.kind
+AssertionError: falta o CHECK property_media_kind_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > listings.status
+AssertionError: falta o CHECK listings_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > portal_access.kind
+AssertionError: falta o CHECK portal_access_kind_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > listing_channel_publications.channel
+AssertionError: falta o CHECK listing_channel_publications_channel_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > listing_channel_publications.status
+AssertionError: falta o CHECK listing_channel_publications_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > channel_sync_jobs.channel
+AssertionError: falta o CHECK channel_sync_jobs_channel_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > channel_sync_jobs.job_type
+AssertionError: falta o CHECK channel_sync_jobs_job_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > channel_sync_jobs.status
+AssertionError: falta o CHECK channel_sync_jobs_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > conversations.status
+AssertionError: falta o CHECK conversations_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > messages.direction
+AssertionError: falta o CHECK messages_direction_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > messages.sender_type
+AssertionError: falta o CHECK messages_sender_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > conversation_intents.intent
+AssertionError: falta o CHECK conversation_intents_intent_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > conversation_intents.extracted_by
+AssertionError: falta o CHECK conversation_intents_extracted_by_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > rental_applications.status
+AssertionError: falta o CHECK rental_applications_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > screening_results.decision
+AssertionError: falta o CHECK screening_results_decision_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > contract_templates.status
+AssertionError: falta o CHECK contract_templates_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > contracts.status
+AssertionError: falta o CHECK contracts_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > contract_parties.role
+AssertionError: falta o CHECK contract_parties_role_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > signature_envelopes.status
+AssertionError: falta o CHECK signature_envelopes_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > signature_events.event_type
+AssertionError: falta o CHECK signature_events_event_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspections.type
+AssertionError: falta o CHECK inspections_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspections.status
+AssertionError: falta o CHECK inspections_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_media.kind
+AssertionError: falta o CHECK inspection_media_kind_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_transcripts.status
+AssertionError: falta o CHECK inspection_transcripts_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_ai_suggestions.kind
+AssertionError: falta o CHECK inspection_ai_suggestions_kind_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_observations.category
+AssertionError: falta o CHECK inspection_observations_category_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_observations.severity
+AssertionError: falta o CHECK inspection_observations_severity_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_observations.source
+AssertionError: falta o CHECK inspection_observations_source_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_observations.status
+AssertionError: falta o CHECK inspection_observations_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > inspection_comparisons.status
+AssertionError: falta o CHECK inspection_comparisons_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > leases.status
+AssertionError: falta o CHECK leases_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > lease_amendments.index_name
+AssertionError: falta o CHECK lease_amendments_index_name_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > charges.status
+AssertionError: falta o CHECK charges_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > payments.method
+AssertionError: falta o CHECK payments_method_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > payments.status
+AssertionError: falta o CHECK payments_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > split_allocations.role
+AssertionError: falta o CHECK split_allocations_role_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > payouts.status
+AssertionError: falta o CHECK payouts_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > ledger_accounts.type
+AssertionError: falta o CHECK ledger_accounts_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > reconciliations.status
+AssertionError: falta o CHECK reconciliations_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > party_bank_accounts.status
+AssertionError: falta o CHECK party_bank_accounts_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_connections.status
+AssertionError: falta o CHECK meta_connections_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_assets.kind
+AssertionError: falta o CHECK meta_assets_kind_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_ad_profiles.objective
+AssertionError: falta o CHECK meta_ad_profiles_objective_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_ad_profiles.status
+AssertionError: falta o CHECK meta_ad_profiles_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_campaign_links.objective
+AssertionError: falta o CHECK meta_campaign_links_objective_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_campaign_links.status
+AssertionError: falta o CHECK meta_campaign_links_status_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > meta_sync_jobs.job_type
+AssertionError: falta o CHECK meta_sync_jobs_job_type_valid: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:172:55
+    170|     const constraint = `${table}_${name}_valid`;
+    171|     const definition = checks.get(constraint);
+    172|     expect(definition, `falta o CHECK ${constraint}`).toBeDefined();
+       |                                                       ^
+    173|     expect(sorted(listedValues(definition ?? ''))).toEqual(sorted(expe…
+    174|     expect(definition ?? '', 'o CHECK olha a própria coluna').toContai…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): CHECK de domínio fechado igual ao domínio e aos contratos > o CHECK recusa valor fora do domínio e aceita os do domínio (leads.status)
+AssertionError: status fora do funil é recusado pelo banco: expected null to be '23514' // Object.is equality
+
+- Expected:
+"23514"
+
++ Received:
+null
+
+ ❯ src/g3-g-schema-domain.test.ts:216:64
+    214|       code = (cause as { code?: string }).code ?? null;
+    215|     }
+    216|     expect(code, 'status fora do funil é recusado pelo banco').toBe('2…
+       |                                                                ^
+    217|   });
+    218| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco > índices e UNIQUE do banco migrado = índices e UNIQUE declarados no schema
+AssertionError: índice só no SQL escrito à mão: expected [ 'party_consents_active_unique' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "party_consents_active_unique",
++ ]
+
+ ❯ src/g3-g-schema-domain.test.ts:256:7
+    254|       inDatabase.filter((name) => !declared.has(name)),
+    255|       'índice só no SQL escrito à mão',
+    256|     ).toEqual([]);
+       |       ^
+    257|     expect(
+    258|       [...declared].filter((name) => !inDatabase.includes(name)),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco > consentimento ativo único por pessoa e finalidade: índice parcial declarado no schema
+AssertionError: party_consents_active_unique declarado em crm.ts: expected undefined to be defined
+ ❯ src/g3-g-schema-domain.test.ts:278:71
+    276|     const config = getTableConfig(dbSchema.partyConsents);
+    277|     const index = config.indexes.find((i) => i.config.name === 'party_…
+    278|     expect(index, 'party_consents_active_unique declarado em crm.ts').…
+       |                                                                       ^
+    279|     expect(index?.config.unique).toBe(true);
+    280|     expect(index?.config.where, 'índice parcial (só os não revogados)'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/57]⎯
+
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco > reconciliations.provider_total_cents é bigint no schema e no banco
+ FAIL  src/g3-g-schema-domain.test.ts > G3-G (P2-12): o schema do drizzle declara tudo o que existe no banco > reconciliations.local_total_cents é bigint no schema e no banco
+AssertionError: expected 'integer' to be 'bigint' // Object.is equality
+
+Expected: "bigint"
+Received: "integer"
+
+ ❯ src/g3-g-schema-domain.test.ts:295:37
+    293|           where table_schema = 'public' and table_name = ${table} and …
+    294|     );
+    295|     expect(found[0]?.['data_type']).toBe('bigint');
+       |                                     ^
+    296|     const tableObject = schemaTables().find((t) => getTableConfig(t).n…
+    297|     const declared = getTableConfig(tableObject as PgTable).columns.fi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/57]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  57 failed | 15 passed (72)
+   Start at  00:25:55
+   Duration  7.33s (transform 674ms, setup 0ms, import 1.62s, tests 5.45s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-aa17b397051018450\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-g-schema-domain.test.ts
+
+# exit=1

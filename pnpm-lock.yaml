@@ -395,6 +395,9 @@ importers:
       '@aluguei/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@aluguei/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@aluguei/db':
         specifier: workspace:*
         version: link:../../packages/db

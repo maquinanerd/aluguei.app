@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { organizations, users } from './identity.js';
 import { parties } from './crm.js';
+import { domainCheck } from './checks.js';
 
 /** Concessão de acesso ao portal externo para uma party (proprietário/locatário). */
 export const portalAccess = pgTable(
@@ -34,6 +35,7 @@ export const portalAccess = pgTable(
       .on(t.orgId, t.partyId, t.kind)
       .where(sql`${t.revokedAt} is null`),
     index('portal_access_token_hash_idx').on(t.oneTimeTokenHash),
+    domainCheck('portal_access_kind_valid', t.kind, ['LANDLORD', 'TENANT']),
   ],
 );
 

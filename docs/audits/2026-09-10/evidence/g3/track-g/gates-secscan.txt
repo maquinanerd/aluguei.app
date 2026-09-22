@@ -1,0 +1,8 @@
+# comando: pnpm security:scan
+# árvore: commit 6f6af3e (g3/track-g-db) — trilha G completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T04:00:15Z
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.
+
+# exit=0

@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/domain test
+# árvore: g3/track-g-db em f88130e
+# data (UTC): 2026-09-22T03:45:32Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/packages/domain
+
+
+ Test Files  26 passed (26)
+      Tests  217 passed (217)
+   Start at  00:45:33
+   Duration  2.77s (transform 1.66s, setup 0ms, import 3.12s, tests 349ms, environment 6ms)
+
+
+# exit=0

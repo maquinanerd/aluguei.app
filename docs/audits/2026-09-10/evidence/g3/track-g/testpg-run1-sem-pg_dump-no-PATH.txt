@@ -1,0 +1,106 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54337/postgres pnpm test:pg
+# árvore: g3/track-g-db em f88130e; cluster PostgreSQL 17 descartável (initdb -A trust -E UTF8, porta 54337)
+# data (UTC): 2026-09-22T03:45:51Z
+
+$ pnpm --filter @aluguei/tests-integration test:pg
+$ vitest run --config vitest.pg.config.ts
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/tests/integration
+
+(node:8964) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20332) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20332) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(node:18912) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/backup-restore.pg.test.ts (4 tests | 3 failed) 3133ms
+     × backup cifrado restaura num banco vazio com todas as tabelas iguais, linha a linha 409ms
+     × backup adulterado ou com chave errada não chega ao banco de destino 2ms
+     × retenção mantém os N mais novos depois de cada backup 2ms
+(node:10472) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18840) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19376) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20516) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6040) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2412) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > backup cifrado restaura num banco vazio com todas as tabelas iguais, linha a linha
+AssertionError: node:internal/child_process:287
+      const err = new ErrnoException(exitCode, syscall);
+                  ^
+
+Error: spawn pg_dump ENOENT
+    at ChildProcess._handle.onexit (node:internal/child_process:287:19)
+    at onErrorNT (node:internal/child_process:525:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'spawn pg_dump',
+  path: 'pg_dump',
+  spawnargs: [ '--format=custom', '--no-owner', '--no-privileges' ]
+}
+
+Node.js v24.19.0
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/backup-restore.pg.test.ts:191:40
+    189|       BACKUP_ENCRYPTION_KEY: key,
+    190|     });
+    191|     expect(backup.code, backup.output).toBe(0);
+       |                                        ^
+    192|     expect(backup.output, 'a saída não mostra a URL com credencial').n…
+    193|     const [file] = await backups();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > backup adulterado ou com chave errada não chega ao banco de destino
+Error: EISDIR: illegal operation on a directory, read
+ ❯ src/backup-restore.pg.test.ts:221:19
+    219|     const [file] = await backups();
+    220|     const tampered = join(dir, 'adulterado.bin');
+    221|     const bytes = await readFile(join(dir, file ?? ''));
+       |                   ^
+    222|     const middle = Math.floor(bytes.length / 2);
+    223|     bytes[middle] = (bytes[middle] ?? 0) ^ 0x01;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/backup-restore.pg.test.ts > backup e restauração (PostgreSQL real) > retenção mantém os N mais novos depois de cada backup
+Error: EPERM: operation not permitted, copyfile 'C:\Users\pablo\AppData\Local\Temp\aluguei-backup-pg-fdTA9V' -> 'C:\Users\pablo\AppData\Local\Temp\aluguei-backup-pg-fdTA9V\aluguei-20260101T060000Z.dump.enc'
+ ❯ src/backup-restore.pg.test.ts:257:7
+    255|     for (let day = 1; day <= 15; day += 1) {
+    256|       const name = `aluguei-202601${String(day).padStart(2, '0')}T0600…
+    257|       await copyFile(join(dir, (await backups()).at(-1) ?? ''), join(d…
+       |       ^
+    258|     }
+    259|     const backup = await runBackupCli(['backup'], {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 11 passed (12)
+      Tests  3 failed | 34 passed (37)
+   Start at  00:45:53
+   Duration  85.55s (transform 2.30s, setup 0ms, import 22.70s, tests 59.88s, environment 1ms)
+
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-aa17b397051018450\tests\integration:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-integration@0.2.0 test:pg: `vitest run --config vitest.pg.config.ts`
+Exit status 1
+[ELIFECYCLE] Command failed with exit code 1.
+
+# exit=1

@@ -1,0 +1,22 @@
+# comando: grep "Tests " gates-test.txt (contagem por pacote do pnpm test --force)
+# árvore: commit 6f6af3e (g3/track-g-db) — trilha G completa
+# data (UTC): 2026-09-22T04:00:53Z
+
+@aluguei/mobile                5 passed
+@aluguei/storage              16 passed
+@aluguei/config               41 passed
+@aluguei/observability        18 passed
+@aluguei/contracts             7 passed
+@aluguei/domain              217 passed
+@aluguei/ui                   91 passed
+@aluguei/tests-contract       10 passed
+@aluguei/integrations        179 passed
+@aluguei/web                 177 passed
+@aluguei/api                  20 passed
+@aluguei/meta-mcp              7 passed
+@aluguei/worker               35 passed
+@aluguei/tests-integration   342 passed   (269 antes da trilha + 73 de g3-g-schema-domain.test.ts)
+
+total                       1165 passed, 0 failed, 0 skipped (14 pacotes)
+
+# exit=0
