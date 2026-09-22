@@ -227,3 +227,9 @@ Conferido também que as três colunas dos achados paralelos (`timeline_events.e
 que o código grava: as duas primeiras ficaram sem CHECK, e o único ponto que grava
 `reconciliations.status` (`apps/worker/src/paymentJobs.ts`) usa `MATCHED` ou `DISCREPANCY`, que
 estão na lista.
+
+**Atualização (2026-09-22, depois do G3).** As divergências de `timeline_events.entity_type`,
+`reconciliations.provider` e do filtro de `reconciliations.status` foram resolvidas no ADR-093, com
+CHECK na migration 0023 (evidência em `docs/audits/2026-09-10/evidence/g3/vocabulario/`). A
+correção achou também `RENTAL_APPLICATION`, gravado pelo worker do screening e que este
+inventário não listava.

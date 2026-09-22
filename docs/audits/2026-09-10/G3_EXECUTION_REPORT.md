@@ -94,16 +94,16 @@ Registrado sem causa provada:
 
 ## 4. Pendências que continuam abertas
 
-| Pendência                                                                                                                                                                                               | Destino                               |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Envio do WhatsApp com o token da própria conexão (hoje, credencial da plataforma), revalidação do token, desativar e remover a conexão pela tela, reverificação quando a Meta sinalizar perda de acesso | Fase 7                                |
-| Provider real de e-mail (hoje, caixa de saída local)                                                                                                                                                    | Fase 7, decisão do usuário            |
-| Cópia do backup fora do servidor e guarda da chave `SERVICE_HEX_64_BACKUPKEY`; sem PITR; arquivos do MinIO sem backup                                                                                   | Fase 7, usuário                       |
-| Colunas de domínio sem CHECK por falta de fonte única (filas, `split_allocations`, `screening_requests`, ledger, links de anúncio, `meta_assets`)                                                       | P2-12, depois da constante no domínio |
-| `timeline_events.entity_type` recebe `CONVERSATION` e `LISTING` fora do contrato; filtro da lista de conciliações com status que a coluna não guarda; `reconciliations.provider` como `NONE`            | Correção de código                    |
-| Valores em centavos por linha sem teto no contrato da API (acima de R$ 21 milhões falha no `int4`)                                                                                                      | Correção de contrato                  |
-| Falha intermitente do Playwright da trilha C (acima)                                                                                                                                                    | Investigar quando repetir             |
-| Conexões de WhatsApp antigas da homologação precisam do token da imobiliária e de nova verificação (efeito esperado da 0021)                                                                            | Usuário, na homologação               |
+| Pendência                                                                                                                                                                                               | Destino                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Envio do WhatsApp com o token da própria conexão (hoje, credencial da plataforma), revalidação do token, desativar e remover a conexão pela tela, reverificação quando a Meta sinalizar perda de acesso | Fase 7                                          |
+| Provider real de e-mail (hoje, caixa de saída local)                                                                                                                                                    | Fase 7, decisão do usuário                      |
+| Cópia do backup fora do servidor e guarda da chave `SERVICE_HEX_64_BACKUPKEY`; sem PITR; arquivos do MinIO sem backup                                                                                   | Fase 7, usuário                                 |
+| Colunas de domínio sem CHECK por falta de fonte única (filas, `split_allocations`, `screening_requests`, ledger, links de anúncio, `meta_assets`)                                                       | P2-12, depois da constante no domínio           |
+| `timeline_events.entity_type` recebe `CONVERSATION` e `LISTING` fora do contrato; filtro da lista de conciliações com status que a coluna não guarda; `reconciliations.provider` como `NONE`            | Resolvido depois do G3: ADR-093, migration 0023 |
+| Valores em centavos por linha sem teto no contrato da API (acima de R$ 21 milhões falha no `int4`)                                                                                                      | Correção de contrato                            |
+| Falha intermitente do Playwright da trilha C (acima)                                                                                                                                                    | Investigar quando repetir                       |
+| Conexões de WhatsApp antigas da homologação precisam do token da imobiliária e de nova verificação (efeito esperado da 0021)                                                                            | Usuário, na homologação                         |
 
 ## 5. Implantação na homologação
 
