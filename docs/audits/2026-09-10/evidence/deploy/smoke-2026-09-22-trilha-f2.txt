@@ -1,0 +1,21 @@
+# smoke da homologação — homologação após deploy b0xwl7gcqhamadrqdwrlipxo (901bb3c)
+# data (UTC): 2026-09-22T00:17:39Z
+# sem conta, sem login, sem escrita: só respostas públicas e de acesso negado
+
+## já existentes (regressão)
+OK   API /health/ready → 200
+OK   API /auth/me sem sessão → 401
+OK   API site público de imobiliária inexistente → 404
+OK   API consumo de token do portal inválido → 401
+OK   API PATCH /leases/:id/terms sem sessão (trilha C) → 401
+OK   API GET /portal/tenant/statement sem sessão do portal → 401
+OK   API GET /portal/tenant/inspections sem sessão do portal → 401
+OK   WEB /login → 200
+OK   WEB /portal/entrar → 200
+OK   WEB /app/inbox sem sessão redireciona → 307 https://aluguei.62.171.164.224.sslip.io/login
+
+## trilhas C e E1 (continuam no ar depois do fail-fast)
+OK   API POST /conversations/:id/resume → 401
+OK   WEB → BFF → API POST /conversations/:id/resume sem sessão → 401
+
+resultado: 12 ok, 0 falhas
