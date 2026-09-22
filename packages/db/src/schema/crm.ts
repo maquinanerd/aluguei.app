@@ -392,12 +392,25 @@ export const timelineEvents = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    entityType: text('entity_type').notNull(), // LEAD | PARTY | PROPOSAL | VISIT | TASK
+    // timelineEntityTypeSchema (contracts): CRM, CONVERSATION, LISTING e RENTAL_APPLICATION.
+    entityType: text('entity_type').notNull(),
     entityId: text('entity_id').notNull(),
     eventType: text('event_type').notNull(),
     payload: jsonb('payload').notNull().default({}),
     actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }),
     occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('timeline_events_entity_idx').on(t.orgId, t.entityType, t.entityId, t.occurredAt)],
+  (t) => [
+    index('timeline_events_entity_idx').on(t.orgId, t.entityType, t.entityId, t.occurredAt),
+    domainCheck('timeline_events_entity_type_valid', t.entityType, [
+      'LEAD',
+      'PARTY',
+      'PROPOSAL',
+      'VISIT',
+      'TASK',
+      'CONVERSATION',
+      'LISTING',
+      'RENTAL_APPLICATION',
+    ]),
+  ],
 );

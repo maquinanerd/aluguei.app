@@ -319,6 +319,13 @@ export const RECONCILIATION_STATUS_TONES: Record<string, BadgeTone> = {
   DISCREPANCY: 'danger',
 };
 
+/** Provider da conciliação (`reconciliationProviderSchema`); NONE = rodada sem provider. */
+export const RECONCILIATION_PROVIDER_LABELS: Record<string, string> = {
+  FAKE: 'FAKE (teste)',
+  ASAAS: 'Asaas',
+  NONE: 'Sem provedor',
+};
+
 /** Helper genérico: label com fallback para o valor bruto. */
 export function label(map: Record<string, string>, value: string | null | undefined): string {
   if (value === null || value === undefined) return '—';

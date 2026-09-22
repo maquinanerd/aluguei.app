@@ -125,7 +125,7 @@ describe('vocabulário da timeline e da conciliação igual ao contrato', () => 
   });
 
   it('timeline da candidatura com a decisão do screening (RENTAL_APPLICATION)', async () => {
-    const lease = await fx.setupLease({ rentCents: 150_000 });
+    const lease = await fx.setupLease({ rentCents: 150_000, landlord: true });
     const [application] = await app.db
       .select({ id: rentalApplications.id })
       .from(rentalApplications)
@@ -159,7 +159,7 @@ describe('vocabulário da timeline e da conciliação igual ao contrato', () => 
   });
 
   it('filtro de status da conciliação usa o vocabulário gravado; sem provider, NONE', async () => {
-    const lease = await fx.setupLease({ rentCents: 120_000 });
+    const lease = await fx.setupLease({ rentCents: 120_000, landlord: true });
     // Cobrança paga sem pagamento no provider: o total local diverge do provider.
     await app.db.execute(sql`
       insert into charges (id, org_id, lease_id, period_start, due_date, status, amount_cents, rent_cents)

@@ -167,13 +167,13 @@ describe('migration 0023 (PostgreSQL real): vocabulário da timeline e do provid
     const refused: Array<[string, ReturnType<typeof sql>]> = [
       [
         'timeline_events.entity_type',
-        sql`insert into timeline_events (org_id, entity_type, entity_id, event_type)
-            values (${org}, 'CHANNEL', ${randomUUID()}, 'X')`,
+        sql`insert into timeline_events (id, org_id, entity_type, entity_id, event_type)
+            values (${randomUUID()}, ${org}, 'CHANNEL', ${randomUUID()}, 'X')`,
       ],
       [
         'reconciliations.provider',
-        sql`insert into reconciliations (org_id, provider, period_start, period_end)
-            values (${org}, 'PAGARME', '2026-01-01', '2026-01-01')`,
+        sql`insert into reconciliations (id, org_id, provider, period_start, period_end)
+            values (${randomUUID()}, ${org}, 'PAGARME', '2026-01-01', '2026-01-01')`,
       ],
     ];
     for (const [label, statement] of refused) {
