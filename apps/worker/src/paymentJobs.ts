@@ -335,6 +335,7 @@ export async function processReconcileJob(
   const matched = providerTotal === localTotal;
   await db.insert(reconciliations).values({
     orgId: job.orgId,
+    // Vocabulário do contrato (reconciliationProviderSchema): FAKE | ASAAS, ou NONE sem provider.
     provider: provider?.name ?? 'NONE',
     periodStart,
     periodEnd: periodStart,

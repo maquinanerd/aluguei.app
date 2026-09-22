@@ -193,13 +193,24 @@ export const ledgerEntrySchema = z.object({
   createdAt: z.string(),
 });
 
+/** Resultado da conciliação, como a coluna guarda (CHECK `reconciliations_status_valid`). */
+export const reconciliationStatusSchema = z.enum(['PENDING', 'MATCHED', 'DISCREPANCY']);
+
+/**
+ * Provider da conciliação (CHECK `reconciliations_provider_valid`): o de pagamento configurado
+ * (FAKE ou ASAAS) ou NONE quando a conciliação roda sem provider de pagamento — só o total local é
+ * conferido, e o total do provider fica 0.
+ */
+export const reconciliationProviderSchema = z.enum(['FAKE', 'ASAAS', 'NONE']);
+export type ReconciliationProvider = z.infer<typeof reconciliationProviderSchema>;
+
 export const reconciliationSchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
-  provider: z.string(),
+  provider: reconciliationProviderSchema,
   periodStart: z.string(),
   periodEnd: z.string(),
-  status: z.enum(['PENDING', 'MATCHED', 'DISCREPANCY']),
+  status: reconciliationStatusSchema,
   providerTotalCents: z.number().int().nullable(),
   localTotalCents: z.number().int().nullable(),
   createdAt: z.string(),
@@ -338,7 +349,9 @@ export const listReconciliationsResponseSchema = z.object({
 });
 
 export const listReconciliationsQuerySchema = paginationQuerySchema.extend({
-  status: z.enum(['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']).optional(),
+  // O filtro usa o vocabulário gravado; antes aceitava RUNNING/COMPLETED/FAILED, que a coluna
+  // nunca guarda, e recusava MATCHED/DISCREPANCY.
+  status: reconciliationStatusSchema.optional(),
 });
 
 export const paymentWebhookEventSchema = z.object({

@@ -120,6 +120,7 @@ depois dela, `db:generate` não gera nada e o teste de paridade passa.
   (`timelineEntityTypeSchema`) não lista; `reconciliations.provider` recebe `NONE` sem provider
   configurado, e o contrato não descreve o campo além de `z.string()`; o filtro
   `listReconciliationsQuerySchema.status` aceita `PENDING | RUNNING | COMPLETED | FAILED`, mas a
-  coluna guarda `PENDING | MATCHED | DISCREPANCY`.
+  coluna guarda `PENDING | MATCHED | DISCREPANCY`. **Resolvido depois do G3** no ADR-093
+  (migration 0023), que achou também `RENTAL_APPLICATION`, gravado pelo worker do screening.
 - As colunas `*_cents` por linha não têm teto no contrato da API: valor acima de R$ 21 milhões numa
   cobrança ou num aluguel chega ao banco e falha no `int4` (não verificado como a API responde).

@@ -1,0 +1,61 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/labels.test.ts
+# árvore: fix/g3-vocabulario-timeline-conciliacao em 84723b3 + testes novos, sem a correção
+# data (UTC): 2026-09-22T14:45:42Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/aluguei-technical-audit-6cea11/apps/web
+
+ ❯ src/lib/labels.test.ts (5 tests | 2 failed) 14ms
+     × as opções do filtro de status são as que a API aceita e a coluna guarda 9ms
+     × todo provider da conciliação tem label, inclusive a conciliação sem provider 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/labels.test.ts > conciliação: a tela usa o vocabulário do contrato > as opções do filtro de status são as que a API aceita e a coluna guarda
+AssertionError: expected [ 'DISCREPANCY', 'MATCHED', 'PENDING' ] to deeply equal [ 'COMPLETED', 'FAILED', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "COMPLETED",
+-   "FAILED",
++   "DISCREPANCY",
++   "MATCHED",
+    "PENDING",
+-   "RUNNING",
+  ]
+
+ ❯ src/lib/labels.test.ts:30:70
+     28|   it('as opções do filtro de status são as que a API aceita e a coluna…
+     29|     const accepted = contracts.listReconciliationsQuerySchema.shape.st…
+     30|     expect(sorted(Object.keys(labels.RECONCILIATION_STATUS_LABELS))).t…
+       |                                                                      ^
+     31|     expect(sorted(accepted)).toEqual(sorted(contracts.reconciliationSc…
+     32|     expect(sorted(Object.keys(labels.RECONCILIATION_STATUS_TONES))).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/labels.test.ts > conciliação: a tela usa o vocabulário do contrato > todo provider da conciliação tem label, inclusive a conciliação sem provider
+TypeError: Cannot convert undefined or null to object
+ ❯ src/lib/labels.test.ts:37:26
+     35|   it('todo provider da conciliação tem label, inclusive a conciliação …
+     36|     const providers: Record<string, string> = labels.RECONCILIATION_PR…
+     37|     expect(sorted(Object.keys(providers))).toEqual(
+       |                          ^
+     38|       sorted(contracts.reconciliationProviderSchema.options),
+     39|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  11:45:44
+   Duration  762ms (transform 276ms, setup 0ms, import 470ms, tests 14ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\aluguei-technical-audit-6cea11\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/labels.test.ts
+
+# exit=1

@@ -15,7 +15,12 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
-import { label, RECONCILIATION_STATUS_LABELS, RECONCILIATION_STATUS_TONES } from '@/lib/labels';
+import {
+  label,
+  RECONCILIATION_PROVIDER_LABELS,
+  RECONCILIATION_STATUS_LABELS,
+  RECONCILIATION_STATUS_TONES,
+} from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
 
@@ -74,7 +79,9 @@ function ReconciliationBody() {
     {
       key: 'provider',
       header: 'Provedor',
-      render: (r) => <Badge tone="neutral">{r.provider}</Badge>,
+      render: (r) => (
+        <Badge tone="neutral">{label(RECONCILIATION_PROVIDER_LABELS, r.provider)}</Badge>
+      ),
     },
     {
       key: 'total',

@@ -57,6 +57,8 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'property_media.kind': { values: c.mediaKindSchema.options },
   'listings.status': { values: d.LISTING_STATUSES },
   'portal_access.kind': { values: c.portalKindSchema.options },
+  // Pendência do inventário da G: o que a API e o worker gravam na timeline.
+  'timeline_events.entity_type': { values: c.timelineEntityTypeSchema.options },
 
   // Canais.
   'listing_channel_publications.channel': { values: d.CHANNEL_TYPES },
@@ -111,6 +113,7 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'payouts.status': { values: c.payoutSchema.shape.status.options },
   'ledger_accounts.type': { values: c.ledgerAccountSchema.shape.type.options },
   'reconciliations.status': { values: c.reconciliationSchema.shape.status.options },
+  'reconciliations.provider': { values: c.reconciliationProviderSchema.options },
   'party_bank_accounts.status': { values: c.bankAccountSchema.shape.status.options },
 
   // Meta Ads.

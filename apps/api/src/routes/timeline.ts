@@ -9,6 +9,7 @@ import {
   listTimelineResponseSchema,
   timelineEventSchema,
 } from '@aluguei/contracts';
+import type { TimelineManualEntityType } from '@aluguei/contracts';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { assertOwnedByOrg, first } from './helpers.js';
@@ -26,14 +27,17 @@ function toTimelineDto(row: typeof timelineEvents.$inferSelect): unknown {
   });
 }
 
-/** Entidades que um evento de timeline pode referenciar. */
+/**
+ * Entidades em que a equipe lança evento pela API, com a tabela da conferência de dono. As outras
+ * entidades da timeline (conversa, anúncio, candidatura) só recebem eventos das transições.
+ */
 const TIMELINE_ENTITY_TABLES = {
   LEAD: leads,
   PARTY: parties,
   PROPOSAL: proposals,
   VISIT: visits,
   TASK: tasks,
-} as const;
+} as const satisfies Record<TimelineManualEntityType, unknown>;
 
 export const timelineRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;

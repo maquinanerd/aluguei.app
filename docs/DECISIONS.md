@@ -1397,3 +1397,58 @@ Decisões:
 
 Consequências: com a 0022, o inventário encontrou um único objeto fora do schema (o índice acima);
 depois dela, `db:generate` não gera nada e o teste de paridade passa.
+
+## ADR-093 — Vocabulário da timeline e da conciliação igual ao que a API e o worker gravam (pendências da trilha G, 2026-09-22)
+
+Status: Aceito.
+
+Contexto: o inventário da trilha G (ADR-090) deixou sem CHECK duas colunas em que o contrato não
+descrevia o que o código grava, e achou um filtro com o vocabulário errado:
+
+- `timeline_events.entity_type`: o contrato (`timelineEntityTypeSchema`) listava só LEAD, PARTY,
+  PROPOSAL, VISIT e TASK, mas a devolução da conversa e o gateway do WhatsApp gravam
+  `CONVERSATION`, a troca de status do anúncio grava `LISTING` e a decisão do screening
+  (`apps/worker/src/screeningJobs.ts`) grava `RENTAL_APPLICATION` — este último fora do inventário
+  da G. A timeline dessas entidades respondia 400 na leitura.
+- `GET /reconciliations?status=`: aceitava `PENDING | RUNNING | COMPLETED | FAILED`, mas a coluna
+  guarda `PENDING | MATCHED | DISCREPANCY`. As opções do filtro da tela são as da coluna, então
+  "Conciliado" e "Divergência" respondiam 400, e `RUNNING` devolvia lista vazia.
+- `reconciliations.provider`: o job grava o nome do provider de pagamento (FAKE ou ASAAS) ou `NONE`
+  quando roda sem provider; o contrato descrevia o campo como `z.string()`.
+
+O histórico do código (`git log -p`) confirma que nenhuma versão gravou outro valor nessas duas
+colunas.
+
+Decisões:
+
+- **Timeline:**
+  - `timelineEntityTypeSchema` passa a ser o vocabulário fechado do que a timeline registra: LEAD,
+    PARTY, PROPOSAL, VISIT, TASK, CONVERSATION, LISTING e RENTAL_APPLICATION. Vale para o DTO do
+    evento e para a leitura (`GET /timeline`).
+  - A criação manual (`POST /timeline`) continua só nas entidades do CRM, pelo subconjunto
+    `timelineManualEntityTypeSchema`. Os eventos de conversa, anúncio e candidatura vêm das
+    próprias transições.
+  - O mapa de tabelas da conferência de dono é tipado contra esse subconjunto, então uma entidade
+    nova no lançamento manual não compila sem a tabela.
+- **Conciliação:**
+  - `reconciliationStatusSchema` (`PENDING | MATCHED | DISCREPANCY`) é o mesmo no DTO e no filtro.
+    Status que a coluna não guarda são recusados (400), não viram lista vazia.
+  - `NONE` faz parte do vocabulário do provider (`reconciliationProviderSchema`: `FAKE | ASAAS |
+NONE`). É um fato da rodada ("conciliada sem provider de pagamento"), não ausência de dado: o
+    total do provider fica 0 e a linha diverge sempre que houver cobrança paga.
+  - A tela mostra "Sem provedor".
+- **Banco:**
+  - Migration 0023 com `timeline_events_entity_type_valid` e `reconciliations_provider_valid`,
+    pelo `domainCheck`.
+  - Pré-voo como o da 0022: aborta sem aplicar nada e lista `tabela.coluna <id> = <valor>`.
+  - As duas listas entram no teste que prende os CHECKs ao contrato
+    (`g3-g-schema-domain.test.ts`).
+- **Tela:** um teste do web prende as opções do filtro e as labels do provider ao contrato.
+
+Consequências:
+
+- **Entidade nova na timeline:** gravar evento de outra entidade exige mudar o contrato, o CHECK
+  (nova migration) e o teste.
+- **Conciliação sem provider:** continua registrada como divergência com total do provider 0. Se
+  isso confundir a operação, a mudança é de comportamento do job, não de vocabulário.
+- **Evidência:** `docs/audits/2026-09-10/evidence/g3/vocabulario/`.

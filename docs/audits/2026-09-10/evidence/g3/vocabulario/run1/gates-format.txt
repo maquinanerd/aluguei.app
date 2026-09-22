@@ -1,0 +1,9 @@
+# comando: pnpm format:check
+# árvore: fix/g3-vocabulario-timeline-conciliacao em 3b65e1f + correção
+# data (UTC): 2026-09-22T14:50:18Z
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+
+# exit=0
