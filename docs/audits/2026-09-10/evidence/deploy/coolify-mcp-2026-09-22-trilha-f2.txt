@@ -1,0 +1,52 @@
+Trilha F2 do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+
+=== Trilha F2 — PR #15, merge 901bb3c
+
+--- Primeira tentativa (get_deployment uyjipnqu0vlnrilunontutd4)
+status   failed
+commit   901bb3c6dfe0d85586bebe6e5907f164b07e6004
+criado   2026-09-22 00:00:21   última atualização 00:02:11   (sem finished_at)
+O motivo não é visível: get_deployment com include_log_summary e get_logs pedem read:sensitive,
+que o token não tem. A falha não derrubou nada: a homologação seguiu running:healthy em 52e2582,
+com smoke 12/12. O config_hash não mudou.
+
+--- Diagnóstico
+Hipótese testada: build da imagem server com o cliente PostgreSQL 17 do PGDG. O PR #16 acrescentou ao
+CI o job "image", que constrói as imagens server e web e confere, dentro da imagem server, pg_dump e
+pg_restore 17 e /backups gravável pelo usuário node. Job verde (1m23s, run 35670449399). O build não é
+a causa; o compose também já tinha sido aceito (o Coolify criou SERVICE_HEX_64_BACKUPKEY e o volume
+aluguei-backups na primeira tentativa). Conclusão: falha transitória no servidor durante o deploy
+(provavelmente a rede no download de pacotes); não reproduzível sem o log.
+
+--- Segunda tentativa (deploy + get_deployment b0xwl7gcqhamadrqdwrlipxo)
+status   finished
+commit   901bb3c6dfe0d85586bebe6e5907f164b07e6004
+criado   00:08:36   terminado 00:14:30   (pedido pela API, sem force rebuild, sem rollback)
+
+--- Aplicação depois do deploy (get_application)
+status              running:healthy
+container_present   true
+last_online_at      2026-09-22 00:16:06
+config_hash         7d3ffd849acf595e75bb2f96bf7c5b3c963775651772d3f6a4f6b5810350be2a
+
+--- Volumes (list_storages)
+hvwxasfarzxnpnw4fjoerqws_aluguei-pgdata      /legacy-pgdata   (o mesmo; só leitura, ADR-062)
+hvwxasfarzxnpnw4fjoerqws_aluguei-minio-data  /data            (o mesmo)
+hvwxasfarzxnpnw4fjoerqws_aluguei-backups     /backups         (novo: backups cifrados)
+Nada foi apagado.
+
+--- Smoke depois
+smoke-2026-09-22-trilha-f2.txt: 12 ok, 0 falhas.
+
+--- O que o MCP não permite
+O conteúdo de /backups/status.json e o primeiro backup não são observáveis por esta via (get_logs
+pede read:sensitive). O serviço backup tem start_period de 10 min e intervalo de 5 min; se o backup
+da subida falhar, o healthcheck fica vermelho e a aplicação deixa de aparecer como healthy. A
+restauração está provada em PostgreSQL real no test:pg (docs/audits/2026-09-10/evidence/g3/track-f2/).
+
+--- Pendência do usuário
+Guardar uma cópia de SERVICE_HEX_64_BACKUPKEY fora do servidor: sem ela, os backups cifrados não
+abrem se o VPS se perder.
