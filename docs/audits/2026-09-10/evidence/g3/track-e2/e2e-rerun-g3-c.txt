@@ -1,0 +1,33 @@
+# comando: pnpm --filter @aluguei/tests-e2e test:e2e g3-c-lease-lifecycle
+# árvore: commit 4364abd — reexecução do spec da trilha C que falhou no e2e-full.txt; stack e cluster descartáveis (WEB_PORT=3360 API_PORT=4360 PG_PORT=5593), providers FAKE
+# data (UTC): 2026-09-22T02:20:38Z
+
+$ playwright test "g3-c-lease-lifecycle"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790043640523\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5593...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4360...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3360...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790043640523).
+[WebServer] [e2e-stack] web http://localhost:3360 · API http://127.0.0.1:4360 — Ctrl+C para derrubar.
+
+Running 4 tests using 1 worker
+
+  ok 1 g3-c-lease-lifecycle.spec.ts:21:3 › G3 trilha C — locação pela interface › encargos e vencimento, coproprietários e cobrança no dia configurado (10.4s)
+  ok 2 g3-c-lease-lifecycle.spec.ts:76:3 › G3 trilha C — locação pela interface › reajusta, renova e encerra a locação, com histórico e cobrança cancelada (9.0s)
+  ok 3 g3-c-lease-lifecycle.spec.ts:149:3 › G3 trilha C — locação pela interface › cadastra a participação dos proprietários no imóvel (3.5s)
+  ok 4 g3-c-lease-lifecycle.spec.ts:208:3 › G3 trilha C — locação pela interface › nova cobrança pela lista vence no dia da locação, sem data escolhida (9.9s)
+[e2e-stack] PID 11376 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 21828 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 20368 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790043640523 desligada.
+
+  Slow test file: g3-c-lease-lifecycle.spec.ts (32.7s)
+  Consider splitting slow test files to speed up parallel execution
+  4 passed (52.5s)
+
+# exit=0

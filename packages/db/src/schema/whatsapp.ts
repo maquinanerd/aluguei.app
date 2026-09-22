@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import {
+  check,
   doublePrecision,
   index,
   integer,
@@ -99,12 +101,34 @@ export const whatsappConnections = pgTable(
       .references(() => organizations.id, { onDelete: 'cascade' }),
     phoneNumberId: text('phone_number_id').notNull().unique(),
     businessAccountId: text('business_account_id'),
-    status: text('status').notNull().default('ACTIVE'), // ACTIVE | DISABLED
+    // PENDING (reivindicado, sem webhook) | VERIFIED (posse comprovada) | DISABLED — P1-18.
+    status: text('status').notNull().default('PENDING'),
+    // Token da conta do WhatsApp Business da própria organização, cifrado (ADR-028):
+    // `keyId:iv:ciphertext`. Nunca sai da API.
+    accessTokenEncrypted: text('access_token_encrypted'),
+    tokenKeyId: text('token_key_id'),
+    // Prazo da reivindicação pendente; vencida, outra organização pode tomar com prova de posse.
+    claimExpiresAt: timestamp('claim_expires_at', { withTimezone: true }),
+    verifiedAt: timestamp('verified_at', { withTimezone: true }),
     metadata: jsonb('metadata').notNull().default({}),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('whatsapp_connections_org_idx').on(t.orgId)],
+  (t) => [
+    index('whatsapp_connections_org_idx').on(t.orgId),
+    check(
+      'whatsapp_connections_status_valid',
+      sql`${t.status} in ('PENDING', 'VERIFIED', 'DISABLED')`,
+    ),
+    check(
+      'whatsapp_connections_verified_needs_verified_at',
+      sql`(${t.status} <> 'VERIFIED') or (${t.verifiedAt} is not null)`,
+    ),
+    check(
+      'whatsapp_connections_pending_needs_claim_expiry',
+      sql`(${t.status} <> 'PENDING') or (${t.claimExpiresAt} is not null)`,
+    ),
+  ],
 );
 
 export const webhookInbox = pgTable(

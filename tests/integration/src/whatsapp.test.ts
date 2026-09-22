@@ -44,7 +44,10 @@ describe('Fase 05: WhatsApp + Lead Automation', () => {
   });
 
   async function seedConnection(orgId: string, phoneNumberId = '1001'): Promise<void> {
-    await app.db.insert(whatsappConnections).values({ orgId, phoneNumberId });
+    // Número com posse já comprovada (P1-18): só conexão VERIFIED recebe webhook.
+    await app.db
+      .insert(whatsappConnections)
+      .values({ orgId, phoneNumberId, status: 'VERIFIED', verifiedAt: new Date() });
   }
 
   it('verify webhook: challenge válido e token inválido → 403', async () => {

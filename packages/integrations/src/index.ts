@@ -47,10 +47,21 @@ export type {
 } from './inspection-ai/types.js';
 
 export { FakeWhatsAppMessenger } from './whatsapp/fake.js';
-export { MetaWhatsAppAdapter } from './whatsapp/meta.js';
-export type { MetaWhatsAppAdapterOptions } from './whatsapp/meta.js';
+export { MetaWhatsAppAdapter, WhatsAppProviderError } from './whatsapp/meta.js';
+export type { MetaWhatsAppAdapterOptions, WhatsAppConnectionInfo } from './whatsapp/meta.js';
 export { getWhatsAppMessenger } from './whatsapp/registry.js';
 export type { WhatsAppRegistryOptions } from './whatsapp/registry.js';
+export {
+  FakeWhatsAppNumberVerifier,
+  MetaWhatsAppNumberVerifier,
+  fakeWhatsAppOwnerToken,
+  getWhatsAppNumberVerifier,
+} from './whatsapp/verifier.js';
+export type {
+  VerifyWhatsAppNumberInput,
+  WhatsAppNumberVerifier,
+  WhatsAppNumberVerifierOptions,
+} from './whatsapp/verifier.js';
 
 export { FakePaymentProvider, InMemoryFakePaymentStore } from './payments/fake.js';
 export type { FakeChargeRecord, FakePaymentStore } from './payments/fake.js';

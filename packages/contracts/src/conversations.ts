@@ -83,9 +83,21 @@ export const listLeadConversationsResponseSchema = z.object({
   conversations: z.array(conversationSchema),
 });
 
+/**
+ * Reivindicação do número (P1-18, segunda parte): o `accessToken` é o token da conta do WhatsApp
+ * Business da própria imobiliária. Fica cifrado no banco e nunca volta em resposta.
+ */
 export const createWhatsAppConnectionRequestSchema = z.object({
-  phoneNumberId: z.string().min(1),
-  businessAccountId: z.string().optional(),
+  phoneNumberId: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{1,32}$/, 'O ID do número tem só dígitos'),
+  businessAccountId: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{1,32}$/, 'O ID da conta tem só dígitos')
+    .optional(),
+  accessToken: z.string().trim().min(8).max(4096),
 });
 
 export const whatsAppConnectionSchema = z.object({
@@ -93,10 +105,18 @@ export const whatsAppConnectionSchema = z.object({
   orgId: uuidSchema,
   phoneNumberId: z.string(),
   businessAccountId: z.string().nullable(),
-  status: z.enum(['ACTIVE', 'DISABLED']),
+  status: z.enum(['PENDING', 'VERIFIED', 'DISABLED']),
+  /** Prazo da reivindicação pendente (null depois de verificada). */
+  claimExpiresAt: z.string().nullable(),
+  verifiedAt: z.string().nullable(),
+  /** Nome e número exibidos pela Meta na verificação. */
+  verifiedName: z.string().nullable(),
+  displayPhoneNumber: z.string().nullable(),
   createdAt: z.string(),
 });
 
 export const listWhatsAppConnectionsResponseSchema = z.object({
   connections: z.array(whatsAppConnectionSchema),
+  /** Quem confere a posse: FAKE (dry_run, sem rede), META (Graph API) ou ninguém (null). */
+  verifier: z.enum(['FAKE', 'META']).nullable(),
 });

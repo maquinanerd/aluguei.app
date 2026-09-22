@@ -61,7 +61,13 @@ describe('G3 trilha E — handoff do WhatsApp', () => {
     const phoneNumberId = `70${Math.floor(Math.random() * 10_000)
       .toString()
       .padStart(4, '0')}`;
-    await app.db.insert(whatsappConnections).values({ orgId: body.org.id, phoneNumberId });
+    // Número com posse já comprovada (P1-18, trilha E2): só conexão VERIFIED recebe webhook.
+    await app.db.insert(whatsappConnections).values({
+      orgId: body.org.id,
+      phoneNumberId,
+      status: 'VERIFIED',
+      verifiedAt: new Date(),
+    });
     const from = '5511988887777';
 
     await inbound(phoneNumberId, from, 'quero falar com um atendente');

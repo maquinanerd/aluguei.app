@@ -14,6 +14,7 @@ import type {
   GeocodingService,
   PlacesService,
   WhatsAppMessenger,
+  WhatsAppNumberVerifier,
   AiProvider,
   ISignatureProvider,
   IPaymentProvider,
@@ -91,6 +92,8 @@ export interface BuildAppOptions extends FastifyServerOptions {
   places?: PlacesService;
   channels?: { fake?: FakeChannel };
   whatsapp?: WhatsAppMessenger;
+  /** Verificador da posse do número (P1-18); padrão pelo modo da Meta (FAKE em dry_run). */
+  whatsappVerifier?: WhatsAppNumberVerifier;
   ai?: AiProvider;
   signature?: ISignatureProvider;
   payments?: IPaymentProvider;
@@ -261,6 +264,9 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   const whatsappOptions: WhatsAppPluginOptions = {};
   if (opts.whatsapp) {
     whatsappOptions.messenger = opts.whatsapp;
+  }
+  if (opts.whatsappVerifier) {
+    whatsappOptions.verifier = opts.whatsappVerifier;
   }
   if (metaMode) {
     whatsappOptions.mode = metaMode;

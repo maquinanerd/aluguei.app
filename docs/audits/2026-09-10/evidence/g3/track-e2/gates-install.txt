@@ -1,0 +1,9 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 4364abd (g3/track-e2) — trilha E2 completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T02:01:10Z
+
+Scope: all 17 workspace projects
+Already up to date
+Done in 505ms using pnpm v11.15.1
+
+# exit=0

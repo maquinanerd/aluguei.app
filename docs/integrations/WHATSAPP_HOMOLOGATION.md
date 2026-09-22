@@ -218,6 +218,23 @@ Estrutura de erro da Graph API (o adapter parseia e expõe): `error.{message, ty
   erro tipado 131026, rate limit retryable, timeout, payload inválido, testConnection, parse).
 - Default da Graph API: **v25.0** (configurável via `apiVersion`).
 
+## Posse do número por organização (G3, trilha E2 — P1-18)
+
+- `POST /whatsapp/connections` recebe `phoneNumberId`, `businessAccountId` (opcional) e
+  `accessToken`: o token da conta do WhatsApp Business **da própria imobiliária**, guardado cifrado
+  com `META_TOKEN_ENCRYPTION_KEY` (mesmo helper da Meta Ads, ADR-028) e nunca devolvido. A conexão
+  nasce `PENDING`, com prazo de 24 h, e **não recebe webhook**.
+- `POST /whatsapp/connections/:id/verify` confere o número com `GET /<PHONE_NUMBER_ID>` usando o
+  token da conexão (`MetaWhatsAppNumberVerifier`, que reusa `testConnection`). Só `VERIFIED` recebe
+  as mensagens do webhook. Número verificado não é reivindicado por outra organização (409);
+  reivindicação pendente vencida só é tomada por quem provar a posse no próprio pedido.
+- `META_MODE=dry_run` (teste, dev e homologação): verificador **FAKE**, sem rede. O token
+  `fake-wa-owner:<phoneNumberId>` é o dono do número; qualquer outro falha como a Graph API
+  (HTTP 400, código 100). A tela de integrações mostra essa dica só quando a API informa FAKE.
+- Para homologar em live: o token de usuário do sistema da WABA da imobiliária (item 3 abaixo) é o
+  que vai no `accessToken` da conexão; `WHATSAPP_ACCESS_TOKEN` segue sendo a credencial de envio da
+  plataforma.
+
 ## O que falta para homologar (credenciais/contas)
 
 1. **Meta for Developers app** + **WABA real** (WhatsApp Business Account) vinculada ao app.

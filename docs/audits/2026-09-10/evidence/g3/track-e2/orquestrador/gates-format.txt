@@ -1,0 +1,6 @@
+# comando: pnpm format:check
+# árvore: commit 51f751e (g3/track-e2)
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!

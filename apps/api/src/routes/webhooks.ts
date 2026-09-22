@@ -10,7 +10,7 @@ import {
   metaAssets,
   metaWebhookEvents,
 } from '@aluguei/db';
-import { AUDIT_ACTIONS } from '@aluguei/domain';
+import { AUDIT_ACTIONS, canReceiveWhatsAppWebhook } from '@aluguei/domain';
 import { findPaymentByProviderId } from '../finance/settlement.js';
 import { writeAudit } from '../plugins/audit.js';
 import {
@@ -173,18 +173,22 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         const [connection] = await db
           .select()
           .from(whatsappConnections)
-          .where(
-            and(
-              eq(whatsappConnections.phoneNumberId, event.phoneNumberId),
-              eq(whatsappConnections.status, 'ACTIVE'),
-            ),
-          )
+          .where(eq(whatsappConnections.phoneNumberId, event.phoneNumberId))
           .limit(1);
         if (!connection) {
           // Sem conexão → ignora com 200 (evita retry infinito da Meta).
           app.log.info(
             { phoneNumberId: event.phoneNumberId },
             'whatsapp webhook sem conexão de org',
+          );
+          continue;
+        }
+        if (!canReceiveWhatsAppWebhook(connection.status)) {
+          // Número só reivindicado (PENDING) ou desativado: a mensagem não vai para a organização
+          // que reivindicou sem provar a posse (P1-18). Ignora com 200, sem gravar o conteúdo.
+          app.log.info(
+            { phoneNumberId: event.phoneNumberId, status: connection.status },
+            'whatsapp webhook para número sem posse comprovada',
           );
           continue;
         }

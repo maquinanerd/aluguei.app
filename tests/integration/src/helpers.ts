@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { buildApp } from '@aluguei/api';
 import { createTestDb } from '@aluguei/db';
 import type { AppEnv } from '@aluguei/config';
@@ -37,6 +38,8 @@ export const testEnv: AppEnv = {
   OTEL_EXPORTER_OTLP_ENDPOINT: undefined,
   // Admins da plataforma (ver platform-fixtures.ts); o segundo e-mail nunca é cadastrado.
   PLATFORM_ADMIN_EMAILS: 'plataforma@aluguei.test, reservado@aluguei.test',
+  // Chave que cifra os tokens por conexão (Meta Ads e WhatsApp, ADR-028), nova a cada execução.
+  META_TOKEN_ENCRYPTION_KEY: randomBytes(32).toString('hex'),
 };
 
 let appCache: FastifyInstance | null = null;

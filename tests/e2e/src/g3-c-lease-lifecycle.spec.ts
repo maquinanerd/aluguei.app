@@ -244,9 +244,11 @@ test.describe('G3 trilha C — locação pela interface', () => {
       periodStart: `${spMonth(1)}-01`,
       dueDate: `${spMonth(1)}-10`,
     });
-    await expect(page.locator('tbody tr', { hasText: brDate(`${spMonth(1)}-10`) })).toBeVisible({
-      timeout: 30_000,
-    });
+    // A cobrança já existe na API: se a linha não aparecer, a mensagem traz o que a tela recebeu.
+    await expect(
+      page.locator('tbody tr', { hasText: brDate(`${spMonth(1)}-10`) }),
+      `linha da cobrança na lista; falhas do backend: ${JSON.stringify(watch.backendFailures)}; erros da página: ${JSON.stringify(watch.pageErrors)}`,
+    ).toBeVisible({ timeout: 30_000 });
     expect(watch.backendFailures).toEqual([]);
     expect(watch.pageErrors).toEqual([]);
   });

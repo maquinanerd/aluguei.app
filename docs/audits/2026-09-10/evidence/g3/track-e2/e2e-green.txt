@@ -1,0 +1,33 @@
+# comando: pnpm --filter @aluguei/tests-e2e test:e2e g3-e2-whatsapp-ownership g3-e-portal-inbox-inspection
+# árvore: g3/track-e2 em 710f448 (tela e regras do WhatsApp); stack e cluster descartáveis (WEB_PORT=3360 API_PORT=4360 PG_PORT=5593), providers FAKE
+# data (UTC): 2026-09-22T01:58:30Z
+
+$ playwright test "g3-e2-whatsapp-ownership" "g3-e-portal-inbox-inspection"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790042312731\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5593...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4360...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3360...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790042312731).
+[WebServer] [e2e-stack] web http://localhost:3360 · API http://127.0.0.1:4360 — Ctrl+C para derrubar.
+
+Running 4 tests using 1 worker
+
+  ok 1 g3-e-portal-inbox-inspection.spec.ts:22:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-18: a equipe devolve a conversa ao atendimento automático (5.4s)
+  ok 2 g3-e-portal-inbox-inspection.spec.ts:106:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P1-24: vistoria concluída não oferece ambiente, ocorrência nem sugestão (3.0s)
+  ok 3 g3-e-portal-inbox-inspection.spec.ts:157:3 › G3 trilha E — portal, caixa de entrada e vistoria pela interface › P2-05: extrato do portal do inquilino não soma cobrança cancelada (10.4s)
+  ok 4 g3-e2-whatsapp-ownership.spec.ts:15:3 › G3 trilha E2 — posse do número do WhatsApp pela interface › conectar, falhar a prova com o token errado, trocar o token e verificar (2.2s)
+[e2e-stack] PID 14608 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 20236 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 13268 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790042312731 desligada.
+
+  Slow test file: g3-e-portal-inbox-inspection.spec.ts (18.8s)
+  Consider splitting slow test files to speed up parallel execution
+  4 passed (49.9s)
+
+# exit=0
