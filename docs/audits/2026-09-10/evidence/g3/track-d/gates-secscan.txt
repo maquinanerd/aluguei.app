@@ -1,0 +1,8 @@
+# comando: pnpm security:scan
+# árvore: commit 1db63fa (g3/track-d-registries) — trilha D completa; fora do commit só o README das evidências em rascunho e os logs dos gates
+# data (UTC): 2026-09-21T23:53:05Z
+
+$ node scripts/security-scan.mjs
+Secret scan OK: nenhum segredo encontrado.
+
+# exit=0
