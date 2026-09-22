@@ -1,0 +1,37 @@
+Trilha E2 do G3 na homologação — verificação pelo MCP do Coolify, 2026-09-22 (UTC)
+
+Aplicação Coolify: aluguei-app (hvwxasfarzxnpnw4fjoerqws), branch main, auto-deploy desligado.
+Nenhum valor de variável foi lido: o MCP devolve só nomes. Nenhuma conta criada, nenhuma escrita.
+
+=== Trilha E2 — PR #20, merge bef9660 (migration 0021_whatsapp_ownership_portal_active_index)
+
+--- Antes do deploy
+smoke-2026-09-22-trilha-e2-antes.txt: 22 ok, 2 falhas — POST /whatsapp/connections/:id/verify
+respondia 404 (direto e pelo BFF); o resto da regressão (C, D, E1, F, F2) de pé.
+
+--- Primeira tentativa (get_deployment 5ncscvwdar3pgop0wsnlhjtk)
+status   failed
+criado   03:10:25   terminado 03:11:31   (66 s)
+Motivo não visível: get_logs e o resumo do log pedem read:sensitive. A homologação seguiu
+running:healthy na versão anterior: smoke-2026-09-22-trilha-e2-apos-falha.txt, 22 ok e as mesmas
+2 falhas de antes (a rota nova ainda não existia).
+
+--- Segunda tentativa (deploy + get_deployment xaiauydwuqfz4g47tk06w74q)
+status   finished
+commit   bef9660fecd94d1b88638f91da4c8d93c4f104e9
+criado   03:16:48   terminado 03:18:58   (sem mudança de código entre as duas tentativas)
+
+--- Depois do deploy
+get_application: running:healthy. list_unhealthy_resources: 0.
+A API só sobe depois do migrate terminar com sucesso: com a rota nova no ar, a 0021 foi aplicada
+(o pré-voo do portal não encontrou concessão ativa duplicada).
+smoke-2026-09-22-trilha-e2-depois.txt: 24 ok, 0 falhas.
+
+--- Efeito esperado na homologação
+Conexões de WhatsApp antigas viraram PENDING vencidas, sem token: só voltam a receber mensagem
+depois de a imobiliária informar o token e verificar (FAKE na homologação).
+
+--- Padrão observado
+Segunda falha rápida de deploy que passa na tentativa seguinte sem mudança de código (a primeira foi
+a da trilha F2, uyjipnqu0vlnrilunontutd4, 110 s). O build das imagens é provado em todo PR pelo job
+image do CI. A causa só aparece no log do deploy no painel do Coolify, que este token não lê.
