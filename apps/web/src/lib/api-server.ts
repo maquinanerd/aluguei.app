@@ -164,9 +164,15 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
 /**
  * Headers da resposta da API que chegam ao navegador. O export CSV depende de
  * `content-type` e `content-disposition` (P1-02); `content-length` e
- * `content-encoding` ficam de fora porque o corpo é reenviado já decodificado.
+ * `content-encoding` ficam de fora porque o corpo é reenviado já decodificado. No 429, o
+ * `retry-after` diz ao navegador quando tentar de novo.
  */
-const PASSTHROUGH_RESPONSE_HEADERS = ['content-type', 'content-disposition', 'cache-control'];
+const PASSTHROUGH_RESPONSE_HEADERS = [
+  'content-type',
+  'content-disposition',
+  'cache-control',
+  'retry-after',
+];
 
 /**
  * Proxy para Route Handlers do Next: repassa o cookie do browser para a API e
