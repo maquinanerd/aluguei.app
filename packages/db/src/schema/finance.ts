@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   check,
   date,
   foreignKey,
@@ -15,6 +16,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { contracts, organizations, parties, properties, users } from './index.js';
+import { domainCheck } from './checks.js';
 
 export const leases = pgTable(
   'leases',
@@ -56,6 +58,13 @@ export const leases = pgTable(
     check('leases_late_fee_bps_range', sql`${t.lateFeeBps} between 0 and 1000`),
     check('leases_interest_monthly_bps_range', sql`${t.interestMonthlyBps} between 0 and 100`),
     check('leases_due_day_range', sql`${t.dueDay} between 1 and 28`),
+    domainCheck('leases_status_valid', t.status, [
+      'PENDING',
+      'ACTIVE',
+      'DELINQUENT',
+      'TERMINATING',
+      'ENDED',
+    ]),
   ],
 );
 
@@ -117,6 +126,12 @@ export const leaseAmendments = pgTable(
       'lease_amendments_kind_valid',
       sql`${t.kind} in ('RENEWAL', 'READJUSTMENT', 'TERMINATION')`,
     ),
+    domainCheck(
+      'lease_amendments_index_name_valid',
+      t.indexName,
+      ['IGPM', 'IPCA', 'INPC', 'IVAR', 'OUTRO'],
+      { nullable: true },
+    ),
     check(
       'lease_amendments_rent_change_complete',
       sql`(${t.newRentCents} is null) = (${t.previousRentCents} is null) and (${t.newRentCents} is null or (${t.effectiveFrom} is not null and ${t.newRentCents} >= 0))`,
@@ -168,6 +183,14 @@ export const charges = pgTable(
       'charges_amounts_non_negative',
       sql`${t.amountCents} >= 0 and ${t.rentCents} >= 0 and ${t.condoFeeCents} >= 0 and ${t.lateFeeCents} >= 0 and ${t.interestCents} >= 0 and ${t.taxesCents} >= 0 and ${t.discountCents} >= 0`,
     ),
+    domainCheck('charges_status_valid', t.status, [
+      'SCHEDULED',
+      'OPEN',
+      'PAID',
+      'OVERDUE',
+      'CANCELLED',
+      'REFUNDED',
+    ]),
   ],
 );
 
@@ -210,6 +233,14 @@ export const payments = pgTable(
       'payments_provider_required_with_id',
       sql`${t.providerPaymentId} is null or ${t.provider} is not null`,
     ),
+    domainCheck('payments_method_valid', t.method, ['PIX', 'BOLETO', 'CREDIT_CARD', 'MANUAL']),
+    domainCheck('payments_status_valid', t.status, [
+      'PENDING',
+      'CONFIRMED',
+      'FAILED',
+      'CANCELLED',
+      'REFUNDED',
+    ]),
   ],
 );
 
@@ -277,6 +308,7 @@ export const splitAllocations = pgTable(
       .on(t.paymentId, t.role, t.partyId)
       .nullsNotDistinct(),
     check('split_allocations_amount_non_negative', sql`${t.amountCents} >= 0`),
+    domainCheck('split_allocations_role_valid', t.role, ['LANDLORD', 'AGENCY']),
   ],
 );
 
@@ -305,6 +337,7 @@ export const payouts = pgTable(
       .on(t.paymentId, t.partyId)
       .where(sql`${t.paymentId} is not null`),
     check('payouts_amount_non_negative', sql`${t.amountCents} >= 0`),
+    domainCheck('payouts_status_valid', t.status, ['PENDING', 'PAID', 'FAILED', 'CANCELLED']),
   ],
 );
 
@@ -320,7 +353,10 @@ export const ledgerAccounts = pgTable(
     type: text('type').notNull(), // ASSET | LIABILITY | REVENUE | EQUITY
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('ledger_accounts_org_code_unique').on(t.orgId, t.code)],
+  (t) => [
+    uniqueIndex('ledger_accounts_org_code_unique').on(t.orgId, t.code),
+    domainCheck('ledger_accounts_type_valid', t.type, ['ASSET', 'LIABILITY', 'REVENUE', 'EQUITY']),
+  ],
 );
 
 export const ledgerEntries = pgTable(
@@ -368,14 +404,17 @@ export const reconciliations = pgTable(
     periodStart: date('period_start', { mode: 'string' }).notNull(),
     periodEnd: date('period_end', { mode: 'string' }).notNull(),
     status: text('status').notNull().default('PENDING'), // PENDING | MATCHED | DISCREPANCY
-    providerTotalCents: integer('provider_total_cents'),
-    localTotalCents: integer('local_total_cents'),
+    // Soma de muitas cobranças: int4 estourava acima de R$ 21.474.836,47 (P2-12). O modo
+    // number vale até 2^53 − 1 centavos; o contrato da API continua número inteiro.
+    providerTotalCents: bigint('provider_total_cents', { mode: 'number' }),
+    localTotalCents: bigint('local_total_cents', { mode: 'number' }),
     differences: jsonb('differences').notNull().default([]),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('reconciliations_org_status_idx').on(t.orgId, t.status),
     index('reconciliations_org_provider_period_idx').on(t.orgId, t.provider, t.periodStart),
+    domainCheck('reconciliations_status_valid', t.status, ['PENDING', 'MATCHED', 'DISCREPANCY']),
   ],
 );
 
@@ -417,5 +456,8 @@ export const partyBankAccounts = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('party_bank_accounts_org_party_idx').on(t.orgId, t.partyId)],
+  (t) => [
+    index('party_bank_accounts_org_party_idx').on(t.orgId, t.partyId),
+    domainCheck('party_bank_accounts_status_valid', t.status, ['ACTIVE', 'INACTIVE']),
+  ],
 );

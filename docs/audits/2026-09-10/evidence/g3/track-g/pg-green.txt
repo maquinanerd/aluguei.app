@@ -1,0 +1,15 @@
+# comando: TEST_DATABASE_URL=postgresql://postgres@localhost:54337/postgres pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/g3-g-migration-0022.pg.test.ts
+# árvore: g3/track-g-db em f88130e (correção: schema, migration 0022, domínio); cluster PostgreSQL 17 descartável (initdb -A trust -E UTF8, porta 54337)
+# data (UTC): 2026-09-22T03:40:49Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/tests/integration
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  00:40:50
+   Duration  6.88s (transform 1.05s, setup 0ms, import 2.76s, tests 3.85s, environment 0ms)
+
+
+# exit=0

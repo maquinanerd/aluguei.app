@@ -148,6 +148,13 @@
       "when": 1790041048309,
       "tag": "0021_whatsapp_ownership_portal_active_index",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1790047777217,
+      "tag": "0022_domain_checks_bigint_totals",
+      "breakpoints": true
     }
   ]
 }

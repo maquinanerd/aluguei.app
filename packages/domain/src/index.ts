@@ -239,8 +239,8 @@ export type {
   OwnerShareInput,
   RentChange,
 } from './finance/leaseLifecycle.js';
-export { splitPayment, splitAmong } from './finance/split.js';
-export type { SplitAllocation, SplitInput } from './finance/split.js';
+export { SPLIT_ALLOCATION_ROLES, splitPayment, splitAmong } from './finance/split.js';
+export type { SplitAllocation, SplitAllocationRole, SplitInput } from './finance/split.js';
 export {
   CHARGE_STATUSES,
   LEASE_STATUSES,

@@ -1,0 +1,6 @@
+# comando: pnpm install --frozen-lockfile
+# árvore: commit 7596a0a (g3/track-g-db)
+
+Scope: all 17 workspace projects
+Already up to date
+Done in 551ms using pnpm v11.15.1

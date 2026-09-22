@@ -1,0 +1,15 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-g-schema-domain.test.ts
+# árvore: g3/track-g-db em f88130e (correção: schema, migration 0022, domínio); PGlite
+# data (UTC): 2026-09-22T03:40:39Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-aa17b397051018450/tests/integration
+
+
+ Test Files  1 passed (1)
+      Tests  73 passed (73)
+   Start at  00:40:41
+   Duration  7.77s (transform 1.33s, setup 0ms, import 2.32s, tests 5.18s, environment 0ms)
+
+
+# exit=0
