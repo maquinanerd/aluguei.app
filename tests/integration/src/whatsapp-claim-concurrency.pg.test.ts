@@ -115,7 +115,7 @@ describe('concorrência real (PostgreSQL): reivindicação do número do WhatsAp
       select org_id, status from whatsapp_connections where phone_number_id = ${phoneNumberId}
     `);
     expect(rows.rows).toHaveLength(1);
-    const winner = results[0]?.status === 201 ? first : second;
+    const winner = results[0].status === 201 ? first : second;
     expect(rows.rows[0]).toEqual({ org_id: winner.orgId, status: 'VERIFIED' });
 
     // A posseira recebeu o aviso de perda uma única vez.

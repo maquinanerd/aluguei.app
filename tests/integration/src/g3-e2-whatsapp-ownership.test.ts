@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { decryptSecret } from '@aluguei/config';
 import { conversations, webhookInbox, whatsappConnections } from '@aluguei/db';
 import { runInboxJobs } from '@aluguei/worker';
@@ -167,7 +167,7 @@ describe('G3 trilha E2 — prova de posse do número do WhatsApp', () => {
     const queued = await app.db
       .select()
       .from(webhookInbox)
-      .where(eq(webhookInbox.orgId, org.body.org.id));
+      .where(and(eq(webhookInbox.orgId, org.body.org.id), eq(webhookInbox.provider, 'WHATSAPP')));
     expect(queued, 'nada enfileirado para a organização que só reivindicou').toHaveLength(0);
     expect(await conversationsOf(org.body.org.id)).toHaveLength(0);
   });

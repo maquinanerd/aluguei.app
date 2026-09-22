@@ -196,7 +196,11 @@ describe('migration 0021 (PostgreSQL real): pré-voo do índice parcial do porta
       select status, claim_expires_at <= now() as expired, access_token_encrypted
       from whatsapp_connections where phone_number_id = ${legacyNumber}
     `);
-    expect(legacy.rows[0]).toEqual({ status: 'PENDING', expired: true, access_token_encrypted: null });
+    expect(legacy.rows[0]).toEqual({
+      status: 'PENDING',
+      expired: true,
+      access_token_encrypted: null,
+    });
   });
 });
 
