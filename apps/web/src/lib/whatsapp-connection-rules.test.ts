@@ -60,7 +60,10 @@ describe('claimExpired — prazo da reivindicação na tela', () => {
   it('igual ao domínio antes, no instante e depois do prazo', () => {
     for (const offset of [-1, 0, 1, 60_000, -60_000]) {
       const expiresAt = new Date(NOW.getTime() + offset);
-      expect(claimExpired('PENDING', expiresAt.toISOString(), NOW), `offset ${String(offset)}`).toBe(
+      expect(
+        claimExpired('PENDING', expiresAt.toISOString(), NOW),
+        `offset ${String(offset)}`,
+      ).toBe(
         isWhatsAppClaimExpired({ orgId: ORG, status: 'PENDING', claimExpiresAt: expiresAt }, NOW),
       );
     }
