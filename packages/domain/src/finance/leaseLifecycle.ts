@@ -1,5 +1,6 @@
 import { DomainError } from '../errors.js';
 import { monthStartOf } from './calendar.js';
+import { assertAmountWithinCeiling } from './money.js';
 import { canTransitionLease, isLeaseStatus } from './stateMachines.js';
 import type { LeaseStatus } from './stateMachines.js';
 
@@ -92,7 +93,9 @@ export function readjustedRent(rentCents: number, adjustmentBps: number): number
     });
   }
   const scaled = BigInt(rentCents) * BigInt(10_000 + adjustmentBps);
-  return Number((scaled + 5_000n) / 10_000n);
+  const readjusted = Number((scaled + 5_000n) / 10_000n);
+  assertAmountWithinCeiling(readjusted, 'monthlyRentCents');
+  return readjusted;
 }
 
 export interface RentChange {

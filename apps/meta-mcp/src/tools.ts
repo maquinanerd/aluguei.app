@@ -1,6 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import { amountCentsSchema } from '@aluguei/contracts';
 import { AUDIT_ACTIONS } from '@aluguei/domain';
 import {
   createPausedCampaign,
@@ -505,8 +506,8 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
         listingId: z.uuid().optional(),
         name: z.string().min(1).max(120),
         objective: z.enum(['OUTCOME_TRAFFIC', 'OUTCOME_LEADS', 'OUTCOME_ENGAGEMENT']),
-        dailyBudgetCents: z.number().int().nonnegative().optional(),
-        lifetimeBudgetCents: z.number().int().nonnegative().optional(),
+        dailyBudgetCents: amountCentsSchema.optional(),
+        lifetimeBudgetCents: amountCentsSchema.optional(),
         startAt: z.string().optional(),
         endAt: z.string().optional(),
         geos: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -934,8 +935,8 @@ export function registerTools(server: McpServer, ctx: Ctx): void {
       inputSchema: {
         orgId: orgIdSchema,
         campaignId: z.uuid(),
-        dailyBudgetCents: z.number().int().nonnegative().optional(),
-        lifetimeBudgetCents: z.number().int().nonnegative().optional(),
+        dailyBudgetCents: amountCentsSchema.optional(),
+        lifetimeBudgetCents: amountCentsSchema.optional(),
         idempotencyKey: idempotencySchema,
       },
     },

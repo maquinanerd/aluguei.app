@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import {
+  INT4_MAX,
+  paginationQuerySchema,
+  positiveAmountCentsSchema,
+  uuidSchema,
+} from './common.js';
 
 export const leaseStatusSchema = z.enum([
   'PENDING',
@@ -97,7 +102,7 @@ export const updateLeaseTermsRequestSchema = z
 export const renewLeaseRequestSchema = z
   .object({
     endDate: isoDateSchema,
-    monthlyRentCents: z.number().int().positive().optional(),
+    monthlyRentCents: positiveAmountCentsSchema.optional(),
   })
   .strict();
 
@@ -108,7 +113,7 @@ export const readjustLeaseRequestSchema = z
     effectiveFrom: monthStartSchema,
     indexName: leaseIndexNameSchema,
     adjustmentBps: z.number().int().gt(-10_000).max(10_000).optional(),
-    newMonthlyRentCents: z.number().int().positive().optional(),
+    newMonthlyRentCents: positiveAmountCentsSchema.optional(),
   })
   .strict()
   .refine(
@@ -265,7 +270,7 @@ export const createChargeRequestSchema = z.object({
   periodStart: isoDateSchema.optional(),
   /** Data civil; sem ela, o dia de vencimento da locação (G3, P1-07). */
   dueDate: isoDateSchema.optional(),
-  amountOverrideCents: z.number().int().positive().optional(),
+  amountOverrideCents: positiveAmountCentsSchema.optional(),
 });
 
 export const listChargesQuerySchema = paginationQuerySchema.extend({
@@ -359,6 +364,7 @@ export const paymentWebhookEventSchema = z.object({
   eventType: z.enum(['PAYMENT_CONFIRMED', 'PAYMENT_REFUNDED', 'PAYMENT_FAILED', 'PAYMENT_OVERDUE']),
   providerEventId: z.string().min(1),
   providerChargeId: z.string().min(1),
-  amountCents: z.number().int().nonnegative(),
+  // Valor do provider: não é digitado, mas precisa caber na coluna int4.
+  amountCents: z.number().int().nonnegative().max(INT4_MAX),
   paidAt: z.string().optional(),
 });

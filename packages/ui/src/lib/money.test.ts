@@ -25,13 +25,13 @@ describe('parseMoneyInput — pt-BR para centavos inteiros', () => {
     ['0,05', 5],
     [',50', 50],
     ['3.500,', 350_000],
-    ['1.234.567,89', 123_456_789],
+    ['999.999,99', 99_999_999],
     ['R$ 3.500,00', 350_000],
     ['R$3.500', 350_000],
     ['R$ 3.500,00', 350_000],
     ['  3.500  ', 350_000],
     ['0', 0],
-    ['21.474.836,47', MONEY_INPUT_MAX_CENTS],
+    ['1.000.000,00', MONEY_INPUT_MAX_CENTS],
   ])('"%s" → %i centavos', (input, cents) => {
     expect(parseMoneyInput(input)).toEqual({ ok: true, cents });
   });
@@ -66,7 +66,8 @@ describe('parseMoneyInput — pt-BR para centavos inteiros', () => {
     ['1e3', 'INVALID'],
     ['3 500', 'INVALID'],
     ['3.500,00 reais', 'INVALID'],
-    ['21.474.836,48', 'TOO_LARGE'],
+    ['1.000.000,01', 'TOO_LARGE'],
+    ['21.474.836,47', 'TOO_LARGE'],
     ['99999999999999999999', 'TOO_LARGE'],
   ])('"%s" é recusado com código %s', (input, code) => {
     const result = parseMoneyInput(input);
@@ -130,7 +131,7 @@ describe('formatCentsForInput — centavos para o texto do campo', () => {
     [5, '0,05'],
     [0, '0,00'],
     [123_456_789, '1.234.567,89'],
-    [MONEY_INPUT_MAX_CENTS, '21.474.836,47'],
+    [MONEY_INPUT_MAX_CENTS, '1.000.000,00'],
   ])('%i → "%s"', (cents, text) => {
     expect(formatCentsForInput(cents)).toBe(text);
   });

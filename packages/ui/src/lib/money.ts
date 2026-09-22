@@ -10,8 +10,12 @@
  * valor digitado errado não pode virar um valor gravado diferente.
  */
 
-/** Maior valor de uma coluna `integer` (int4), onde os centavos são gravados. */
-export const MONEY_INPUT_MAX_CENTS = 2_147_483_647;
+/**
+ * Teto do campo de dinheiro: R$ 1.000.000,00, o mesmo `MAX_AMOUNT_CENTS` da API (o painel recusa
+ * no campo o que a API recusaria; teste em apps/web/src/lib/money-ceiling.test.ts). Antes era o
+ * int4 da coluna, e a API aceitava valores que estouravam a cobrança somada.
+ */
+export const MONEY_INPUT_MAX_CENTS = 100_000_000;
 
 export type NumberInputErrorCode =
   'INVALID' | 'AMBIGUOUS' | 'TOO_MANY_DECIMALS' | 'NEGATIVE' | 'TOO_LARGE';

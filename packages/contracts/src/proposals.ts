@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { paginationQuerySchema, uuidSchema } from './common.js';
+import { paginationQuerySchema, positiveAmountCentsSchema, uuidSchema } from './common.js';
 import { isoDateSchema } from './finance.js';
 
 export const proposalStatusSchema = z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED']);
@@ -26,7 +26,7 @@ export const createProposalRequestSchema = z.object({
   leadId: uuidSchema.optional(),
   partyId: uuidSchema.optional(),
   propertyId: uuidSchema.optional(),
-  monthlyRentCents: z.number().int().positive(),
+  monthlyRentCents: positiveAmountCentsSchema,
   terms: z.string().optional(),
   validUntil: isoDateSchema.optional(),
 });
@@ -47,7 +47,7 @@ export const getProposalResponseSchema = z.object({ proposal: proposalSchema });
 /** Só o rascunho é editável (auditoria 2026-09-10, P2-02). */
 export const updateProposalRequestSchema = z
   .object({
-    monthlyRentCents: z.number().int().positive().optional(),
+    monthlyRentCents: positiveAmountCentsSchema.optional(),
     terms: z.string().max(5_000).optional(),
     validUntil: isoDateSchema.optional(),
   })

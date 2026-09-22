@@ -1,3 +1,4 @@
+import { MAX_AMOUNT_CENTS } from '../finance/money.js';
 export type IntentKind = 'VISIT_REQUEST' | 'PRICE_QUERY' | 'AVAILABILITY' | 'OTHER';
 
 export interface IntentExtraction {
@@ -70,10 +71,10 @@ function parseBudgetValue(raw: string, hasMil: boolean): number | null {
     return null;
   }
   const value = hasMil ? digits * 1000 : digits;
-  if (value > 10_000) {
-    return Math.round(value * 100); // valor em reais → centavos
-  }
-  return Math.round(value * 100); // já em reais → centavos
+  const cents = Math.round(value * 100); // reais → centavos
+  // Acima do teto não é orçamento de aluguel: vira "sem orçamento", não um valor que estoura o
+  // INSERT da intenção e derruba o job da mensagem.
+  return cents > MAX_AMOUNT_CENTS ? null : cents;
 }
 
 /**

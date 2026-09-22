@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import {
+  amountCentsSchema,
   idListQuerySchema,
   paginationQuerySchema,
+  positiveAmountCentsSchema,
   searchTextQuerySchema,
   uuidSchema,
 } from './common.js';
@@ -137,10 +139,10 @@ export const upsertAddressRequestSchema = z.object({
 export const upsertAddressResponseSchema = z.object({ property: propertySchema });
 
 export const upsertFinancialTermsRequestSchema = z.object({
-  monthlyRentCents: z.number().int().positive(),
-  condoFeeCents: z.number().int().nonnegative().optional(),
-  iptuCents: z.number().int().nonnegative().optional(),
-  securityDepositCents: z.number().int().nonnegative().optional(),
+  monthlyRentCents: positiveAmountCentsSchema,
+  condoFeeCents: amountCentsSchema.optional(),
+  iptuCents: amountCentsSchema.optional(),
+  securityDepositCents: amountCentsSchema.optional(),
   minimumLeaseMonths: z.number().int().positive().optional(),
   availableFrom: z.string().optional(),
 });

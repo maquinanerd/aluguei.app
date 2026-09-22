@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { funnelStatusSchema, paginationQuerySchema, uuidSchema } from './common.js';
+import {
+  amountCentsSchema,
+  funnelStatusSchema,
+  paginationQuerySchema,
+  uuidSchema,
+} from './common.js';
 
 export const leadSchema = z.object({
   id: uuidSchema,
@@ -21,8 +26,8 @@ export const createLeadRequestSchema = z.object({
   source: z.string().optional(),
   channel: z.string().optional(),
   interestedPropertyIds: z.array(uuidSchema).optional(),
-  budgetMinCents: z.number().int().nonnegative().optional(),
-  budgetMaxCents: z.number().int().nonnegative().optional(),
+  budgetMinCents: amountCentsSchema.optional(),
+  budgetMaxCents: amountCentsSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -63,8 +68,8 @@ export const updateLeadRequestSchema = z
     source: z.string().max(100).nullable().optional(),
     channel: z.string().max(100).nullable().optional(),
     ownerUserId: uuidSchema.nullable().optional(),
-    budgetMinCents: z.number().int().nonnegative().nullable().optional(),
-    budgetMaxCents: z.number().int().nonnegative().nullable().optional(),
+    budgetMinCents: amountCentsSchema.nullable().optional(),
+    budgetMaxCents: amountCentsSchema.nullable().optional(),
     notes: z.string().max(5_000).nullable().optional(),
     partyId: uuidSchema.nullable().optional(),
     /** Lista completa: substitui os imóveis de interesse atuais. */
