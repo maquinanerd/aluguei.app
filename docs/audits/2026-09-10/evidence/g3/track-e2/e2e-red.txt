@@ -1,0 +1,63 @@
+# comando: pnpm --filter @aluguei/tests-e2e test:e2e g3-e2-whatsapp-ownership
+# árvore: g3/track-e2 em e802098 (API da E2 corrigida; tela de integrações ainda antiga); stack e cluster descartáveis (WEB_PORT=3360 API_PORT=4360 PG_PORT=5593), providers FAKE
+# data (UTC): 2026-09-22T01:53:18Z
+
+$ playwright test "g3-e2-whatsapp-ownership"
+[WebServer] [e2e-stack] boot (playwright) · execuções em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786
+[WebServer] [e2e-stack] verificando portas e processos existentes...
+[WebServer] [e2e-stack] initdb em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790042000916\pgdata...
+[WebServer] [e2e-stack] postgres na porta 5593...
+[WebServer] [e2e-stack] aplicando migrations...
+[WebServer] [e2e-stack] conta do admin da plataforma...
+[WebServer] [e2e-stack] API em :4360...
+[WebServer] [e2e-stack] worker...
+[WebServer] [e2e-stack] web (next dev) em :3360...
+[WebServer] [e2e-stack] stack pronta (logs em C:\Users\pablo\AppData\Local\Temp\aluguei-e2e-runs\d4a2096786\run-1790042000916).
+[WebServer] [e2e-stack] web http://localhost:3360 · API http://127.0.0.1:4360 — Ctrl+C para derrubar.
+
+Running 1 test using 1 worker
+
+  x  1 g3-e2-whatsapp-ownership.spec.ts:15:3 › G3 trilha E2 — posse do número do WhatsApp pela interface › conectar, falhar a prova com o token errado, trocar o token e verificar (1.0m)
+[e2e-stack] PID 1296 (web) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 20456 (worker) não pertence mais a esta stack — ignorado.
+[e2e-stack] PID 14660 (api) não pertence mais a esta stack — ignorado.
+[e2e-stack] stack run-1790042000916 desligada.
+
+
+  1) g3-e2-whatsapp-ownership.spec.ts:15:3 › G3 trilha E2 — posse do número do WhatsApp pela interface › conectar, falhar a prova com o token errado, trocar o token e verificar 
+
+    TimeoutError: locator.click: Timeout 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Conectar número' })
+
+
+      26 |
+      27 |     // O botão antigo que reivindicava um número fixo sem token não existe mais.
+    > 28 |     await page.getByRole('button', { name: 'Conectar número' }).click({ timeout: 60_000 });
+         |                                                                 ^
+      29 |     const connect = page.getByRole('dialog', { name: 'Conectar número do WhatsApp' });
+      30 |     await expect(connect).toBeVisible();
+      31 |     // Neste ambiente a verificação é FAKE, e a tela diz qual token é o dono do número.
+        at C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\tests\e2e\src\g3-e2-whatsapp-ownership.spec.ts:28:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\g3-e2-whatsapp-ownership-G-a0f0e--trocar-o-token-e-verificar\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\g3-e2-whatsapp-ownership-G-a0f0e--trocar-o-token-e-verificar\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\g3-e2-whatsapp-ownership-G-a0f0e--trocar-o-token-e-verificar\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: g3-e2-whatsapp-ownership.spec.ts (1.0m)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    g3-e2-whatsapp-ownership.spec.ts:15:3 › G3 trilha E2 — posse do número do WhatsApp pela interface › conectar, falhar a prova com o token errado, trocar o token e verificar 
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\tests\e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @aluguei/tests-e2e@0.2.0 test:e2e: `playwright test "g3-e2-whatsapp-ownership"`
+Exit status 1
+
+# exit=1

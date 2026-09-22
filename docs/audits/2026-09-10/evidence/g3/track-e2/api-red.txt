@@ -1,0 +1,187 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run src/g3-e2-whatsapp-ownership.test.ts
+# árvore: g3/track-e2 sobre origin/main 0d9e352 + testes permanentes da trilha E2, sem a correção
+# data (UTC): 2026-09-22T01:34:57Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/tests/integration
+
+(node:4332) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-e2-whatsapp-ownership.test.ts (8 tests | 8 failed) 3452ms
+     × a conexão nasce PENDING, com o token cifrado no banco e fora de qualquer resposta 143ms
+     × número PENDING não recebe webhook: nada entra na fila nem vira conversa 107ms
+     × verificar com o token errado falha e mantém PENDING; com o token certo, VERIFIED e webhook liberado 43ms
+     × número VERIFIED não pode ser reivindicado por outra organização, nem com o token certo (409) 69ms
+     × reivindicação PENDING de outra organização: 409 no prazo; vencida, só quem prova a posse toma 83ms
+     × conexão de outra organização: verificar responde 404 73ms
+     × conexão antiga sem token não é verificada: a organização precisa informar o token 35ms
+     × o pedido exige o token da conta do WhatsApp Business 33ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > a conexão nasce PENDING, com o token cifrado no banco e fora de qualquer resposta
+AssertionError: expected 'ACTIVE' to be 'PENDING' // Object.is equality
+
+Expected: "PENDING"
+Received: "ACTIVE"
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:134:31
+    132|     expect(created.status, JSON.stringify(created.body)).toBe(201);
+    133|     const connection = created.body.connection as ConnectionDto;
+    134|     expect(connection.status).toBe('PENDING');
+       |                               ^
+    135|     expect(connection.verifiedAt).toBeNull();
+    136|     const expiresIn = new Date(connection.claimExpiresAt ?? 0).getTime…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > número PENDING não recebe webhook: nada entra na fila nem vira conversa
+AssertionError: nada enfileirado para a organização que só reivindicou: expected [ { …(12) }, { …(12) }, …(2) ] to have a length of +0 but got 4
+
+- Expected
++ Received
+
+- 0
++ 4
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:171:78
+    169|       .from(webhookInbox)
+    170|       .where(eq(webhookInbox.orgId, org.body.org.id));
+    171|     expect(queued, 'nada enfileirado para a organização que só reivind…
+       |                                                                              ^
+    172|     expect(await conversationsOf(org.body.org.id)).toHaveLength(0);
+    173|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > verificar com o token errado falha e mantém PENDING; com o token certo, VERIFIED e webhook liberado
+AssertionError: {"message":"Route POST:/whatsapp/connections/d65f68ff-5ef7-470f-9b4d-1e638aa5ae58/verify not found","error":"Not Found","statusCode":404}: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:183:56
+    181|
+    182|     const failed = await verify(org, id);
+    183|     expect(failed.status, JSON.stringify(failed.body)).toBe(409);
+       |                                                        ^
+    184|     expect(String(failed.body.message)).toContain('posse');
+    185|     expect((await list(org))[0]?.status).toBe('PENDING');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > número VERIFIED não pode ser reivindicado por outra organização, nem com o token certo (409)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:222:46
+    220|     const created = await claim(owner, phoneNumberId, ownerToken(phone…
+    221|     const id = (created.body.connection as ConnectionDto).id;
+    222|     expect((await verify(owner, id)).status).toBe(200);
+       |                                              ^
+    223|
+    224|     const refused = await claim(intruder, phoneNumberId, ownerToken(ph…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > reivindicação PENDING de outra organização: 409 no prazo; vencida, só quem prova a posse toma
+Error: Failed query: update "whatsapp_connections" set  where "whatsapp_connections"."id" = $1
+params: d7a6fdfe-a8de-40ea-a531-ee0bcaaa795b
+ ❯ PglitePreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:261:5
+    259|
+    260|     // O prazo vence.
+    261|     await app.db
+       |     ^
+    262|       .update(whatsappConnections)
+    263|       .set({ claimExpiresAt: new Date(Date.now() - 60_000) })
+
+Caused by: error: syntax error at or near "where"
+ ❯ pe.Ue ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959
+ ❯ pe.tt ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347
+ ❯ pe.parse ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021
+ ❯ O.qe ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1762
+ ❯ ../../node_modules/.pnpm/@electric-sql+pglite@0.5.5/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5921403
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2615913
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2648399
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:2649003
+ ❯ null.<anonymous> wasm:/wasm/0267b22e:1:5569736
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 94, severity: 'ERROR', code: '42601', detail: undefined, hint: undefined, position: '36', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'scan.l', routine: 'scanner_yyerror', query: 'update "whatsapp_connections" set  where "whatsapp_connections"."id" = $1', params: [ 'd7a6fdfe-a8de-40ea-a531-ee0bcaaa795b' ], queryOptions: { rowMode: 'object', parsers: { '1082': 'Function<1082>', '1114': 'Function<1114>', '1115': 'Function<1115>', '1182': 'Function<1182>', '1184': 'Function<1184>', '1185': 'Function<1185>', '1186': 'Function<1186>', '1187': 'Function<1187>', '1231': 'Function<1231>' } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > conexão de outra organização: verificar responde 404
+AssertionError: expected 'ACTIVE' to be 'PENDING' // Object.is equality
+
+Expected: "PENDING"
+Received: "ACTIVE"
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:316:44
+    314|     const res = await verify(other, (created.body.connection as Connec…
+    315|     expect(res.status).toBe(404);
+    316|     expect((await list(owner))[0]?.status).toBe('PENDING');
+       |                                            ^
+    317|   });
+    318|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > conexão antiga sem token não é verificada: a organização precisa informar o token
+AssertionError: {"message":"Route POST:/whatsapp/connections/63a87ef3-dc5e-4596-8a20-a69567728d8d/verify not found","error":"Not Found","statusCode":404}: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:332:50
+    330|       .returning();
+    331|     const res = await verify(org, legacy?.id ?? '');
+    332|     expect(res.status, JSON.stringify(res.body)).toBe(409);
+       |                                                  ^
+    333|     expect(String(res.body.message)).toContain('token');
+    334|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/g3-e2-whatsapp-ownership.test.ts > G3 trilha E2 — prova de posse do número do WhatsApp > o pedido exige o token da conta do WhatsApp Business
+AssertionError: expected 201 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 201
+
+ ❯ src/g3-e2-whatsapp-ownership.test.ts:342:24
+    340|       payload: { phoneNumberId: uniquePhoneNumberId() },
+    341|     });
+    342|     expect(res.status).toBe(400);
+       |                        ^
+    343|   });
+    344| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  22:34:59
+   Duration  7.46s (transform 1.81s, setup 0ms, import 3.76s, tests 3.45s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/g3-e2-whatsapp-ownership.test.ts
+
+# exit=1

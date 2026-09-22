@@ -1,0 +1,9 @@
+# comando: pnpm security:audit --audit-level=critical
+# árvore: commit 4364abd (g3/track-e2) — trilha E2 completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T02:09:39Z
+
+$ pnpm audit --prod "--audit-level=critical"
+31 vulnerabilities found
+Severity: 9 moderate | 22 high
+
+# exit=0

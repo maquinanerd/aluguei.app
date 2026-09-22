@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/web test
+# árvore: g3/track-e2 em 710f448 (tela e regras do WhatsApp)
+# data (UTC): 2026-09-22T01:58:25Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/apps/web
+
+
+ Test Files  31 passed (31)
+      Tests  177 passed (177)
+   Start at  22:58:26
+   Duration  3.79s (transform 5.11s, setup 0ms, import 9.91s, tests 804ms, environment 8ms)
+
+
+# exit=0

@@ -1,0 +1,22 @@
+# comando: grep "Tests " gates-test.txt (contagem por pacote do pnpm test --force)
+# árvore: commit 4364abd (g3/track-e2) — trilha E2 completa
+# data (UTC): 2026-09-22T02:10:45Z
+
+@aluguei/storage              16 passed
+@aluguei/mobile                5 passed
+@aluguei/config               41 passed
+@aluguei/contracts             7 passed
+@aluguei/observability        18 passed
+@aluguei/domain              217 passed
+@aluguei/ui                   91 passed
+@aluguei/tests-contract       10 passed
+@aluguei/integrations        179 passed
+@aluguei/web                 177 passed
+@aluguei/api                  20 passed
+@aluguei/meta-mcp              7 passed
+@aluguei/worker               35 passed
+@aluguei/tests-integration   269 passed
+
+total                       1092 passed em 14 pacotes; nenhum ignorado (skipped/todo: 0)
+
+# exit=0

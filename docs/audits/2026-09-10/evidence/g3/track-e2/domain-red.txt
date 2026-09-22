@@ -1,0 +1,33 @@
+# comando: pnpm --filter @aluguei/domain exec vitest run src/whatsapp/connection.test.ts
+# árvore: g3/track-e2 sobre origin/main 0d9e352 + testes permanentes da trilha E2, sem a correção
+# data (UTC): 2026-09-22T01:34:12Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/packages/domain
+
+ ❯ src/whatsapp/connection.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/whatsapp/connection.test.ts [ src/whatsapp/connection.test.ts ]
+Error: Cannot find module './connection.js' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/packages/domain/src/whatsapp/connection.test.ts
+ ❯ src/whatsapp/connection.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   WHATSAPP_CLAIM_TTL_MS,
+      4|   WHATSAPP_CONNECTION_STATUSES,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  22:34:13
+   Duration  314ms (transform 30ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\packages\domain:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/whatsapp/connection.test.ts
+
+# exit=1

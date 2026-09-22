@@ -1,0 +1,34 @@
+# comando: pnpm --filter @aluguei/web exec vitest run src/lib/whatsapp-connection-rules.test.ts
+# árvore: g3/track-e2 em 75ad281 + teste das regras da tela do WhatsApp, sem o módulo
+# data (UTC): 2026-09-22T01:50:54Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/apps/web
+
+ ❯ src/lib/whatsapp-connection-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/whatsapp-connection-rules.test.ts [ src/lib/whatsapp-connection-rules.test.ts ]
+Error: Cannot find module './whatsapp-connection-rules' imported from C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/apps/web/src/lib/whatsapp-connection-rules.test.ts
+ ❯ src/lib/whatsapp-connection-rules.test.ts:10:1
+      8| } from '@aluguei/domain';
+      9| import { createWhatsAppConnectionRequestSchema } from '@aluguei/contra…
+     10| import {
+       | ^
+     11|   WHATSAPP_CONNECTION_STATUS_LABELS,
+     12|   claimExpired,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  22:50:56
+   Duration  1.12s (transform 525ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\apps\web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/whatsapp-connection-rules.test.ts
+
+# exit=1

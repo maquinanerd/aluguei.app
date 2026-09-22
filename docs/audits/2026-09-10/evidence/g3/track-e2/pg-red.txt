@@ -1,0 +1,123 @@
+# comando: pnpm --filter @aluguei/tests-integration exec vitest run --config vitest.pg.config.ts src/g3-e2-migration-0021.pg.test.ts src/whatsapp-claim-concurrency.pg.test.ts
+# árvore: g3/track-e2 sobre origin/main 0d9e352 + testes permanentes da trilha E2, sem a correção; cluster PostgreSQL 17 descartável (initdb -A trust -E UTF8, porta 54336)
+# data (UTC): 2026-09-22T01:35:38Z
+
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/tests/integration
+
+(node:7072) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/g3-e2-migration-0021.pg.test.ts (5 tests | 4 failed) 3651ms
+     × duplicata ativa aborta sem aplicar nada; revogada a sobra, migra e converte o WhatsApp legado 24ms
+     × segunda concessão ativa da mesma pessoa é recusada pelo banco (23505); revogadas repetem à vontade 13ms
+     × duas transações gravando a concessão ativa ao mesmo tempo, sem a trava da rota: uma só confirma 311ms
+     × status fora do vocabulário é recusado (23514), e VERIFIED exige a data da verificação 4ms
+(node:23716) [FSTDEP022] FastifyWarning: The router options for maxParamLength property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/whatsapp-claim-concurrency.pg.test.ts (2 tests | 1 failed) 1955ms
+     × reivindicação vencida tomada ao mesmo tempo por duas organizações com a prova: um único vencedor 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/g3-e2-migration-0021.pg.test.ts > migration 0021 (PostgreSQL real): pré-voo do índice parcial do portal > duplicata ativa aborta sem aplicar nada; revogada a sobra, migra e converte o WhatsApp legado
+AssertionError: o pré-voo tem de abortar a 0021: expected null not to be null
+ ❯ src/g3-e2-migration-0021.pg.test.ts:159:60
+    157|       failure = errorMessages(error);
+    158|     }
+    159|     expect(failure, 'o pré-voo tem de abortar a 0021').not.toBeNull();
+       |                                                            ^
+    160|     expect(failure).toContain('Migracao 0021 abortada');
+    161|     expect(failure).toContain(owner.party);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/g3-e2-migration-0021.pg.test.ts > 0021 aplicada (PostgreSQL real): o banco garante uma concessão ativa e o status do WhatsApp > segunda concessão ativa da mesma pessoa é recusada pelo banco (23505); revogadas repetem à vontade
+AssertionError: o índice parcial recusa a segunda ativa: expected null to be '23505' // Object.is equality
+
+- Expected:
+"23505"
+
++ Received:
+null
+
+ ❯ src/g3-e2-migration-0021.pg.test.ts:241:61
+    239|       code = pgCode(error);
+    240|     }
+    241|     expect(code, 'o índice parcial recusa a segunda ativa').toBe('2350…
+       |                                                             ^
+    242|   });
+    243|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/g3-e2-migration-0021.pg.test.ts > 0021 aplicada (PostgreSQL real): o banco garante uma concessão ativa e o status do WhatsApp > duas transações gravando a concessão ativa ao mesmo tempo, sem a trava da rota: uma só confirma
+AssertionError: expected 'fulfilled' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "fulfilled"
+
+ ❯ src/g3-e2-migration-0021.pg.test.ts:268:31
+    266|     const results = await Promise.allSettled([first, second]);
+    267|     expect(results[0].status).toBe('fulfilled');
+    268|     expect(results[1].status).toBe('rejected');
+       |                               ^
+    269|     expect(pgCode((results[1] as PromiseRejectedResult).reason)).toBe(…
+    270|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/g3-e2-migration-0021.pg.test.ts > 0021 aplicada (PostgreSQL real): o banco garante uma concessão ativa e o status do WhatsApp > status fora do vocabulário é recusado (23514), e VERIFIED exige a data da verificação
+AssertionError: expected null to be '23514' // Object.is equality
+
+- Expected:
+"23514"
+
++ Received:
+null
+
+ ❯ src/g3-e2-migration-0021.pg.test.ts:326:7
+    324|         values (${randomUUID()}, ${owner.org}, ${`s-${randomUUID().sli…
+    325|       `),
+    326|     ).toBe('23514');
+       |       ^
+    327|     expect(
+    328|       await attempt(sql`
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/whatsapp-claim-concurrency.pg.test.ts > concorrência real (PostgreSQL): reivindicação do número do WhatsApp > reivindicação vencida tomada ao mesmo tempo por duas organizações com a prova: um único vencedor
+Error: Failed query: 
+      update whatsapp_connections set claim_expires_at = now() - interval '1 minute'
+      where phone_number_id = $1
+    
+params: 6040951789
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/src/pg-core/session.ts:73:10
+ ❯ src/whatsapp-claim-concurrency.pg.test.ts:104:5
+    102|     const squat = await claim(squatter.cookie, phoneNumberId, 'token-s…
+    103|     expect(squat.status).toBe(201);
+    104|     await db.execute(sql`
+       |     ^
+    105|       update whatsapp_connections set claim_expires_at = now() - inter…
+    106|       where phone_number_id = ${phoneNumberId}
+
+Caused by: error: column "claim_expires_at" of relation "whatsapp_connections" does not exist
+ ❯ ../../node_modules/.pnpm/pg-pool@3.14.0_pg@8.23.0/node_modules/pg-pool/index.js:45:11
+ ❯ ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/node-postgres/session.js:113:20
+ ❯ NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@electri_0630a7d9f9ce72bc62780328afa814c2/node_modules/drizzle-orm/pg-core/session.js:39:16
+ ❯ src/whatsapp-claim-concurrency.pg.test.ts:104:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 151, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '40', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'analyze.c', routine: 'transformUpdateTargetList' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 2 passed (7)
+   Start at  22:35:39
+   Duration  11.98s (transform 1.82s, setup 0ms, import 5.91s, tests 5.61s, environment 0ms)
+
+undefined
+C:\Users\pablo\Documents\OpenCode\Aluguei-app\.claude\worktrees\agent-a1386cab33fb65dcd\tests\integration:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run --config vitest.pg.config.ts src/g3-e2-migration-0021.pg.test.ts src/whatsapp-claim-concurrency.pg.test.ts
+
+# exit=1

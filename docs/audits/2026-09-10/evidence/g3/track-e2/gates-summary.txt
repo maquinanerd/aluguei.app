@@ -1,0 +1,16 @@
+# comando: gates sem cache da trilha E2 (um arquivo gates-*.txt por gate) + git status --porcelain -- packages/db depois do db:generate
+# árvore: commit 4364abd (g3/track-e2) — trilha E2 completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T02:10:45Z
+
+install          exit=0
+format           exit=0
+lint             exit=0
+typecheck        exit=0
+test             exit=0
+build            exit=0
+secscan          exit=0
+audit-critical   exit=0
+dbgen            exit=0
+db-drift=NO      (git status --porcelain -- packages/db vazio depois do db:generate: a 0021 já está no repositório)
+
+# exit=0

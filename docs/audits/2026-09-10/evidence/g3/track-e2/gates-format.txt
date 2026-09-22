@@ -1,0 +1,9 @@
+# comando: pnpm format:check
+# árvore: commit 4364abd (g3/track-e2) — trilha E2 completa; fora do commit só as evidências
+# data (UTC): 2026-09-22T02:01:11Z
+
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+
+# exit=0

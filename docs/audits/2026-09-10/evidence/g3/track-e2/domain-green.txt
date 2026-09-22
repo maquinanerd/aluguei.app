@@ -1,0 +1,16 @@
+# comando: pnpm --filter @aluguei/domain test
+# árvore: g3/track-e2 em 75ad281 (correção da API, domínio e migration 0021)
+# data (UTC): 2026-09-22T01:47:02Z
+
+$ vitest run src
+
+ RUN  v4.1.10 C:/Users/pablo/Documents/OpenCode/Aluguei-app/.claude/worktrees/agent-a1386cab33fb65dcd/packages/domain
+
+
+ Test Files  26 passed (26)
+      Tests  217 passed (217)
+   Start at  22:47:03
+   Duration  2.59s (transform 1.90s, setup 0ms, import 3.31s, tests 392ms, environment 5ms)
+
+
+# exit=0
