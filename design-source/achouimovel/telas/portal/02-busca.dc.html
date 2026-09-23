@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Black.otf") format("opentype");font-weight:900;font-display:swap}
+body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Busca" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:980px">
+    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Portal · tela 2</div>
+    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Página de busca · <code style="font-size:20px;font-weight:600">/alugar/goiania-go/setor-bueno/apartamento/2-quartos</code></h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Mesma estrutura em <code>/comprar/…</code>. Componentes: SiteHeader, FaixaTipo, Breadcrumb, FiltrosLaterais (gaveta no celular), ChipsFiltro, Ordenacao, ImovelCard, ResumoPreco, BairrosProximos, LinksModificadores, FaqCalculado, AlertaImovel, SiteFooter. Dados: page_stats da combinação (contagem, mediana, faixa, mediana por quartos), geo.vizinhos. Estatística só aparece com amostra de 5 ou mais. Números fictícios.</p>
+  </div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div id="busca-desktop" style="display:flex;flex-direction:column;gap:10px;flex:none">
+      <div style="font-size:12px;font-weight:700;color:#555555">Desktop · 1440 · com anúncios (index)</div>
+      <div style="width:1440px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 64px">
+          <div style="display:flex;align-items:center;gap:40px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#0B4A7E">Imóvel</span></span></div><nav style="display:flex;gap:28px;font-size:14px;font-weight:600"><span style="box-shadow:0 2px 0 #111111;padding:4px 0">Alugar</span><span style="padding:4px 0">Comprar</span><span style="padding:4px 0">Cidades</span></nav></div>
+          <span style="font-size:14px;font-weight:600;color:#333333">Anunciar imóvel</span>
+        </header>
+        <div style="background-color:#0B4A7E;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:56px 56px;color:#FFFFFF;padding:36px 64px 44px;display:flex;flex-direction:column;gap:16px">
+          <nav style="display:flex;flex-wrap:wrap;gap:8px;font-size:13px;font-weight:600"><span>Aluguel</span><span>›</span><span>Goiânia</span><span>›</span><span>Setor Bueno</span><span>›</span><span>Apartamento</span><span>›</span><span>2 quartos</span></nav>
+          <h2 style="margin:0;font-size:44px;line-height:1.06;font-weight:800;letter-spacing:-0.035em;max-width:24ch;text-wrap:balance">48 apartamentos de 2 quartos para alugar no Setor Bueno, Goiânia, GO</h2>
+          <div style="display:flex;gap:24px;font-size:14px;font-weight:600"><span style="border-bottom:1px solid #FFFFFF;padding-bottom:2px">Ver 31 à venda no Setor Bueno →</span><span style="border-bottom:1px solid #FFFFFF;padding-bottom:2px">Todos os apartamentos em Goiânia →</span></div>
+        </div>
+
+        <div style="padding:40px 64px 0;display:grid;grid-template-columns:280px minmax(0,1fr);gap:48px;align-items:start">
+          <aside style="display:flex;flex-direction:column;border-top:1px solid #111111">
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:12px"><span style="font-size:14px;font-weight:700">Finalidade</span><div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #111111;border-radius:4px;overflow:hidden;font-size:14px;font-weight:700"><span style="height:40px;display:flex;align-items:center;justify-content:center;background:#111111;color:#FFFFFF">Alugar</span><span style="height:40px;display:flex;align-items:center;justify-content:center">Comprar</span></div></div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:700">Tipo</span>
+              <sc-for list="{{ tipos }}" as="t" hint-placeholder-count="7"><div style="display:flex;align-items:center;gap:10px;font-size:14px;min-height:28px"><span style="width:18px;height:18px;border:1.5px solid {{ t.chkBd }};background:{{ t.chkBg }};border-radius:4px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:11px;font-weight:800">{{ t.chk }}</span><span style="width:10px;height:10px;background:{{ t.cor }};display:block"></span><span style="flex:1;font-weight:{{ t.peso }}">{{ t.nome }}</span><span style="font-size:12.5px;color:#6E6E6E">{{ t.n }}</span></div></sc-for>
+            </div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:12px"><span style="font-size:14px;font-weight:700">Quartos</span><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:14px;font-weight:700"><span style="height:40px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">1</span><span style="height:40px;border:1px solid #111111;background:#111111;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center">2</span><span style="height:40px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">3</span><span style="height:40px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">4+</span></div></div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;font-size:14px"><span style="font-weight:700">Valor total até</span><span style="font-weight:700;color:#037A4B">R$ 3.000</span></div><div style="position:relative;height:20px"><span style="position:absolute;left:0;right:0;top:9px;height:2px;background:#E6E6E3;display:block"></span><span style="position:absolute;left:0;width:58%;top:9px;height:2px;background:#111111;display:block"></span><span style="position:absolute;left:calc(58% - 10px);top:0;width:20px;height:20px;border-radius:50%;background:#FFFFFF;border:2px solid #111111;display:block"></span></div><span style="font-size:12px;color:#6E6E6E">Aluguel + condomínio + IPTU</span></div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:700">Características</span>
+              <sc-for list="{{ extras }}" as="x" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:10px;font-size:14px;min-height:28px"><span style="width:18px;height:18px;border:1.5px solid #B9B9B4;border-radius:4px;display:block"></span><span style="flex:1">{{ x.l }}</span><span style="font-size:12.5px;color:#6E6E6E">{{ x.n }}</span></div></sc-for>
+            </div>
+          </aside>
+
+          <div style="display:flex;flex-direction:column;gap:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3"><span style="height:34px;padding:0 10px 0 12px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">{{ c }}<span style="font-size:15px;font-weight:500">×</span></span></sc-for>
+                <span style="font-size:13px;font-weight:700;color:#037A4B;padding:0 6px">Limpar tudo</span>
+              </div>
+              <span style="height:40px;padding:0 14px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600">Ordenar: mais recentes <span style="color:#555555">▾</span></span>
+            </div>
+
+            <div style="border-top:1px solid #111111;border-bottom:1px solid #E6E6E3;display:grid;grid-template-columns:1.1fr 1fr 1.6fr;">
+              <div style="padding:20px 24px 20px 0;display:flex;flex-direction:column;gap:4px;border-right:1px solid #E6E6E3"><span style="font-size:12.5px;font-weight:600;color:#555555">Valor total mediano</span><span style="font-size:32px;font-weight:800;letter-spacing:-0.035em">R$ 2.720<span style="font-size:14px;font-weight:600">/mês</span></span><span style="font-size:12.5px;color:#555555">Aluguel mediano R$ 2.150</span></div>
+              <div style="padding:20px 24px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #E6E6E3"><span style="font-size:12.5px;font-weight:600;color:#555555">Faixa do valor total</span><span style="font-size:22px;font-weight:800;letter-spacing:-0.025em">R$ 1.890 a R$ 4.650</span><span style="font-size:12.5px;color:#555555">48 anúncios ativos</span></div>
+              <div style="padding:20px 0 20px 24px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12.5px;font-weight:600;color:#555555">Mediana do total por quartos no bairro</span>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><sc-for list="{{ porQuartos }}" as="q" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12.5px;font-weight:600;color:#333333">{{ q.l }}</span><span style="font-size:17px;font-weight:800;letter-spacing:-0.02em">{{ q.v }}</span><span style="font-size:11.5px;color:#6E6E6E">{{ q.n }}</span></div></sc-for></div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px 24px">
+              <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div style="position:relative;aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span><span style="position:absolute;right:10px;bottom:10px;background:#FFFFFF;font-size:11.5px;font-weight:600;color:#333333;padding:4px 8px;border-radius:4px">1/{{ c.fotos }}</span></div>
+                  <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:#0B4A7E;display:block"></span>Apartamento · Setor Bueno, Goiânia · GO</div>
+                  <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:12.5px;color:#555555">{{ c.detalhe }}</span></div>
+                  <div style="font-size:13px;font-weight:600;color:#333333;padding-top:10px;border-top:1px solid #EFEFEC">{{ c.attrs }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:center;gap:6px;font-size:14px;font-weight:700;padding-top:8px">
+              <span style="width:40px;height:40px;border-radius:4px;background:#111111;color:#FFFFFF;display:flex;align-items:center;justify-content:center">1</span><span style="width:40px;height:40px;border-radius:4px;border:1px solid #D5D5D0;display:flex;align-items:center;justify-content:center">2</span><span style="width:40px;height:40px;border-radius:4px;border:1px solid #D5D5D0;display:flex;align-items:center;justify-content:center">3</span><span style="height:40px;padding:0 14px;border-radius:4px;border:1px solid #D5D5D0;display:flex;align-items:center">Próxima →</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:64px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Bairros próximos ao Setor Bueno</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:32px">
+              <sc-for list="{{ vizinhos }}" as="b" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:14px 0;border-bottom:1px solid #EFEFEC"><span style="font-size:15px;font-weight:700;color:#037A4B">{{ b.nome }}</span><span style="font-size:14px;font-weight:700;text-align:right">{{ b.med }}</span><span style="font-size:12.5px;color:#555555">{{ b.n }} apartamentos de 2 quartos</span><span style="font-size:12px;color:#6E6E6E;text-align:right">mediana</span></div></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">No Setor Bueno também</h3>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ modificadores }}" as="m" hint-placeholder-count="6"><div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #EFEFEC;font-size:14.5px"><span style="font-weight:600;color:#037A4B">{{ m.l }}</span><span style="color:#555555">{{ m.n }}</span></div></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:64px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:0">
+            <h3 style="margin:0 0 4px;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Perguntas sobre aluguel no Setor Bueno</h3>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;gap:16px;font-size:16px;font-weight:700">Quanto custa alugar um apartamento de 2 quartos no Setor Bueno?<span style="font-weight:500">−</span></div><p style="margin:0;font-size:15px;line-height:1.7;color:#333333;max-width:62ch">O valor total mediano é R$ 2.720 por mês, somando aluguel, condomínio e IPTU. Metade dos 48 anúncios ativos custa menos que isso.</p></div>
+            <sc-for list="{{ faq }}" as="f" hint-placeholder-count="3"><div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;justify-content:space-between;gap:16px;font-size:16px;font-weight:700">{{ f }}<span style="font-weight:500">+</span></div></sc-for>
+            <span style="margin-top:12px;font-size:12px;color:#6E6E6E">Respostas calculadas dos anúncios ativos em 22/09/2026.</span>
+          </div>
+          <div style="background:#F4F4F2;padding:32px;display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:13px;font-weight:700;color:#555555">Alerta de imóvel</span>
+            <h3 style="margin:0;font-size:24px;line-height:1.15;font-weight:700;letter-spacing:-0.02em">Receba os novos apartamentos de 2 quartos no Setor Bueno.</h3>
+            <div style="height:48px;background:#FFFFFF;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px;color:#6E6E6E">E-mail ou WhatsApp</div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:#333333"><span style="flex:none;width:18px;height:18px;border:1.5px solid #B9B9B4;border-radius:4px;background:#FFFFFF;display:block;margin-top:1px"></span>Aceito receber avisos de imóveis e li a <a href="#busca-desktop">política de privacidade</a>. Posso cancelar quando quiser.</div>
+            <span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+          </div>
+        </div>
+        <div style="margin-top:104px;background:#F4F4F2;height:120px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#555555">SiteFooter (igual à Home)</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:48px;flex:none">
+      <div id="busca-poucos" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#555555">Desktop · poucos anúncios (menos de 3: noindex, follow)</div>
+        <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
+          <div style="background-color:#D42A2A;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:56px 56px;color:#FFFFFF;padding:32px 48px 36px;display:flex;flex-direction:column;gap:12px">
+            <nav style="display:flex;gap:8px;font-size:13px;font-weight:600"><span>Aluguel</span><span>›</span><span>Goiânia</span><span>›</span><span>Setor Sul</span><span>›</span><span>Kitnet e studio</span></nav>
+            <h2 style="margin:0;font-size:36px;line-height:1.08;font-weight:800;letter-spacing:-0.035em">2 kitnets e studios para alugar no Setor Sul, Goiânia, GO</h2>
+          </div>
+          <div style="padding:32px 48px 48px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:32px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+                <sc-for list="{{ poucos }}" as="c" hint-placeholder-count="2">
+                  <div style="display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span></div><div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:#D42A2A;display:block"></span>Kitnet e studio · Setor Sul, Goiânia · GO</div><span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:13px;font-weight:600;color:#333333">{{ c.attrs }}</span></div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <h3 style="margin:0;font-size:21px;font-weight:700;letter-spacing:-0.02em;padding-bottom:10px;border-bottom:1px solid #111111">Kitnets e studios em bairros vizinhos</h3>
+                <sc-for list="{{ vizinhosPoucos }}" as="b" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:12px 0;border-bottom:1px solid #EFEFEC"><span style="font-size:15px;font-weight:700;color:#037A4B">{{ b.nome }}</span><span style="font-size:14px;font-weight:700;text-align:right">{{ b.med }}</span><span style="font-size:12.5px;color:#555555">{{ b.n }} anúncios</span><span style="font-size:12px;color:#6E6E6E;text-align:right">{{ b.rot }}</span></div></sc-for>
+              </div>
+            </div>
+            <div style="border:2px solid #111111;padding:24px;display:flex;flex-direction:column;gap:12px">
+              <span style="font-size:13px;font-weight:700;color:#555555">Poucas opções agora</span>
+              <h3 style="margin:0;font-size:22px;line-height:1.15;font-weight:700;letter-spacing:-0.02em">Avisamos quando aparecer uma kitnet no Setor Sul.</h3>
+              <div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px;color:#6E6E6E">E-mail ou WhatsApp</div>
+              <div style="display:flex;gap:10px;font-size:12.5px;line-height:1.55;color:#333333"><span style="flex:none;width:18px;height:18px;border:1.5px solid #B9B9B4;border-radius:4px;display:block"></span>Aceito receber avisos e li a política de privacidade.</div>
+              <span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+            </div>
+          </div>
+          <div style="padding:0 48px 32px;font-size:12px;color:#6E6E6E">Sem resumo de preço, sem FAQ e fora do sitemap: a amostra tem menos de 5 anúncios.</div>
+        </div>
+      </div>
+
+      <div id="busca-vazia" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#555555">Desktop · nenhum anúncio (noindex, follow)</div>
+        <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
+          <div style="background-color:#0B4A7E;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:56px 56px;color:#FFFFFF;padding:32px 48px 36px;display:flex;flex-direction:column;gap:12px">
+            <nav style="display:flex;gap:8px;font-size:13px;font-weight:600"><span>Venda</span><span>›</span><span>Goiânia</span><span>›</span><span>Setor Bueno</span><span>›</span><span>Apartamento</span><span>›</span><span>4 quartos</span></nav>
+            <h2 style="margin:0;font-size:36px;line-height:1.08;font-weight:800;letter-spacing:-0.035em">Apartamentos de 4 quartos à venda no Setor Bueno, Goiânia, GO</h2>
+          </div>
+          <div style="padding:40px 48px 48px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:24px;border-bottom:1px solid #E6E6E3"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Nenhum imóvel com esses filtros agora.</span><span style="font-size:15px;line-height:1.65;color:#333333">Tente outro número de quartos ou veja os bairros ao lado. Você também pode criar um alerta e receber o próximo que for publicado.</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ sugestoes }}" as="s" hint-placeholder-count="4"><span style="height:40px;padding:0 14px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;font-size:13.5px;font-weight:600">{{ s }}</span></sc-for>
+              </div>
+            </div>
+            <div style="border:2px solid #111111;padding:24px;display:flex;flex-direction:column;gap:12px">
+              <h3 style="margin:0;font-size:22px;line-height:1.15;font-weight:700;letter-spacing:-0.02em">Criar alerta para esta busca</h3>
+              <div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px;color:#6E6E6E">E-mail ou WhatsApp</div>
+              <span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="busca-mobile" style="display:flex;gap:32px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#555555">Celular · 390 · lista</div>
+        <div style="width:390px;background:#FFFFFF;display:flex;flex-direction:column;position:relative">
+          <header style="height:56px;border-bottom:1px solid #ECECEC;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px">
+            <span style="width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span></span>
+            <span style="text-align:center;font-size:19px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#0B4A7E">Imóvel</span></span>
+            <span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:15px;height:15px;border:2px solid #111111;border-radius:50%;display:block"></span></span>
+          </header>
+          <div style="background-color:#0B4A7E;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:40px 40px;color:#FFFFFF;padding:20px 18px 24px;display:flex;flex-direction:column;gap:10px">
+            <nav style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;font-weight:600"><span>Aluguel</span><span>›</span><span>Goiânia</span><span>›</span><span>Setor Bueno</span><span>›</span><span>Apartamento</span></nav>
+            <h2 style="margin:0;font-size:25px;line-height:1.1;font-weight:800;letter-spacing:-0.03em">48 apartamentos de 2 quartos para alugar no Setor Bueno, Goiânia, GO</h2>
+          </div>
+          <div style="position:sticky;top:0;background:#FFFFFF;border-bottom:1px solid #E6E6E3;padding:10px 18px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <span style="height:44px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700">Filtros<span style="min-width:20px;height:20px;border-radius:10px;background:#111111;color:#FFFFFF;font-size:11.5px;display:flex;align-items:center;justify-content:center">3</span></span>
+            <span style="height:44px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">Mais recentes ▾</span>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #E6E6E3">
+            <span style="font-size:12.5px;font-weight:600;color:#555555">Valor total mediano no bairro</span>
+            <span style="font-size:28px;font-weight:800;letter-spacing:-0.03em">R$ 2.720<span style="font-size:14px;font-weight:600">/mês</span></span>
+            <span style="font-size:12.5px;color:#555555">Faixa de R$ 1.890 a R$ 4.650 · 48 anúncios</span>
+          </div>
+          <div style="padding:20px 18px 0;display:flex;flex-direction:column;gap:28px">
+            <sc-for list="{{ cardsMobile }}" as="c" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="position:relative;aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel · deslize</span><span style="position:absolute;right:10px;bottom:10px;background:#FFFFFF;font-size:11.5px;font-weight:600;color:#333333;padding:4px 8px;border-radius:4px">1/{{ c.fotos }}</span></div>
+                <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:#0B4A7E;display:block"></span>Apartamento · Setor Bueno</div>
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:12.5px;color:#555555">{{ c.detalhe }}</span></div>
+                <div style="font-size:13px;font-weight:600;color:#333333">{{ c.attrs }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin:28px 18px 32px;background:#F4F4F2;padding:20px;display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:17px;font-weight:700;letter-spacing:-0.015em">Receba os novos anúncios desta busca</span>
+            <span style="height:48px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#555555">Celular · 390 · gaveta de filtros aberta</div>
+        <div style="width:390px;height:844px;background:#FFFFFF;display:flex;flex-direction:column">
+          <div style="height:56px;border-bottom:1px solid #E6E6E3;display:grid;grid-template-columns:44px 1fr auto;align-items:center;padding:0 12px 0 6px">
+            <span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">×</span>
+            <span style="font-size:16px;font-weight:700">Filtros</span>
+            <span style="font-size:14px;font-weight:700;color:#037A4B">Limpar</span>
+          </div>
+          <div style="flex:1;overflow:hidden;padding:0 18px;display:flex;flex-direction:column">
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:12px"><span style="font-size:15px;font-weight:700">Finalidade</span><div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #111111;border-radius:4px;overflow:hidden;font-size:15px;font-weight:700"><span style="height:44px;display:flex;align-items:center;justify-content:center;background:#111111;color:#FFFFFF">Alugar</span><span style="height:44px;display:flex;align-items:center;justify-content:center">Comprar</span></div></div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:12px"><span style="font-size:15px;font-weight:700">Quartos</span><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:15px;font-weight:700"><span style="height:44px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">1</span><span style="height:44px;background:#111111;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center">2</span><span style="height:44px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">3</span><span style="height:44px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center">4+</span></div></div>
+            <div style="padding:18px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700;margin-bottom:6px">Tipo</span>
+              <sc-for list="{{ tipos }}" as="t" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:12px;font-size:15px;min-height:44px"><span style="width:20px;height:20px;border:1.5px solid {{ t.chkBd }};background:{{ t.chkBg }};border-radius:4px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:12px;font-weight:800">{{ t.chk }}</span><span style="width:10px;height:10px;background:{{ t.cor }};display:block"></span><span style="flex:1">{{ t.nome }}</span><span style="font-size:13px;color:#6E6E6E">{{ t.n }}</span></div></sc-for>
+            </div>
+          </div>
+          <div style="border-top:1px solid #E6E6E3;padding:12px 18px 20px"><span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Ver 48 imóveis</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const on = {chk:'✓',chkBd:'#111111',chkBg:'#111111',peso:700}, off = {chk:'',chkBd:'#B9B9B4',chkBg:'#FFFFFF',peso:500};
+    const tipos = [
+      ['Apartamento','#0B4A7E',48,on],['Casa','#FF6A2A',12,off],['Casa de condomínio','#037A4B',3,off],['Sobrado','#4A0A4E',2,off],
+      ['Kitnet e studio','#D42A2A',9,off],['Cobertura','#0B3A12',4,off],['Sala e loja','#B5B5B5',7,off]
+    ].map(([nome,cor,n,s])=>({nome,cor,n,...s}));
+    const cards = [
+      {fotos:12,valor:'R$ 2.910 total/mês',detalhe:'Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130',attrs:'72 m² · 2 quartos · 1 suíte · 1 vaga'},
+      {fotos:8,valor:'R$ 2.480 total/mês',detalhe:'Aluguel R$ 1.900 · Cond. R$ 470 · IPTU R$ 110',attrs:'64 m² · 2 quartos · 1 vaga'},
+      {fotos:16,valor:'R$ 3.720 total/mês',detalhe:'Aluguel R$ 2.900 · Cond. R$ 650 · IPTU R$ 170',attrs:'88 m² · 2 suítes · 2 vagas · mobiliado'},
+      {fotos:10,valor:'R$ 2.150 total/mês',detalhe:'Aluguel R$ 1.650 · Cond. R$ 410 · IPTU R$ 90',attrs:'58 m² · 2 quartos · 1 vaga · aceita pet'},
+      {fotos:14,valor:'R$ 3.060 total/mês',detalhe:'Aluguel R$ 2.400 · Cond. R$ 520 · IPTU R$ 140',attrs:'76 m² · 2 quartos · 1 suíte · 2 vagas'},
+      {fotos:9,valor:'R$ 2.690 total/mês',detalhe:'Aluguel R$ 2.100 · Cond. R$ 470 · IPTU R$ 120',attrs:'70 m² · 2 quartos · 1 vaga'}
+    ];
+    return {
+      tipos, cards, cardsMobile: cards.slice(0,2),
+      extras: [{l:'Mobiliado',n:11},{l:'Aceita pet',n:19},{l:'Com vaga',n:44},{l:'Com suíte',n:27}],
+      chips: ['Apartamento','2 quartos','Até R$ 3.000'],
+      porQuartos: [{l:'1 quarto',v:'R$ 1.780',n:'22 anúncios'},{l:'2 quartos',v:'R$ 2.720',n:'48 anúncios'},{l:'3 quartos',v:'R$ 4.160',n:'31 anúncios'}],
+      vizinhos: [['Setor Marista',21,'R$ 3.240'],['Setor Oeste',17,'R$ 2.510'],['Jardim América',14,'R$ 2.230'],['Nova Suíça',11,'R$ 2.380'],['Setor Sul',8,'R$ 2.090'],['Setor Pedro Ludovico',6,'R$ 1.960']].map(([nome,n,med])=>({nome,n,med})),
+      modificadores: [{l:'Apartamentos de 2 quartos mobiliados',n:'11 anúncios'},{l:'Apartamentos de 2 quartos que aceitam pet',n:'19 anúncios'},{l:'Apartamentos de 2 quartos até R$ 2.000',n:'9 anúncios'},{l:'Apartamentos de 3 quartos',n:'31 anúncios'},{l:'Todos os imóveis para alugar no Setor Bueno',n:'86 anúncios'},{l:'Apartamentos de 2 quartos à venda no Setor Bueno',n:'19 anúncios'}],
+      faq: ['Qual a faixa de preço dos apartamentos de 2 quartos no bairro?','Quantos apartamentos de 2 quartos estão para alugar no Setor Bueno?','Quanto custa um apartamento de 3 quartos no Setor Bueno?'],
+      poucos: [{valor:'R$ 1.180 total/mês',attrs:'28 m² · 1 quarto · mobiliado'},{valor:'R$ 1.390 total/mês',attrs:'34 m² · 1 quarto · 1 vaga'}],
+      vizinhosPoucos: [['Setor Universitário',9,'R$ 1.410','mediana'],['Setor Central',6,'R$ 1.250','mediana'],['Setor Bueno',4,'—','amostra pequena'],['Setor Leste Vila Nova',3,'—','amostra pequena']].map(([nome,n,med,rot])=>({nome,n,med,rot})),
+      sugestoes: ['3 quartos à venda no Setor Bueno','4 quartos à venda no Setor Marista','Casas de 4 quartos em Goiânia','Todos à venda no Setor Bueno']
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E4E0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B;-webkit-font-smoothing:antialiased}
+a{color:#417D55;text-underline-offset:3px}a:hover{color:#2F5F3F}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Gestão · ajustes nas telas existentes" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:1040px">
+    <div style="font-size:12px;font-weight:600;color:#555A52">Entrega 2 · Gestão · ajustes nas telas que já estão no ar</div>
+    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-0.02em">Financeiro, contratos, fotos, análise, plano e uso, plataforma</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#555A52">Só o que muda. O restante de cada tela segue como está no ar. Componente novo transversal: AvisoModoTeste (peg-badge warning + faixa #FDF3E3). Dados fictícios.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+
+    <div id="financeiro" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">1 · Cobranças e split · /app/charges/[id] · aviso de modo de teste</div>
+      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:10px;align-items:center;background:#FDF3E3;border:1px solid #F3DDB8;border-radius:8px;padding:10px 14px;font-size:13px;color:#7A4605"><span style="height:20px;padding:0 8px;border-radius:4px;background:#FFFFFF;color:#A05C06;font-size:11px;font-weight:600;display:flex;align-items:center">Modo de teste</span><span style="flex:1">Cobrança real e split pelo Asaas chegam em breve. Nenhum valor é cobrado ou transferido por este painel ainda.</span><span style="font-weight:500;color:#A05C06">Saiba mais</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Locação 2024-061 · Apto 2 qts Setor Bueno</span><span style="font-size:20px;font-weight:600">Cobrança de outubro · R$ 2.910,00</span></div><span style="height:20px;padding:0 8px;border-radius:4px;background:#E9EFFD;color:#1D4ED8;font-size:11px;font-weight:500;display:flex;align-items:center">Em aberto · vence 05/10</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Composição</div>
+            <sc-for list="{{ comp }}" as="c" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid #F0F0F0;font-size:13px"><span style="color:#555A52">{{ c.l }}</span><span style="font-weight:{{ c.w }}">{{ c.v }}</span></div></sc-for>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600;display:flex;justify-content:space-between">Split previsto<span style="font-weight:500;color:#6E746B;font-size:12px">sobre o aluguel recebido</span></div>
+            <sc-for list="{{ split }}" as="s" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) 60px 110px;gap:10px;padding:9px 16px;border-bottom:1px solid #F0F0F0;font-size:13px"><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ s.n }}</span><span style="font-size:11.5px;color:#6E746B">{{ s.p }}</span></span><span style="color:#555A52;text-align:right">{{ s.pct }}</span><span style="text-align:right;font-weight:600">{{ s.v }}</span></div></sc-for>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px"><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500;opacity:.5">Emitir cobrança real</span><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Registrar pagamento manual</span><span style="font-size:12px;color:#6E746B;align-self:center">"Emitir cobrança real" fica desativado até o Asaas entrar no ar.</span></div>
+      </div>
+    </div>
+
+    <div id="limite" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">1b · Ativar locação acima do limite do plano · 409</div>
+      <div style="width:460px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:12px;box-shadow:0 12px 32px rgba(47,51,43,.15);padding:20px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:15px;font-weight:600">Limite de contratos ativos atingido</span>
+        <span style="font-size:13px;line-height:1.6;color:#555A52">Seu plano Gestão Locação inclui 100 contratos ativos e você já tem 100. Encerre um contrato ou peça um plano maior para ativar esta locação. Nada foi apagado.</span>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Contratos ativos</span><span style="font-weight:600">100 de 100</span></div><span style="height:6px;background:#FDECEC;border-radius:3px;display:flex"><span style="width:100%;background:#DC2626;border-radius:3px;display:block"></span></span></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px"><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Voltar</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Pedir plano maior</span></div>
+      </div>
+    </div>
+
+    <div id="contrato-locacao" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">2 · Contrato de locação · envelope · /app/contracts/[id]</div>
+      <div style="width:460px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:600">Envelope de assinatura</span><span style="height:20px;padding:0 8px;border-radius:4px;background:#FDF3E3;color:#A05C06;font-size:11px;font-weight:600;display:flex;align-items:center">Modo de teste</span></div>
+        <span style="font-size:12.5px;line-height:1.55;color:#555A52">Assinatura com validade jurídica pelo Clicksign chega em breve. Hoje o envelope simula os eventos para você testar o fluxo.</span>
+        <sc-for list="{{ assin }}" as="s" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #F0F0F0;font-size:13px"><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ s.n }}</span><span style="font-size:11.5px;color:#6E746B">{{ s.p }}</span></span><span style="height:20px;padding:0 8px;border-radius:4px;background:{{ s.bg }};color:{{ s.fg }};font-size:11px;font-weight:500;display:flex;align-items:center">{{ s.st }}</span></div></sc-for>
+      </div>
+    </div>
+
+    <div id="analise" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">3 · Análise cadastral · /app/screening/[id]</div>
+      <div style="width:460px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:#FDF3E3;border:1px solid #F3DDB8;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.5;color:#7A4605"><span style="font-weight:700">!</span><span>Consulta ao Serasa e SPC em breve. As regras abaixo usam só os dados informados na candidatura.</span></div>
+        <sc-for list="{{ regras }}" as="r" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-top:1px solid #F0F0F0"><span style="width:16px;height:16px;border-radius:50%;background:{{ r.bg }};color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px">{{ r.mk }}</span><span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:500">{{ r.l }}</span><span style="font-size:11.5px;color:#6E746B">{{ r.s }}</span></span><span style="font-size:11.5px;color:#555A52">{{ r.fonte }}</span></div></sc-for>
+        <div style="display:flex;gap:8px"><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Aprovar com motivo</span><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Reprovar com motivo</span></div>
+      </div>
+    </div>
+
+    <div id="fotos" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">4 · Cadastro do imóvel · etapa Fotos e legendas · caption novo</div>
+      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Novo imóvel · 5 de 7</span><span style="font-size:20px;font-weight:600">Fotos e legendas</span></div><span style="font-size:12.5px;color:#A05C06;font-weight:500">3 de 5 fotos públicas · faltam 2 para publicar</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+          <sc-for list="{{ fotos }}" as="f" hint-placeholder-count="4">
+            <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+              <div style="aspect-ratio:4/3;background:#F0F0F0;position:relative;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:#6E746B">{{ f.n }}<span style="position:absolute;left:8px;top:8px;height:18px;padding:0 6px;border-radius:4px;background:#FFFFFF;font-size:10.5px;font-weight:600;display:flex;align-items:center">{{ f.tag }}</span></div>
+              <div style="padding:10px;display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:11.5px;font-weight:500">Legenda</span>
+                <div style="height:32px;border:{{ f.bd }};border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12.5px;color:{{ f.cor }}">{{ f.leg }}</div>
+                <sc-if value="{{ f.sug }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;font-size:11.5px;font-weight:500"><span style="color:#1D4ED8">Sugestão da IA</span><span style="color:#417D55">Aceitar</span><span style="color:#417D55">Editar</span><span style="color:#555A52">Descartar</span></div></sc-if>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#555A52"><span style="width:26px;height:16px;border-radius:8px;background:{{ f.pubBg }};display:flex;align-items:center;justify-content:{{ f.pubJ }};padding:2px"><span style="width:12px;height:12px;border-radius:50%;background:#FFFFFF;display:block"></span></span>Pública no portal</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size:12px;color:#6E746B">Metadados e localização da foto (EXIF/GPS) são removidos antes de ir para o portal. A primeira foto é a capa.</span>
+      </div>
+    </div>
+
+    <div id="plano-uso" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">5 · Configurações › Plano e uso (novo) · /app/settings/plano</div>
+      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Plano atual</span><span style="font-size:18px;font-weight:600">Gestão Locação</span><span style="font-size:12.5px;color:#555A52">Desde 02/03/2026</span></div><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Pedir troca de plano</span></div>
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Uso</div>
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:14px"><sc-for list="{{ uso }}" as="u" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ u.l }}</span><span style="font-weight:600;color:{{ u.cor }}">{{ u.v }}</span></div><span style="height:6px;background:#F0F0F0;border-radius:3px;display:flex"><span style="width:{{ u.w }};background:{{ u.bar }};border-radius:3px;display:block"></span></span></div></sc-for></div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;align-self:start">
+          <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Módulos do plano</div>
+          <sc-for list="{{ modulos }}" as="m" hint-placeholder-count="10"><div style="display:flex;justify-content:space-between;align-items:center;height:34px;padding:0 16px;border-bottom:1px solid #F0F0F0;font-size:12.5px"><span style="color:{{ m.cor }}">{{ m.l }}</span><span style="font-size:11.5px;font-weight:500;color:{{ m.stCor }}">{{ m.st }}</span></div></sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div id="plataforma" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">6 · Administração da plataforma · /plataforma/imobiliarias · fila de aprovação com plano pedido</div>
+      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;display:grid;grid-template-columns:minmax(0,1fr) 360px;overflow:hidden">
+        <div style="display:flex;flex-direction:column">
+          <div style="padding:20px 24px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:600">Imobiliárias em análise</span><span style="font-size:12.5px;color:#555A52">4 aguardando · mais antiga há 20 h</span></div>
+          <div style="margin:0 24px 24px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 130px 120px 90px;height:36px;align-items:center;padding:0 14px;font-size:12px;font-weight:500;color:#555A52;background:#FBFBFA;border-bottom:1px solid #E6E6E3"><span>Imobiliária</span><span>Plano pedido</span><span>CRECI</span><span style="text-align:right">Há</span></div>
+            <sc-for list="{{ fila }}" as="f" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) 130px 120px 90px;min-height:48px;align-items:center;padding:0 14px;font-size:13px;border-bottom:1px solid #F0F0F0;background:{{ f.bg }}"><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ f.n }}</span><span style="font-size:11.5px;color:#6E746B">{{ f.c }}</span></span><span><span style="height:20px;padding:0 8px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:11px;font-weight:500;display:inline-flex;align-items:center">{{ f.p }}</span></span><span style="font-size:12px;color:{{ f.crCor }}">{{ f.cr }}</span><span style="text-align:right;color:#555A52">{{ f.h }}</span></div></sc-for>
+          </div>
+        </div>
+        <div style="border-left:1px solid #E6E6E3;background:#FFFFFF;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:15px;font-weight:600">Imobiliária Exemplo</span>
+          <sc-for list="{{ dadosOrg }}" as="d" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px solid #F0F0F0"><span style="color:#555A52">{{ d.l }}</span><span style="font-weight:500">{{ d.v }}</span></div></sc-for>
+          <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Plano na aprovação</span><div style="height:36px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px">Gestão Locação<span style="color:#6E746B">⌄</span></div><span style="font-size:11.5px;color:#6E746B">Pré-selecionado com o plano pedido no cadastro.</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px"><span style="height:34px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">Aprovar</span><span style="height:34px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">Recusar com motivo</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const ok = {bg:'#E9F7EE',fg:'#0D7A38'}, pend = {bg:'#FDF3E3',fg:'#A05C06'};
+    const F = (n,tag,leg,sug,pub) => ({n,tag,leg:leg||'Escreva a legenda',sug,cor:leg?'#2F332B':'#6E746B',bd:sug?'1px dashed #93A9E8':'1px solid #C7C7C7',pubBg:pub?'#41945D':'#C7C7C7',pubJ:pub?'flex-end':'flex-start'});
+    const inc = {cor:'#2F332B',st:'Incluído',stCor:'#0D7A38'}, fora = {cor:'#6E746B',st:'Fora do plano',stCor:'#6E746B'};
+    return {
+      comp: [{l:'Aluguel',v:'R$ 2.300,00',w:500},{l:'Condomínio',v:'R$ 480,00',w:500},{l:'IPTU',v:'R$ 130,00',w:500},{l:'Total',v:'R$ 2.910,00',w:600}],
+      split: [{n:'Marcos Tavares',p:'Proprietário · 60%',pct:'55,2%',v:'R$ 1.269,60'},{n:'Helena Tavares',p:'Coproprietária · 40%',pct:'36,8%',v:'R$ 846,40'},{n:'Imobiliária Exemplo',p:'Taxa de administração',pct:'8%',v:'R$ 184,00'},{n:'Condomínio e IPTU',p:'Repassados às contas',pct:'—',v:'R$ 610,00'}],
+      assin: [{n:'Fernanda Souza',p:'Inquilina',st:'Assinou (teste)',...ok},{n:'Marcos Tavares',p:'Locador',st:'Assinou (teste)',...ok},{n:'Paulo Souza',p:'Fiador',st:'Pendente',...pend},{n:'Imobiliária Exemplo',p:'Administradora',st:'Pendente',...pend}],
+      regras: [
+        {l:'Renda 3× o valor total',s:'R$ 9.400 declarados · mínimo R$ 8.730',mk:'✓',bg:'#16A34A',fonte:'candidatura'},
+        {l:'Autorização LGPD assinada',s:'Versão 2026-03 · 20/09 14:10',mk:'✓',bg:'#16A34A',fonte:'candidatura'},
+        {l:'Documentos completos',s:'Falta comprovante de residência',mk:'!',bg:'#D97706',fonte:'candidatura'},
+        {l:'Restrição de crédito',s:'Consulta disponível quando o Serasa entrar no ar',mk:'–',bg:'#C7C7C7',fonte:'em breve'}
+      ],
+      fotos: [F('Foto 1','Capa','Sala com varanda',false,true),F('Foto 2','2','Cozinha',true,true),F('Foto 3','3','',false,true),F('Foto 4','4','Área de serviço',false,false)],
+      uso: [{l:'Contratos de locação ativos',v:'96 de 100',w:'96%',bar:'#D97706',cor:'#A05C06'},{l:'Usuários',v:'7 de 10',w:'70%',bar:'#41945D',cor:'#2F332B'},{l:'Imóveis',v:'142 de 300',w:'47%',bar:'#41945D',cor:'#2F332B'},{l:'Anúncios publicados',v:'86 · sem limite',w:'100%',bar:'#E6E6E3',cor:'#2F332B'}],
+      modulos: [['Imóveis e anúncios',inc],['Leads e contatos',inc],['CRM',inc],['WhatsApp',inc],['Portais parceiros',inc],['Análise cadastral',inc],['Contratos',inc],['Vistorias',inc],['Financeiro',inc],['Área do cliente',inc],['Meta Ads',inc],['Relatórios',inc],['Negociação de venda',fora]].map(([l,s])=>({l,...s})),
+      fila: [
+        {n:'Imobiliária Exemplo',c:'Goiânia, GO · 00.000.000/0001-00',p:'Gestão Locação',cr:'0000-J · conferir',crCor:'#A05C06',h:'20 h',bg:'#F3F7F4'},
+        {n:'Casa Certa Imóveis',c:'Campinas, SP',p:'Anunciante',cr:'1111-J · ok',crCor:'#0D7A38',h:'6 h',bg:'#FFFFFF'},
+        {n:'Horizonte Negócios',c:'Curitiba, PR',p:'Gestão Vendas',cr:'2222-J · ok',crCor:'#0D7A38',h:'3 h',bg:'#FFFFFF'},
+        {n:'Lar Doce Lar',c:'Salvador, BA',p:'Anunciante',cr:'não informado',crCor:'#B91C1C',h:'1 h',bg:'#FFFFFF'}
+      ],
+      dadosOrg: [{l:'Responsável',v:'Rafael Almeida'},{l:'E-mail',v:'rafael@imobiliariaexemplo.com.br'},{l:'CNPJ',v:'Validado'},{l:'CRECI',v:'0000-J · GO'}]
+    };
+  }
+}
+</script>
+</body>
+</html>
