@@ -11,7 +11,17 @@ import {
   propertyOwners,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import { AUDIT_ACTIONS, DomainError, assertOwnershipTotal } from '@aluguei/domain';
+import {
+  AUDIT_ACTIONS,
+  DomainError,
+  assertOwnershipTotal,
+  assertTermsMatchPurpose,
+  citySlug,
+  isPropertyPurpose,
+  pricePerSquareMeterCents,
+  slugifyPlace,
+} from '@aluguei/domain';
+import type { PropertyPurpose } from '@aluguei/domain';
 import {
   addFeatureRequestSchema,
   addOwnerRequestSchema,
@@ -22,6 +32,7 @@ import {
   propertyOwnerSchema,
   propertySchema,
   requestUploadUrlRequestSchema,
+  updatePropertyMediaRequestSchema,
   updatePropertyRequestSchema,
   upsertAddressRequestSchema,
   upsertFinancialTermsRequestSchema,
@@ -34,6 +45,11 @@ import { assertSizeAllowed, buildStorageKey, isPublicMediaKind } from '../media-
 import { enqueueUpdatesForProperty } from './channel-jobs.js';
 import { first } from './helpers.js';
 
+/** Finalidade guardada no banco; o CHECK garante o vocabulário, isto só estreita o tipo. */
+function propertyPurposeOf(value: string): PropertyPurpose {
+  return isPropertyPurpose(value) ? value : 'RENT';
+}
+
 interface LoadedProperty {
   id: string;
   orgId: string;
@@ -41,6 +57,7 @@ interface LoadedProperty {
   description: string | null;
   status: string;
   propertyType: string;
+  purpose: string;
   totalAreaSqm: number | null;
   builtAreaSqm: number | null;
   bedrooms: number | null;
@@ -110,6 +127,7 @@ export function toPropertyDto(loaded: LoadedProperty): unknown {
     description: loaded.description,
     status: loaded.status,
     propertyType: loaded.propertyType,
+    purpose: loaded.purpose,
     totalAreaSqm: loaded.totalAreaSqm,
     builtAreaSqm: loaded.builtAreaSqm,
     bedrooms: loaded.bedrooms,
@@ -120,7 +138,16 @@ export function toPropertyDto(loaded: LoadedProperty): unknown {
     createdAt: loaded.createdAt.toISOString(),
     updatedAt: loaded.updatedAt.toISOString(),
     addresses: loaded.addresses.map((a) => toAddressDto(a)),
-    financialTerms: loaded.financialTerms ? toTermsDto(loaded.financialTerms) : null,
+    financialTerms: loaded.financialTerms
+      ? {
+          ...toTermsDto(loaded.financialTerms),
+          // Calculado, nunca guardado: área nula ou zero não vira preço por m².
+          pricePerSqmCents: pricePerSquareMeterCents(
+            (loaded.financialTerms.salePriceCents as number | null) ?? null,
+            loaded.builtAreaSqm ?? loaded.totalAreaSqm,
+          ),
+        }
+      : null,
     owners: loaded.owners.map((o) => propertyOwnerSchema.parse({ ...o, name: o.name ?? '?' })),
     features: loaded.features,
     media: loaded.media.map((m) => propertyMediaSchema.parse(toMediaDto(m))),
@@ -219,6 +246,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
               orgId: auth.orgId,
               title: input.title,
               propertyType: input.propertyType,
+              purpose: input.purpose ?? 'RENT',
               description: input.description ?? null,
               status: input.status ?? 'ACTIVE',
               totalAreaSqm: input.totalAreaSqm ?? null,
@@ -375,6 +403,14 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
           propertyId: property.id,
           orgId: auth.orgId,
           isPublic,
+          // Chaves das URLs do portal. Ficam nulas quando falta cidade ou UF: o
+          // imóvel continua cadastrado, só não entra na busca por lugar.
+          citySlug:
+            data.city !== undefined && data.state !== undefined
+              ? citySlug(data.city, data.state)
+              : null,
+          neighborhoodSlug:
+            data.neighborhood !== undefined ? slugifyPlace(data.neighborhood) || null : null,
           updatedAt: new Date(),
         };
         if (existing) {
@@ -453,6 +489,11 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       if (!property) {
         throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
+      // A regra cruza as duas tabelas: quem manda é a finalidade do imóvel.
+      assertTermsMatchPurpose(propertyPurposeOf(property.purpose), {
+        monthlyRentCents: input.monthlyRentCents ?? null,
+        salePriceCents: input.salePriceCents ?? null,
+      });
       const [existing] = await db
         .select()
         .from(propertyFinancialTerms)
@@ -460,6 +501,8 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .limit(1);
       const values = {
         ...input,
+        monthlyRentCents: input.monthlyRentCents ?? null,
+        salePriceCents: input.salePriceCents ?? null,
         orgId: auth.orgId,
         propertyId: property.id,
         updatedAt: new Date(),
@@ -764,14 +807,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         .limit(1);
       if (existing) {
         return reply.status(200).send({
-          media: propertyMediaSchema.parse({
-            id: existing.id,
-            kind: existing.kind,
-            mimeType: existing.mimeType,
-            sizeBytes: existing.sizeBytes,
-            isPublic: existing.isPublic,
-            createdAt: existing.createdAt.toISOString(),
-          }),
+          media: propertyMediaSchema.parse(toMediaDto(existing as Record<string, unknown>)),
         });
       }
 
@@ -801,15 +837,85 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
       await enqueueUpdatesForProperty(db, auth.orgId, property.id);
 
       return reply.status(201).send({
-        media: propertyMediaSchema.parse({
-          id: media.id,
-          kind: media.kind,
-          mimeType: media.mimeType,
-          sizeBytes: media.sizeBytes,
-          isPublic: media.isPublic,
-          createdAt: media.createdAt.toISOString(),
-        }),
+        media: propertyMediaSchema.parse(toMediaDto(media as Record<string, unknown>)),
       });
+    },
+  );
+
+  /**
+   * Legenda, ordem e capa da foto (etapa 5 do cadastro e galeria do portal).
+   * A capa é única por imóvel: marcar uma tira a anterior na mesma transação, em
+   * vez de deixar o índice parcial estourar como erro de banco.
+   */
+  app.patch(
+    '/properties/:id/media/:mediaId',
+    { onRequest: [requirePermission('property:write')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const { id, mediaId } = z
+        .object({ id: uuidSchema, mediaId: uuidSchema })
+        .parse(request.params);
+      const input = updatePropertyMediaRequestSchema.parse(request.body ?? {});
+
+      const [property] = await db
+        .select()
+        .from(properties)
+        .where(and(eq(properties.id, id), eq(properties.orgId, auth.orgId)))
+        .limit(1);
+      if (!property) {
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
+      }
+      const [media] = await db
+        .select()
+        .from(propertyMedia)
+        .where(
+          and(
+            eq(propertyMedia.id, mediaId),
+            eq(propertyMedia.propertyId, property.id),
+            eq(propertyMedia.orgId, auth.orgId),
+          ),
+        )
+        .limit(1);
+      if (!media) {
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
+      }
+      if (input.isCover === true && media.kind !== 'PHOTO') {
+        throw new DomainError('INVALID_INPUT', 'Só foto pode ser capa do anúncio');
+      }
+
+      await db.transaction(async (tx) => {
+        if (input.isCover === true) {
+          await tx
+            .update(propertyMedia)
+            .set({ isCover: false, updatedAt: new Date() })
+            .where(and(eq(propertyMedia.propertyId, property.id), eq(propertyMedia.isCover, true)));
+        }
+        const patch: Record<string, unknown> = { updatedAt: new Date() };
+        for (const [key, value] of Object.entries(input)) {
+          if (value !== undefined) {
+            patch[key] = value;
+          }
+        }
+        await tx
+          .update(propertyMedia)
+          .set(patch as never)
+          .where(eq(propertyMedia.id, media.id));
+        await writeAudit(tx, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.PROPERTY_MEDIA_UPDATED,
+          entityType: 'PROPERTY',
+          entityId: property.id,
+          payload: auditDiff(media as Record<string, unknown>, patch),
+        });
+      });
+      await enqueueUpdatesForProperty(db, auth.orgId, property.id);
+
+      const loaded = await loadProperty(db, auth.orgId, property.id);
+      if (!loaded) {
+        throw new Error('property not found after media update');
+      }
+      return { property: toPropertyDto(loaded) };
     },
   );
 

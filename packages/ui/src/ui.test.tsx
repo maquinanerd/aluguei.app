@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Button, Badge, cx, formatBRL, initials } from './index';
+import { AvisoModoTeste, Button, Badge, cx, formatBRL, initials } from './index';
 import { MoneyValue } from './components/MoneyValue';
 
 describe('ui primitives', () => {
@@ -35,5 +35,20 @@ describe('ui primitives', () => {
   it('MoneyValue formata centavos', () => {
     const html = renderToStaticMarkup(<MoneyValue cents={1000} />);
     expect(html).toContain('R$\u00a010,00');
+  });
+
+  it('AvisoModoTeste nomeia o provedor e diz que nada acontece de verdade', () => {
+    const html = renderToStaticMarkup(<AvisoModoTeste provedor="Asaas" />);
+    expect(html).toContain('Modo de teste');
+    expect(html).toContain('Asaas');
+    expect(html).toContain('role="status"');
+    expect(html).toContain('nenhum valor é movimentado');
+  });
+
+  it('AvisoModoTeste aceita a frase da tela', () => {
+    const html = renderToStaticMarkup(
+      <AvisoModoTeste provedor="Clicksign">O envelope fica com o selo de teste.</AvisoModoTeste>,
+    );
+    expect(html).toContain('O envelope fica com o selo de teste.');
   });
 });

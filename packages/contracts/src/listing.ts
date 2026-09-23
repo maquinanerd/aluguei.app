@@ -12,6 +12,8 @@ export const listingSchema = z.object({
   title: z.string(),
   description: z.string().nullable(),
   slug: z.string(),
+  /** Endereço do anúncio no portal (`/imovel/[slug]`), único no país. */
+  publicSlug: z.string(),
   publishedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -56,6 +58,18 @@ export const updateListingRequestSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().nullable().optional(),
   slug: z.string().min(1).max(120).optional(),
+  /**
+   * Endereço do anúncio no portal (`/imovel/[slug]`), único no país. Trocar
+   * guarda o slug antigo no histórico, e o endereço antigo passa a responder
+   * 301 — página indexada não pode virar 404 (ADR-099).
+   */
+  publicSlug: z
+    .string()
+    .trim()
+    .min(3)
+    .max(120)
+    .regex(/^[a-z0-9-]+$/, 'Use minúsculas, dígitos e hífen')
+    .optional(),
 });
 
 export const updateListingResponseSchema = z.object({ listing: listingDetailSchema });

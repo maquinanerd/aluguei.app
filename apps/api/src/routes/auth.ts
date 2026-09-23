@@ -5,6 +5,7 @@ import {
   memberships,
   organizations,
   passwordResetTokens,
+  plans,
   userSessions,
   users,
 } from '@aluguei/db';
@@ -20,6 +21,7 @@ import {
   hashPasswordSync,
   isPlatformAdminEmail,
   normalizeEmail,
+  normalizePlanModules,
   slugify,
   verifyPassword,
 } from '@aluguei/domain';
@@ -283,10 +285,29 @@ export const authRoutes: FastifyPluginAsync = (app) => {
         ? await db.select().from(organizations).where(inArray(organizations.id, orgIds))
         : [];
     const activeOrgRow = orgs.find((o) => o.id === session.activeOrgId);
+    // Plano da imobiliária ativa: módulos (cadeado no menu) e limites (tela Plano e uso).
+    const [planRow] = activeOrgRow
+      ? await db.select().from(plans).where(eq(plans.id, activeOrgRow.planId)).limit(1)
+      : [undefined];
 
     return meResponseSchema.parse({
       user: toUserDto(user),
       activeOrg: activeOrgRow ? toOrgDto(activeOrgRow) : null,
+      plan: planRow
+        ? {
+            id: planRow.id,
+            code: planRow.code,
+            name: planRow.name,
+            modules: normalizePlanModules(planRow.modules),
+            monthlyPriceCents: planRow.monthlyPriceCents,
+            limits: {
+              maxUsers: planRow.maxUsers,
+              maxProperties: planRow.maxProperties,
+              maxPublishedListings: planRow.maxPublishedListings,
+              maxActiveLeases: planRow.maxActiveLeases,
+            },
+          }
+        : null,
       memberships: userMemberships.map(toMembershipDto),
       platformAdmin: session.platformAdmin,
     });

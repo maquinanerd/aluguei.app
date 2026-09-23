@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { LeaseDetailClient } from './lease-detail-client';
 
-export const metadata: Metadata = { title: 'Locação | Aluguei.app' };
+export const metadata: Metadata = { title: 'Locação' };
 
 export default function LeaseDetailPage() {
   return <LeaseDetailClient />;

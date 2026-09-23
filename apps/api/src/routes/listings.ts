@@ -2,6 +2,7 @@ import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
+  listingSlugHistory,
   listings,
   properties,
   propertyAddresses,
@@ -115,6 +116,7 @@ async function loadListingDetail(db: AppDb, orgId: string, listingId: string): P
     title: listing.title,
     description: listing.description,
     slug: listing.slug,
+    publicSlug: listing.publicSlug,
     publishedAt: listing.publishedAt?.toISOString() ?? null,
     createdAt: listing.createdAt.toISOString(),
     updatedAt: listing.updatedAt.toISOString(),
@@ -123,6 +125,7 @@ async function loadListingDetail(db: AppDb, orgId: string, listingId: string): P
       orgId: property.orgId,
       title: property.title,
       propertyType: property.propertyType,
+      purpose: property.purpose,
       status: property.status,
       totalAreaSqm: property.totalAreaSqm,
       builtAreaSqm: property.builtAreaSqm,
@@ -151,6 +154,9 @@ async function loadListingDetail(db: AppDb, orgId: string, listingId: string): P
         mimeType: m.mimeType,
         sizeBytes: m.sizeBytes,
         isPublic: m.isPublic,
+        caption: m.caption,
+        sortOrder: m.sortOrder,
+        isCover: m.isCover,
         createdAt: m.createdAt.toISOString(),
       }),
     ),
@@ -170,6 +176,35 @@ async function generateUniqueSlug(db: AppDb, orgId: string, base: string): Promi
     }
   }
   throw new DomainError('CONFLICT', 'Não foi possível gerar um slug único');
+}
+
+/**
+ * Slug do portal: único no país inteiro, porque `/imovel/[slug]` não é escopado
+ * por imobiliária. Slug já usado por outro anúncio — ou que já foi de alguém,
+ * segundo o histórico — ganha sufixo, para o 301 nunca apontar para dois donos.
+ */
+async function generateUniquePublicSlug(db: AppDb, base: string): Promise<string> {
+  const raiz = base === '' ? 'imovel' : base;
+  for (let attempt = 1; attempt <= 50; attempt += 1) {
+    const candidate = attempt === 1 ? raiz : `${raiz}-${String(attempt)}`;
+    const [emUso] = await db
+      .select({ id: listings.id })
+      .from(listings)
+      .where(eq(listings.publicSlug, candidate))
+      .limit(1);
+    if (emUso) {
+      continue;
+    }
+    const [jaFoi] = await db
+      .select({ id: listingSlugHistory.id })
+      .from(listingSlugHistory)
+      .where(eq(listingSlugHistory.slug, candidate))
+      .limit(1);
+    if (!jaFoi) {
+      return candidate;
+    }
+  }
+  throw new DomainError('CONFLICT', 'Não foi possível gerar um slug público único');
 }
 
 export const listingRoutes: FastifyPluginAsync = (app) => {
@@ -192,6 +227,7 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
         throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
       }
       const slug = await generateUniqueSlug(db, auth.orgId, slugify(input.title));
+      const publicSlug = await generateUniquePublicSlug(db, slugify(input.title));
 
       const listing = first(
         await db
@@ -202,6 +238,7 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
             title: input.title,
             description: input.description ?? null,
             slug,
+            publicSlug,
           })
           .returning(),
       );
@@ -247,6 +284,7 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
           title: row.title,
           description: row.description,
           slug: row.slug,
+          publicSlug: row.publicSlug,
           publishedAt: row.publishedAt?.toISOString() ?? null,
           createdAt: row.createdAt.toISOString(),
           updatedAt: row.updatedAt.toISOString(),
@@ -301,6 +339,24 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
       if (input.description !== undefined) {
         patch.description = input.description;
       }
+      const trocaSlugPublico =
+        input.publicSlug !== undefined && input.publicSlug !== listing.publicSlug;
+      if (trocaSlugPublico && input.publicSlug !== undefined) {
+        const [emUso] = await db
+          .select({ id: listings.id })
+          .from(listings)
+          .where(eq(listings.publicSlug, input.publicSlug))
+          .limit(1);
+        const [jaFoi] = await db
+          .select({ id: listingSlugHistory.id })
+          .from(listingSlugHistory)
+          .where(eq(listingSlugHistory.slug, input.publicSlug))
+          .limit(1);
+        if ((emUso && emUso.id !== listing.id) || jaFoi) {
+          throw new DomainError('CONFLICT', 'Este endereço já foi usado por outro anúncio');
+        }
+        patch.publicSlug = input.publicSlug;
+      }
       const updated = first(
         await db
           .update(listings)
@@ -308,6 +364,15 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
           .where(eq(listings.id, listing.id))
           .returning(),
       );
+
+      if (trocaSlugPublico) {
+        // O endereço antigo continua respondendo, agora com 301 para o novo.
+        await db.insert(listingSlugHistory).values({
+          orgId: auth.orgId,
+          listingId: listing.id,
+          slug: listing.publicSlug,
+        });
+      }
 
       await writeAudit(db, {
         orgId: auth.orgId,

@@ -12,7 +12,7 @@ import {
   VISIT_STATUS_LABELS,
 } from '@/lib/labels';
 
-export const metadata: Metadata = { title: 'Visão Geral | Aluguei.app' };
+export const metadata: Metadata = { title: 'Visão Geral' };
 export const dynamic = 'force-dynamic';
 
 interface MeDto {
@@ -517,7 +517,7 @@ function MetricRow({
       : tone === 'warning'
         ? 'var(--peg-warning)'
         : tone === 'brand'
-          ? 'var(--aluguei-brand)'
+          ? 'var(--brand)'
           : 'var(--peg-border-strong)';
   return (
     <div className="dash-metric-row">

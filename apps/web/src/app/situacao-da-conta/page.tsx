@@ -5,8 +5,9 @@ import { apiFetch, assertSecureApiBase } from '@/lib/api-server';
 import { ACCOUNT_STATUS_COPY, destinationFor } from '@/lib/account-status';
 import type { OrganizationStatus } from '@/lib/account-status';
 import { LogoutButton } from '@/components/logout-button';
+import { BRAND } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'Situação da conta | Aluguei.app' };
+export const metadata: Metadata = { title: 'Situação da conta' };
 export const dynamic = 'force-dynamic';
 
 interface MeDto {
@@ -40,7 +41,7 @@ export default async function AccountStatusPage() {
       <section className="auth-card" aria-labelledby="account-status-title">
         <div className="auth-card__brand">
           <span className="app-sidebar__logo">A</span>
-          <strong>Aluguei.app</strong>
+          <strong>{BRAND.name}</strong>
         </div>
         <div className="peg-stack" style={{ gap: 12 }}>
           <span className={`peg-badge peg-badge--${copy.tone}`} style={{ alignSelf: 'flex-start' }}>

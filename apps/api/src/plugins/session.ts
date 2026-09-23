@@ -3,10 +3,10 @@ import { randomBytes } from 'node:crypto';
 import fp from 'fastify-plugin';
 import type { FastifyReply } from 'fastify';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import { memberships, organizations, userSessions, users } from '@aluguei/db';
+import { memberships, organizations, plans, userSessions, users } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import { isOrganizationStatus, isPlatformAdminEmail } from '@aluguei/domain';
-import type { OrganizationStatus, Role } from '@aluguei/domain';
+import { isOrganizationStatus, isPlatformAdminEmail, normalizePlanModules } from '@aluguei/domain';
+import type { OrganizationStatus, PlanModule, Role } from '@aluguei/domain';
 
 /** Usuário numa imobiliária (org ativa da sessão). */
 export interface AuthUser {
@@ -15,6 +15,8 @@ export interface AuthUser {
   role: Role;
   /** Só ACTIVE opera: `requireAuth` recusa os demais (admin da plataforma). */
   orgStatus: OrganizationStatus;
+  /** Módulos do plano da imobiliária; `requireModule` recusa o que está fora. */
+  planModules: readonly PlanModule[];
 }
 
 /** Sessão válida, com ou sem imobiliária ativa. */
@@ -119,9 +121,14 @@ export const sessionPlugin = fp<SessionPluginOptions>((app, opts) => {
     }
 
     const [membership] = await db
-      .select({ role: memberships.role, orgStatus: organizations.status })
+      .select({
+        role: memberships.role,
+        orgStatus: organizations.status,
+        planModules: plans.modules,
+      })
       .from(memberships)
       .innerJoin(organizations, eq(organizations.id, memberships.orgId))
+      .innerJoin(plans, eq(plans.id, organizations.planId))
       .where(
         and(eq(memberships.orgId, session.activeOrgId), eq(memberships.userId, session.userId)),
       )
@@ -134,6 +141,8 @@ export const sessionPlugin = fp<SessionPluginOptions>((app, opts) => {
       userId: session.userId,
       orgId: session.activeOrgId,
       role: membership.role,
+      // Código desconhecido no banco não vira módulo: a lista é a do domínio.
+      planModules: normalizePlanModules(membership.planModules),
       // Status fora do conhecido não opera (o CHECK do banco já o impede).
       orgStatus: isOrganizationStatus(membership.orgStatus)
         ? membership.orgStatus

@@ -165,7 +165,7 @@ function ReportingBody() {
                             ? 'var(--peg-success)'
                             : status === 'LOST'
                               ? 'var(--peg-danger)'
-                              : 'var(--aluguei-brand)',
+                              : 'var(--brand)',
                         borderRadius: 4,
                       }}
                     />
@@ -205,7 +205,7 @@ function ReportingBody() {
                       style={{
                         height: '100%',
                         width: `${String(Math.max(4, (m.amountCents / Math.max(1, maxRevenue)) * 100))}%`,
-                        background: 'var(--aluguei-brand)',
+                        background: 'var(--brand)',
                         borderRadius: 4,
                       }}
                     />

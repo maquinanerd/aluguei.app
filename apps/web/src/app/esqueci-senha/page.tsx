@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { ForgotPasswordForm } from './forgot-password-form';
+import { BRAND } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'Recuperar senha | Aluguei.app' };
+export const metadata: Metadata = { title: 'Recuperar senha' };
 
 export default function ForgotPasswordPage() {
   return (
@@ -9,7 +10,7 @@ export default function ForgotPasswordPage() {
       <section className="auth-card">
         <div className="auth-card__brand">
           <span className="app-sidebar__logo">A</span>
-          <strong>Aluguei.app</strong>
+          <strong>{BRAND.name}</strong>
         </div>
         <ForgotPasswordForm />
       </section>

@@ -9,9 +9,11 @@ import { writeAudit } from './plugins/audit.js';
  * provider de e-mail no produto, e a recuperação de senha e o convite de membro gravam a mensagem
  * aqui. A leitura é por rota protegida (`GET /email-outbox`, permissão `org:manage`), e a mensagem
  * de senha nasce sem organização — nunca aparece para o administrador de nenhuma imobiliária.
+ * A confirmação do alerta de imóvel (portal) segue a mesma regra: sem organização, porque o
+ * contato de quem procura imóvel não pertence a nenhuma imobiliária.
  */
 
-export type OutboxKind = 'PASSWORD_RESET' | 'MEMBER_INVITE';
+export type OutboxKind = 'PASSWORD_RESET' | 'MEMBER_INVITE' | 'SEARCH_ALERT_CONFIRM';
 
 export interface QueueEmailInput {
   /** Nulo para mensagem de conta (recuperação de senha): não pertence a nenhuma imobiliária. */

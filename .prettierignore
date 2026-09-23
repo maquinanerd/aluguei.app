@@ -8,3 +8,7 @@ pnpm-lock.yaml
 package-lock.json
 *.pdf
 next-env.d.ts
+
+# Pacote de design entregue (telas .dc.html, tokens, handoff): material de origem,
+# não código de produção. Formatar mudaria a referência que as telas precisam bater.
+design-source

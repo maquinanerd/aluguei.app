@@ -10,6 +10,7 @@ import {
   ORGANIZATION_STATUSES,
   isOrganizationStatus,
   organizationActionRequiresReason,
+  normalizePlanModules,
   organizationStatusAfter,
   planResourcesOverLimit,
 } from '@aluguei/domain';
@@ -69,6 +70,9 @@ const organizationColumns = {
   planMaxUsers: plans.maxUsers,
   planMaxProperties: plans.maxProperties,
   planMaxPublishedListings: plans.maxPublishedListings,
+  planMaxActiveLeases: plans.maxActiveLeases,
+  planModules: plans.modules,
+  planMonthlyPriceCents: plans.monthlyPriceCents,
   planIsActive: plans.isActive,
   ownerName: sql<string | null>`(
     select u.name from memberships m join users u on u.id = m.user_id
@@ -85,6 +89,10 @@ const organizationColumns = {
   publishedListingsCount: sql<number>`(
     select count(*)::int from listings l
     where l.org_id = ${organizations.id} and l.status = 'PUBLISHED')`,
+  // Locações em vigor: as mesmas de BILLABLE_LEASE_STATUSES (encerrar libera a vaga).
+  activeLeasesCount: sql<number>`(
+    select count(*)::int from leases le
+    where le.org_id = ${organizations.id} and le.status in ('ACTIVE', 'DELINQUENT', 'TERMINATING'))`,
 };
 
 interface OrganizationRow {
@@ -104,12 +112,16 @@ interface OrganizationRow {
   planMaxUsers: number | null;
   planMaxProperties: number | null;
   planMaxPublishedListings: number | null;
+  planMaxActiveLeases: number | null;
+  planModules: string[];
+  planMonthlyPriceCents: number | null;
   planIsActive: boolean;
   ownerName: string | null;
   ownerEmail: string | null;
   usersCount: number;
   propertiesCount: number;
   publishedListingsCount: number;
+  activeLeasesCount: number;
 }
 
 function toPlatformOrganization(row: OrganizationRow) {
@@ -117,11 +129,13 @@ function toPlatformOrganization(row: OrganizationRow) {
     maxUsers: row.planMaxUsers,
     maxProperties: row.planMaxProperties,
     maxPublishedListings: row.planMaxPublishedListings,
+    maxActiveLeases: row.planMaxActiveLeases,
   };
   const usage = {
     users: row.usersCount,
     properties: row.propertiesCount,
     publishedListings: row.publishedListingsCount,
+    activeLeases: row.activeLeasesCount,
   };
   return {
     id: row.id,
@@ -139,6 +153,8 @@ function toPlatformOrganization(row: OrganizationRow) {
       code: row.planCode,
       name: row.planName,
       ...limits,
+      modules: normalizePlanModules(row.planModules),
+      monthlyPriceCents: row.planMonthlyPriceCents,
       isActive: row.planIsActive,
     },
     owner: row.ownerEmail ? { name: row.ownerName ?? '', email: row.ownerEmail } : null,
@@ -176,6 +192,9 @@ function toPlanDto(row: PlanRow) {
     maxUsers: row.maxUsers,
     maxProperties: row.maxProperties,
     maxPublishedListings: row.maxPublishedListings,
+    maxActiveLeases: row.maxActiveLeases,
+    modules: normalizePlanModules(row.modules),
+    monthlyPriceCents: row.monthlyPriceCents,
     isActive: row.isActive,
     organizationCount: row.organizationCount,
   };
@@ -468,6 +487,9 @@ export const platformRoutes: FastifyPluginAsync = (app) => {
           maxUsers: input.maxUsers,
           maxProperties: input.maxProperties,
           maxPublishedListings: input.maxPublishedListings,
+          maxActiveLeases: input.maxActiveLeases ?? null,
+          modules: normalizePlanModules(input.modules ?? []),
+          monthlyPriceCents: input.monthlyPriceCents ?? null,
         })
         .returning(),
     );
@@ -494,6 +516,9 @@ export const platformRoutes: FastifyPluginAsync = (app) => {
       'maxUsers',
       'maxProperties',
       'maxPublishedListings',
+      'maxActiveLeases',
+      'modules',
+      'monthlyPriceCents',
       'isActive',
     ] as const) {
       if (input[key] !== undefined) {

@@ -8,5 +8,6 @@ export * from './contracts.js';
 export * from './finance.js';
 export * from './meta.js';
 export * from './portal.js';
+export * from './portal-search.js';
 export * from './app-metadata.js';
 export * from './platform.js';

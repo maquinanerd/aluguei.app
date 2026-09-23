@@ -1496,3 +1496,155 @@ Consequências:
 - **Valores gravados antes:** nenhum dado é alterado; linhas acima do teto continuam lidas. Só novas
   entradas são recusadas.
 - **Evidência:** `docs/audits/2026-09-10/evidence/g3/teto-centavos/`.
+
+## ADR-095 — Módulos por plano com 403 PLAN_MODULE_NOT_INCLUDED (Onda 1A do AchouImóvel, 2026-09-23)
+
+Status: Aceito.
+
+Contexto: a entrega de design do AchouImóvel (`design-source/achouimovel/`) exige menu com cadeado
+nos módulos fora do plano e uma tela "Fora do seu plano". O sistema só tinha limites de uso
+(`maxUsers`, `maxProperties`, `maxPublishedListings`) e gating de interface por papel (RBAC). Plano
+não dizia o que a imobiliária pode abrir, e o painel não tinha como saber.
+
+Decisão:
+
+- **Vocabulário fechado** `PLAN_MODULES` no domínio: CRM, ATENDIMENTO, LOCACAO, FINANCEIRO, VENDAS,
+  MARKETING. O banco repete a lista no CHECK `plans_modules_valid`, e o teste da trilha G compara as
+  duas (`tests/integration/src/g3-g-schema-domain.test.ts`).
+- **Base de todo plano, sem módulo:** imóveis, anúncios e canais, leads, contatos, tarefas,
+  relatórios, configurações e administração da própria imobiliária — é o que o plano Anunciante
+  compra.
+- **Um gate por grupo de rotas**, não por rota: cada arquivo de rota é plugin comum (sem
+  `fastify-plugin`), então `registerBehindModule` em `apps/api/src/app.ts` registra o grupo num
+  escopo com o hook do módulo. O `requirePermission` de cada rota continua igual — RBAC e plano são
+  perguntas diferentes.
+- **Resposta:** 403 com `details.reason = PLAN_MODULE_NOT_INCLUDED` e `details.module`, no mesmo
+  formato de `ORG_NOT_ACTIVE` (ADR-060). É o `reason` que faz o painel abrir a tela de upgrade em
+  vez do erro genérico.
+- **Sessão:** `request.auth.planModules` vem do join com `plans` no plugin de sessão, normalizado
+  pelo domínio — código desconhecido no banco não vira módulo.
+
+Consequências:
+
+- Trocar o plano da imobiliária vale na requisição seguinte (a sessão lê o plano a cada pedido).
+- Migration 0024 dá a todos os planos que já existiam os cinco módulos de hoje: **ninguém perde
+  acesso ao que já usava**. VENDAS fica só no ILIMITADO, porque o módulo ainda não existe no produto
+  — é o que dá um estado bloqueado real para a interface da Onda 1B.
+- Módulo novo no futuro exige: constante do domínio, CHECK do banco (migration), e decisão explícita
+  de em quais planos ele entra.
+
+## ADR-096 — Locações em vigor viram limite de plano; preço mensal é só exibição (Onda 1A, 2026-09-23)
+
+Status: Aceito; os números de cada plano são pendência do dono.
+
+Contexto: o HANDOFF pede o diálogo "100 de 100 contratos" ao ativar uma locação e a página pública
+de planos com preço. Os planos não tinham nem o limite nem o preço, e o admin da plataforma foi
+desenhado sem cobrança (ADR-060).
+
+Decisão:
+
+- `plans.max_active_leases` (nulo = ilimitado) e o recurso `activeLeases` contam as locações em
+  `ACTIVE`, `DELINQUENT` ou `TERMINATING` (`BILLABLE_LEASE_STATUSES`): encerrar libera a vaga.
+- A checagem entra na transação que cria a locação, com a trava da linha da imobiliária que já
+  serializa os outros limites (`assertPlanAllowsOneMore`), e recusa com 409 `PLAN_LIMIT_REACHED`
+  antes de qualquer escrita.
+- `plans.monthly_price_cents` é **só exibição**: nulo vira "Fale com a gente". Nada aqui cobra, e o
+  teto por valor em centavos é o mesmo do resto do sistema (ADR-094).
+
+Consequências: os planos semeados ficam com limite nulo e preço nulo — nenhum comportamento muda até
+o dono definir os números. A tela "Plano e uso" (Onda 4) lê esses mesmos campos.
+
+## ADR-097 — Decisões de rumo do frontend do AchouImóvel (Onda 0, 2026-09-23)
+
+Status: Aceito, por delegação explícita do usuário ("siga, você decide o que for melhor").
+
+Contexto: o diagnóstico da Onda 0 (`docs/frontend/ACHOUIMOVEL_PLAN.md`) deixou quatro pontos em
+aberto que mudam o rumo da execução.
+
+Decisão:
+
+1. **Portais parceiros (R1).** A interface mostra o estado real vindo da API: "Conectado" só com
+   adapter e evidência de sandbox; sem adapter, "Em preparação". Hoje Canal Pro, OLX e Imovelweb
+   estão registrados sem adapter, então nenhum deles aparece como integrado. Escrever "Integrado"
+   sem evidência contraria `AGENTS.md`, e o material de marketing segue a mesma regra.
+2. **`PROMPT_apps-portal.md` (pendência 1).** O arquivo não existe no repositório. Em vez de
+   esperar, a Onda 2 escreve `docs/frontend/PORTAL_SPEC.md` a partir do que já é regra escrita: as
+   telas de referência, os limiares do prompt orquestrado (≥5 para estatística, ≥3 para indexar) e
+   os padrões de cache e SEO do repositório. Nada de número ou limiar inventado; o que faltar vira
+   pendência no documento.
+3. **Vendas (R6).** Deixa de ser "Onda 5" e vira fase própria depois da Onda 4, com ADRs e
+   migrations próprios: são tabelas, domínio, rotas e regras de comissão do zero.
+4. **Rotas legadas do site (R7).** `/`, `/imoveis` e `/imoveis/[slug]` em `apps/web` passam a
+   redirecionar (301) para o portal quando a Onda 2B subir, no mesmo PR que atualiza
+   `tests/e2e/src/g2-b2-crawler.spec.ts`. Nenhum teste é removido.
+
+Consequências: a ordem das ondas muda (Vendas sai do caminho crítico) e o portal ganha uma
+especificação escrita no repositório em vez de um arquivo ausente.
+
+## ADR-098 — Marca num lugar só, tokens neutros e portal como app separado (Onda 1B, 2026-09-23)
+
+Status: Aceito.
+
+Contexto: o produto virou AchouImóvel. "Aluguei.app" estava escrito à mão em ~60 arquivos de
+`apps/web` (título de página, sidebar, mensagens de conta), e os tokens da gestão carregavam o nome
+antigo (`--aluguei-brand*`). O portal, por sua vez, tem outra fonte (Guton), outra paleta e outro
+público.
+
+Decisão:
+
+- **`BRAND` em `apps/web/src/lib/brand.ts`**: `name` ("AchouImóvel", consumidor final) e `b2bName`
+  ("AchouImóvel Gestão", lado pago). O `<title>` sai de template de layout — raiz com
+  `%s | AchouImóvel`, `/app` e `/plataforma` com `%s | AchouImóvel Gestão` — e cada página declara
+  só o próprio nome. Um teste varre `apps/web/src` e falha se o nome antigo voltar escrito à mão.
+- **Tokens neutros**: `--aluguei-brand*` → `--brand*`, com os valores intactos (o verde `#41945D`
+  continua o mesmo) e **alias temporário** `--aluguei-brand*: var(--brand*)` no claro e no escuro,
+  para não quebrar nada que ainda use os nomes antigos. O alias sai quando não houver mais uso.
+- **`apps/portal` não depende de `packages/ui`**: os componentes do portal vivem no próprio app.
+  O design system da gestão é denso, com `--peg-*` e Inter; o portal é branco, com Guton e uma cor
+  de acento. Misturar os dois colocaria dois conjuntos de tokens no mesmo escopo (R2 do plano).
+  Os nomes não colidem hoje (`--brand` na gestão, `--brand-accent` no portal), e as telas de conta
+  que a Onda 3B leva para `apps/web` com o visual do portal vão carregar os tokens sob um escopo
+  próprio.
+- **Cadeado na navegação**: cada item do menu declara o módulo que o abre; sem o módulo no plano da
+  sessão (`/auth/me`), o item vira cadeado e leva para `/app/plano`, a tela "Fora do seu plano".
+  Item de tela ainda não construída (Vendas) usa o mesmo caminho com o texto "em preparação" — nunca
+  um 404.
+
+Consequências: trocar o nome do produto de novo é mexer em um arquivo; o alias de tokens é dívida
+declarada, com prazo até a próxima onda que tocar a gestão; e o portal pode divergir do design
+system da gestão sem risco de contaminar o painel que já está no ar.
+
+## ADR-099 — URL, indexação e ciclo de vida das páginas do portal (SEO, 2026-09-23)
+
+Status: Aceito. Detalhamento em `docs/frontend/PORTAL_SEO.md`.
+
+Contexto: o portal é um caso de SEO programático — cidade × bairro × tipo × quartos gera dezenas de
+milhares de endereços a partir do mesmo template. Publicar tudo dá index bloat e esbarra na política
+de conteúdo em escala do Google; publicar de menos joga fora a cauda longa de bairro, que é onde está
+a intenção de quem procura imóvel. Some-se a isso que o texto do anúncio costuma ser o mesmo
+publicado no ZAP, no OLX e no Imovelweb: no anúncio individual somos conteúdo não original.
+
+Decisão:
+
+- **Caminho indexa, query string não.** `/{alugar|comprar}/[cidade-uf]/[bairro]/[tipo]/[n]-quartos`,
+  nessa ordem, com o único salto cidade → tipo. Ordenação, faixa de preço e paginação vivem em query
+  string, sempre `noindex, follow` e canônica para a URL sem query.
+- **Indexação calculada, não fixa**: ≥3 anúncios para indexar e entrar no sitemap, ≥5 para mostrar
+  estatística, ≥5 para indexar recorte com modificador. Abaixo disso a página continua viva e
+  navegável, mas com `noindex, follow`. São os mesmos limiares que o `AGENTS.md` já exige para não
+  publicar estatística sem amostra.
+- **O que diferencia cada página é dado, não texto**: lista real, mediana e faixa do recorte, mediana
+  por quartos, bairros vizinhos com contagem e FAQ calculado. Nada de parágrafo gerado em escala.
+- **Slug do anúncio é único no país** (hoje é `UNIQUE (org_id, slug)`), com histórico para 301.
+- **Fim de vida da URL**: anúncio pausado, arquivado, alugado ou vendido responde **410** com imóveis
+  parecidos e sai do sitemap na hora; slug trocado responde 301.
+- **Título estável, sem contagem** (a contagem fica no H1); canônica própria em toda página.
+- **Lançamento por cidade, em lotes de 50 a 100 páginas**, com revisão humana de uma amostra e duas a
+  quatro semanas entre lotes.
+- **Foto pública por URL estável** que não expõe `storage_key`: `GET /public/media/:mediaId` responde
+  302 para uma URL assinada de vida curta, e o endereço que fica no HTML em cache nunca muda. Isso
+  resolve o R3 do plano sem CDN nova nem URL que vence dentro da página.
+
+Consequências: a Onda 2A ganha requisitos concretos (slug global, contagem do recorte, `page_stats`,
+vizinhos, fonte do sitemap, status de remoção legível no público, URL de foto), e a Onda 2B já nasce
+com a régua de quando uma página pode ser indexada.

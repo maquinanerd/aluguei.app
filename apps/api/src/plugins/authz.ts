@@ -1,6 +1,11 @@
 import type { FastifyRequest } from 'fastify';
-import { DomainError, hasPermission, organizationCanOperate } from '@aluguei/domain';
-import type { OrganizationStatus, Permission } from '@aluguei/domain';
+import {
+  DomainError,
+  assertPlanIncludesModule,
+  hasPermission,
+  organizationCanOperate,
+} from '@aluguei/domain';
+import type { OrganizationStatus, Permission, PlanModule } from '@aluguei/domain';
 import type { AuthUser, SessionUser } from './session.js';
 import type { PortalAuth } from './portal-session.js';
 
@@ -57,6 +62,20 @@ export function requirePermission(permission: Permission) {
     if (!hasPermission(auth.role, permission)) {
       throw new DomainError('FORBIDDEN', `Permissão insuficiente: ${permission}`);
     }
+  };
+}
+
+/**
+ * Retorna hook onRequest que exige o módulo no plano da imobiliária: 403 com
+ * `details.reason = PLAN_MODULE_NOT_INCLUDED` e `details.module`, que é o que o
+ * painel usa para mostrar a tela "Fora do seu plano" em vez do erro genérico.
+ * Async pelo mesmo motivo de `requirePermission`.
+ */
+export function requireModule(module: PlanModule) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  return async (request: FastifyRequest): Promise<void> => {
+    const auth = requireAuth(request);
+    assertPlanIncludesModule(auth.planModules, module);
   };
 }
 

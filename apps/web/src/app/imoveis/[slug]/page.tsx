@@ -5,6 +5,7 @@ import { Badge, Breadcrumb, Card, Group, Stack, Tag } from '@aluguei/ui';
 import { formatBRL, formatArea } from '@aluguei/ui';
 import { fetchPublicListing } from '@/lib/public-api';
 import { label, PROPERTY_TYPE_LABELS } from '@/lib/labels';
+import { BRAND } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const listing = await fetchPublicListing(slug);
-  return { title: listing ? `${listing.title} | Aluguei.app` : 'Imóvel | Aluguei.app' };
+  return { title: listing ? listing.title : 'Imóvel' };
 }
 
 export default async function ImovelPage({ params }: PageProps) {
@@ -30,7 +31,7 @@ export default async function ImovelPage({ params }: PageProps) {
       <nav className="marketing-nav">
         <span className="peg-group" style={{ gap: 8 }}>
           <span className="app-sidebar__logo">A</span>
-          <strong style={{ fontSize: 15 }}>Aluguei.app</strong>
+          <strong style={{ fontSize: 15 }}>{BRAND.name}</strong>
         </span>
         <span className="peg-spacer" />
         <Link href="/imoveis" style={{ fontSize: 13, fontWeight: 500 }}>

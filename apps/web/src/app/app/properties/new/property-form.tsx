@@ -19,6 +19,7 @@ import { parseDecimalInput } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { PROPERTY_TYPE_LABELS } from '@/lib/labels';
 import { AddressSearch, structuredAddressToFields } from './address-search';
+import { BRAND } from '@/lib/brand';
 
 interface PropertyPayload {
   title: string;
@@ -245,8 +246,8 @@ function PropertyFormBody() {
         <aside className="focus-rail">
           <h2 className="peg-inspector__section-title">Captação por áudio</h2>
           <p className="focus-rail__text">
-            Grave ou envie o áudio descrevendo o imóvel. O Aluguei.app transcreve e extrai os dados
-            automaticamente para revisão.
+            Grave ou envie o áudio descrevendo o imóvel. O {BRAND.b2bName} transcreve e extrai os
+            dados automaticamente para revisão.
           </p>
           <Stack gap={2} style={{ marginTop: 12 }}>
             <RailStep done={false} label="Gravar/enviar áudio" />

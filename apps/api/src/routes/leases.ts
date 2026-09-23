@@ -53,6 +53,7 @@ import {
 } from '@aluguei/contracts';
 import { postChargeCancellation } from '../finance/settlement.js';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
+import { assertPlanAllowsOneMore } from '../platform/usage.js';
 import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
 
@@ -292,6 +293,8 @@ export const leaseRoutes: FastifyPluginAsync = (app) => {
 
       transitionLease('PENDING', 'ACTIVE');
       const lease = await db.transaction(async (tx) => {
+        // Limite de locações em vigor do plano: 409 PLAN_LIMIT_REACHED antes de escrever.
+        await assertPlanAllowsOneMore(tx, auth.orgId, 'activeLeases');
         const created = first(
           await tx
             .insert(leases)

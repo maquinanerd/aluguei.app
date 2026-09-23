@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<aside style="width:240px;height:100%;background:#FBFBFA;border-right:1px solid #E6E6E3;display:flex;flex-direction:column;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B">
+  <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid #E6E6E3;flex:none">
+    <span style="width:24px;height:24px;border-radius:6px;background:#41945D;color:#FFFFFF;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">A</span>
+    <span style="flex:1;font-size:14px;font-weight:600;white-space:nowrap">AchouImóvel <span style="font-weight:500;color:#6E746B">Gestão</span></span>
+    <span style="width:16px;height:14px;border:1.5px solid #6E746B;border-radius:3px;display:block;flex:none"></span>
+  </div>
+  <nav style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:12px;display:flex;flex-direction:column">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="30">
+      <sc-if value="{{ r.g }}" hint-placeholder-val="{{ false }}"><div style="flex:none;padding:{{ r.pad }};font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#6E746B">{{ r.l }}</div></sc-if>
+      <sc-if value="{{ r.i }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;flex:none;height:30px;margin-bottom:0;display:flex;align-items:center;gap:8px;padding:0 8px;border-radius:6px;font-size:13px;font-weight:{{ r.peso }};background:{{ r.bg }};color:{{ r.cor }}">
+          <span style="position:absolute;left:-2px;top:7px;bottom:7px;width:3px;border-radius:0 2px 2px 0;background:{{ r.bar }};display:block"></span>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="{{ r.ic }}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ r.d }}"></path></svg>
+          <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.l }}</span>
+          <sc-if value="{{ r.novo }}" hint-placeholder-val="{{ false }}"><span style="height:18px;padding:0 6px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:10px;font-weight:600;display:flex;align-items:center">Novo</span></sc-if>
+          <sc-if value="{{ r.lock }}" hint-placeholder-val="{{ false }}"><svg width="12" height="13" viewBox="0 0 12 13" fill="none" aria-label="Fora do seu plano"><rect x="1.5" y="5.5" width="9" height="6.5" rx="1.2" stroke="#6E746B" stroke-width="1.3"></rect><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" stroke="#6E746B" stroke-width="1.3"></path></svg></sc-if>
+          <sc-if value="{{ r.n }}" hint-placeholder-val="{{ false }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:{{ r.nbg }};color:{{ r.nfg }};font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ r.n }}</span></sc-if>
+        </div>
+      </sc-if>
+    </sc-for>
+  </nav>
+  <div style="border-top:1px solid #E6E6E3;padding:8px;display:flex;flex-direction:column;gap:4px;flex:none">
+    <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;border-radius:6px"><span style="width:24px;height:24px;border-radius:50%;background:#F0F0F0;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;color:#555A52">IE</span><span style="flex:1;font-size:13px;font-weight:500">Imobiliária Exemplo</span><span style="font-size:10px;color:#6E746B">⌃⌄</span></div>
+    <div style="height:44px;display:flex;align-items:center;gap:8px;padding:0 8px"><span style="width:28px;height:28px;border-radius:50%;background:#E9F1EB;color:#417D55;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">RA</span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:12.5px;font-weight:600">Rafael Almeida</span><span style="font-size:11px;color:#6E746B">{{ papel }}</span></span></div>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:240,&quot;height&quot;:1000},&quot;ativo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;visao&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;plano&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;gestao&quot;,&quot;anunciante&quot;],&quot;default&quot;:&quot;gestao&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const ativo = this.props.ativo ?? 'visao';
+    const plano = this.props.plano ?? 'gestao';
+    const I = {
+      layout:'M2.5 2.5h11v11h-11zM2.5 6h11M6 6v7.5', users:'M6 7.5a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6zM1.8 13.5c.4-2.3 2.1-3.6 4.2-3.6s3.8 1.3 4.2 3.6M10.5 3a2.2 2.2 0 0 1 0 4.3M12 9.9c1.3.4 2.1 1.7 2.3 3.6',
+      user:'M8 7.5a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM3 13.5c.5-2.6 2.5-4 5-4s4.5 1.4 5 4', columns:'M2.5 2.5h11v11h-11zM6.2 2.5v11M9.8 2.5v11',
+      clip:'M5.5 2.5h5v2h-5zM4 3.5H3v10h10v-10h-1M5.5 8h5M5.5 10.5h3', cal:'M2.5 3.5h11v10h-11zM2.5 6.5h11M5.5 2v3M10.5 2v3',
+      home:'M2.5 7 8 2.5 13.5 7v6.5h-11zM6.5 13.5V9.5h3v4', mega:'M2.5 6.5v3h2l5 3v-9l-5 3zM12 6a2.5 2.5 0 0 1 0 4', share:'M4 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM5.3 7.3l5.4-3M5.3 8.7l5.4 3',
+      chat:'M2.5 7.5a5.5 5 0 0 1 11 0 5.5 5 0 0 1-8 4.4L2.5 13l1-2.6a4.8 4.8 0 0 1-1-2.9z', clock:'M2.5 3.5h7v4M2.5 3.5v10h5M5 2v3M11.5 14.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM11.5 10.3v1.4l1 .7', hand:'M2 8.5l3-3 2.5 1 2-2 4.5 4-3.5 3.5-2-1M5 5.5l3 3M7.5 11l-1.5-1.5',
+      shield:'M8 2 3 4v4c0 3 2.2 5 5 6 2.8-1 5-3 5-6V4z', file:'M4 2h5.5L12 4.5V14H4zM9.5 2v2.5H12M6 8h4M6 10.5h4', cam:'M2 5h3l1-1.5h4L11 5h3v8H2zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z', key:'M6 10a3 3 0 1 1 2.6-4.5L14 5.5V8h-1.5v1.5H11M5 8h.01',
+      bar:'M2.5 13.5h11M4.5 11V8M8 11V4.5M11.5 11V6.5', receipt:'M3.5 2h9v12l-1.5-1-1.5 1-1.5-1-1.5 1-1.5-1-1.5 1zM6 5.5h4M6 8h4M6 10.5h2', card:'M2 4h12v8.5H2zM2 7h12M4.5 10h2', trend:'M2 11.5l4-4 3 2.5 5-5.5M10.5 4.5H14V8', check:'M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12zM5.5 8l1.8 1.8L10.8 6.3', db:'M8 5c3 0 5-.9 5-2s-2-2-5-2-5 .9-5 2 2 2 5 2zM3 3v10c0 1.1 2 2 5 2s5-.9 5-2V3M3 8c0 1.1 2 2 5 2s5-.9 5-2',
+      pie:'M8 2v6h6A6 6 0 1 1 8 2zM10 1.5A4.5 4.5 0 0 1 14.5 6H10z', globe:'M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12zM2 8h12M8 2c1.7 1.8 2.5 3.8 2.5 6S9.7 12.2 8 14c-1.7-1.8-2.5-3.8-2.5-6S6.3 3.8 8 2z', gear:'M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 1.8v1.6M8 12.6v1.6M1.8 8h1.6M12.6 8h1.6M3.6 3.6l1.1 1.1M11.3 11.3l1.1 1.1M3.6 12.4l1.1-1.1M11.3 4.7l1.1-1.1',
+      tag:'M2.5 2.5h5l6 6-5 5-6-6zM5.5 5.5h.01'
+    };
+    const noAnunciante = new Set(['pipeline','agenda','inbox','visitas','propostas','credito','contratos','vistorias','locacoes','fin','cobrancas','pagamentos','repasses','conciliacao','ledger','marketing','vendas','negociacoes']);
+    const src = [
+      ['i','visao','Visão Geral','layout'],
+      ['g','CRM'],['i','leads','Leads','users',7],['i','contatos','Contatos','user'],['i','pipeline','Pipeline','columns'],['i','tarefas','Tarefas','clip',3],['i','agenda','Agenda','cal'],
+      ['g','Imóveis'],['i','imoveis','Imóveis','home'],['i','anuncios','Anúncios','mega'],['i','canais','Canais','share'],
+      ['g','Vendas'],['i','negociacoes','Negociações','tag',0,true],
+      ['g','Operação'],['i','inbox','Inbox','chat',2,false,true],['i','visitas','Visitas','clock'],['i','propostas','Propostas','hand'],['i','credito','Crédito','shield'],['i','contratos','Contratos','file'],['i','vistorias','Vistorias','cam'],['i','locacoes','Locações','key'],
+      ['g','Financeiro'],['i','fin','Visão Geral','bar'],['i','cobrancas','Cobranças','receipt'],['i','pagamentos','Pagamentos','card'],['i','repasses','Repasses','trend'],['i','conciliacao','Conciliação','check'],['i','ledger','Ledger','db'],
+      ['g','Crescimento'],['i','marketing','Marketing','mega'],['i','relatorios','Relatórios','pie'],
+      ['g','Administração'],['i','membros','Usuários e equipe','users'],['i','integracoes','Integrações','globe'],['i','config','Configurações','gear']
+    ];
+    let first = true;
+    const rows = src.map(r => {
+      if (r[0]==='g') { const pad = first ? '16px 8px 4px' : '20px 8px 4px'; first=false; return {g:true,i:false,l:r[1],pad}; }
+      const on = r[1]===ativo; const lock = plano==='anunciante' && noAnunciante.has(r[1]);
+      return {g:false,i:true,l:r[2],d:I[r[3]],n:lock?0:(r[4]||0),novo:!!r[5]&&!lock,lock,
+        nbg:r[6]?'#FDECEC':'#E9E9E6',nfg:r[6]?'#B91C1C':'#555A52',
+        bg:on?'#EDECE8':'transparent',bar:on?'#41945D':'transparent',peso:on?600:500,
+        cor:lock?'#6E746B':(on?'#2F332B':'#555A52'),ic:on?'#417D55':(lock?'#B6B7BB':'#555A52')};
+    });
+    return {rows, papel: plano==='anunciante' ? 'Gestor · plano Anunciante' : 'Gestor · Gestão Locação'};
+  }
+}
+</script>
+</body>
+</html>

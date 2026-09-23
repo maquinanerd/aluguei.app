@@ -1,0 +1,701 @@
+/* AchouImóvel · portal · componentes base (Onda 1B).
+ * Medidas tiradas das telas de referência em design-source/achouimovel/telas/portal.
+ * Nada de gradiente nem sombra pesada: a única "textura" é a grade dos blocos coloridos. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+  font-family: var(--font-sans);
+  font-size: var(--type-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--portal-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Logotipo ---------------------------------------------------------- */
+
+.logo {
+  font-weight: 800;
+  letter-spacing: var(--tracking-logo);
+  color: var(--portal-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logo--sm {
+  font-size: 19px;
+}
+.logo--md {
+  font-size: 21px;
+}
+.logo--lg {
+  font-size: 30px;
+}
+
+.logo__imovel {
+  color: var(--logo-imovel-color, var(--brand-accent));
+}
+
+/* ---- Cabeçalho --------------------------------------------------------- */
+
+.cabecalho {
+  height: var(--header-h-mobile);
+  background: var(--portal-bg);
+  border-bottom: 1px solid #ececec;
+  display: grid;
+  grid-template-columns: var(--tap-min) 1fr var(--tap-min);
+  align-items: center;
+  padding: 0 6px;
+}
+
+.cabecalho__mobile {
+  display: flex;
+  align-items: center;
+}
+
+.cabecalho__marca {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cabecalho__botao {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--portal-ink);
+}
+
+.cabecalho__hamburguer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cabecalho__hamburguer span {
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  display: block;
+}
+
+.cabecalho__desktop {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .cabecalho {
+    height: var(--header-h-desktop);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--portal-gutter);
+  }
+
+  .cabecalho__mobile {
+    display: none;
+  }
+
+  .cabecalho__desktop {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .cabecalho__marca {
+    justify-content: flex-start;
+  }
+}
+
+.cabecalho__nav {
+  display: flex;
+  gap: 28px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cabecalho__nav a {
+  text-decoration: none;
+}
+
+.cabecalho__acao {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--portal-ink-2);
+  text-decoration: none;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Rodapé ------------------------------------------------------------ */
+
+.rodape {
+  background: var(--portal-surface);
+  padding: 56px var(--portal-gutter) 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  margin-top: var(--portal-section-gap);
+}
+
+.rodape__colunas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .rodape__colunas {
+    grid-template-columns: 1fr 1fr 1fr 360px;
+  }
+}
+
+.rodape__coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rodape__titulo {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rodape__link {
+  font-size: 14.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.rodape__legais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+}
+
+.rodape__legal {
+  font-size: 14.5px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--portal-ink);
+  padding-bottom: 2px;
+  text-decoration: none;
+}
+
+.rodape__razao {
+  font-size: 12.5px;
+  color: var(--portal-muted);
+}
+
+/* ---- Bloco colorido com grade ------------------------------------------ */
+
+.bloco-grade {
+  background-color: var(--bloco-cor, var(--brand-accent));
+  color: var(--bloco-texto, var(--brand-on-accent));
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--bloco-grade, var(--grid-size-desktop))
+    var(--bloco-grade, var(--grid-size-desktop));
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---- Botão ------------------------------------------------------------- */
+
+.botao {
+  min-height: var(--tap-min);
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.botao[disabled],
+.botao[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.botao--acento {
+  background: var(--brand-accent);
+  color: var(--brand-on-accent);
+}
+
+.botao--acento:hover:not([disabled]) {
+  background: var(--brand-accent-hover);
+}
+
+.botao--contorno {
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+  border-color: var(--portal-ink);
+}
+
+.botao--texto {
+  background: none;
+  color: var(--portal-ink);
+  padding: 0;
+  min-height: 0;
+  font-weight: 600;
+  border-bottom: 1px solid var(--portal-ink);
+  border-radius: 0;
+}
+
+.botao--grande {
+  height: 52px;
+  width: 100%;
+}
+
+/* ---- Campo ------------------------------------------------------------- */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo__rotulo {
+  font-size: var(--type-label);
+  font-weight: 600;
+  color: var(--portal-muted-2);
+}
+
+.campo__controle {
+  min-height: var(--tap-min);
+  border: 1px solid var(--portal-field-line);
+  border-radius: var(--radius);
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--portal-ink);
+  background: var(--portal-bg);
+  width: 100%;
+}
+
+textarea.campo__controle {
+  padding: 12px 14px;
+  min-height: 96px;
+  line-height: 1.6;
+}
+
+.campo--erro .campo__controle {
+  border-color: var(--portal-error);
+  background: var(--portal-error-bg);
+}
+
+.campo__erro {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--portal-error);
+}
+
+.campo__ajuda {
+  font-size: 12.5px;
+  color: var(--portal-muted);
+}
+
+/* ---- Consentimento LGPD ------------------------------------------------ */
+
+.consentimento {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--portal-ink-2);
+}
+
+.consentimento input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--brand-accent);
+  flex: none;
+}
+
+.consentimento--erro {
+  color: var(--portal-error);
+}
+
+/* ---- Chip e segmentado ------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--portal-line);
+  border-radius: var(--radius);
+  background: var(--portal-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--portal-ink-2);
+}
+
+.chip__remover {
+  border: 0;
+  background: none;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: var(--portal-muted);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.segmentado {
+  display: flex;
+  border: 1px solid var(--portal-ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmentado__opcao {
+  flex: 1;
+  min-height: var(--tap-min);
+  border: 0;
+  background: var(--portal-bg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--portal-muted);
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.segmentado__opcao[aria-pressed='true'] {
+  color: var(--portal-ink);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--portal-ink);
+}
+
+/* ---- Gaveta ------------------------------------------------------------ */
+
+.gaveta {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--portal-bg);
+}
+
+.gaveta__topo {
+  height: var(--header-h-mobile);
+  border-bottom: 1px solid var(--portal-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 0 18px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.gaveta__corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gaveta__rodape {
+  border-top: 1px solid var(--portal-line);
+  padding: 12px 18px;
+}
+
+/* ---- Acordeão ---------------------------------------------------------- */
+
+.acordeao {
+  border-top: 1px solid var(--portal-line);
+}
+
+.acordeao__item {
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.acordeao__gatilho {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--portal-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.acordeao__resposta {
+  padding: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--portal-ink-2);
+  max-width: 76ch;
+}
+
+/* ---- Estado vazio ------------------------------------------------------ */
+
+.estado-vazio {
+  border: 1px solid var(--portal-line);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.estado-vazio__titulo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-title);
+}
+
+.estado-vazio__texto {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--portal-ink-2);
+  max-width: 62ch;
+}
+
+/* ---- Trilha (breadcrumb) ----------------------------------------------- */
+
+.trilha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--portal-muted);
+}
+
+.trilha a {
+  text-decoration: none;
+}
+
+.trilha__separador {
+  color: var(--portal-muted-2);
+}
+
+/* ---- Card de imóvel ---------------------------------------------------- */
+
+.imovel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--portal-ink);
+}
+
+.imovel-card__foto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--portal-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--portal-muted-2);
+}
+
+.imovel-card__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imovel-card__selo,
+.imovel-card__contador {
+  position: absolute;
+  bottom: 10px;
+  background: var(--portal-bg);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+}
+
+.imovel-card__selo {
+  left: 10px;
+  color: var(--portal-ink);
+}
+
+.imovel-card__contador {
+  right: 10px;
+  color: var(--portal-ink-2);
+  font-weight: 600;
+}
+
+.imovel-card__tipo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--portal-muted);
+}
+
+.imovel-card__quadrado {
+  width: 10px;
+  height: 10px;
+  display: block;
+  background: var(--tipo-cor, var(--portal-line));
+  flex: none;
+}
+
+.imovel-card__valores {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.imovel-card__valor {
+  font-size: var(--type-price-card);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--brand-accent);
+}
+
+.imovel-card__detalhe {
+  font-size: 12.5px;
+  color: var(--portal-muted);
+}
+
+.imovel-card__atributos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--portal-ink-2);
+  padding-top: 10px;
+  border-top: 1px solid var(--portal-line-soft);
+}
+
+.imovel-card__anunciante {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--portal-muted-2);
+}
+
+.imovel-card--compacto {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.imovel-card--compacto .imovel-card__atributos,
+.imovel-card--compacto .imovel-card__anunciante {
+  display: none;
+}
+
+/* ---- Catálogo /dev/componentes ----------------------------------------- */
+
+.catalogo {
+  max-width: var(--portal-max);
+  margin: 0 auto;
+  padding: 40px var(--portal-gutter) 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.catalogo__secao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.catalogo__titulo {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-h2);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--portal-ink);
+}
+
+.catalogo__linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.catalogo__nota {
+  margin: 0;
+  font-size: 13px;
+  color: var(--portal-muted);
+  max-width: 76ch;
+}
+
+.catalogo__grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 28px 20px;
+}

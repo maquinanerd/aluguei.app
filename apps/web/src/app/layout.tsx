@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import '@aluguei/ui/styles.css';
 import './globals.css';
+import { BRAND } from '@/lib/brand';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -12,8 +13,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Aluguei.app',
-  description: 'Plataforma de operação de locação residencial.',
+  // O sufixo do título sai daqui: as páginas declaram só o próprio nome.
+  title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
+  description: 'Aluguel e venda de imóveis: anúncio, atendimento e contrato no mesmo lugar.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

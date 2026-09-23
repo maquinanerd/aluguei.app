@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { RegisterForm } from './register-form';
+import { BRAND } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'Criar conta | Aluguei.app' };
+export const metadata: Metadata = { title: 'Criar conta' };
 
 export default function RegisterPage() {
   return (
@@ -9,7 +10,7 @@ export default function RegisterPage() {
       <section className="auth-card">
         <div className="auth-card__brand">
           <span className="app-sidebar__logo">A</span>
-          <strong>Aluguei.app</strong>
+          <strong>{BRAND.name}</strong>
         </div>
         <RegisterForm />
       </section>

@@ -1,10 +1,20 @@
 import { z } from 'zod';
 import { organizationStatusSchema } from './auth.js';
-import { paginationQuerySchema, roleSchema, searchTextQuerySchema, uuidSchema } from './common.js';
+import {
+  MAX_AMOUNT_CENTS,
+  paginationQuerySchema,
+  planModuleSchema,
+  roleSchema,
+  searchTextQuerySchema,
+  uuidSchema,
+} from './common.js';
 
 /** Admin da plataforma: imobiliárias, aprovação e planos com limites (sem cobrança). */
 
 const limitSchema = (minimum: number) => z.number().int().min(minimum).max(1_000_000).nullable();
+
+/** Preço mensal só para exibição; nulo vira "Fale com a gente" na página de planos. */
+const monthlyPriceCentsSchema = z.number().int().min(0).max(MAX_AMOUNT_CENTS).nullable();
 
 export const planSchema = z.object({
   id: uuidSchema,
@@ -14,6 +24,9 @@ export const planSchema = z.object({
   maxUsers: z.number().int().nullable(),
   maxProperties: z.number().int().nullable(),
   maxPublishedListings: z.number().int().nullable(),
+  maxActiveLeases: z.number().int().nullable(),
+  modules: z.array(planModuleSchema),
+  monthlyPriceCents: z.number().int().nullable(),
   isActive: z.boolean(),
   organizationCount: z.number().int().nonnegative(),
 });
@@ -30,6 +43,9 @@ export const createPlanRequestSchema = z.object({
   maxUsers: limitSchema(1),
   maxProperties: limitSchema(0),
   maxPublishedListings: limitSchema(0),
+  maxActiveLeases: limitSchema(0).optional(),
+  modules: z.array(planModuleSchema).max(10).optional(),
+  monthlyPriceCents: monthlyPriceCentsSchema.optional(),
 });
 
 export const updatePlanRequestSchema = z
@@ -39,13 +55,21 @@ export const updatePlanRequestSchema = z
     maxUsers: limitSchema(1),
     maxProperties: limitSchema(0),
     maxPublishedListings: limitSchema(0),
+    maxActiveLeases: limitSchema(0),
+    modules: z.array(planModuleSchema).max(10),
+    monthlyPriceCents: monthlyPriceCentsSchema,
     isActive: z.boolean(),
   })
   .partial();
 
 export const planResponseSchema = z.object({ plan: planSchema });
 
-export const planResourceSchema = z.enum(['users', 'properties', 'publishedListings']);
+export const planResourceSchema = z.enum([
+  'users',
+  'properties',
+  'publishedListings',
+  'activeLeases',
+]);
 
 export const platformOrganizationSchema = z.object({
   id: uuidSchema,
@@ -62,6 +86,9 @@ export const platformOrganizationSchema = z.object({
     maxUsers: z.number().int().nullable(),
     maxProperties: z.number().int().nullable(),
     maxPublishedListings: z.number().int().nullable(),
+    maxActiveLeases: z.number().int().nullable(),
+    modules: z.array(planModuleSchema),
+    monthlyPriceCents: z.number().int().nullable(),
     isActive: z.boolean(),
   }),
   owner: z.object({ name: z.string(), email: z.string() }).nullable(),
@@ -69,6 +96,7 @@ export const platformOrganizationSchema = z.object({
     users: z.number().int().nonnegative(),
     properties: z.number().int().nonnegative(),
     publishedListings: z.number().int().nonnegative(),
+    activeLeases: z.number().int().nonnegative(),
   }),
   overLimit: z.array(planResourceSchema),
 });

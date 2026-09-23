@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { apiFetch, assertSecureApiBase } from '@/lib/api-server';
 import { PlatformShell } from '@/components/platform/platform-shell';
 
+import { BRAND } from '@/lib/brand';
+
 export const dynamic = 'force-dynamic';
+
+/** Todas as telas do administracao da plataforma levam o nome do lado pago. */
+export const metadata: Metadata = {
+  title: { default: BRAND.b2bName, template: `%s | ${BRAND.b2bName}` },
+};
 
 interface MeDto {
   user: { name: string; email: string };

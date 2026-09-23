@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { roleSchema, uuidSchema } from './common.js';
+import { planModuleSchema, roleSchema, uuidSchema } from './common.js';
 
 export const userSchema = z.object({
   id: uuidSchema,
@@ -79,9 +79,30 @@ export const loginResponseSchema = z.object({
 export const authSessionSchema = registerResponseSchema;
 export const logoutResponseSchema = z.object({ ok: z.literal(true) });
 
+/**
+ * Plano da imobiliária ativa, como a interface precisa dele: módulos incluídos
+ * (o que falta aparece com cadeado) e limites para a tela "Plano e uso".
+ */
+export const sessionPlanSchema = z.object({
+  id: uuidSchema,
+  code: z.string(),
+  name: z.string(),
+  modules: z.array(planModuleSchema),
+  /** Só exibição; nulo vira "Fale com a gente". */
+  monthlyPriceCents: z.number().int().nullable(),
+  limits: z.object({
+    maxUsers: z.number().int().nullable(),
+    maxProperties: z.number().int().nullable(),
+    maxPublishedListings: z.number().int().nullable(),
+    maxActiveLeases: z.number().int().nullable(),
+  }),
+});
+
 export const meResponseSchema = z.object({
   user: userSchema,
   activeOrg: organizationSchema.nullable(),
+  /** Nulo quando não há imobiliária ativa (admin da plataforma, por exemplo). */
+  plan: sessionPlanSchema.nullable(),
   memberships: z.array(membershipSchema),
   platformAdmin: z.boolean(),
 });

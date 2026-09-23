@@ -84,7 +84,7 @@ body {
   width: 24px;
   height: 24px;
   border-radius: var(--peg-radius-sm);
-  background: var(--aluguei-brand);
+  background: var(--brand);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -186,6 +186,31 @@ body {
 }
 
 /* Badge numérica compacta (dados reais apenas) */
+/* Item fora do plano ou de tela ainda em preparação: cadeado e cor mais fraca.
+   A cor não é o único sinal — há o cadeado e o aria-label. */
+.app-sidebar__link--bloqueado {
+  color: var(--peg-text-tertiary);
+}
+
+.app-sidebar__link--bloqueado .app-sidebar__label {
+  font-weight: 400;
+}
+
+/* Etiqueta "Novo" da entrega de design. */
+.app-sidebar__tag {
+  margin-left: auto;
+  padding: 0 6px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--peg-radius-xs);
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .app-sidebar__badge {
   display: inline-flex;
   align-items: center;
@@ -493,8 +518,8 @@ body {
 }
 
 .focus-step--active {
-  background: var(--aluguei-brand);
-  border-color: var(--aluguei-brand);
+  background: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }
 
@@ -552,7 +577,7 @@ body {
 }
 
 .focus-rail__step-dot--done {
-  background: var(--aluguei-brand);
+  background: var(--brand);
 }
 
 .focus-rail__step-label {
@@ -923,7 +948,7 @@ body {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--aluguei-brand);
+  background: var(--brand);
   opacity: 0.85;
   min-width: 2px;
 }

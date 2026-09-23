@@ -1,5 +1,5 @@
 import type { IconName } from '@aluguei/ui';
-import type { Permission } from '@aluguei/domain';
+import type { Permission, PlanModule } from '@aluguei/domain';
 
 export interface NavItem {
   href: string;
@@ -12,6 +12,16 @@ export interface NavItem {
   badgeTone?: 'neutral' | 'danger';
   section: 'primary' | 'admin';
   activePrefixes?: string[];
+  /**
+   * Módulo do plano que abre este item. Sem o módulo, o item aparece com cadeado
+   * e leva para a tela "Fora do seu plano" (ADR-095). Item sem módulo é base de
+   * todo plano, inclusive o Anunciante.
+   */
+  module?: PlanModule;
+  /** Etiqueta "Novo" na entrega de design. */
+  novo?: boolean;
+  /** Tela ainda não construída: o item explica em vez de levar a um 404. */
+  emPreparacao?: boolean;
 }
 
 export interface NavGroup {
@@ -47,6 +57,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/crm/pipeline',
+        module: 'CRM',
         label: 'Pipeline',
         icon: 'columns',
         permission: 'lead:read',
@@ -61,6 +72,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/crm/calendar',
+        module: 'CRM',
         label: 'Agenda',
         icon: 'calendar',
         permission: 'visit:read',
@@ -97,10 +109,29 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     ],
   },
   {
+    // Vendas (entrega de design): o módulo existe no plano, as telas chegam na
+    // fase de Vendas (ADR-097). Até lá o item explica em vez de levar a um 404.
+    title: 'Vendas',
+    items: [
+      {
+        href: '/app/vendas/negociacoes',
+        label: 'Negociações',
+        icon: 'columns',
+        permission: 'lead:read',
+        section: 'primary',
+        module: 'VENDAS',
+        novo: true,
+        emPreparacao: true,
+        activePrefixes: ['/app/vendas'],
+      },
+    ],
+  },
+  {
     title: 'Operação',
     items: [
       {
         href: '/app/inbox',
+        module: 'ATENDIMENTO',
         label: 'Inbox',
         icon: 'messageCircle',
         permission: 'conversation:read',
@@ -108,6 +139,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/visits',
+        module: 'CRM',
         label: 'Visitas',
         icon: 'calendarClock',
         permission: 'visit:read',
@@ -115,6 +147,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/proposals',
+        module: 'CRM',
         label: 'Propostas',
         icon: 'handshake',
         permission: 'proposal:read',
@@ -122,6 +155,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/screening',
+        module: 'LOCACAO',
         label: 'Crédito',
         icon: 'shield',
         permission: 'screening:read',
@@ -130,6 +164,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/contracts',
+        module: 'LOCACAO',
         label: 'Contratos',
         icon: 'fileText',
         permission: 'contract:read',
@@ -138,6 +173,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/inspections',
+        module: 'LOCACAO',
         label: 'Vistorias',
         icon: 'camera',
         permission: 'inspection:read',
@@ -145,6 +181,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/leases',
+        module: 'LOCACAO',
         label: 'Locações',
         icon: 'key',
         permission: 'finance:read',
@@ -157,6 +194,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     items: [
       {
         href: '/app/finance',
+        module: 'FINANCEIRO',
         label: 'Visão Geral',
         icon: 'barChart',
         permission: 'finance:read',
@@ -164,6 +202,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/charges',
+        module: 'FINANCEIRO',
         label: 'Cobranças',
         icon: 'receipt',
         permission: 'finance:read',
@@ -171,6 +210,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/payments',
+        module: 'FINANCEIRO',
         label: 'Pagamentos',
         icon: 'creditCard',
         permission: 'finance:read',
@@ -178,6 +218,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/payouts',
+        module: 'FINANCEIRO',
         label: 'Repasses',
         icon: 'trendingUp',
         permission: 'finance:read',
@@ -185,6 +226,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/reconciliation',
+        module: 'FINANCEIRO',
         label: 'Conciliação',
         icon: 'checkCircle',
         permission: 'finance:read',
@@ -192,6 +234,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: '/app/ledger',
+        module: 'FINANCEIRO',
         label: 'Ledger',
         icon: 'database',
         permission: 'finance:read',
@@ -204,6 +247,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     items: [
       {
         href: '/app/marketing',
+        module: 'MARKETING',
         label: 'Marketing',
         icon: 'megaphone',
         permission: 'meta:read',

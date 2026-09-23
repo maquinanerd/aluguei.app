@@ -8,6 +8,19 @@ export const uuidSchema = z.uuid();
  * várias parcelas com multa e juros; acima do teto a API responde 400 em vez de estourar o INSERT.
  */
 export const MAX_AMOUNT_CENTS = 100_000_000;
+
+/**
+ * Módulos que um plano pode incluir; a lista canônica é `PLAN_MODULES`
+ * (`packages/domain`) e o CHECK `plans_modules_valid` no banco.
+ */
+export const planModuleSchema = z.enum([
+  'CRM',
+  'ATENDIMENTO',
+  'LOCACAO',
+  'FINANCEIRO',
+  'VENDAS',
+  'MARKETING',
+]);
 /** Maior valor de uma coluna `integer` (int4): guarda do que vem de fora (webhook do provider). */
 export const INT4_MAX = 2_147_483_647;
 
