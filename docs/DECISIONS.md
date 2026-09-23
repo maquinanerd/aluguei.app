@@ -1613,3 +1613,38 @@ Decisão:
 Consequências: trocar o nome do produto de novo é mexer em um arquivo; o alias de tokens é dívida
 declarada, com prazo até a próxima onda que tocar a gestão; e o portal pode divergir do design
 system da gestão sem risco de contaminar o painel que já está no ar.
+
+## ADR-099 — URL, indexação e ciclo de vida das páginas do portal (SEO, 2026-09-23)
+
+Status: Aceito. Detalhamento em `docs/frontend/PORTAL_SEO.md`.
+
+Contexto: o portal é um caso de SEO programático — cidade × bairro × tipo × quartos gera dezenas de
+milhares de endereços a partir do mesmo template. Publicar tudo dá index bloat e esbarra na política
+de conteúdo em escala do Google; publicar de menos joga fora a cauda longa de bairro, que é onde está
+a intenção de quem procura imóvel. Some-se a isso que o texto do anúncio costuma ser o mesmo
+publicado no ZAP, no OLX e no Imovelweb: no anúncio individual somos conteúdo não original.
+
+Decisão:
+
+- **Caminho indexa, query string não.** `/{alugar|comprar}/[cidade-uf]/[bairro]/[tipo]/[n]-quartos`,
+  nessa ordem, com o único salto cidade → tipo. Ordenação, faixa de preço e paginação vivem em query
+  string, sempre `noindex, follow` e canônica para a URL sem query.
+- **Indexação calculada, não fixa**: ≥3 anúncios para indexar e entrar no sitemap, ≥5 para mostrar
+  estatística, ≥5 para indexar recorte com modificador. Abaixo disso a página continua viva e
+  navegável, mas com `noindex, follow`. São os mesmos limiares que o `AGENTS.md` já exige para não
+  publicar estatística sem amostra.
+- **O que diferencia cada página é dado, não texto**: lista real, mediana e faixa do recorte, mediana
+  por quartos, bairros vizinhos com contagem e FAQ calculado. Nada de parágrafo gerado em escala.
+- **Slug do anúncio é único no país** (hoje é `UNIQUE (org_id, slug)`), com histórico para 301.
+- **Fim de vida da URL**: anúncio pausado, arquivado, alugado ou vendido responde **410** com imóveis
+  parecidos e sai do sitemap na hora; slug trocado responde 301.
+- **Título estável, sem contagem** (a contagem fica no H1); canônica própria em toda página.
+- **Lançamento por cidade, em lotes de 50 a 100 páginas**, com revisão humana de uma amostra e duas a
+  quatro semanas entre lotes.
+- **Foto pública por URL estável** que não expõe `storage_key`: `GET /public/media/:mediaId` responde
+  302 para uma URL assinada de vida curta, e o endereço que fica no HTML em cache nunca muda. Isso
+  resolve o R3 do plano sem CDN nova nem URL que vence dentro da página.
+
+Consequências: a Onda 2A ganha requisitos concretos (slug global, contagem do recorte, `page_stats`,
+vizinhos, fonte do sitemap, status de remoção legível no público, URL de foto), e a Onda 2B já nasce
+com a régua de quando uma página pode ser indexada.
