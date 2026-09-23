@@ -1496,3 +1496,87 @@ Consequências:
 - **Valores gravados antes:** nenhum dado é alterado; linhas acima do teto continuam lidas. Só novas
   entradas são recusadas.
 - **Evidência:** `docs/audits/2026-09-10/evidence/g3/teto-centavos/`.
+
+## ADR-095 — Módulos por plano com 403 PLAN_MODULE_NOT_INCLUDED (Onda 1A do AchouImóvel, 2026-09-23)
+
+Status: Aceito.
+
+Contexto: a entrega de design do AchouImóvel (`design-source/achouimovel/`) exige menu com cadeado
+nos módulos fora do plano e uma tela "Fora do seu plano". O sistema só tinha limites de uso
+(`maxUsers`, `maxProperties`, `maxPublishedListings`) e gating de interface por papel (RBAC). Plano
+não dizia o que a imobiliária pode abrir, e o painel não tinha como saber.
+
+Decisão:
+
+- **Vocabulário fechado** `PLAN_MODULES` no domínio: CRM, ATENDIMENTO, LOCACAO, FINANCEIRO, VENDAS,
+  MARKETING. O banco repete a lista no CHECK `plans_modules_valid`, e o teste da trilha G compara as
+  duas (`tests/integration/src/g3-g-schema-domain.test.ts`).
+- **Base de todo plano, sem módulo:** imóveis, anúncios e canais, leads, contatos, tarefas,
+  relatórios, configurações e administração da própria imobiliária — é o que o plano Anunciante
+  compra.
+- **Um gate por grupo de rotas**, não por rota: cada arquivo de rota é plugin comum (sem
+  `fastify-plugin`), então `registerBehindModule` em `apps/api/src/app.ts` registra o grupo num
+  escopo com o hook do módulo. O `requirePermission` de cada rota continua igual — RBAC e plano são
+  perguntas diferentes.
+- **Resposta:** 403 com `details.reason = PLAN_MODULE_NOT_INCLUDED` e `details.module`, no mesmo
+  formato de `ORG_NOT_ACTIVE` (ADR-060). É o `reason` que faz o painel abrir a tela de upgrade em
+  vez do erro genérico.
+- **Sessão:** `request.auth.planModules` vem do join com `plans` no plugin de sessão, normalizado
+  pelo domínio — código desconhecido no banco não vira módulo.
+
+Consequências:
+
+- Trocar o plano da imobiliária vale na requisição seguinte (a sessão lê o plano a cada pedido).
+- Migration 0024 dá a todos os planos que já existiam os cinco módulos de hoje: **ninguém perde
+  acesso ao que já usava**. VENDAS fica só no ILIMITADO, porque o módulo ainda não existe no produto
+  — é o que dá um estado bloqueado real para a interface da Onda 1B.
+- Módulo novo no futuro exige: constante do domínio, CHECK do banco (migration), e decisão explícita
+  de em quais planos ele entra.
+
+## ADR-096 — Locações em vigor viram limite de plano; preço mensal é só exibição (Onda 1A, 2026-09-23)
+
+Status: Aceito; os números de cada plano são pendência do dono.
+
+Contexto: o HANDOFF pede o diálogo "100 de 100 contratos" ao ativar uma locação e a página pública
+de planos com preço. Os planos não tinham nem o limite nem o preço, e o admin da plataforma foi
+desenhado sem cobrança (ADR-060).
+
+Decisão:
+
+- `plans.max_active_leases` (nulo = ilimitado) e o recurso `activeLeases` contam as locações em
+  `ACTIVE`, `DELINQUENT` ou `TERMINATING` (`BILLABLE_LEASE_STATUSES`): encerrar libera a vaga.
+- A checagem entra na transação que cria a locação, com a trava da linha da imobiliária que já
+  serializa os outros limites (`assertPlanAllowsOneMore`), e recusa com 409 `PLAN_LIMIT_REACHED`
+  antes de qualquer escrita.
+- `plans.monthly_price_cents` é **só exibição**: nulo vira "Fale com a gente". Nada aqui cobra, e o
+  teto por valor em centavos é o mesmo do resto do sistema (ADR-094).
+
+Consequências: os planos semeados ficam com limite nulo e preço nulo — nenhum comportamento muda até
+o dono definir os números. A tela "Plano e uso" (Onda 4) lê esses mesmos campos.
+
+## ADR-097 — Decisões de rumo do frontend do AchouImóvel (Onda 0, 2026-09-23)
+
+Status: Aceito, por delegação explícita do usuário ("siga, você decide o que for melhor").
+
+Contexto: o diagnóstico da Onda 0 (`docs/frontend/ACHOUIMOVEL_PLAN.md`) deixou quatro pontos em
+aberto que mudam o rumo da execução.
+
+Decisão:
+
+1. **Portais parceiros (R1).** A interface mostra o estado real vindo da API: "Conectado" só com
+   adapter e evidência de sandbox; sem adapter, "Em preparação". Hoje Canal Pro, OLX e Imovelweb
+   estão registrados sem adapter, então nenhum deles aparece como integrado. Escrever "Integrado"
+   sem evidência contraria `AGENTS.md`, e o material de marketing segue a mesma regra.
+2. **`PROMPT_apps-portal.md` (pendência 1).** O arquivo não existe no repositório. Em vez de
+   esperar, a Onda 2 escreve `docs/frontend/PORTAL_SPEC.md` a partir do que já é regra escrita: as
+   telas de referência, os limiares do prompt orquestrado (≥5 para estatística, ≥3 para indexar) e
+   os padrões de cache e SEO do repositório. Nada de número ou limiar inventado; o que faltar vira
+   pendência no documento.
+3. **Vendas (R6).** Deixa de ser "Onda 5" e vira fase própria depois da Onda 4, com ADRs e
+   migrations próprios: são tabelas, domínio, rotas e regras de comissão do zero.
+4. **Rotas legadas do site (R7).** `/`, `/imoveis` e `/imoveis/[slug]` em `apps/web` passam a
+   redirecionar (301) para o portal quando a Onda 2B subir, no mesmo PR que atualiza
+   `tests/e2e/src/g2-b2-crawler.spec.ts`. Nenhum teste é removido.
+
+Consequências: a ordem das ondas muda (Vendas sai do caminho crítico) e o portal ganha uma
+especificação escrita no repositório em vez de um arquivo ausente.

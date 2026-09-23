@@ -47,6 +47,8 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'inspection_ai_suggestions.status': { values: c.suggestionStatusSchema.options },
   'lease_amendments.kind': { values: c.leaseAmendmentKindSchema.options },
   'whatsapp_connections.status': { values: d.WHATSAPP_CONNECTION_STATUSES },
+  // Onda 1A do frontend: módulos incluídos no plano (o CHECK é `modules <@ array[...]`).
+  'plans.modules': { values: d.PLAN_MODULES },
 
   // Trilha G — CRM e imóveis.
   'party_roles.role': { values: c.partyRoleSchema.options },

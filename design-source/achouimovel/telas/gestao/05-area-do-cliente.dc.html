@@ -1,187 +1,1001 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<meta name="design_doc_mode" content="canvas">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-body{margin:0;background:#E4E4E0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B;-webkit-font-smoothing:antialiased}
-a{color:#417D55;text-underline-offset:3px}a:hover{color:#2F5F3F}
-*{box-sizing:border-box}
-</style>
-</helmet>
-<section data-screen-label="Área do cliente" style="padding:64px;display:flex;flex-direction:column;gap:28px">
-  <div style="display:flex;flex-direction:column;gap:6px;max-width:1040px">
-    <div style="font-size:12px;font-weight:600;color:#555A52">Entrega 2 · Área do cliente · 7.4 · app.achouimovel.online/cliente</div>
-    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-0.02em">Proprietário e inquilino, primeiro no celular</h1>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#555A52">Rotas atuais: /portal/entrar, /inquilino, /proprietario. Mesmos tokens do painel (Inter, #FCFCFC, #2F332B, #41945D). Acesso por link de uso único enviado por e-mail ou WhatsApp, sem senha. Pagamento real (Asaas) aparece como "em breve" enquanto estiver em modo de teste. Dados fictícios.</p>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
-
-    <div id="entrar" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/portal/entrar · pedir link</div>
-      <div style="width:390px;height:780px;background:#FCFCFC;display:flex;flex-direction:column">
-        <div style="height:56px;display:flex;align-items:center;justify-content:center;gap:8px;border-bottom:1px solid #E6E6E3"><span style="width:22px;height:22px;border-radius:6px;background:#41945D;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">A</span><span style="font-size:15px;font-weight:600">AchouImóvel</span></div>
-        <div style="padding:40px 20px;display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:22px;font-weight:600;letter-spacing:-0.01em;line-height:1.25">Acesse sua locação</span>
-          <span style="font-size:14px;line-height:1.6;color:#555A52">Informe o e-mail ou o celular cadastrado na imobiliária. Enviamos um link que vale por 15 minutos e só pode ser usado uma vez.</span>
-          <div style="display:flex;flex-direction:column;gap:6px;padding-top:6px"><span style="font-size:13px;font-weight:500">E-mail ou celular</span><div style="height:48px;border:1px solid #41945D;box-shadow:0 0 0 3px rgba(65,148,93,.35);border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:15px">(62) 9 8812-5678</div></div>
-          <span style="height:48px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Receber link de acesso</span>
-          <span style="font-size:12.5px;color:#6E746B;line-height:1.5">Você é da imobiliária? <a href="#entrar">Entre no AchouImóvel Gestão</a>.</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta name="design_doc_mode" content="canvas" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #e4e4e0;
+            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+            color: #2f332b;
+            -webkit-font-smoothing: antialiased;
+          }
+          a {
+            color: #417d55;
+            text-underline-offset: 3px;
+          }
+          a:hover {
+            color: #2f5f3f;
+          }
+          * {
+            box-sizing: border-box;
+          }
+        </style>
+      </helmet>
+      <section
+        data-screen-label="Área do cliente"
+        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
+      >
+        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 1040px">
+          <div style="font-size: 12px; font-weight: 600; color: #555a52">
+            Entrega 2 · Área do cliente · 7.4 · app.achouimovel.online/cliente
+          </div>
+          <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em">
+            Proprietário e inquilino, primeiro no celular
+          </h1>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555a52">
+            Rotas atuais: /portal/entrar, /inquilino, /proprietario. Mesmos tokens do painel (Inter,
+            #FCFCFC, #2F332B, #41945D). Acesso por link de uso único enviado por e-mail ou WhatsApp,
+            sem senha. Pagamento real (Asaas) aparece como "em breve" enquanto estiver em modo de
+            teste. Dados fictícios.
+          </p>
         </div>
-      </div>
-    </div>
-
-    <div id="link-enviado" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">Link enviado · e link expirado</div>
-      <div style="width:390px;height:780px;background:#FCFCFC;display:flex;flex-direction:column">
-        <div style="height:56px;display:flex;align-items:center;justify-content:center;gap:8px;border-bottom:1px solid #E6E6E3"><span style="width:22px;height:22px;border-radius:6px;background:#41945D;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">A</span><span style="font-size:15px;font-weight:600">AchouImóvel</span></div>
-        <div style="padding:40px 20px 24px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E6E6E3">
-          <span style="font-size:20px;font-weight:600">Confira seu WhatsApp</span>
-          <span style="font-size:14px;line-height:1.6;color:#555A52">Mandamos o link para (62) 9 ••••-5678. Abra no mesmo celular.</span>
-          <span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#6E746B">Reenviar em 0:48</span>
-        </div>
-        <div style="padding:24px 20px;display:flex;flex-direction:column;gap:12px">
-          <span style="align-self:flex-start;height:20px;padding:0 8px;border-radius:4px;background:#FDF3E3;color:#A05C06;font-size:11px;font-weight:500;display:flex;align-items:center">Link expirado</span>
-          <span style="font-size:18px;font-weight:600">Este link já foi usado ou venceu</span>
-          <span style="font-size:14px;line-height:1.6;color:#555A52">Por segurança, cada link funciona uma vez só. Peça um novo.</span>
-          <span style="height:44px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">Pedir novo link</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="inquilino" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/inquilino · início</div>
-      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column;overflow:hidden;position:relative">
-        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #E6E6E3;flex:none"><span style="font-size:15px;font-weight:600">Olá, Fernanda</span><span style="font-size:13px;color:#555A52">Sair</span></div>
-        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Sua locação</span><span style="font-size:14px;font-weight:600">Apto 2 qts · Setor Bueno, Goiânia</span><span style="font-size:12.5px;color:#555A52">Imobiliária Exemplo · contrato até 30/09/2028</span></div>
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
-            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #F0F0F0">
-              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12.5px;font-weight:500;color:#555A52">Cobrança de outubro</span><span style="height:20px;padding:0 8px;border-radius:4px;background:#E9EFFD;color:#1D4ED8;font-size:11px;font-weight:500;display:flex;align-items:center">Em aberto</span></div>
-              <span style="font-size:30px;font-weight:700;letter-spacing:-0.02em">R$ 2.910,00</span>
-              <span style="font-size:12.5px;color:#555A52">Vence em 05/10/2026 · daqui a 13 dias</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+          <div id="entrar" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              /portal/entrar · pedir link
             </div>
-            <div style="padding:8px 16px">
-              <sc-for list="{{ itensCobranca }}" as="i" hint-placeholder-count="3"><div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px"><span style="color:#555A52">{{ i.l }}</span><span style="font-weight:500">{{ i.v }}</span></div></sc-for>
+            <div
+              style="
+                width: 390px;
+                height: 780px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <span
+                  style="
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 6px;
+                    background: #41945d;
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                  >A</span
+                ><span style="font-size: 15px; font-weight: 600">AchouImóvel</span>
+              </div>
+              <div style="padding: 40px 20px; display: flex; flex-direction: column; gap: 14px">
+                <span
+                  style="
+                    font-size: 22px;
+                    font-weight: 600;
+                    letter-spacing: -0.01em;
+                    line-height: 1.25;
+                  "
+                  >Acesse sua locação</span
+                >
+                <span style="font-size: 14px; line-height: 1.6; color: #555a52"
+                  >Informe o e-mail ou o celular cadastrado na imobiliária. Enviamos um link que
+                  vale por 15 minutos e só pode ser usado uma vez.</span
+                >
+                <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 6px">
+                  <span style="font-size: 13px; font-weight: 500">E-mail ou celular</span>
+                  <div
+                    style="
+                      height: 48px;
+                      border: 1px solid #41945d;
+                      box-shadow: 0 0 0 3px rgba(65, 148, 93, 0.35);
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 12px;
+                      font-size: 15px;
+                    "
+                  >
+                    (62) 9 8812-5678
+                  </div>
+                </div>
+                <span
+                  style="
+                    height: 48px;
+                    background: #41945d;
+                    color: #ffffff;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 15px;
+                    font-weight: 500;
+                  "
+                  >Receber link de acesso</span
+                >
+                <span style="font-size: 12.5px; color: #6e746b; line-height: 1.5"
+                  >Você é da imobiliária? <a href="#entrar">Entre no AchouImóvel Gestão</a>.</span
+                >
+              </div>
             </div>
-            <div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px"><span style="height:48px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Pagar com Pix</span><span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">Copiar código de barras</span></div>
           </div>
-          <div style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
-            <sc-for list="{{ menuInq }}" as="m" hint-placeholder-count="4"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #F0F0F0;font-size:14px"><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ m.l }}</span><span style="font-size:12px;color:#6E746B">{{ m.s }}</span></span><span style="color:#6E746B">›</span></div></sc-for>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div id="pix" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/inquilino/cobrancas/[id] · pagar por QR</div>
-      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column">
-        <div style="height:56px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px;border-bottom:1px solid #E6E6E3"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px">←</span><span style="text-align:center;font-size:15px;font-weight:600">Pagar com Pix</span><span></span></div>
-        <div style="padding:20px 16px;display:flex;flex-direction:column;gap:14px;align-items:center">
-          <span style="font-size:13px;color:#555A52">Cobrança de outubro · vence 05/10/2026</span>
-          <span style="font-size:32px;font-weight:700;letter-spacing:-0.02em">R$ 2.910,00</span>
-          <div style="width:220px;height:220px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#6E746B">QR code Pix</div>
-          <div style="width:100%;display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500">Pix copia e cola</span><div style="height:44px;background:#F0F0F0;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12.5px;color:#555A52;overflow:hidden;white-space:nowrap">00020126580014br.gov.bcb.pix0136…</div></div>
-          <span style="width:100%;height:48px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500">Copiar código</span>
-          <div style="width:100%;display:flex;gap:8px;align-items:flex-start;background:#FDF3E3;border-radius:6px;padding:10px 12px;font-size:12.5px;line-height:1.5;color:#A05C06"><span style="font-weight:700">!</span><span>Modo de teste. O pagamento real pelo Asaas chega em breve; por enquanto, pague pelo boleto enviado pela imobiliária.</span></div>
-          <span style="font-size:12px;color:#6E746B;text-align:center">A confirmação aparece aqui em até 1 minuto depois do pagamento.</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="inq-docs" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/inquilino · contrato e vistoria</div>
-      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column">
-        <div style="height:56px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px;border-bottom:1px solid #E6E6E3"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px">←</span><span style="text-align:center;font-size:15px;font-weight:600">Documentos</span><span></span></div>
-        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:600">Contrato de locação</span><span style="height:20px;padding:0 8px;border-radius:4px;background:#E9F7EE;color:#0D7A38;font-size:11px;font-weight:500;display:flex;align-items:center">Assinado</span></div>
-            <span style="font-size:12.5px;color:#555A52">Contrato 2026-118 · 30 meses · assinado em 28/09/2026 por 3 partes</span>
-            <span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">Baixar PDF</span>
+          <div id="link-enviado" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              Link enviado · e link expirado
+            </div>
+            <div
+              style="
+                width: 390px;
+                height: 780px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <span
+                  style="
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 6px;
+                    background: #41945d;
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                  >A</span
+                ><span style="font-size: 15px; font-weight: 600">AchouImóvel</span>
+              </div>
+              <div
+                style="
+                  padding: 40px 20px 24px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 12px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <span style="font-size: 20px; font-weight: 600">Confira seu WhatsApp</span>
+                <span style="font-size: 14px; line-height: 1.6; color: #555a52"
+                  >Mandamos o link para (62) 9 ••••-5678. Abra no mesmo celular.</span
+                >
+                <span
+                  style="
+                    height: 44px;
+                    border: 1px solid #c7c7c7;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #6e746b;
+                  "
+                  >Reenviar em 0:48</span
+                >
+              </div>
+              <div style="padding: 24px 20px; display: flex; flex-direction: column; gap: 12px">
+                <span
+                  style="
+                    align-self: flex-start;
+                    height: 20px;
+                    padding: 0 8px;
+                    border-radius: 4px;
+                    background: #fdf3e3;
+                    color: #a05c06;
+                    font-size: 11px;
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                  "
+                  >Link expirado</span
+                >
+                <span style="font-size: 18px; font-weight: 600"
+                  >Este link já foi usado ou venceu</span
+                >
+                <span style="font-size: 14px; line-height: 1.6; color: #555a52"
+                  >Por segurança, cada link funciona uma vez só. Peça um novo.</span
+                >
+                <span
+                  style="
+                    height: 44px;
+                    background: #41945d;
+                    color: #ffffff;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 500;
+                  "
+                  >Pedir novo link</span
+                >
+              </div>
+            </div>
           </div>
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:600">Vistoria de entrada</span><span style="height:20px;padding:0 8px;border-radius:4px;background:#E9F7EE;color:#0D7A38;font-size:11px;font-weight:500;display:flex;align-items:center">Concluída</span></div>
-            <span style="font-size:12.5px;color:#555A52">7 ambientes · 84 fotos · 3 observações · 29/09/2026</span>
-            <sc-for list="{{ ambientes }}" as="a" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #F0F0F0;font-size:13px"><span>{{ a.l }}</span><span style="color:{{ a.cor }};font-weight:500">{{ a.s }}</span></div></sc-for>
-            <span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">Ver relatório completo</span>
+
+          <div id="inquilino" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">/inquilino · início</div>
+            <div
+              style="
+                width: 390px;
+                height: 844px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                position: relative;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 0 16px;
+                  border-bottom: 1px solid #e6e6e3;
+                  flex: none;
+                "
+              >
+                <span style="font-size: 15px; font-weight: 600">Olá, Fernanda</span
+                ><span style="font-size: 13px; color: #555a52">Sair</span>
+              </div>
+              <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                <div
+                  style="
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    padding: 14px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                  "
+                >
+                  <span style="font-size: 12px; color: #6e746b">Sua locação</span
+                  ><span style="font-size: 14px; font-weight: 600"
+                    >Apto 2 qts · Setor Bueno, Goiânia</span
+                  ><span style="font-size: 12.5px; color: #555a52"
+                    >Imobiliária Exemplo · contrato até 30/09/2028</span
+                  >
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
+                  <div
+                    style="
+                      padding: 14px 16px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 6px;
+                      border-bottom: 1px solid #f0f0f0;
+                    "
+                  >
+                    <div style="display: flex; justify-content: space-between; align-items: center">
+                      <span style="font-size: 12.5px; font-weight: 500; color: #555a52"
+                        >Cobrança de outubro</span
+                      ><span
+                        style="
+                          height: 20px;
+                          padding: 0 8px;
+                          border-radius: 4px;
+                          background: #e9effd;
+                          color: #1d4ed8;
+                          font-size: 11px;
+                          font-weight: 500;
+                          display: flex;
+                          align-items: center;
+                        "
+                        >Em aberto</span
+                      >
+                    </div>
+                    <span style="font-size: 30px; font-weight: 700; letter-spacing: -0.02em"
+                      >R$ 2.910,00</span
+                    >
+                    <span style="font-size: 12.5px; color: #555a52"
+                      >Vence em 05/10/2026 · daqui a 13 dias</span
+                    >
+                  </div>
+                  <div style="padding: 8px 16px">
+                    <sc-for list="{{ itensCobranca }}" as="i" hint-placeholder-count="3"
+                      ><div
+                        style="
+                          display: flex;
+                          justify-content: space-between;
+                          padding: 7px 0;
+                          font-size: 13px;
+                        "
+                      >
+                        <span style="color: #555a52">{{ i.l }}</span
+                        ><span style="font-weight: 500">{{ i.v }}</span>
+                      </div></sc-for
+                    >
+                  </div>
+                  <div
+                    style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px"
+                  >
+                    <span
+                      style="
+                        height: 48px;
+                        background: #41945d;
+                        color: #ffffff;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 15px;
+                        font-weight: 500;
+                      "
+                      >Pagar com Pix</span
+                    ><span
+                      style="
+                        height: 44px;
+                        border: 1px solid #c7c7c7;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 14px;
+                        font-weight: 500;
+                      "
+                      >Copiar código de barras</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                  "
+                >
+                  <sc-for list="{{ menuInq }}" as="m" hint-placeholder-count="4"
+                    ><div
+                      style="
+                        height: 52px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 0 16px;
+                        border-bottom: 1px solid #f0f0f0;
+                        font-size: 14px;
+                      "
+                    >
+                      <span style="display: flex; flex-direction: column"
+                        ><span style="font-weight: 500">{{ m.l }}</span
+                        ><span style="font-size: 12px; color: #6e746b">{{ m.s }}</span></span
+                      ><span style="color: #6e746b">›</span>
+                    </div></sc-for
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="pix" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              /inquilino/cobrancas/[id] · pagar por QR
+            </div>
+            <div
+              style="
+                width: 390px;
+                height: 844px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: grid;
+                  grid-template-columns: 44px 1fr 44px;
+                  align-items: center;
+                  padding: 0 6px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <span
+                  style="
+                    width: 44px;
+                    height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                  "
+                  >←</span
+                ><span style="text-align: center; font-size: 15px; font-weight: 600"
+                  >Pagar com Pix</span
+                ><span></span>
+              </div>
+              <div
+                style="
+                  padding: 20px 16px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                  align-items: center;
+                "
+              >
+                <span style="font-size: 13px; color: #555a52"
+                  >Cobrança de outubro · vence 05/10/2026</span
+                >
+                <span style="font-size: 32px; font-weight: 700; letter-spacing: -0.02em"
+                  >R$ 2.910,00</span
+                >
+                <div
+                  style="
+                    width: 220px;
+                    height: 220px;
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    color: #6e746b;
+                  "
+                >
+                  QR code Pix
+                </div>
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 12.5px; font-weight: 500">Pix copia e cola</span>
+                  <div
+                    style="
+                      height: 44px;
+                      background: #f0f0f0;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 12px;
+                      font-size: 12.5px;
+                      color: #555a52;
+                      overflow: hidden;
+                      white-space: nowrap;
+                    "
+                  >
+                    00020126580014br.gov.bcb.pix0136…
+                  </div>
+                </div>
+                <span
+                  style="
+                    width: 100%;
+                    height: 48px;
+                    background: #41945d;
+                    color: #ffffff;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 15px;
+                    font-weight: 500;
+                  "
+                  >Copiar código</span
+                >
+                <div
+                  style="
+                    width: 100%;
+                    display: flex;
+                    gap: 8px;
+                    align-items: flex-start;
+                    background: #fdf3e3;
+                    border-radius: 6px;
+                    padding: 10px 12px;
+                    font-size: 12.5px;
+                    line-height: 1.5;
+                    color: #a05c06;
+                  "
+                >
+                  <span style="font-weight: 700">!</span
+                  ><span
+                    >Modo de teste. O pagamento real pelo Asaas chega em breve; por enquanto, pague
+                    pelo boleto enviado pela imobiliária.</span
+                  >
+                </div>
+                <span style="font-size: 12px; color: #6e746b; text-align: center"
+                  >A confirmação aparece aqui em até 1 minuto depois do pagamento.</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="inq-docs" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              /inquilino · contrato e vistoria
+            </div>
+            <div
+              style="
+                width: 390px;
+                height: 844px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: grid;
+                  grid-template-columns: 44px 1fr 44px;
+                  align-items: center;
+                  padding: 0 6px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <span
+                  style="
+                    width: 44px;
+                    height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                  "
+                  >←</span
+                ><span style="text-align: center; font-size: 15px; font-weight: 600"
+                  >Documentos</span
+                ><span></span>
+              </div>
+              <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                <div
+                  style="
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    padding: 14px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                  "
+                >
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <span style="font-size: 14px; font-weight: 600">Contrato de locação</span
+                    ><span
+                      style="
+                        height: 20px;
+                        padding: 0 8px;
+                        border-radius: 4px;
+                        background: #e9f7ee;
+                        color: #0d7a38;
+                        font-size: 11px;
+                        font-weight: 500;
+                        display: flex;
+                        align-items: center;
+                      "
+                      >Assinado</span
+                    >
+                  </div>
+                  <span style="font-size: 12.5px; color: #555a52"
+                    >Contrato 2026-118 · 30 meses · assinado em 28/09/2026 por 3 partes</span
+                  >
+                  <span
+                    style="
+                      height: 44px;
+                      border: 1px solid #c7c7c7;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 14px;
+                      font-weight: 500;
+                    "
+                    >Baixar PDF</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    padding: 14px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                  "
+                >
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <span style="font-size: 14px; font-weight: 600">Vistoria de entrada</span
+                    ><span
+                      style="
+                        height: 20px;
+                        padding: 0 8px;
+                        border-radius: 4px;
+                        background: #e9f7ee;
+                        color: #0d7a38;
+                        font-size: 11px;
+                        font-weight: 500;
+                        display: flex;
+                        align-items: center;
+                      "
+                      >Concluída</span
+                    >
+                  </div>
+                  <span style="font-size: 12.5px; color: #555a52"
+                    >7 ambientes · 84 fotos · 3 observações · 29/09/2026</span
+                  >
+                  <sc-for list="{{ ambientes }}" as="a" hint-placeholder-count="4"
+                    ><div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 8px 0;
+                        border-top: 1px solid #f0f0f0;
+                        font-size: 13px;
+                      "
+                    >
+                      <span>{{ a.l }}</span
+                      ><span style="color:{{ a.cor }};font-weight:500">{{ a.s }}</span>
+                    </div></sc-for
+                  >
+                  <span
+                    style="
+                      height: 44px;
+                      border: 1px solid #c7c7c7;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 14px;
+                      font-weight: 500;
+                    "
+                    >Ver relatório completo</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="proprietario" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              /proprietario · extrato e repasses
+            </div>
+            <div
+              style="
+                width: 390px;
+                height: 844px;
+                background: #fcfcfc;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 0 16px;
+                  border-bottom: 1px solid #e6e6e3;
+                  flex: none;
+                "
+              >
+                <span style="font-size: 15px; font-weight: 600">Olá, Marcos</span
+                ><span style="font-size: 13px; color: #555a52">Sair</span>
+              </div>
+              <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                <div
+                  style="
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    padding: 14px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span style="font-size: 12.5px; color: #555a52">Repasse previsto · setembro</span>
+                  <span
+                    style="
+                      font-size: 30px;
+                      font-weight: 700;
+                      letter-spacing: -0.02em;
+                      color: #417d55;
+                    "
+                    >R$ 4.482,00</span
+                  >
+                  <span style="font-size: 12.5px; color: #555a52"
+                    >Crédito em 10/10/2026 · Banco Exemplo ag. 0001 · cc ••••-7</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    background: #f0f0f0;
+                    border-radius: 6px;
+                    padding: 2px;
+                    font-size: 13px;
+                    font-weight: 500;
+                  "
+                >
+                  <span
+                    style="
+                      flex: 1;
+                      height: 32px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      background: #ffffff;
+                      border-radius: 4px;
+                      box-shadow: 0 1px 2px rgba(47, 51, 43, 0.08);
+                    "
+                    >Setembro</span
+                  ><span
+                    style="
+                      flex: 1;
+                      height: 32px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      color: #555a52;
+                    "
+                    >Agosto</span
+                  ><span
+                    style="
+                      flex: 1;
+                      height: 32px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      color: #555a52;
+                    "
+                    >Julho</span
+                  >
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
+                  <div
+                    style="
+                      padding: 12px 16px;
+                      border-bottom: 1px solid #e6e6e3;
+                      font-size: 13px;
+                      font-weight: 600;
+                    "
+                  >
+                    Extrato de setembro · 2 imóveis
+                  </div>
+                  <sc-for list="{{ extrato }}" as="e" hint-placeholder-count="6"
+                    ><div
+                      style="
+                        display: grid;
+                        grid-template-columns: minmax(0, 1fr) auto;
+                        gap: 2px 10px;
+                        padding: 10px 16px;
+                        border-bottom: 1px solid #f0f0f0;
+                      "
+                    >
+                      <span style="font-size: 13px; font-weight: 500">{{ e.l }}</span
+                      ><span
+                        style="font-size:13px;font-weight:600;text-align:right;color:{{ e.cor }}"
+                        >{{ e.v }}</span
+                      ><span style="font-size: 11.5px; color: #6e746b">{{ e.s }}</span
+                      ><span></span></div
+                  ></sc-for>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      padding: 12px 16px;
+                      font-size: 14px;
+                      font-weight: 600;
+                    "
+                  >
+                    <span>Total a repassar</span><span>R$ 4.482,00</span>
+                  </div>
+                </div>
+                <span
+                  style="
+                    height: 44px;
+                    border: 1px solid #c7c7c7;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 500;
+                  "
+                  >Baixar extrato em PDF</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="prop-desktop" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              /proprietario · desktop 1040 · histórico de repasses
+            </div>
+            <div
+              style="
+                width: 1040px;
+                background: #fcfcfc;
+                border: 1px solid #e2e2dd;
+                border-radius: 14px;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                style="
+                  height: 56px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 0 24px;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span
+                    style="
+                      width: 22px;
+                      height: 22px;
+                      border-radius: 6px;
+                      background: #41945d;
+                      color: #ffffff;
+                      font-size: 11px;
+                      font-weight: 700;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                    >A</span
+                  ><span style="font-size: 15px; font-weight: 600">AchouImóvel</span
+                  ><span style="font-size: 13px; color: #6e746b">· Área do proprietário</span>
+                </div>
+                <span style="font-size: 13px; color: #555a52">Marcos Tavares · Sair</span>
+              </div>
+              <div
+                style="
+                  padding: 24px;
+                  display: grid;
+                  grid-template-columns: repeat(3, minmax(0, 1fr));
+                  gap: 16px;
+                "
+              >
+                <sc-for list="{{ kpisProp }}" as="k" hint-placeholder-count="3"
+                  ><div
+                    style="
+                      background: #ffffff;
+                      border: 1px solid #e6e6e3;
+                      border-radius: 8px;
+                      padding: 14px 16px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 4px;
+                    "
+                  >
+                    <span style="font-size: 12.5px; color: #555a52">{{ k.l }}</span
+                    ><span style="font-size: 22px; font-weight: 600">{{ k.v }}</span
+                    ><span style="font-size: 12px; color: #6e746b">{{ k.s }}</span>
+                  </div></sc-for
+                >
+              </div>
+              <div
+                style="
+                  margin: 0 24px 24px;
+                  background: #ffffff;
+                  border: 1px solid #e6e6e3;
+                  border-radius: 8px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 110px minmax(0, 1fr) 130px 130px 130px 110px;
+                    height: 36px;
+                    align-items: center;
+                    padding: 0 16px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: #555a52;
+                    border-bottom: 1px solid #e6e6e3;
+                    background: #fbfbfa;
+                  "
+                >
+                  <span>Mês</span><span>Imóvel</span
+                  ><span style="text-align: right">Aluguel recebido</span
+                  ><span style="text-align: right">Taxa de adm.</span
+                  ><span style="text-align: right">Repasse</span
+                  ><span style="text-align: right">Situação</span>
+                </div>
+                <sc-for list="{{ repasses }}" as="r" hint-placeholder-count="6"
+                  ><div
+                    style="
+                      display: grid;
+                      grid-template-columns: 110px minmax(0, 1fr) 130px 130px 130px 110px;
+                      height: 44px;
+                      align-items: center;
+                      padding: 0 16px;
+                      font-size: 13px;
+                      border-bottom: 1px solid #f0f0f0;
+                    "
+                  >
+                    <span>{{ r.m }}</span><span>{{ r.i }}</span
+                    ><span style="text-align: right">{{ r.a }}</span
+                    ><span style="text-align: right; color: #555a52">{{ r.t }}</span
+                    ><span style="text-align: right; font-weight: 600">{{ r.r }}</span
+                    ><span style="text-align: right"
+                      ><span
+                        style="height:20px;padding:0 8px;border-radius:4px;background:{{ r.bg }};color:{{ r.fg }};font-size:11px;font-weight:500;display:inline-flex;align-items:center"
+                        >{{ r.s }}</span
+                      ></span
+                    >
+                  </div></sc-for
+                >
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div id="proprietario" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/proprietario · extrato e repasses</div>
-      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column;overflow:hidden">
-        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #E6E6E3;flex:none"><span style="font-size:15px;font-weight:600">Olá, Marcos</span><span style="font-size:13px;color:#555A52">Sair</span></div>
-        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
-            <span style="font-size:12.5px;color:#555A52">Repasse previsto · setembro</span>
-            <span style="font-size:30px;font-weight:700;letter-spacing:-0.02em;color:#417D55">R$ 4.482,00</span>
-            <span style="font-size:12.5px;color:#555A52">Crédito em 10/10/2026 · Banco Exemplo ag. 0001 · cc ••••-7</span>
-          </div>
-          <div style="display:flex;background:#F0F0F0;border-radius:6px;padding:2px;font-size:13px;font-weight:500"><span style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;background:#FFFFFF;border-radius:4px;box-shadow:0 1px 2px rgba(47,51,43,.08)">Setembro</span><span style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;color:#555A52">Agosto</span><span style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;color:#555A52">Julho</span></div>
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
-            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Extrato de setembro · 2 imóveis</div>
-            <sc-for list="{{ extrato }}" as="e" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 16px;border-bottom:1px solid #F0F0F0"><span style="font-size:13px;font-weight:500">{{ e.l }}</span><span style="font-size:13px;font-weight:600;text-align:right;color:{{ e.cor }}">{{ e.v }}</span><span style="font-size:11.5px;color:#6E746B">{{ e.s }}</span><span></span></div></sc-for>
-            <div style="display:flex;justify-content:space-between;padding:12px 16px;font-size:14px;font-weight:600"><span>Total a repassar</span><span>R$ 4.482,00</span></div>
-          </div>
-          <span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">Baixar extrato em PDF</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="prop-desktop" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">/proprietario · desktop 1040 · histórico de repasses</div>
-      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;display:flex;flex-direction:column">
-        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid #E6E6E3"><div style="display:flex;align-items:center;gap:8px"><span style="width:22px;height:22px;border-radius:6px;background:#41945D;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">A</span><span style="font-size:15px;font-weight:600">AchouImóvel</span><span style="font-size:13px;color:#6E746B">· Área do proprietário</span></div><span style="font-size:13px;color:#555A52">Marcos Tavares · Sair</span></div>
-        <div style="padding:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
-          <sc-for list="{{ kpisProp }}" as="k" hint-placeholder-count="3"><div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12.5px;color:#555A52">{{ k.l }}</span><span style="font-size:22px;font-weight:600">{{ k.v }}</span><span style="font-size:12px;color:#6E746B">{{ k.s }}</span></div></sc-for>
-        </div>
-        <div style="margin:0 24px 24px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;overflow:hidden">
-          <div style="display:grid;grid-template-columns:110px minmax(0,1fr) 130px 130px 130px 110px;height:36px;align-items:center;padding:0 16px;font-size:12px;font-weight:500;color:#555A52;border-bottom:1px solid #E6E6E3;background:#FBFBFA"><span>Mês</span><span>Imóvel</span><span style="text-align:right">Aluguel recebido</span><span style="text-align:right">Taxa de adm.</span><span style="text-align:right">Repasse</span><span style="text-align:right">Situação</span></div>
-          <sc-for list="{{ repasses }}" as="r" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:110px minmax(0,1fr) 130px 130px 130px 110px;height:44px;align-items:center;padding:0 16px;font-size:13px;border-bottom:1px solid #F0F0F0"><span>{{ r.m }}</span><span>{{ r.i }}</span><span style="text-align:right">{{ r.a }}</span><span style="text-align:right;color:#555A52">{{ r.t }}</span><span style="text-align:right;font-weight:600">{{ r.r }}</span><span style="text-align:right"><span style="height:20px;padding:0 8px;border-radius:4px;background:{{ r.bg }};color:{{ r.fg }};font-size:11px;font-weight:500;display:inline-flex;align-items:center">{{ r.s }}</span></span></div></sc-for>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  renderVals() {
-    const ok = {bg:'#E9F7EE',fg:'#0D7A38'}, prev = {bg:'#E9EFFD',fg:'#1D4ED8'};
-    return {
-      itensCobranca: [{l:'Aluguel',v:'R$ 2.300,00'},{l:'Condomínio',v:'R$ 480,00'},{l:'IPTU',v:'R$ 130,00'}],
-      menuInq: [{l:'Cobranças',s:'Histórico e segunda via'},{l:'Contrato',s:'Assinado em 28/09/2026'},{l:'Vistoria de entrada',s:'Concluída em 29/09/2026'},{l:'Falar com a imobiliária',s:'WhatsApp da Imobiliária Exemplo'}],
-      ambientes: [{l:'Sala e varanda',s:'Sem observações',cor:'#0D7A38'},{l:'Cozinha',s:'1 observação leve',cor:'#A05C06'},{l:'Suíte',s:'Sem observações',cor:'#0D7A38'},{l:'Banheiro social',s:'2 observações leves',cor:'#A05C06'}],
-      extrato: [
-        {l:'Aluguel · Apto 2 qts Setor Bueno',s:'Pago pela inquilina em 05/09',v:'+ R$ 2.300,00',cor:'#2F332B'},
-        {l:'Aluguel · Casa Jardim América',s:'Pago em 06/09',v:'+ R$ 2.700,00',cor:'#2F332B'},
-        {l:'Taxa de administração · 8%',s:'Sobre R$ 5.000,00',v:'− R$ 400,00',cor:'#B91C1C'},
-        {l:'Reparo de torneira · Casa',s:'Nota 1182 · aprovado em 12/09',v:'− R$ 118,00',cor:'#B91C1C'},
-        {l:'IPTU e condomínio',s:'Pagos pela inquilina direto',v:'R$ 0,00',cor:'#6E746B'}
-      ],
-      kpisProp: [{l:'Repassado em 2026',v:'R$ 38.940,00',s:'9 repasses'},{l:'Imóveis administrados',v:'2',s:'2 locações ativas'},{l:'Próximo repasse',v:'R$ 4.482,00',s:'10/10/2026'}],
-      repasses: [
-        {m:'Set/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.482,00',s:'Previsto',...prev},
-        {m:'Ago/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.600,00',s:'Pago',...ok},
-        {m:'Jul/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.600,00',s:'Pago',...ok},
-        {m:'Jun/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.310,00',s:'Pago',...ok},
-        {m:'Mai/2026',i:'Casa Jardim América',a:'R$ 2.700,00',t:'R$ 216,00',r:'R$ 2.484,00',s:'Pago',...ok},
-        {m:'Abr/2026',i:'Casa Jardim América',a:'R$ 2.700,00',t:'R$ 216,00',r:'R$ 2.484,00',s:'Pago',...ok}
-      ]
-    };
-  }
-}
-</script>
-</body>
+      </section>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+      class Component extends DCLogic {
+        renderVals() {
+          const ok = {bg:'#E9F7EE',fg:'#0D7A38'}, prev = {bg:'#E9EFFD',fg:'#1D4ED8'};
+          return {
+            itensCobranca: [{l:'Aluguel',v:'R$ 2.300,00'},{l:'Condomínio',v:'R$ 480,00'},{l:'IPTU',v:'R$ 130,00'}],
+            menuInq: [{l:'Cobranças',s:'Histórico e segunda via'},{l:'Contrato',s:'Assinado em 28/09/2026'},{l:'Vistoria de entrada',s:'Concluída em 29/09/2026'},{l:'Falar com a imobiliária',s:'WhatsApp da Imobiliária Exemplo'}],
+            ambientes: [{l:'Sala e varanda',s:'Sem observações',cor:'#0D7A38'},{l:'Cozinha',s:'1 observação leve',cor:'#A05C06'},{l:'Suíte',s:'Sem observações',cor:'#0D7A38'},{l:'Banheiro social',s:'2 observações leves',cor:'#A05C06'}],
+            extrato: [
+              {l:'Aluguel · Apto 2 qts Setor Bueno',s:'Pago pela inquilina em 05/09',v:'+ R$ 2.300,00',cor:'#2F332B'},
+              {l:'Aluguel · Casa Jardim América',s:'Pago em 06/09',v:'+ R$ 2.700,00',cor:'#2F332B'},
+              {l:'Taxa de administração · 8%',s:'Sobre R$ 5.000,00',v:'− R$ 400,00',cor:'#B91C1C'},
+              {l:'Reparo de torneira · Casa',s:'Nota 1182 · aprovado em 12/09',v:'− R$ 118,00',cor:'#B91C1C'},
+              {l:'IPTU e condomínio',s:'Pagos pela inquilina direto',v:'R$ 0,00',cor:'#6E746B'}
+            ],
+            kpisProp: [{l:'Repassado em 2026',v:'R$ 38.940,00',s:'9 repasses'},{l:'Imóveis administrados',v:'2',s:'2 locações ativas'},{l:'Próximo repasse',v:'R$ 4.482,00',s:'10/10/2026'}],
+            repasses: [
+              {m:'Set/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.482,00',s:'Previsto',...prev},
+              {m:'Ago/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.600,00',s:'Pago',...ok},
+              {m:'Jul/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.600,00',s:'Pago',...ok},
+              {m:'Jun/2026',i:'2 imóveis',a:'R$ 5.000,00',t:'R$ 400,00',r:'R$ 4.310,00',s:'Pago',...ok},
+              {m:'Mai/2026',i:'Casa Jardim América',a:'R$ 2.700,00',t:'R$ 216,00',r:'R$ 2.484,00',s:'Pago',...ok},
+              {m:'Abr/2026',i:'Casa Jardim América',a:'R$ 2.700,00',t:'R$ 216,00',r:'R$ 2.484,00',s:'Pago',...ok}
+            ]
+          };
+        }
+      }
+    </script>
+  </body>
 </html>

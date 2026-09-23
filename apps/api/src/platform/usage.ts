@@ -1,12 +1,13 @@
-import { and, count, eq, ne, sql } from 'drizzle-orm';
-import { listings, memberships, organizations, plans, properties } from '@aluguei/db';
+import { and, count, eq, inArray, ne, sql } from 'drizzle-orm';
+import { leases, listings, memberships, organizations, plans, properties } from '@aluguei/db';
 import type { AppTx, DbExecutor } from '@aluguei/db';
-import { DomainError, assertWithinPlanLimit } from '@aluguei/domain';
+import { BILLABLE_LEASE_STATUSES, DomainError, assertWithinPlanLimit } from '@aluguei/domain';
 import type { PlanResource, PlanUsage } from '@aluguei/domain';
 
 /**
  * Uso da imobiliária frente aos limites do plano. Contam: membros; imóveis que não
- * estão arquivados; anúncios publicados (pausar libera a vaga).
+ * estão arquivados; anúncios publicados (pausar libera a vaga); locações em vigor
+ * (encerrar libera a vaga).
  */
 export async function countPlanUsage(
   db: DbExecutor,
@@ -35,6 +36,13 @@ export async function countPlanUsage(
         .where(and(eq(listings.orgId, orgId), eq(listings.status, 'PUBLISHED')));
       return row?.n ?? 0;
     }
+    case 'activeLeases': {
+      const [row] = await db
+        .select({ n: count() })
+        .from(leases)
+        .where(and(eq(leases.orgId, orgId), inArray(leases.status, [...BILLABLE_LEASE_STATUSES])));
+      return row?.n ?? 0;
+    }
   }
 }
 
@@ -43,6 +51,7 @@ export async function loadPlanUsage(db: DbExecutor, orgId: string): Promise<Plan
     users: await countPlanUsage(db, orgId, 'users'),
     properties: await countPlanUsage(db, orgId, 'properties'),
     publishedListings: await countPlanUsage(db, orgId, 'publishedListings'),
+    activeLeases: await countPlanUsage(db, orgId, 'activeLeases'),
   };
 }
 
@@ -64,6 +73,7 @@ export async function assertPlanAllowsOneMore(
       maxUsers: plans.maxUsers,
       maxProperties: plans.maxProperties,
       maxPublishedListings: plans.maxPublishedListings,
+      maxActiveLeases: plans.maxActiveLeases,
     })
     .from(organizations)
     .innerJoin(plans, eq(plans.id, organizations.planId))

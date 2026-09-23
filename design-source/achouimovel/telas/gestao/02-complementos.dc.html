@@ -1,188 +1,1002 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<meta name="design_doc_mode" content="canvas">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-body{margin:0;background:#E4E4E0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B;-webkit-font-smoothing:antialiased}
-a{color:#417D55;text-underline-offset:3px}a:hover{color:#2F5F3F}
-*{box-sizing:border-box}
-</style>
-</helmet>
-<section data-screen-label="Gestão · complementos" style="padding:64px;display:flex;flex-direction:column;gap:28px">
-  <div style="display:flex;flex-direction:column;gap:6px;max-width:1040px">
-    <div style="font-size:12px;font-weight:600;color:#555A52">Entrega 2 · Gestão · complementos sobre o painel atual</div>
-    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-0.02em">Leads com dois funis, integrações, contrato de venda, painel de vendas e celular</h1>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#555A52">Rotas: /app/crm/pipeline, /app/crm/leads, /app/admin/integrations, /app/vendas/negociacoes/[id]/contrato (Novo), /app/vendas (Novo). Mesmos tokens e componentes do painel no ar. Dados fictícios.</p>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
-
-    <div id="pipeline" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">1 · Pipeline · troca entre funil de aluguel e funil de venda (Novo) · origem em cada lead</div>
-      <div style="width:1440px;height:900px;background:#F2F2EF;padding:10px;display:flex">
-        <div style="flex:1;display:flex;border:1px solid #E2E2DD;border-radius:14px;background:#FCFCFC;overflow:hidden">
-          <dc-import name="Painel Sidebar" ativo="pipeline" hint-size="240px,878px" style="flex:none"></dc-import>
-          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-            <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;padding:0 20px;font-size:13px;color:#555A52">Painel / CRM / <b style="color:#2F332B;font-weight:500;margin-left:4px">Pipeline</b></div>
-            <div style="padding:20px 24px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px">
-              <div style="display:flex;align-items:center;gap:14px">
-                <span style="font-size:20px;font-weight:600">Pipeline</span>
-                <div style="display:flex;background:#F0F0F0;border-radius:6px;padding:2px;font-size:13px;font-weight:500"><span style="height:28px;padding:0 12px;display:flex;align-items:center;color:#555A52">Aluguel</span><span style="height:28px;padding:0 12px;display:flex;align-items:center;gap:6px;background:#FFFFFF;border-radius:4px;box-shadow:0 1px 2px rgba(47,51,43,.08)">Venda <span style="height:16px;padding:0 5px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:10px;font-weight:600;display:flex;align-items:center">Novo</span></span></div>
-              </div>
-              <div style="display:flex;gap:6px;font-size:12px"><span style="height:28px;padding:0 10px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;gap:6px;background:#FFFFFF">Origem: todas ⌄</span><span style="height:28px;padding:0 10px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;background:#FFFFFF">Responsável: todos ⌄</span></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta name="design_doc_mode" content="canvas" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #e4e4e0;
+            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+            color: #2f332b;
+            -webkit-font-smoothing: antialiased;
+          }
+          a {
+            color: #417d55;
+            text-underline-offset: 3px;
+          }
+          a:hover {
+            color: #2f5f3f;
+          }
+          * {
+            box-sizing: border-box;
+          }
+        </style>
+      </helmet>
+      <section
+        data-screen-label="Gestão · complementos"
+        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
+      >
+        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 1040px">
+          <div style="font-size: 12px; font-weight: 600; color: #555a52">
+            Entrega 2 · Gestão · complementos sobre o painel atual
+          </div>
+          <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em">
+            Leads com dois funis, integrações, contrato de venda, painel de vendas e celular
+          </h1>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555a52">
+            Rotas: /app/crm/pipeline, /app/crm/leads, /app/admin/integrations,
+            /app/vendas/negociacoes/[id]/contrato (Novo), /app/vendas (Novo). Mesmos tokens e
+            componentes do painel no ar. Dados fictícios.
+          </p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+          <div id="pipeline" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              1 · Pipeline · troca entre funil de aluguel e funil de venda (Novo) · origem em cada
+              lead
             </div>
-            <div style="flex:1;min-height:0;padding:0 24px 24px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px">
-              <sc-for list="{{ funil }}" as="c" hint-placeholder-count="6">
-                <div style="background:#F0F0F0;border-radius:8px;display:flex;flex-direction:column;gap:8px;padding:8px;overflow:hidden">
-                  <div style="display:flex;justify-content:space-between;padding:4px 4px 2px;font-size:12px;font-weight:600"><span>{{ c.nome }}</span><span style="color:#6E746B">{{ c.n }}</span></div>
-                  <sc-for list="{{ c.cards }}" as="k" hint-placeholder-count="2"><div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600">{{ k.nome }}</span><span style="font-size:12px;color:#555A52">{{ k.imovel }}</span><div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding-top:2px"><span style="flex:none;white-space:nowrap;height:18px;padding:0 6px;border-radius:4px;background:{{ k.oBg }};color:{{ k.oFg }};font-size:10.5px;font-weight:500;display:flex;align-items:center">{{ k.origem }}</span><span style="white-space:nowrap;font-size:11px;color:{{ k.tCor }}">{{ k.t }}</span></div></div></sc-for>
+            <div
+              style="
+                width: 1440px;
+                height: 900px;
+                background: #f2f2ef;
+                padding: 10px;
+                display: flex;
+              "
+            >
+              <div
+                style="
+                  flex: 1;
+                  display: flex;
+                  border: 1px solid #e2e2dd;
+                  border-radius: 14px;
+                  background: #fcfcfc;
+                  overflow: hidden;
+                "
+              >
+                <dc-import
+                  name="Painel Sidebar"
+                  ativo="pipeline"
+                  hint-size="240px,878px"
+                  style="flex: none"
+                ></dc-import>
+                <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
+                  <div
+                    style="
+                      height: 52px;
+                      border-bottom: 1px solid #e6e6e3;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 20px;
+                      font-size: 13px;
+                      color: #555a52;
+                    "
+                  >
+                    Painel / CRM /
+                    <b style="color: #2f332b; font-weight: 500; margin-left: 4px">Pipeline</b>
+                  </div>
+                  <div
+                    style="
+                      padding: 20px 24px 12px;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      gap: 12px;
+                    "
+                  >
+                    <div style="display: flex; align-items: center; gap: 14px">
+                      <span style="font-size: 20px; font-weight: 600">Pipeline</span>
+                      <div
+                        style="
+                          display: flex;
+                          background: #f0f0f0;
+                          border-radius: 6px;
+                          padding: 2px;
+                          font-size: 13px;
+                          font-weight: 500;
+                        "
+                      >
+                        <span
+                          style="
+                            height: 28px;
+                            padding: 0 12px;
+                            display: flex;
+                            align-items: center;
+                            color: #555a52;
+                          "
+                          >Aluguel</span
+                        ><span
+                          style="
+                            height: 28px;
+                            padding: 0 12px;
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: #ffffff;
+                            border-radius: 4px;
+                            box-shadow: 0 1px 2px rgba(47, 51, 43, 0.08);
+                          "
+                          >Venda
+                          <span
+                            style="
+                              height: 16px;
+                              padding: 0 5px;
+                              border-radius: 4px;
+                              background: #e9f1eb;
+                              color: #417d55;
+                              font-size: 10px;
+                              font-weight: 600;
+                              display: flex;
+                              align-items: center;
+                            "
+                            >Novo</span
+                          ></span
+                        >
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 6px; font-size: 12px">
+                      <span
+                        style="
+                          height: 28px;
+                          padding: 0 10px;
+                          border: 1px solid #c7c7c7;
+                          border-radius: 6px;
+                          display: flex;
+                          align-items: center;
+                          gap: 6px;
+                          background: #ffffff;
+                        "
+                        >Origem: todas ⌄</span
+                      ><span
+                        style="
+                          height: 28px;
+                          padding: 0 10px;
+                          border: 1px solid #c7c7c7;
+                          border-radius: 6px;
+                          display: flex;
+                          align-items: center;
+                          background: #ffffff;
+                        "
+                        >Responsável: todos ⌄</span
+                      >
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      flex: 1;
+                      min-height: 0;
+                      padding: 0 24px 24px;
+                      display: grid;
+                      grid-template-columns: repeat(6, minmax(0, 1fr));
+                      gap: 12px;
+                    "
+                  >
+                    <sc-for list="{{ funil }}" as="c" hint-placeholder-count="6">
+                      <div
+                        style="
+                          background: #f0f0f0;
+                          border-radius: 8px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 8px;
+                          padding: 8px;
+                          overflow: hidden;
+                        "
+                      >
+                        <div
+                          style="
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 4px 4px 2px;
+                            font-size: 12px;
+                            font-weight: 600;
+                          "
+                        >
+                          <span>{{ c.nome }}</span><span style="color: #6e746b">{{ c.n }}</span>
+                        </div>
+                        <sc-for list="{{ c.cards }}" as="k" hint-placeholder-count="2"
+                          ><div
+                            style="
+                              background: #ffffff;
+                              border: 1px solid #e6e6e3;
+                              border-radius: 8px;
+                              padding: 10px;
+                              display: flex;
+                              flex-direction: column;
+                              gap: 5px;
+                            "
+                          >
+                            <span style="font-size: 12.5px; font-weight: 600">{{ k.nome }}</span
+                            ><span style="font-size: 12px; color: #555a52">{{ k.imovel }}</span>
+                            <div
+                              style="
+                                display: flex;
+                                flex-direction: column;
+                                align-items: flex-start;
+                                gap: 4px;
+                                padding-top: 2px;
+                              "
+                            >
+                              <span
+                                style="flex:none;white-space:nowrap;height:18px;padding:0 6px;border-radius:4px;background:{{ k.oBg }};color:{{ k.oFg }};font-size:10.5px;font-weight:500;display:flex;align-items:center"
+                                >{{ k.origem }}</span
+                              ><span style="white-space:nowrap;font-size:11px;color:{{ k.tCor }}"
+                                >{{ k.t }}</span
+                              >
+                            </div>
+                          </div></sc-for
+                        >
+                      </div>
+                    </sc-for>
+                  </div>
                 </div>
-              </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div id="integracoes" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              2 · Integrações · /app/admin/integrations · portais conectados, demais em breve
+            </div>
+            <div
+              style="
+                width: 1040px;
+                background: #fcfcfc;
+                border: 1px solid #e2e2dd;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 20px; font-weight: 600">Integrações</span
+                ><span style="font-size: 13px; color: #555a52"
+                  >Contas conectadas da Imobiliária Exemplo.</span
+                >
+              </div>
+              <div
+                style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px"
+              >
+                <sc-for list="{{ integ }}" as="i" hint-placeholder-count="8">
+                  <div
+                    style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;opacity:{{ i.op }}"
+                  >
+                    <span
+                      style="
+                        width: 40px;
+                        height: 40px;
+                        border: 1px solid #e6e6e3;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        color: #6e746b;
+                      "
+                      >Logo</span
+                    >
+                    <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"
+                      ><span style="font-size: 13.5px; font-weight: 600">{{ i.nome }}</span
+                      ><span style="font-size: 12px; color: #555a52">{{ i.desc }}</span></span
+                    >
+                    <div
+                      style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px"
+                    >
+                      <span
+                        style="height:20px;padding:0 8px;border-radius:4px;background:{{ i.bg }};color:{{ i.fg }};font-size:11px;font-weight:500;display:flex;align-items:center"
+                        >{{ i.st }}</span
+                      ><span style="font-size: 12px; font-weight: 500; color: #417d55"
+                        >{{ i.acao }}</span
+                      >
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <span style="font-size: 12px; color: #6e746b"
+                >Integrações marcadas como "Em breve" funcionam em modo de teste. Nenhuma cobrança,
+                assinatura ou consulta real é feita por elas.</span
+              >
+            </div>
+          </div>
+
+          <div id="contrato-venda" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              3 · Contrato de compra e venda (Novo) · usa modelos versionados e o envelope de
+              assinatura existentes
+            </div>
+            <div
+              style="
+                width: 1040px;
+                background: #fcfcfc;
+                border: 1px solid #e2e2dd;
+                border-radius: 14px;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 340px;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  padding: 24px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                  border-right: 1px solid #e6e6e3;
+                "
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                  <div style="display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 12px; color: #6e746b"
+                      >Negociação · Cobertura 210 m² · Setor Marista</span
+                    ><span style="font-size: 20px; font-weight: 600"
+                      >Contrato de compra e venda</span
+                    >
+                  </div>
+                  <span
+                    style="
+                      height: 20px;
+                      padding: 0 8px;
+                      border-radius: 4px;
+                      background: #fdf3e3;
+                      color: #a05c06;
+                      font-size: 11px;
+                      font-weight: 500;
+                      display: flex;
+                      align-items: center;
+                    "
+                    >Aguardando assinatura</span
+                  >
+                </div>
+                <div style="display: flex; gap: 8px; font-size: 12.5px">
+                  <span
+                    style="
+                      height: 28px;
+                      padding: 0 10px;
+                      border: 1px solid #c7c7c7;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      background: #ffffff;
+                    "
+                    >Modelo: Compra e venda à vista · v3</span
+                  ><span
+                    style="
+                      height: 28px;
+                      padding: 0 10px;
+                      border: 1px solid #c7c7c7;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      background: #ffffff;
+                    "
+                    >Baixar PDF</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #ffffff;
+                    border: 1px solid #e6e6e3;
+                    border-radius: 8px;
+                    height: 430px;
+                    padding: 28px 32px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    overflow: hidden;
+                  "
+                >
+                  <span style="font-size: 13px; font-weight: 700; text-align: center"
+                    >INSTRUMENTO PARTICULAR DE COMPROMISSO DE COMPRA E VENDA</span
+                  >
+                  <span
+                    style="height: 8px; background: #f0f0f0; border-radius: 2px; display: block"
+                  ></span
+                  ><span
+                    style="
+                      height: 8px;
+                      background: #f0f0f0;
+                      border-radius: 2px;
+                      display: block;
+                      width: 92%;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      height: 8px;
+                      background: #f0f0f0;
+                      border-radius: 2px;
+                      display: block;
+                      width: 96%;
+                    "
+                  ></span>
+                  <span style="font-size: 12px; line-height: 1.6; color: #555a52; padding: 6px 0"
+                    >Preço: <b style="color: #2f332b">R$ 1.390.000,00</b>, sendo R$ 139.000,00 de
+                    sinal na assinatura e R$ 1.251.000,00 por financiamento bancário.</span
+                  >
+                  <span
+                    style="height: 8px; background: #f0f0f0; border-radius: 2px; display: block"
+                  ></span
+                  ><span
+                    style="
+                      height: 8px;
+                      background: #f0f0f0;
+                      border-radius: 2px;
+                      display: block;
+                      width: 88%;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      height: 8px;
+                      background: #f0f0f0;
+                      border-radius: 2px;
+                      display: block;
+                      width: 94%;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      height: 8px;
+                      background: #f0f0f0;
+                      border-radius: 2px;
+                      display: block;
+                      width: 70%;
+                    "
+                  ></span>
+                </div>
+              </div>
+              <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+                <span style="font-size: 13px; font-weight: 600">Envelope de assinatura</span>
+                <div
+                  style="
+                    display: flex;
+                    gap: 8px;
+                    align-items: flex-start;
+                    background: #fdf3e3;
+                    border-radius: 6px;
+                    padding: 10px 12px;
+                    font-size: 12px;
+                    line-height: 1.5;
+                    color: #a05c06;
+                  "
+                >
+                  <span style="font-weight: 700">!</span
+                  ><span
+                    >Assinatura real (Clicksign) em breve. Hoje o envelope roda em modo de
+                    teste.</span
+                  >
+                </div>
+                <sc-for list="{{ signatarios }}" as="s" hint-placeholder-count="4"
+                  ><div
+                    style="
+                      display: grid;
+                      grid-template-columns: minmax(0, 1fr) auto;
+                      gap: 2px 10px;
+                      padding: 8px 0;
+                      border-bottom: 1px solid #f0f0f0;
+                    "
+                  >
+                    <span style="font-size: 12.5px; font-weight: 500">{{ s.n }}</span
+                    ><span
+                      style="height:20px;padding:0 8px;border-radius:4px;background:{{ s.bg }};color:{{ s.fg }};font-size:11px;font-weight:500;display:flex;align-items:center"
+                      >{{ s.st }}</span
+                    ><span style="font-size: 11.5px; color: #6e746b">{{ s.p }}</span
+                    ><span></span></div
+                ></sc-for>
+                <span style="font-size: 12px; font-weight: 600; color: #555a52; padding-top: 4px"
+                  >Linha do tempo</span
+                >
+                <sc-for list="{{ eventos }}" as="e" hint-placeholder-count="4"
+                  ><div style="display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 8px">
+                    <span
+                      style="width:6px;height:6px;border-radius:50%;background:{{ e.cor }};margin-top:5px;display:block"
+                    ></span
+                    ><span style="display: flex; flex-direction: column"
+                      ><span style="font-size: 12px">{{ e.l }}</span
+                      ><span style="font-size: 11px; color: #6e746b">{{ e.h }}</span></span
+                    >
+                  </div></sc-for
+                >
+                <span
+                  style="
+                    height: 32px;
+                    border: 1px solid #c7c7c7;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 13px;
+                    font-weight: 500;
+                    margin-top: 4px;
+                  "
+                  >Reenviar lembrete</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="painel-vendas" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              4 · Vendas · painel do mês (Novo) · /app/vendas
+            </div>
+            <div
+              style="
+                width: 1040px;
+                background: #fcfcfc;
+                border: 1px solid #e2e2dd;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+              "
+            >
+              <div style="display: flex; justify-content: space-between; align-items: flex-end">
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 20px; font-weight: 600">Vendas · setembro</span
+                  ><span style="font-size: 13px; color: #555a52"
+                    >Negociações abertas e fechadas no mês.</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    background: #f0f0f0;
+                    border-radius: 6px;
+                    padding: 2px;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                  "
+                >
+                  <span
+                    style="
+                      height: 26px;
+                      padding: 0 10px;
+                      display: flex;
+                      align-items: center;
+                      background: #ffffff;
+                      border-radius: 4px;
+                    "
+                    >Setembro</span
+                  ><span
+                    style="
+                      height: 26px;
+                      padding: 0 10px;
+                      display: flex;
+                      align-items: center;
+                      color: #555a52;
+                    "
+                    >Agosto</span
+                  ><span
+                    style="
+                      height: 26px;
+                      padding: 0 10px;
+                      display: flex;
+                      align-items: center;
+                      color: #555a52;
+                    "
+                    >Trimestre</span
+                  >
+                </div>
+              </div>
+              <div
+                style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px"
+              >
+                <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4"
+                  ><div
+                    style="
+                      background: #ffffff;
+                      border: 1px solid #e6e6e3;
+                      border-radius: 8px;
+                      padding: 14px 16px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 4px;
+                    "
+                  >
+                    <span style="font-size: 12px; color: #555a52">{{ k.l }}</span
+                    ><span style="font-size: 22px; font-weight: 600; letter-spacing: -0.01em"
+                      >{{ k.v }}</span
+                    ><span style="font-size:11.5px;color:{{ k.cor }}">{{ k.d }}</span>
+                  </div></sc-for
+                >
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+                  gap: 12px;
+                "
+              >
+                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
+                  <div
+                    style="
+                      padding: 12px 16px;
+                      border-bottom: 1px solid #e6e6e3;
+                      font-size: 13px;
+                      font-weight: 600;
+                    "
+                  >
+                    Fechamentos
+                  </div>
+                  <sc-for list="{{ fechamentos }}" as="f" hint-placeholder-count="3"
+                    ><div
+                      style="
+                        display: grid;
+                        grid-template-columns: minmax(0, 1fr) 110px 100px;
+                        gap: 10px;
+                        align-items: center;
+                        height: 44px;
+                        padding: 0 16px;
+                        border-bottom: 1px solid #f0f0f0;
+                        font-size: 12.5px;
+                      "
+                    >
+                      <span style="display: flex; flex-direction: column"
+                        ><span style="font-weight: 500">{{ f.i }}</span
+                        ><span style="font-size: 11.5px; color: #6e746b">{{ f.c }}</span></span
+                      ><span style="text-align: right; font-weight: 600">{{ f.v }}</span
+                      ><span style="text-align: right; color: #555a52">{{ f.d }}</span>
+                    </div></sc-for
+                  >
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
+                  <div
+                    style="
+                      padding: 12px 16px;
+                      border-bottom: 1px solid #e6e6e3;
+                      font-size: 13px;
+                      font-weight: 600;
+                    "
+                  >
+                    Comissão por corretor
+                  </div>
+                  <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px">
+                    <sc-for list="{{ corretores }}" as="c" hint-placeholder-count="3"
+                      ><div
+                        style="
+                          display: grid;
+                          grid-template-columns: 110px minmax(0, 1fr) 80px;
+                          gap: 10px;
+                          align-items: center;
+                          font-size: 12.5px;
+                        "
+                      >
+                        <span>{{ c.n }}</span
+                        ><span
+                          style="
+                            height: 6px;
+                            background: #f0f0f0;
+                            border-radius: 3px;
+                            display: flex;
+                          "
+                          ><span
+                            style="width:{{ c.w }};background:#41945D;border-radius:3px;display:block"
+                          ></span></span
+                        ><span style="text-align: right; font-weight: 600">{{ c.v }}</span>
+                      </div></sc-for
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="gestao-mobile" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 600; color: #555a52">
+              5 · Celular · Visão Geral e negociação
+            </div>
+            <div style="display: flex; gap: 24px">
+              <div
+                style="
+                  width: 390px;
+                  height: 780px;
+                  background: #fcfcfc;
+                  display: flex;
+                  flex-direction: column;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  style="
+                    height: 52px;
+                    border-bottom: 1px solid #e6e6e3;
+                    display: grid;
+                    grid-template-columns: 44px 1fr 44px;
+                    align-items: center;
+                    padding: 0 6px;
+                  "
+                >
+                  <span
+                    style="
+                      width: 44px;
+                      height: 44px;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 4px;
+                    "
+                    ><span
+                      style="width: 16px; height: 1.5px; background: #2f332b; display: block"
+                    ></span
+                    ><span
+                      style="width: 16px; height: 1.5px; background: #2f332b; display: block"
+                    ></span
+                    ><span
+                      style="width: 16px; height: 1.5px; background: #2f332b; display: block"
+                    ></span></span
+                  ><span style="text-align: center; font-size: 14px; font-weight: 600"
+                    >Visão Geral</span
+                  ><span
+                    style="
+                      width: 44px;
+                      height: 44px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 20px;
+                      color: #41945d;
+                    "
+                    >+</span
+                  >
+                </div>
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                  <span style="font-size: 18px; font-weight: 600">Bom dia, Rafael</span>
+                  <sc-for list="{{ resumoMobile }}" as="s" hint-placeholder-count="3"
+                    ><div
+                      style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px"
+                    >
+                      <div
+                        style="
+                          height: 44px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: space-between;
+                          padding: 0 14px;
+                          border-bottom: 1px solid #f0f0f0;
+                          font-size: 13px;
+                          font-weight: 600;
+                        "
+                      >
+                        {{ s.t }}<span style="color: #6e746b">›</span>
+                      </div>
+                      <div
+                        style="
+                          display: grid;
+                          grid-template-columns: 1fr 1fr;
+                          gap: 10px;
+                          padding: 12px 14px;
+                        "
+                      >
+                        <sc-for list="{{ s.rows }}" as="r" hint-placeholder-count="2"
+                          ><div style="display: flex; flex-direction: column">
+                            <span style="font-size: 11.5px; color: #555a52">{{ r.l }}</span
+                            ><span style="font-size:18px;font-weight:600;color:{{ r.cor }}"
+                              >{{ r.v }}</span
+                            >
+                          </div></sc-for
+                        >
+                      </div>
+                    </div></sc-for
+                  >
+                </div>
+              </div>
+              <div
+                style="
+                  width: 390px;
+                  height: 780px;
+                  background: #fcfcfc;
+                  display: flex;
+                  flex-direction: column;
+                  overflow: hidden;
+                  position: relative;
+                "
+              >
+                <div
+                  style="
+                    height: 52px;
+                    border-bottom: 1px solid #e6e6e3;
+                    display: grid;
+                    grid-template-columns: 44px 1fr 44px;
+                    align-items: center;
+                    padding: 0 6px;
+                  "
+                >
+                  <span
+                    style="
+                      width: 44px;
+                      height: 44px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 18px;
+                    "
+                    >←</span
+                  ><span style="text-align: center; font-size: 14px; font-weight: 600"
+                    >Negociação</span
+                  ><span></span>
+                </div>
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                  <div style="display: flex; flex-direction: column; gap: 4px">
+                    <span style="font-size: 16px; font-weight: 600"
+                      >Cobertura 210 m² · Setor Marista</span
+                    ><span style="font-size: 12.5px; color: #555a52">Otávio Prado · comprador</span>
+                  </div>
+                  <span
+                    style="
+                      align-self: flex-start;
+                      height: 20px;
+                      padding: 0 8px;
+                      border-radius: 4px;
+                      background: #fdf3e3;
+                      color: #a05c06;
+                      font-size: 11px;
+                      font-weight: 500;
+                      display: flex;
+                      align-items: center;
+                    "
+                    >Contraproposta</span
+                  >
+                  <div
+                    style="
+                      background: #ffffff;
+                      border: 1px solid #e6e6e3;
+                      border-radius: 8px;
+                      padding: 14px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 4px;
+                    "
+                  >
+                    <span style="font-size: 12px; color: #555a52">Última proposta do comprador</span
+                    ><span style="font-size: 24px; font-weight: 600">R$ 1.390.000</span
+                    ><span style="font-size: 12px; color: #6e746b"
+                      >Validade até 26/09 · pedido R$ 1.450.000</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      display: flex;
+                      flex-direction: column;
+                      background: #ffffff;
+                      border: 1px solid #e6e6e3;
+                      border-radius: 8px;
+                    "
+                  >
+                    <sc-for list="{{ negMobile }}" as="n" hint-placeholder-count="3"
+                      ><div
+                        style="
+                          height: 52px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: space-between;
+                          padding: 0 14px;
+                          border-bottom: 1px solid #f0f0f0;
+                          font-size: 13.5px;
+                        "
+                      >
+                        <span style="font-weight: 500">{{ n.l }}</span
+                        ><span style="font-size: 12.5px; color: #555a52">{{ n.v }} ›</span>
+                      </div></sc-for
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    border-top: 1px solid #e6e6e3;
+                    background: #ffffff;
+                    padding: 12px 16px 20px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                  "
+                >
+                  <span
+                    style="
+                      height: 44px;
+                      border: 1px solid #c7c7c7;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 13.5px;
+                      font-weight: 500;
+                    "
+                    >Contraproposta</span
+                  ><span
+                    style="
+                      height: 44px;
+                      background: #41945d;
+                      color: #ffffff;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 13.5px;
+                      font-weight: 500;
+                    "
+                    >Registrar resposta</span
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div id="integracoes" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">2 · Integrações · /app/admin/integrations · portais conectados, demais em breve</div>
-      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:600">Integrações</span><span style="font-size:13px;color:#555A52">Contas conectadas da Imobiliária Exemplo.</span></div>
-        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-          <sc-for list="{{ integ }}" as="i" hint-placeholder-count="8">
-            <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;opacity:{{ i.op }}">
-              <span style="width:40px;height:40px;border:1px solid #E6E6E3;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6E746B">Logo</span>
-              <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13.5px;font-weight:600">{{ i.nome }}</span><span style="font-size:12px;color:#555A52">{{ i.desc }}</span></span>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="height:20px;padding:0 8px;border-radius:4px;background:{{ i.bg }};color:{{ i.fg }};font-size:11px;font-weight:500;display:flex;align-items:center">{{ i.st }}</span><span style="font-size:12px;font-weight:500;color:#417D55">{{ i.acao }}</span></div>
-            </div>
-          </sc-for>
-        </div>
-        <span style="font-size:12px;color:#6E746B">Integrações marcadas como "Em breve" funcionam em modo de teste. Nenhuma cobrança, assinatura ou consulta real é feita por elas.</span>
-      </div>
-    </div>
-
-    <div id="contrato-venda" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">3 · Contrato de compra e venda (Novo) · usa modelos versionados e o envelope de assinatura existentes</div>
-      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;display:grid;grid-template-columns:minmax(0,1fr) 340px;overflow:hidden">
-        <div style="padding:24px;display:flex;flex-direction:column;gap:14px;border-right:1px solid #E6E6E3">
-          <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Negociação · Cobertura 210 m² · Setor Marista</span><span style="font-size:20px;font-weight:600">Contrato de compra e venda</span></div><span style="height:20px;padding:0 8px;border-radius:4px;background:#FDF3E3;color:#A05C06;font-size:11px;font-weight:500;display:flex;align-items:center">Aguardando assinatura</span></div>
-          <div style="display:flex;gap:8px;font-size:12.5px"><span style="height:28px;padding:0 10px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;background:#FFFFFF">Modelo: Compra e venda à vista · v3</span><span style="height:28px;padding:0 10px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;background:#FFFFFF">Baixar PDF</span></div>
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;height:430px;padding:28px 32px;display:flex;flex-direction:column;gap:10px;overflow:hidden">
-            <span style="font-size:13px;font-weight:700;text-align:center">INSTRUMENTO PARTICULAR DE COMPROMISSO DE COMPRA E VENDA</span>
-            <span style="height:8px;background:#F0F0F0;border-radius:2px;display:block"></span><span style="height:8px;background:#F0F0F0;border-radius:2px;display:block;width:92%"></span><span style="height:8px;background:#F0F0F0;border-radius:2px;display:block;width:96%"></span>
-            <span style="font-size:12px;line-height:1.6;color:#555A52;padding:6px 0">Preço: <b style="color:#2F332B">R$ 1.390.000,00</b>, sendo R$ 139.000,00 de sinal na assinatura e R$ 1.251.000,00 por financiamento bancário.</span>
-            <span style="height:8px;background:#F0F0F0;border-radius:2px;display:block"></span><span style="height:8px;background:#F0F0F0;border-radius:2px;display:block;width:88%"></span><span style="height:8px;background:#F0F0F0;border-radius:2px;display:block;width:94%"></span><span style="height:8px;background:#F0F0F0;border-radius:2px;display:block;width:70%"></span>
-          </div>
-        </div>
-        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:13px;font-weight:600">Envelope de assinatura</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;background:#FDF3E3;border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.5;color:#A05C06"><span style="font-weight:700">!</span><span>Assinatura real (Clicksign) em breve. Hoje o envelope roda em modo de teste.</span></div>
-          <sc-for list="{{ signatarios }}" as="s" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid #F0F0F0"><span style="font-size:12.5px;font-weight:500">{{ s.n }}</span><span style="height:20px;padding:0 8px;border-radius:4px;background:{{ s.bg }};color:{{ s.fg }};font-size:11px;font-weight:500;display:flex;align-items:center">{{ s.st }}</span><span style="font-size:11.5px;color:#6E746B">{{ s.p }}</span><span></span></div></sc-for>
-          <span style="font-size:12px;font-weight:600;color:#555A52;padding-top:4px">Linha do tempo</span>
-          <sc-for list="{{ eventos }}" as="e" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:10px minmax(0,1fr);gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:{{ e.cor }};margin-top:5px;display:block"></span><span style="display:flex;flex-direction:column"><span style="font-size:12px">{{ e.l }}</span><span style="font-size:11px;color:#6E746B">{{ e.h }}</span></span></div></sc-for>
-          <span style="height:32px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;margin-top:4px">Reenviar lembrete</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="painel-vendas" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">4 · Vendas · painel do mês (Novo) · /app/vendas</div>
-      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:600">Vendas · setembro</span><span style="font-size:13px;color:#555A52">Negociações abertas e fechadas no mês.</span></div><div style="display:flex;background:#F0F0F0;border-radius:6px;padding:2px;font-size:12.5px;font-weight:500"><span style="height:26px;padding:0 10px;display:flex;align-items:center;background:#FFFFFF;border-radius:4px">Setembro</span><span style="height:26px;padding:0 10px;display:flex;align-items:center;color:#555A52">Agosto</span><span style="height:26px;padding:0 10px;display:flex;align-items:center;color:#555A52">Trimestre</span></div></div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
-          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4"><div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#555A52">{{ k.l }}</span><span style="font-size:22px;font-weight:600;letter-spacing:-0.01em">{{ k.v }}</span><span style="font-size:11.5px;color:{{ k.cor }}">{{ k.d }}</span></div></sc-for>
-        </div>
-        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px">
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
-            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Fechamentos</div>
-            <sc-for list="{{ fechamentos }}" as="f" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:minmax(0,1fr) 110px 100px;gap:10px;align-items:center;height:44px;padding:0 16px;border-bottom:1px solid #F0F0F0;font-size:12.5px"><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ f.i }}</span><span style="font-size:11.5px;color:#6E746B">{{ f.c }}</span></span><span style="text-align:right;font-weight:600">{{ f.v }}</span><span style="text-align:right;color:#555A52">{{ f.d }}</span></div></sc-for>
-          </div>
-          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
-            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Comissão por corretor</div>
-            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px"><sc-for list="{{ corretores }}" as="c" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:110px minmax(0,1fr) 80px;gap:10px;align-items:center;font-size:12.5px"><span>{{ c.n }}</span><span style="height:6px;background:#F0F0F0;border-radius:3px;display:flex"><span style="width:{{ c.w }};background:#41945D;border-radius:3px;display:block"></span></span><span style="text-align:right;font-weight:600">{{ c.v }}</span></div></sc-for></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="gestao-mobile" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:600;color:#555A52">5 · Celular · Visão Geral e negociação</div>
-      <div style="display:flex;gap:24px">
-        <div style="width:390px;height:780px;background:#FCFCFC;display:flex;flex-direction:column;overflow:hidden">
-          <div style="height:52px;border-bottom:1px solid #E6E6E3;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px"><span style="width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:16px;height:1.5px;background:#2F332B;display:block"></span><span style="width:16px;height:1.5px;background:#2F332B;display:block"></span><span style="width:16px;height:1.5px;background:#2F332B;display:block"></span></span><span style="text-align:center;font-size:14px;font-weight:600">Visão Geral</span><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#41945D">+</span></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-            <span style="font-size:18px;font-weight:600">Bom dia, Rafael</span>
-            <sc-for list="{{ resumoMobile }}" as="s" hint-placeholder-count="3"><div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px"><div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #F0F0F0;font-size:13px;font-weight:600">{{ s.t }}<span style="color:#6E746B">›</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px"><sc-for list="{{ s.rows }}" as="r" hint-placeholder-count="2"><div style="display:flex;flex-direction:column"><span style="font-size:11.5px;color:#555A52">{{ r.l }}</span><span style="font-size:18px;font-weight:600;color:{{ r.cor }}">{{ r.v }}</span></div></sc-for></div></div></sc-for>
-          </div>
-        </div>
-        <div style="width:390px;height:780px;background:#FCFCFC;display:flex;flex-direction:column;overflow:hidden;position:relative">
-          <div style="height:52px;border-bottom:1px solid #E6E6E3;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px">←</span><span style="text-align:center;font-size:14px;font-weight:600">Negociação</span><span></span></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:16px;font-weight:600">Cobertura 210 m² · Setor Marista</span><span style="font-size:12.5px;color:#555A52">Otávio Prado · comprador</span></div>
-            <span style="align-self:flex-start;height:20px;padding:0 8px;border-radius:4px;background:#FDF3E3;color:#A05C06;font-size:11px;font-weight:500;display:flex;align-items:center">Contraproposta</span>
-            <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#555A52">Última proposta do comprador</span><span style="font-size:24px;font-weight:600">R$ 1.390.000</span><span style="font-size:12px;color:#6E746B">Validade até 26/09 · pedido R$ 1.450.000</span></div>
-            <div style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px"><sc-for list="{{ negMobile }}" as="n" hint-placeholder-count="3"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #F0F0F0;font-size:13.5px"><span style="font-weight:500">{{ n.l }}</span><span style="font-size:12.5px;color:#555A52">{{ n.v }} ›</span></div></sc-for></div>
-          </div>
-          <div style="position:absolute;left:0;right:0;bottom:0;border-top:1px solid #E6E6E3;background:#FFFFFF;padding:12px 16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><span style="height:44px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:500">Contraproposta</span><span style="height:44px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:500">Registrar resposta</span></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  renderVals() {
-    const O = {'Portal AchouImóvel':['#E9F1EB','#417D55'],'Canal Pro':['#E9EFFD','#1D4ED8'],'OLX':['#FDF3E3','#A05C06'],'Imovelweb':['#F0F0F0','#555A52'],'WhatsApp':['#E9F7EE','#0D7A38']};
-    const k = (nome,imovel,origem,t,late) => ({nome,imovel,origem,oBg:O[origem][0],oFg:O[origem][1],t,tCor:late?'#B91C1C':'#6E746B'});
-    const on = {bg:'#E9F7EE',fg:'#0D7A38',op:1}, soon = {bg:'#F0F0F0',fg:'#555A52',op:1}, test = {bg:'#FDF3E3',fg:'#A05C06',op:1};
-    return {
-      funil: [
-        {nome:'Novo',n:6,cards:[k('Henrique Dias','Casa cond. · Jd. Atenas','Portal AchouImóvel','há 20 min',true),k('Juliana Paz','Apto 3 qts · Marista','Canal Pro','há 1 h')]},
-        {nome:'Qualificado',n:4,cards:[k('Lucas Gomes','Apto 3 qts · Oeste','Canal Pro','ontem'),k('Íris Campos','Casa · Nova Suíça','Imovelweb','ontem')]},
-        {nome:'Visita',n:3,cards:[k('Paula Nunes','Kitnet · Universitário','OLX','qua 15h')]},
-        {nome:'Proposta',n:3,cards:[k('Otávio Prado','Cobertura · Marista','Portal AchouImóvel','vence 26/09')]},
-        {nome:'Documentação',n:2,cards:[k('Beatriz Lopes','Casa cond. · Jd. Atenas','WhatsApp','5 de 8 docs')]},
-        {nome:'Fechado',n:3,cards:[k('Carla Menezes','Apto 2 qts · Bueno','Canal Pro','18/09')]}
-      ],
-      integ: [
-        {nome:'Canal Pro',desc:'ZAP Imóveis e VivaReal · conta da imobiliária',st:'Conectado',acao:'Configurar',...on},
-        {nome:'OLX',desc:'Aluguel e venda · 58 anúncios ativos',st:'Conectado',acao:'Configurar',...on},
-        {nome:'Imovelweb',desc:'Aluguel e venda · 41 anúncios ativos',st:'Conectado',acao:'Configurar',...on},
-        {nome:'WhatsApp',desc:'(62) 3000-0000 · número verificado',st:'Conectado',acao:'Configurar',...on},
-        {nome:'Meta Ads',desc:'Campanhas sempre nascem pausadas',st:'Conectado',acao:'Configurar',...on},
-        {nome:'Asaas · cobrança',desc:'Pix, boleto, split e repasse',st:'Em breve · modo de teste',acao:'Ver detalhes',...test},
-        {nome:'Clicksign · assinatura',desc:'Envelope de contrato',st:'Em breve · modo de teste',acao:'Ver detalhes',...test},
-        {nome:'Serasa e SPC · análise',desc:'Consulta de crédito',st:'Em breve',acao:'Ver detalhes',...soon}
-      ],
-      signatarios: [
-        {n:'Marcos Tavares',p:'Vendedor · proprietário',st:'Assinou',bg:'#E9F7EE',fg:'#0D7A38'},
-        {n:'Otávio Prado',p:'Comprador',st:'Pendente',bg:'#FDF3E3',fg:'#A05C06'},
-        {n:'Imobiliária Exemplo',p:'Intermediadora',st:'Assinou',bg:'#E9F7EE',fg:'#0D7A38'},
-        {n:'Testemunha 1',p:'Luana Castro',st:'Pendente',bg:'#FDF3E3',fg:'#A05C06'}
-      ],
-      eventos: [{l:'Envelope criado com o modelo v3',h:'22/09 · 10:02',cor:'#C7C7C7'},{l:'Enviado para 4 signatários',h:'22/09 · 10:05',cor:'#2563EB'},{l:'Marcos Tavares assinou',h:'22/09 · 11:40',cor:'#16A34A'},{l:'Imobiliária assinou',h:'22/09 · 14:12',cor:'#16A34A'}],
-      kpis: [{l:'Fechadas',v:'3',d:'+1 sobre agosto',cor:'#0D7A38'},{l:'VGV do mês',v:'R$ 2,43 mi',d:'soma dos preços fechados',cor:'#6E746B'},{l:'Comissão prevista',v:'R$ 121,5 mil',d:'5% médio',cor:'#6E746B'},{l:'Em negociação',v:'11',d:'R$ 8,9 mi em aberto',cor:'#6E746B'}],
-      fechamentos: [{i:'Apto 2 qts · Setor Bueno',c:'Carla Menezes · Rafael',v:'R$ 610.000',d:'18/09'},{i:'Casa · Jardim América',c:'Bruno Rocha · Luana',v:'R$ 870.000',d:'11/09'},{i:'Sobrado · Nova Suíça',c:'Diego Alves · Rafael',v:'R$ 950.000',d:'04/09'}],
-      corretores: [{n:'Rafael Almeida',w:'100%',v:'R$ 62,4 mil'},{n:'Luana Castro',w:'69%',v:'R$ 43,1 mil'},{n:'Pedro Lima',w:'25%',v:'R$ 16,0 mil'}],
-      resumoMobile: [
-        {t:'CRM',rows:[{l:'Novos leads hoje',v:7,cor:'#2F332B'},{l:'Atrasadas',v:1,cor:'#B91C1C'}]},
-        {t:'Vendas',rows:[{l:'Em negociação',v:11,cor:'#2F332B'},{l:'Fechadas no mês',v:3,cor:'#2F332B'}]},
-        {t:'Financeiro',rows:[{l:'Em aberto',v:12,cor:'#2F332B'},{l:'Vencidas',v:2,cor:'#B91C1C'}]}
-      ],
-      negMobile: [{l:'Histórico',v:'4 rodadas'},{l:'Documentação',v:'5 de 8'},{l:'Comissão',v:'R$ 69.500'}]
-    };
-  }
-}
-</script>
-</body>
+      </section>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+      class Component extends DCLogic {
+        renderVals() {
+          const O = {'Portal AchouImóvel':['#E9F1EB','#417D55'],'Canal Pro':['#E9EFFD','#1D4ED8'],'OLX':['#FDF3E3','#A05C06'],'Imovelweb':['#F0F0F0','#555A52'],'WhatsApp':['#E9F7EE','#0D7A38']};
+          const k = (nome,imovel,origem,t,late) => ({nome,imovel,origem,oBg:O[origem][0],oFg:O[origem][1],t,tCor:late?'#B91C1C':'#6E746B'});
+          const on = {bg:'#E9F7EE',fg:'#0D7A38',op:1}, soon = {bg:'#F0F0F0',fg:'#555A52',op:1}, test = {bg:'#FDF3E3',fg:'#A05C06',op:1};
+          return {
+            funil: [
+              {nome:'Novo',n:6,cards:[k('Henrique Dias','Casa cond. · Jd. Atenas','Portal AchouImóvel','há 20 min',true),k('Juliana Paz','Apto 3 qts · Marista','Canal Pro','há 1 h')]},
+              {nome:'Qualificado',n:4,cards:[k('Lucas Gomes','Apto 3 qts · Oeste','Canal Pro','ontem'),k('Íris Campos','Casa · Nova Suíça','Imovelweb','ontem')]},
+              {nome:'Visita',n:3,cards:[k('Paula Nunes','Kitnet · Universitário','OLX','qua 15h')]},
+              {nome:'Proposta',n:3,cards:[k('Otávio Prado','Cobertura · Marista','Portal AchouImóvel','vence 26/09')]},
+              {nome:'Documentação',n:2,cards:[k('Beatriz Lopes','Casa cond. · Jd. Atenas','WhatsApp','5 de 8 docs')]},
+              {nome:'Fechado',n:3,cards:[k('Carla Menezes','Apto 2 qts · Bueno','Canal Pro','18/09')]}
+            ],
+            integ: [
+              {nome:'Canal Pro',desc:'ZAP Imóveis e VivaReal · conta da imobiliária',st:'Conectado',acao:'Configurar',...on},
+              {nome:'OLX',desc:'Aluguel e venda · 58 anúncios ativos',st:'Conectado',acao:'Configurar',...on},
+              {nome:'Imovelweb',desc:'Aluguel e venda · 41 anúncios ativos',st:'Conectado',acao:'Configurar',...on},
+              {nome:'WhatsApp',desc:'(62) 3000-0000 · número verificado',st:'Conectado',acao:'Configurar',...on},
+              {nome:'Meta Ads',desc:'Campanhas sempre nascem pausadas',st:'Conectado',acao:'Configurar',...on},
+              {nome:'Asaas · cobrança',desc:'Pix, boleto, split e repasse',st:'Em breve · modo de teste',acao:'Ver detalhes',...test},
+              {nome:'Clicksign · assinatura',desc:'Envelope de contrato',st:'Em breve · modo de teste',acao:'Ver detalhes',...test},
+              {nome:'Serasa e SPC · análise',desc:'Consulta de crédito',st:'Em breve',acao:'Ver detalhes',...soon}
+            ],
+            signatarios: [
+              {n:'Marcos Tavares',p:'Vendedor · proprietário',st:'Assinou',bg:'#E9F7EE',fg:'#0D7A38'},
+              {n:'Otávio Prado',p:'Comprador',st:'Pendente',bg:'#FDF3E3',fg:'#A05C06'},
+              {n:'Imobiliária Exemplo',p:'Intermediadora',st:'Assinou',bg:'#E9F7EE',fg:'#0D7A38'},
+              {n:'Testemunha 1',p:'Luana Castro',st:'Pendente',bg:'#FDF3E3',fg:'#A05C06'}
+            ],
+            eventos: [{l:'Envelope criado com o modelo v3',h:'22/09 · 10:02',cor:'#C7C7C7'},{l:'Enviado para 4 signatários',h:'22/09 · 10:05',cor:'#2563EB'},{l:'Marcos Tavares assinou',h:'22/09 · 11:40',cor:'#16A34A'},{l:'Imobiliária assinou',h:'22/09 · 14:12',cor:'#16A34A'}],
+            kpis: [{l:'Fechadas',v:'3',d:'+1 sobre agosto',cor:'#0D7A38'},{l:'VGV do mês',v:'R$ 2,43 mi',d:'soma dos preços fechados',cor:'#6E746B'},{l:'Comissão prevista',v:'R$ 121,5 mil',d:'5% médio',cor:'#6E746B'},{l:'Em negociação',v:'11',d:'R$ 8,9 mi em aberto',cor:'#6E746B'}],
+            fechamentos: [{i:'Apto 2 qts · Setor Bueno',c:'Carla Menezes · Rafael',v:'R$ 610.000',d:'18/09'},{i:'Casa · Jardim América',c:'Bruno Rocha · Luana',v:'R$ 870.000',d:'11/09'},{i:'Sobrado · Nova Suíça',c:'Diego Alves · Rafael',v:'R$ 950.000',d:'04/09'}],
+            corretores: [{n:'Rafael Almeida',w:'100%',v:'R$ 62,4 mil'},{n:'Luana Castro',w:'69%',v:'R$ 43,1 mil'},{n:'Pedro Lima',w:'25%',v:'R$ 16,0 mil'}],
+            resumoMobile: [
+              {t:'CRM',rows:[{l:'Novos leads hoje',v:7,cor:'#2F332B'},{l:'Atrasadas',v:1,cor:'#B91C1C'}]},
+              {t:'Vendas',rows:[{l:'Em negociação',v:11,cor:'#2F332B'},{l:'Fechadas no mês',v:3,cor:'#2F332B'}]},
+              {t:'Financeiro',rows:[{l:'Em aberto',v:12,cor:'#2F332B'},{l:'Vencidas',v:2,cor:'#B91C1C'}]}
+            ],
+            negMobile: [{l:'Histórico',v:'4 rodadas'},{l:'Documentação',v:'5 de 8'},{l:'Comissão',v:'R$ 69.500'}]
+          };
+        }
+      }
+    </script>
+  </body>
 </html>

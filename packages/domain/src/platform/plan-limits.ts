@@ -5,9 +5,11 @@ export interface PlanLimits {
   maxUsers: number | null;
   maxProperties: number | null;
   maxPublishedListings: number | null;
+  /** Locações em vigor (ACTIVE, DELINQUENT ou TERMINATING). */
+  maxActiveLeases: number | null;
 }
 
-export const PLAN_RESOURCES = ['users', 'properties', 'publishedListings'] as const;
+export const PLAN_RESOURCES = ['users', 'properties', 'publishedListings', 'activeLeases'] as const;
 export type PlanResource = (typeof PLAN_RESOURCES)[number];
 
 export type PlanUsage = Record<PlanResource, number>;
@@ -16,6 +18,7 @@ const RESOURCE_LABELS: Record<PlanResource, string> = {
   users: 'usuários',
   properties: 'imóveis',
   publishedListings: 'anúncios publicados',
+  activeLeases: 'locações ativas',
 };
 
 export function planLimitFor(limits: PlanLimits, resource: PlanResource): number | null {
@@ -26,6 +29,8 @@ export function planLimitFor(limits: PlanLimits, resource: PlanResource): number
       return limits.maxProperties;
     case 'publishedListings':
       return limits.maxPublishedListings;
+    case 'activeLeases':
+      return limits.maxActiveLeases;
   }
 }
 

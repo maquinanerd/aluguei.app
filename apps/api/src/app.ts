@@ -1,4 +1,8 @@
-import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import Fastify, {
+  type FastifyInstance,
+  type FastifyPluginAsync,
+  type FastifyServerOptions,
+} from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -9,6 +13,8 @@ import { resolveMetaMode } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
 import { annotateHttpRoute } from '@aluguei/observability';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
+import type { PlanModule } from '@aluguei/domain';
+import { requireModule } from './plugins/authz.js';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
@@ -136,6 +142,25 @@ function resolveConfig(env: AppEnv, overrides?: Partial<AppConfig>): AppConfig {
 }
 
 /** Monta o app Fastify com plugins de segurança, sessão, RBAC e rotas. */
+
+/**
+ * Registra rotas num escopo próprio com o hook do módulo do plano. Os arquivos de
+ * rota são plugins comuns (sem `fastify-plugin`), então o hook do escopo vale só
+ * para elas — e cada rota mantém o seu `requirePermission`.
+ */
+async function registerBehindModule(
+  app: FastifyInstance,
+  module: PlanModule,
+  routes: readonly FastifyPluginAsync[],
+): Promise<void> {
+  await app.register(async (scope) => {
+    scope.addHook('onRequest', requireModule(module));
+    for (const route of routes) {
+      await scope.register(route);
+    }
+  });
+}
+
 export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInstance> {
   const env: AppEnv = opts.env ?? {
     NODE_ENV: 'development',
@@ -360,8 +385,6 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(leadRoutes);
   await app.register(partyRoutes);
   await app.register(taskRoutes);
-  await app.register(visitRoutes);
-  await app.register(proposalRoutes);
   await app.register(timelineRoutes);
   await app.register(propertyRoutes);
   await app.register(placesRoutes);
@@ -369,22 +392,25 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(publicRoutes);
   await app.register(channelRoutes);
   await app.register(webhookRoutes);
-  await app.register(conversationRoutes);
-  await app.register(whatsappConnectionRoutes);
-  await app.register(inspectionRoutes);
-  await app.register(rentalApplicationRoutes);
-  await app.register(contractTemplateRoutes);
-  await app.register(contractRoutes);
-  await app.register(leaseRoutes);
-  await app.register(chargeRoutes);
-  await app.register(paymentsRoutes);
+  // Grupos atrás do módulo do plano: fora do plano a API responde 403 com
+  // `details.reason = PLAN_MODULE_NOT_INCLUDED` e o painel abre a tela de upgrade.
+  await registerBehindModule(app, 'CRM', [visitRoutes, proposalRoutes]);
+  await registerBehindModule(app, 'ATENDIMENTO', [conversationRoutes, whatsappConnectionRoutes]);
+  await registerBehindModule(app, 'LOCACAO', [
+    inspectionRoutes,
+    rentalApplicationRoutes,
+    contractTemplateRoutes,
+    contractRoutes,
+    leaseRoutes,
+  ]);
+  await registerBehindModule(app, 'FINANCEIRO', [chargeRoutes, paymentsRoutes]);
   if (env.NODE_ENV !== 'production') {
     // Simulação do pagador com provider FAKE (dev/E2E) — nunca em produção.
     await app.register(devPaymentRoutes);
     // Leitura da caixa de saída local por destinatário (dev/E2E) — nunca em produção.
     await app.register(devOutboxRoutes);
   }
-  await app.register(metaRoutes);
+  await registerBehindModule(app, 'MARKETING', [metaRoutes]);
   await app.register(portalRoutes);
   await app.register(reportingRoutes);
   await app.register(dashboardRoutes);

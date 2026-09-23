@@ -230,6 +230,25 @@ Além dos 9 gates com exit 0 e sem cache (§2.8), cada PR de onda entrega: scree
 
 ---
 
-## 10. Próximo passo
+## 10. Decisões tomadas (2026-09-23)
 
-Aguardando aprovação deste plano. Ao aprovar, responda também: R1 (nome do estado dos portais), R6 (Vendas como fase própria ou onda), R7 (rotas legadas: redirecionar ou manter) e a pendência 1 (`PROMPT_apps-portal.md`). Com isso a execução começa pela Onda 1A.
+O usuário delegou as quatro decisões em aberto ("siga, você decide o que for melhor"). Estão em
+`docs/DECISIONS.md` como **ADR-097**, e valem sobre o que este documento propunha:
+
+| Ponto                                 | Decisão                                                                                                                                                                                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1 · portais parceiros                | A UI mostra o estado real vindo da API: "Conectado" só com adapter e evidência de sandbox; hoje Canal Pro, OLX e Imovelweb aparecem como "Em preparação". O material de marketing segue a mesma regra.                              |
+| Pendência 1 · `PROMPT_apps-portal.md` | Não espera o arquivo: a Onda 2 escreve `docs/frontend/PORTAL_SPEC.md` a partir das telas de referência, dos limiares do prompt orquestrado e dos padrões do repositório. O que faltar vira pendência escrita, não número inventado. |
+| R6 · Vendas                           | Sai da Onda 5 e vira **fase própria depois da Onda 4**, com ADRs e migrations próprios.                                                                                                                                             |
+| R7 · rotas legadas                    | `/`, `/imoveis` e `/imoveis/[slug]` passam a redirecionar (301) para o portal na Onda 2B, no mesmo PR que atualiza o crawler E2E. Nenhum teste removido.                                                                            |
+
+A ordem das ondas passa a ser: 1A → 1B → 2A → 2B → 3A → 3B → 4A → 4B → **fase Vendas** → 6.
+
+## 11. Estado da execução
+
+- **Onda 1A — feita.** Plano com módulos (`PLAN_MODULES`), preço mensal só para exibição e limite de
+  locações em vigor; `/auth/me` devolve o plano; 403 `PLAN_MODULE_NOT_INCLUDED` por grupo de rotas;
+  migration 0024 sem perda de acesso para quem já existia. ADR-095 e ADR-096.
+- **Onda 1B — próxima.** `apps/portal`, componentes base do portal, rebrand da gestão (`BRAND`,
+  alias de tokens), sidebar com grupo Vendas e cadeado lendo `plan.modules` do `/auth/me`, tela
+  "Fora do seu plano", `AvisoModoTeste` e `/dev/componentes`.

@@ -1,171 +1,884 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<meta name="design_doc_mode" content="canvas">
-<style>
-@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
-@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
-@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
-@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
-@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
-body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
-a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
-*{box-sizing:border-box}
-</style>
-</helmet>
-<section data-screen-label="Outras páginas do portal" style="padding:64px;display:flex;flex-direction:column;gap:28px">
-  <div style="display:flex;flex-direction:column;gap:6px;max-width:980px">
-    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Portal · telas 4 a 8</div>
-    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Anúncio indisponível, vitrine, alerta, mapa do site e 404</h1>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Todas usam SiteHeader e SiteFooter da Home. Artboards em 1040px para leitura; o layout segue a grade de 1280px do portal. Números fictícios.</p>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta name="design_doc_mode" content="canvas" />
+        <style>
+          @font-face {
+            font-family: Guton;
+            src: url('fonts/Guton-Regular.otf') format('opentype');
+            font-weight: 400;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: Guton;
+            src: url('fonts/Guton-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: Guton;
+            src: url('fonts/Guton-SemiBold.otf') format('opentype');
+            font-weight: 600;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: Guton;
+            src: url('fonts/Guton-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: Guton;
+            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
+            font-weight: 800;
+            font-display: swap;
+          }
+          body {
+            margin: 0;
+            background: #ececea;
+            font-family: Guton, system-ui, sans-serif;
+            color: #111111;
+            -webkit-font-smoothing: antialiased;
+          }
+          a {
+            color: #037a4b;
+            text-underline-offset: 3px;
+          }
+          a:hover {
+            color: #02603b;
+          }
+          * {
+            box-sizing: border-box;
+          }
+        </style>
+      </helmet>
+      <section
+        data-screen-label="Outras páginas do portal"
+        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
+      >
+        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 980px">
+          <div style="font-size: 12px; font-weight: 700; color: #555555">
+            Entrega 2 · Portal · telas 4 a 8
+          </div>
+          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.035em">
+            Anúncio indisponível, vitrine, alerta, mapa do site e 404
+          </h1>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333333">
+            Todas usam SiteHeader e SiteFooter da Home. Artboards em 1040px para leitura; o layout
+            segue a grade de 1280px do portal. Números fictícios.
+          </p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+          <div id="indisponivel" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 700; color: #555555">
+              4 · Anúncio indisponível · <code>/imovel/{slug}</code> · 410 ou 301 para o hub do
+              bairro
+            </div>
+            <div style="width: 1040px; background: #ffffff; display: flex; flex-direction: column">
+              <header
+                style="
+                  height: 64px;
+                  border-bottom: 1px solid #ececec;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 0 48px;
+                "
+              >
+                <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
+                  >Achou<span style="color: #0b4a7e">Imóvel</span></span
+                ><span style="font-size: 14px; font-weight: 600; color: #333333"
+                  >Anunciar imóvel</span
+                >
+              </header>
+              <div
+                style="
+                  padding: 48px 48px 40px;
+                  display: grid;
+                  grid-template-columns: 260px minmax(0, 1fr);
+                  gap: 40px;
+                  align-items: center;
+                  border-bottom: 1px solid #e6e6e3;
+                "
+              >
+                <div
+                  style="
+                    aspect-ratio: 4/3;
+                    background: #f4f4f2;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                  "
+                >
+                  <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Foto de capa</span
+                  ><span
+                    style="
+                      position: absolute;
+                      inset: 0;
+                      background: rgba(255, 255, 255, 0.55);
+                      border-radius: 4px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px">
+                  <span
+                    style="
+                      align-self: flex-start;
+                      background: #111111;
+                      color: #ffffff;
+                      font-size: 12px;
+                      font-weight: 700;
+                      padding: 5px 10px;
+                      border-radius: 4px;
+                    "
+                    >Já foi alugado</span
+                  >
+                  <h2
+                    style="
+                      margin: 0;
+                      font-size: 32px;
+                      line-height: 1.1;
+                      font-weight: 800;
+                      letter-spacing: -0.03em;
+                    "
+                  >
+                    Este apartamento no Setor Bueno não está mais disponível.
+                  </h2>
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 15.5px;
+                      line-height: 1.7;
+                      color: #333333;
+                      max-width: 56ch;
+                    "
+                  >
+                    Separamos imóveis parecidos no mesmo bairro, com valor total próximo de R$ 2.910
+                    por mês.
+                  </p>
+                  <div style="display: flex; gap: 10px; padding-top: 6px">
+                    <span
+                      style="
+                        height: 48px;
+                        padding: 0 18px;
+                        background: #037a4b;
+                        color: #ffffff;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        font-size: 14.5px;
+                        font-weight: 700;
+                      "
+                      >Ver apartamentos no Setor Bueno</span
+                    ><span
+                      style="
+                        height: 48px;
+                        padding: 0 18px;
+                        border: 1px solid #111111;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        font-size: 14.5px;
+                        font-weight: 700;
+                      "
+                      >Criar alerta para este bairro</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                style="padding: 40px 48px 48px; display: flex; flex-direction: column; gap: 20px"
+              >
+                <h3
+                  style="
+                    margin: 0;
+                    font-size: 22px;
+                    font-weight: 700;
+                    letter-spacing: -0.02em;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid #111111;
+                  "
+                >
+                  Parecidos no Setor Bueno
+                </h3>
+                <div
+                  style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px"
+                >
+                  <sc-for list="{{ parecidos }}" as="c" hint-placeholder-count="3"
+                    ><div style="display: flex; flex-direction: column; gap: 10px">
+                      <div
+                        style="
+                          aspect-ratio: 4/3;
+                          background: #f4f4f2;
+                          border-radius: 4px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                      >
+                        <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
+                          >Foto do imóvel</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          display: flex;
+                          align-items: center;
+                          gap: 7px;
+                          font-size: 12.5px;
+                          font-weight: 600;
+                          color: #555555;
+                        "
+                      >
+                        <span
+                          style="width: 10px; height: 10px; background: #0b4a7e; display: block"
+                        ></span
+                        >Apartamento · Setor Bueno
+                      </div>
+                      <span
+                        style="
+                          font-size: 19px;
+                          font-weight: 800;
+                          letter-spacing: -0.025em;
+                          color: #037a4b;
+                        "
+                        >{{ c.valor }}</span
+                      ><span style="font-size: 13px; font-weight: 600; color: #333333"
+                        >{{ c.attrs }}</span
+                      >
+                    </div></sc-for
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
 
-    <div id="indisponivel" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#555555">4 · Anúncio indisponível · <code>/imovel/{slug}</code> · 410 ou 301 para o hub do bairro</div>
-      <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
-        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 48px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#0B4A7E">Imóvel</span></span><span style="font-size:14px;font-weight:600;color:#333333">Anunciar imóvel</span></header>
-        <div style="padding:48px 48px 40px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;align-items:center;border-bottom:1px solid #E6E6E3">
-          <div style="aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto de capa</span><span style="position:absolute;inset:0;background:rgba(255,255,255,.55);border-radius:4px;display:block"></span></div>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <span style="align-self:flex-start;background:#111111;color:#FFFFFF;font-size:12px;font-weight:700;padding:5px 10px;border-radius:4px">Já foi alugado</span>
-            <h2 style="margin:0;font-size:32px;line-height:1.1;font-weight:800;letter-spacing:-0.03em">Este apartamento no Setor Bueno não está mais disponível.</h2>
-            <p style="margin:0;font-size:15.5px;line-height:1.7;color:#333333;max-width:56ch">Separamos imóveis parecidos no mesmo bairro, com valor total próximo de R$ 2.910 por mês.</p>
-            <div style="display:flex;gap:10px;padding-top:6px"><span style="height:48px;padding:0 18px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14.5px;font-weight:700">Ver apartamentos no Setor Bueno</span><span style="height:48px;padding:0 18px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;font-size:14.5px;font-weight:700">Criar alerta para este bairro</span></div>
+          <div id="vitrine" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 700; color: #555555">
+              5 · Vitrine do anunciante · <code>/imobiliaria/{orgSlug}</code>
+            </div>
+            <div style="width: 1040px; background: #ffffff; display: flex; flex-direction: column">
+              <header
+                style="
+                  height: 64px;
+                  border-bottom: 1px solid #ececec;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 0 48px;
+                "
+              >
+                <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
+                  >Achou<span style="color: #037a4b">Imóvel</span></span
+                ><span style="font-size: 14px; font-weight: 600; color: #333333"
+                  >Anunciar imóvel</span
+                >
+              </header>
+              <div
+                style="
+                  padding: 40px 48px 32px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-end;
+                  gap: 32px;
+                  border-bottom: 1px solid #111111;
+                "
+              >
+                <div style="display: flex; gap: 20px; align-items: center">
+                  <span
+                    style="
+                      width: 72px;
+                      height: 72px;
+                      border: 1px solid #e6e6e3;
+                      border-radius: 4px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 12px;
+                      font-weight: 600;
+                      color: #6e6e6e;
+                    "
+                    >Logo</span
+                  >
+                  <div style="display: flex; flex-direction: column; gap: 4px">
+                    <h2
+                      style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.03em"
+                    >
+                      Imobiliária Exemplo
+                    </h2>
+                    <span style="font-size: 14px; color: #555555">CRECI 0000-J · Goiânia, GO</span>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 28px">
+                  <div style="display: flex; flex-direction: column">
+                    <span style="font-size: 24px; font-weight: 800">17</span
+                    ><span style="font-size: 12.5px; color: #555555">para alugar</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column">
+                    <span style="font-size: 24px; font-weight: 800">6</span
+                    ><span style="font-size: 12.5px; color: #555555">à venda</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 20px 48px; display: flex; gap: 8px; flex-wrap: wrap">
+                <span
+                  style="
+                    height: 38px;
+                    padding: 0 14px;
+                    background: #111111;
+                    color: #ffffff;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 13.5px;
+                    font-weight: 700;
+                  "
+                  >Todos · 23</span
+                >
+                <span
+                  style="
+                    height: 38px;
+                    padding: 0 14px;
+                    border: 1px solid #d5d5d0;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 13.5px;
+                    font-weight: 600;
+                  "
+                  >Para alugar · 17</span
+                >
+                <span
+                  style="
+                    height: 38px;
+                    padding: 0 14px;
+                    border: 1px solid #d5d5d0;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 13.5px;
+                    font-weight: 600;
+                  "
+                  >À venda · 6</span
+                >
+              </div>
+              <div
+                style="
+                  padding: 8px 48px 48px;
+                  display: grid;
+                  grid-template-columns: repeat(3, minmax(0, 1fr));
+                  gap: 28px 24px;
+                "
+              >
+                <sc-for list="{{ vitrine }}" as="c" hint-placeholder-count="6"
+                  ><div style="display: flex; flex-direction: column; gap: 10px">
+                    <div
+                      style="
+                        aspect-ratio: 4/3;
+                        background: #f4f4f2;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
+                        >Foto do imóvel</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 7px;
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: #555555;
+                      "
+                    >
+                      <span
+                        style="width:10px;height:10px;background:{{ c.cor }};display:block"
+                      ></span
+                      >{{ c.tipo }} · {{ c.bairro }}
+                    </div>
+                    <span
+                      style="
+                        font-size: 19px;
+                        font-weight: 800;
+                        letter-spacing: -0.025em;
+                        color: #037a4b;
+                      "
+                      >{{ c.valor }}</span
+                    ><span style="font-size: 13px; font-weight: 600; color: #333333"
+                      >{{ c.attrs }}</span
+                    >
+                  </div></sc-for
+                >
+              </div>
+            </div>
           </div>
-        </div>
-        <div style="padding:40px 48px 48px;display:flex;flex-direction:column;gap:20px">
-          <h3 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;padding-bottom:10px;border-bottom:1px solid #111111">Parecidos no Setor Bueno</h3>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
-            <sc-for list="{{ parecidos }}" as="c" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span></div><div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:#0B4A7E;display:block"></span>Apartamento · Setor Bueno</div><span style="font-size:19px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:13px;font-weight:600;color:#333333">{{ c.attrs }}</span></div></sc-for>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div id="vitrine" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#555555">5 · Vitrine do anunciante · <code>/imobiliaria/{orgSlug}</code></div>
-      <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
-        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 48px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="font-size:14px;font-weight:600;color:#333333">Anunciar imóvel</span></header>
-        <div style="padding:40px 48px 32px;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;border-bottom:1px solid #111111">
-          <div style="display:flex;gap:20px;align-items:center">
-            <span style="width:72px;height:72px;border:1px solid #E6E6E3;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#6E6E6E">Logo</span>
-            <div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-size:32px;font-weight:800;letter-spacing:-0.03em">Imobiliária Exemplo</h2><span style="font-size:14px;color:#555555">CRECI 0000-J · Goiânia, GO</span></div>
+          <div id="alerta" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 700; color: #555555">
+              6 · Alerta de imóvel · criação, confirmação e descadastro
+            </div>
+            <div style="display: flex; gap: 24px; align-items: flex-start">
+              <div
+                style="
+                  width: 420px;
+                  background: #ffffff;
+                  padding: 28px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                "
+              >
+                <span style="font-size: 12px; font-weight: 700; color: #555555"
+                  >Criar alerta · modal ou gaveta</span
+                >
+                <h3
+                  style="
+                    margin: 0;
+                    font-size: 24px;
+                    line-height: 1.15;
+                    font-weight: 800;
+                    letter-spacing: -0.025em;
+                  "
+                >
+                  Avisamos quando aparecer um imóvel assim
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                  <sc-for list="{{ alertaChips }}" as="c" hint-placeholder-count="4"
+                    ><span
+                      style="
+                        height: 32px;
+                        padding: 0 10px;
+                        border: 1px solid #111111;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        font-size: 13px;
+                        font-weight: 600;
+                      "
+                      >{{ c }}</span
+                    ></sc-for
+                  >
+                </div>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    border: 1px solid #111111;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    font-size: 14px;
+                    font-weight: 700;
+                  "
+                >
+                  <span
+                    style="
+                      height: 44px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      background: #111111;
+                      color: #ffffff;
+                    "
+                    >E-mail</span
+                  ><span
+                    style="
+                      height: 44px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                    >WhatsApp</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 48px;
+                    border: 1px solid #d5d5d0;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    padding: 0 14px;
+                    font-size: 14.5px;
+                    color: #6e6e6e;
+                  "
+                >
+                  seu@email.com
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    gap: 10px;
+                    font-size: 12.5px;
+                    line-height: 1.55;
+                    color: #333333;
+                  "
+                >
+                  <span
+                    style="
+                      flex: none;
+                      width: 18px;
+                      height: 18px;
+                      border: 1.5px solid #b9b9b4;
+                      border-radius: 4px;
+                      display: block;
+                      margin-top: 1px;
+                    "
+                  ></span
+                  ><span
+                    >Aceito receber avisos de novos imóveis desta busca e li a
+                    <a href="#alerta">política de privacidade</a>.</span
+                  >
+                </div>
+                <span
+                  style="
+                    height: 52px;
+                    background: #037a4b;
+                    color: #ffffff;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 15px;
+                    font-weight: 700;
+                  "
+                  >Criar alerta</span
+                >
+                <span style="font-size: 12px; color: #b42318; font-weight: 600"
+                  >Erro: marque a autorização para criar o alerta.</span
+                >
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 24px">
+                <div
+                  style="
+                    width: 420px;
+                    background: #ffffff;
+                    padding: 28px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                  "
+                >
+                  <span style="font-size: 12px; font-weight: 700; color: #555555"
+                    >Depois de criar</span
+                  >
+                  <h3
+                    style="
+                      margin: 0;
+                      font-size: 22px;
+                      line-height: 1.15;
+                      font-weight: 800;
+                      letter-spacing: -0.02em;
+                    "
+                  >
+                    Falta confirmar seu e-mail
+                  </h3>
+                  <p style="margin: 0; font-size: 14.5px; line-height: 1.65; color: #333333">
+                    Mandamos um link para seu@email.com. O alerta começa a funcionar quando você
+                    clicar nele.
+                  </p>
+                  <span style="font-size: 14px; font-weight: 700; color: #037a4b"
+                    >Reenviar e-mail</span
+                  >
+                </div>
+                <div
+                  style="
+                    width: 420px;
+                    background: #ffffff;
+                    padding: 28px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                  "
+                >
+                  <span style="font-size: 12px; font-weight: 700; color: #555555"
+                    ><code>/alerta/confirmado</code></span
+                  >
+                  <h3
+                    style="
+                      margin: 0;
+                      font-size: 22px;
+                      line-height: 1.15;
+                      font-weight: 800;
+                      letter-spacing: -0.02em;
+                    "
+                  >
+                    Alerta ativo
+                  </h3>
+                  <p style="margin: 0; font-size: 14.5px; line-height: 1.65; color: #333333">
+                    Apartamentos de 2 quartos para alugar no Setor Bueno, Goiânia, até R$ 3.000.
+                    Enviamos no máximo um e-mail por dia.
+                  </p>
+                  <span
+                    style="
+                      height: 46px;
+                      border: 1px solid #111111;
+                      border-radius: 4px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 14px;
+                      font-weight: 700;
+                    "
+                    >Ver imóveis desta busca</span
+                  >
+                </div>
+                <div
+                  style="
+                    width: 420px;
+                    background: #ffffff;
+                    padding: 28px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                  "
+                >
+                  <span style="font-size: 12px; font-weight: 700; color: #555555"
+                    ><code>/alerta/cancelar?token=…</code></span
+                  >
+                  <h3
+                    style="
+                      margin: 0;
+                      font-size: 22px;
+                      line-height: 1.15;
+                      font-weight: 800;
+                      letter-spacing: -0.02em;
+                    "
+                  >
+                    Cancelar este alerta?
+                  </h3>
+                  <p style="margin: 0; font-size: 14.5px; line-height: 1.65; color: #333333">
+                    Você deixa de receber avisos de apartamentos de 2 quartos no Setor Bueno. Seus
+                    outros alertas continuam.
+                  </p>
+                  <div style="display: flex; gap: 10px">
+                    <span
+                      style="
+                        flex: 1;
+                        height: 46px;
+                        background: #111111;
+                        color: #ffffff;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 14px;
+                        font-weight: 700;
+                      "
+                      >Cancelar alerta</span
+                    ><span
+                      style="
+                        flex: 1;
+                        height: 46px;
+                        border: 1px solid #d5d5d0;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 14px;
+                        font-weight: 700;
+                      "
+                      >Manter</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="display:flex;gap:28px"><div style="display:flex;flex-direction:column"><span style="font-size:24px;font-weight:800">17</span><span style="font-size:12.5px;color:#555555">para alugar</span></div><div style="display:flex;flex-direction:column"><span style="font-size:24px;font-weight:800">6</span><span style="font-size:12.5px;color:#555555">à venda</span></div></div>
-        </div>
-        <div style="padding:20px 48px;display:flex;gap:8px;flex-wrap:wrap">
-          <span style="height:38px;padding:0 14px;background:#111111;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:13.5px;font-weight:700">Todos · 23</span>
-          <span style="height:38px;padding:0 14px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;font-size:13.5px;font-weight:600">Para alugar · 17</span>
-          <span style="height:38px;padding:0 14px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;font-size:13.5px;font-weight:600">À venda · 6</span>
-        </div>
-        <div style="padding:8px 48px 48px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px">
-          <sc-for list="{{ vitrine }}" as="c" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span></div><div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:{{ c.cor }};display:block"></span>{{ c.tipo }} · {{ c.bairro }}</div><span style="font-size:19px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:13px;font-weight:600;color:#333333">{{ c.attrs }}</span></div></sc-for>
-        </div>
-      </div>
-    </div>
 
-    <div id="alerta" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#555555">6 · Alerta de imóvel · criação, confirmação e descadastro</div>
-      <div style="display:flex;gap:24px;align-items:flex-start">
-        <div style="width:420px;background:#FFFFFF;padding:28px;display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:12px;font-weight:700;color:#555555">Criar alerta · modal ou gaveta</span>
-          <h3 style="margin:0;font-size:24px;line-height:1.15;font-weight:800;letter-spacing:-0.025em">Avisamos quando aparecer um imóvel assim</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ alertaChips }}" as="c" hint-placeholder-count="4"><span style="height:32px;padding:0 10px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;font-size:13px;font-weight:600">{{ c }}</span></sc-for></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #111111;border-radius:4px;overflow:hidden;font-size:14px;font-weight:700"><span style="height:44px;display:flex;align-items:center;justify-content:center;background:#111111;color:#FFFFFF">E-mail</span><span style="height:44px;display:flex;align-items:center;justify-content:center">WhatsApp</span></div>
-          <div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px;color:#6E6E6E">seu@email.com</div>
-          <div style="display:flex;gap:10px;font-size:12.5px;line-height:1.55;color:#333333"><span style="flex:none;width:18px;height:18px;border:1.5px solid #B9B9B4;border-radius:4px;display:block;margin-top:1px"></span><span>Aceito receber avisos de novos imóveis desta busca e li a <a href="#alerta">política de privacidade</a>.</span></div>
-          <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
-          <span style="font-size:12px;color:#B42318;font-weight:600">Erro: marque a autorização para criar o alerta.</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:24px">
-          <div style="width:420px;background:#FFFFFF;padding:28px;display:flex;flex-direction:column;gap:12px">
-            <span style="font-size:12px;font-weight:700;color:#555555">Depois de criar</span>
-            <h3 style="margin:0;font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Falta confirmar seu e-mail</h3>
-            <p style="margin:0;font-size:14.5px;line-height:1.65;color:#333333">Mandamos um link para seu@email.com. O alerta começa a funcionar quando você clicar nele.</p>
-            <span style="font-size:14px;font-weight:700;color:#037A4B">Reenviar e-mail</span>
+          <div id="mapa" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 700; color: #555555">
+              8 · Mapa do site · <code>/mapa-do-site</code>
+            </div>
+            <div
+              style="
+                width: 1040px;
+                background: #ffffff;
+                padding: 48px;
+                display: flex;
+                flex-direction: column;
+                gap: 28px;
+              "
+            >
+              <h2 style="margin: 0; font-size: 36px; font-weight: 800; letter-spacing: -0.035em">
+                Mapa do site
+              </h2>
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                  font-size: 13.5px;
+                  font-weight: 700;
+                "
+              >
+                <sc-for list="{{ ufs }}" as="u" hint-placeholder-count="10"
+                  ><span
+                    style="width:44px;height:36px;border:1px solid {{ u.bd }};background:{{ u.bg }};color:{{ u.fg }};border-radius:4px;display:flex;align-items:center;justify-content:center"
+                    >{{ u.l }}</span
+                  ></sc-for
+                >
+              </div>
+              <div
+                style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px"
+              >
+                <sc-for list="{{ mapaCidades }}" as="c" hint-placeholder-count="3"
+                  ><div style="display: flex; flex-direction: column; gap: 8px">
+                    <span
+                      style="
+                        font-size: 17px;
+                        font-weight: 700;
+                        padding-bottom: 8px;
+                        border-bottom: 1px solid #111111;
+                      "
+                      >{{ c.nome }}</span
+                    ><sc-for list="{{ c.links }}" as="l" hint-placeholder-count="5"
+                      ><a href="#mapa" style="font-size: 14px; font-weight: 600">{{ l }}</a></sc-for
+                    >
+                  </div></sc-for
+                >
+              </div>
+              <span style="font-size: 12px; color: #6e6e6e"
+                >Só aparecem páginas indexáveis (3 anúncios ou mais; 5 com filtro).</span
+              >
+            </div>
           </div>
-          <div style="width:420px;background:#FFFFFF;padding:28px;display:flex;flex-direction:column;gap:12px">
-            <span style="font-size:12px;font-weight:700;color:#555555"><code>/alerta/confirmado</code></span>
-            <h3 style="margin:0;font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Alerta ativo</h3>
-            <p style="margin:0;font-size:14.5px;line-height:1.65;color:#333333">Apartamentos de 2 quartos para alugar no Setor Bueno, Goiânia, até R$ 3.000. Enviamos no máximo um e-mail por dia.</p>
-            <span style="height:46px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">Ver imóveis desta busca</span>
-          </div>
-          <div style="width:420px;background:#FFFFFF;padding:28px;display:flex;flex-direction:column;gap:12px">
-            <span style="font-size:12px;font-weight:700;color:#555555"><code>/alerta/cancelar?token=…</code></span>
-            <h3 style="margin:0;font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Cancelar este alerta?</h3>
-            <p style="margin:0;font-size:14.5px;line-height:1.65;color:#333333">Você deixa de receber avisos de apartamentos de 2 quartos no Setor Bueno. Seus outros alertas continuam.</p>
-            <div style="display:flex;gap:10px"><span style="flex:1;height:46px;background:#111111;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">Cancelar alerta</span><span style="flex:1;height:46px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">Manter</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div id="mapa" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#555555">8 · Mapa do site · <code>/mapa-do-site</code></div>
-      <div style="width:1040px;background:#FFFFFF;padding:48px;display:flex;flex-direction:column;gap:28px">
-        <h2 style="margin:0;font-size:36px;font-weight:800;letter-spacing:-0.035em">Mapa do site</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13.5px;font-weight:700"><sc-for list="{{ ufs }}" as="u" hint-placeholder-count="10"><span style="width:44px;height:36px;border:1px solid {{ u.bd }};background:{{ u.bg }};color:{{ u.fg }};border-radius:4px;display:flex;align-items:center;justify-content:center">{{ u.l }}</span></sc-for></div>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px">
-          <sc-for list="{{ mapaCidades }}" as="c" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:17px;font-weight:700;padding-bottom:8px;border-bottom:1px solid #111111">{{ c.nome }}</span><sc-for list="{{ c.links }}" as="l" hint-placeholder-count="5"><a href="#mapa" style="font-size:14px;font-weight:600">{{ l }}</a></sc-for></div></sc-for>
-        </div>
-        <span style="font-size:12px;color:#6E6E6E">Só aparecem páginas indexáveis (3 anúncios ou mais; 5 com filtro).</span>
-      </div>
-    </div>
-
-    <div id="erro404" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#555555">8 · Página não encontrada · 404</div>
-      <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
-        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 48px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span></header>
-        <div style="padding:72px 48px 80px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;align-items:center">
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <span style="font-size:14px;font-weight:700;color:#555555">Erro 404</span>
-            <h2 style="margin:0;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-0.035em">Não achamos esta página.</h2>
-            <p style="margin:0;font-size:16px;line-height:1.7;color:#333333;max-width:48ch">O endereço pode estar errado ou a página foi removida. Comece por uma cidade.</p>
-            <div style="height:52px;max-width:460px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 14px;font-size:15px;color:#6E6E6E">Digite a cidade<span style="height:40px;padding:0 16px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14px;font-weight:700">Buscar</span></div>
+          <div id="erro404" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 700; color: #555555">
+              8 · Página não encontrada · 404
+            </div>
+            <div style="width: 1040px; background: #ffffff; display: flex; flex-direction: column">
+              <header
+                style="
+                  height: 64px;
+                  border-bottom: 1px solid #ececec;
+                  display: flex;
+                  align-items: center;
+                  padding: 0 48px;
+                "
+              >
+                <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
+                  >Achou<span style="color: #037a4b">Imóvel</span></span
+                >
+              </header>
+              <div
+                style="
+                  padding: 72px 48px 80px;
+                  display: grid;
+                  grid-template-columns: minmax(0, 1fr) 300px;
+                  gap: 48px;
+                  align-items: center;
+                "
+              >
+                <div style="display: flex; flex-direction: column; gap: 14px">
+                  <span style="font-size: 14px; font-weight: 700; color: #555555">Erro 404</span>
+                  <h2
+                    style="
+                      margin: 0;
+                      font-size: 44px;
+                      line-height: 1.05;
+                      font-weight: 800;
+                      letter-spacing: -0.035em;
+                    "
+                  >
+                    Não achamos esta página.
+                  </h2>
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 16px;
+                      line-height: 1.7;
+                      color: #333333;
+                      max-width: 48ch;
+                    "
+                  >
+                    O endereço pode estar errado ou a página foi removida. Comece por uma cidade.
+                  </p>
+                  <div
+                    style="
+                      height: 52px;
+                      max-width: 460px;
+                      border: 1px solid #111111;
+                      border-radius: 4px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      padding: 0 6px 0 14px;
+                      font-size: 15px;
+                      color: #6e6e6e;
+                    "
+                  >
+                    Digite a cidade<span
+                      style="
+                        height: 40px;
+                        padding: 0 16px;
+                        background: #037a4b;
+                        color: #ffffff;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        font-size: 14px;
+                        font-weight: 700;
+                      "
+                      >Buscar</span
+                    >
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px">
+                  <sc-for list="{{ tipos404 }}" as="t" hint-placeholder-count="4"
+                    ><div
+                      style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:30px 30px;color:{{ t.fg }};padding:12px;display:flex;align-items:flex-end;font-size:15px;font-weight:700"
+                    >
+                      {{ t.nome }}
+                    </div></sc-for
+                  >
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">
-            <sc-for list="{{ tipos404 }}" as="t" hint-placeholder-count="4"><div style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:30px 30px;color:{{ t.fg }};padding:12px;display:flex;align-items:flex-end;font-size:15px;font-weight:700">{{ t.nome }}</div></sc-for>
-          </div>
         </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  renderVals() {
-    const sel = ['GO'];
-    return {
-      parecidos: [{valor:'R$ 2.480 total/mês',attrs:'64 m² · 2 quartos · 1 vaga'},{valor:'R$ 3.060 total/mês',attrs:'76 m² · 2 quartos · 1 suíte'},{valor:'R$ 2.690 total/mês',attrs:'70 m² · 2 quartos · 1 vaga'}],
-      vitrine: [
-        {cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno',valor:'R$ 2.910 total/mês',attrs:'72 m² · 2 quartos · 1 vaga'},
-        {cor:'#FF6A2A',tipo:'Casa',bairro:'Jardim América',valor:'R$ 3.450 total/mês',attrs:'140 m² · 3 quartos'},
-        {cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Jardins Atenas',valor:'R$ 890.000',attrs:'170 m² · 3 suítes'},
-        {cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Setor Universitário',valor:'R$ 1.340 total/mês',attrs:'32 m² · mobiliado'},
-        {cor:'#0B3A12',tipo:'Cobertura',bairro:'Setor Marista',valor:'R$ 1.450.000',attrs:'210 m² · 3 suítes'},
-        {cor:'#B5B5B5',tipo:'Sala e loja',bairro:'Setor Oeste',valor:'R$ 2.100 total/mês',attrs:'45 m² · 1 vaga'}
-      ],
-      alertaChips: ['Alugar','Goiânia · Setor Bueno','Apartamento','2 quartos','Até R$ 3.000'],
-      ufs: ['AC','AL','AM','BA','CE','DF','ES','GO','MG','PR','RJ','RS','SC','SP'].map(l=>sel.includes(l)?{l,bg:'#111111',fg:'#FFFFFF',bd:'#111111'}:{l,bg:'#FFFFFF',fg:'#111111',bd:'#D5D5D0'}),
-      mapaCidades: [
-        {nome:'Goiânia',links:['Imóveis para alugar em Goiânia','Apartamentos para alugar em Goiânia','Casas para alugar em Goiânia','Imóveis à venda em Goiânia','Setor Bueno','Setor Marista','Setor Oeste']},
-        {nome:'Aparecida de Goiânia',links:['Imóveis para alugar em Aparecida de Goiânia','Casas para alugar em Aparecida de Goiânia','Imóveis à venda em Aparecida de Goiânia','Jardim Luz']},
-        {nome:'Anápolis',links:['Imóveis para alugar em Anápolis','Apartamentos para alugar em Anápolis','Jundiaí','Centro']}
-      ],
-      tipos404: [{nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF'},{nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00'},{nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF'},{nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF'}]
-    };
-  }
-}
-</script>
-</body>
+      </section>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+      class Component extends DCLogic {
+        renderVals() {
+          const sel = ['GO'];
+          return {
+            parecidos: [{valor:'R$ 2.480 total/mês',attrs:'64 m² · 2 quartos · 1 vaga'},{valor:'R$ 3.060 total/mês',attrs:'76 m² · 2 quartos · 1 suíte'},{valor:'R$ 2.690 total/mês',attrs:'70 m² · 2 quartos · 1 vaga'}],
+            vitrine: [
+              {cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno',valor:'R$ 2.910 total/mês',attrs:'72 m² · 2 quartos · 1 vaga'},
+              {cor:'#FF6A2A',tipo:'Casa',bairro:'Jardim América',valor:'R$ 3.450 total/mês',attrs:'140 m² · 3 quartos'},
+              {cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Jardins Atenas',valor:'R$ 890.000',attrs:'170 m² · 3 suítes'},
+              {cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Setor Universitário',valor:'R$ 1.340 total/mês',attrs:'32 m² · mobiliado'},
+              {cor:'#0B3A12',tipo:'Cobertura',bairro:'Setor Marista',valor:'R$ 1.450.000',attrs:'210 m² · 3 suítes'},
+              {cor:'#B5B5B5',tipo:'Sala e loja',bairro:'Setor Oeste',valor:'R$ 2.100 total/mês',attrs:'45 m² · 1 vaga'}
+            ],
+            alertaChips: ['Alugar','Goiânia · Setor Bueno','Apartamento','2 quartos','Até R$ 3.000'],
+            ufs: ['AC','AL','AM','BA','CE','DF','ES','GO','MG','PR','RJ','RS','SC','SP'].map(l=>sel.includes(l)?{l,bg:'#111111',fg:'#FFFFFF',bd:'#111111'}:{l,bg:'#FFFFFF',fg:'#111111',bd:'#D5D5D0'}),
+            mapaCidades: [
+              {nome:'Goiânia',links:['Imóveis para alugar em Goiânia','Apartamentos para alugar em Goiânia','Casas para alugar em Goiânia','Imóveis à venda em Goiânia','Setor Bueno','Setor Marista','Setor Oeste']},
+              {nome:'Aparecida de Goiânia',links:['Imóveis para alugar em Aparecida de Goiânia','Casas para alugar em Aparecida de Goiânia','Imóveis à venda em Aparecida de Goiânia','Jardim Luz']},
+              {nome:'Anápolis',links:['Imóveis para alugar em Anápolis','Apartamentos para alugar em Anápolis','Jundiaí','Centro']}
+            ],
+            tipos404: [{nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF'},{nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00'},{nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF'},{nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF'}]
+          };
+        }
+      }
+    </script>
+  </body>
 </html>
