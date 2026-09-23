@@ -4,8 +4,9 @@ import { Badge, Card, Group, Stack } from '@aluguei/ui';
 import { formatBRL, formatArea } from '@aluguei/ui';
 import { fetchPublicListings } from '@/lib/public-api';
 import { label, PROPERTY_TYPE_LABELS } from '@/lib/labels';
+import { BRAND } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'Imóveis | Aluguei.app' };
+export const metadata: Metadata = { title: 'Imóveis' };
 export const dynamic = 'force-dynamic';
 
 export default async function ImoveisPage() {
@@ -16,7 +17,7 @@ export default async function ImoveisPage() {
       <nav className="marketing-nav">
         <span className="peg-group" style={{ gap: 8 }}>
           <span className="app-sidebar__logo">A</span>
-          <strong style={{ fontSize: 15 }}>Aluguei.app</strong>
+          <strong style={{ fontSize: 15 }}>{BRAND.name}</strong>
         </span>
         <span className="peg-spacer" />
         <Link href="/" style={{ fontSize: 13, fontWeight: 500 }}>

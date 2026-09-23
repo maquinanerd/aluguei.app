@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@aluguei/ui';
 import { ACCOUNT_STATUS_PATH } from '@/lib/account-status';
+import { BRAND } from '@/lib/brand';
 
 export function RegisterForm() {
   const router = useRouter();
@@ -119,7 +120,7 @@ export function RegisterForm() {
       />
       <Input name="creci" label="CRECI" optional placeholder="J-00000" />
       <p style={{ fontSize: 13, color: 'var(--peg-text-tertiary)' }}>
-        O cadastro passa por análise da equipe do Aluguei.app antes de liberar o painel.
+        O cadastro passa por análise da equipe do {BRAND.name} antes de liberar o painel.
       </p>
       <Button type="submit" variant="primary" fullWidth loading={submitting}>
         Criar conta

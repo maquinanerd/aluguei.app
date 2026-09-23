@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Group } from '@aluguei/ui';
+import { BRAND } from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: 'Aluguei.app',
+  title: BRAND.name,
   description: 'Plataforma de operação de locação residencial.',
 };
 
@@ -13,7 +14,7 @@ export default function HomePage() {
       <nav className="marketing-nav">
         <span className="peg-group" style={{ gap: 8 }}>
           <span className="app-sidebar__logo">A</span>
-          <strong style={{ fontSize: 15 }}>Aluguei.app</strong>
+          <strong style={{ fontSize: 15 }}>{BRAND.name}</strong>
         </span>
         <span className="peg-spacer" />
         <Link href="/imoveis" style={{ fontSize: 13, fontWeight: 500 }}>

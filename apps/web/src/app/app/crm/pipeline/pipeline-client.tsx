@@ -200,7 +200,7 @@ function PipelineBody() {
                             }}
                             style={{
                               fontSize: 12,
-                              color: 'var(--aluguei-brand-strong)',
+                              color: 'var(--brand-strong)',
                               fontWeight: 500,
                               marginTop: 4,
                             }}

@@ -9,6 +9,7 @@ import { changePasswordErrors, revokedSessionsText } from '@/lib/account-rules';
 import type { FieldErrors } from '@/lib/account-rules';
 import { useQuery } from '@/lib/use-query';
 import { ROLE_LABELS } from '@/lib/labels';
+import { BRAND } from '@/lib/brand';
 
 interface Membership {
   id: string;
@@ -61,7 +62,7 @@ function SettingsBody() {
         <Card title="Sobre o painel" padless>
           <Stack gap={3} style={{ padding: 20 }}>
             <p style={{ fontSize: 13, lineHeight: '20px', color: 'var(--peg-text-secondary)' }}>
-              Painel administrativo do Aluguei.app construído sobre o PEG Product Design System.
+              Painel administrativo do {BRAND.b2bName} construído sobre o PEG Product Design System.
             </p>
             <Group gap={2}>
               <Badge tone="info">dry-run</Badge>

@@ -249,6 +249,21 @@ A ordem das ondas passa a ser: 1A → 1B → 2A → 2B → 3A → 3B → 4A → 
 - **Onda 1A — feita.** Plano com módulos (`PLAN_MODULES`), preço mensal só para exibição e limite de
   locações em vigor; `/auth/me` devolve o plano; 403 `PLAN_MODULE_NOT_INCLUDED` por grupo de rotas;
   migration 0024 sem perda de acesso para quem já existia. ADR-095 e ADR-096.
-- **Onda 1B — próxima.** `apps/portal`, componentes base do portal, rebrand da gestão (`BRAND`,
-  alias de tokens), sidebar com grupo Vendas e cadeado lendo `plan.modules` do `/auth/me`, tela
-  "Fora do seu plano", `AvisoModoTeste` e `/dev/componentes`.
+- **Onda 1B — feita.**
+  - `apps/portal`: app novo (Next 16.3.4, React 19.2.3 — nenhuma versão nova no repositório), tokens
+    da entrega, Guton por `next/font/local`, e os componentes base — Logotipo, SiteHeader,
+    SiteFooter, Botao, Campo, CheckboxLgpd, Chip, Segmentado, Gaveta, Acordeao, BlocoGrade,
+    EstadoVazio, Breadcrumb e ImovelCard. Catálogo em `/dev/componentes`, fora do ar em produção.
+  - Gestão: `BRAND` num arquivo só e `<title>` por template de layout; tokens `--aluguei-brand*` →
+    `--brand*` com alias temporário; grupo **Vendas** no menu com "Negociações" marcado como Novo;
+    cadeado por módulo lendo `plan.modules` do `/auth/me`; tela `/app/plano` ("Fora do seu plano");
+    `AvisoModoTeste` em `packages/ui`. ADR-098.
+- **Próxima — Onda 2A.** Backend do portal: finalidade e valores de venda no imóvel, legenda/ordem/
+  capa em `property_media`, URL pública de foto (decisão do R3), busca nacional com filtros e slug
+  canônico, `page_stats`, vizinhos, lead público e alerta de busca. Junto dela sai
+  `docs/frontend/PORTAL_SPEC.md`, que ocupa o lugar do `PROMPT_apps-portal.md` ausente (ADR-097).
+
+### O que ainda não existe de propósito
+
+O portal não tem `/` nem telas públicas: elas são a Onda 2B e dependem do backend da 2A. Hoje o app
+serve só o catálogo de componentes, e por isso ainda não entra no compose da homologação.

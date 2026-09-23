@@ -5,7 +5,7 @@ import { formatBRL } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
 import { PortalLogoutButton } from '@/components/portal/portal-logout-button';
 
-export const metadata: Metadata = { title: 'Portal do Proprietário | Aluguei.app' };
+export const metadata: Metadata = { title: 'Portal do Proprietário' };
 export const dynamic = 'force-dynamic';
 
 interface PortalMe {

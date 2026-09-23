@@ -40,7 +40,7 @@ p {
 }
 
 a {
-  color: var(--aluguei-brand-strong);
+  color: var(--brand-strong);
   text-decoration: none;
 }
 
@@ -71,7 +71,7 @@ ol {
 
 /* Focus visible consistente e curto */
 :focus-visible {
-  outline: 2px solid var(--aluguei-brand-focus);
+  outline: 2px solid var(--brand-focus);
   outline-offset: 1px;
   border-radius: var(--peg-radius-xs);
 }

@@ -8,6 +8,7 @@ import { cx } from '@aluguei/ui';
 import { Icon } from '@aluguei/ui';
 import type { Session } from '@/lib/session';
 import { NAV_GROUPS, NAV_ROOT, breadcrumbFor } from '@/lib/navigation';
+import type { NavItem } from '@/lib/navigation';
 import { can, activeRole } from '@/lib/session';
 import { ROLE_LABELS } from '@/lib/labels';
 import { requestLogout } from '@/lib/logout';
@@ -15,6 +16,8 @@ import { AccountMenu } from './account-menu';
 import { OrgSwitcher } from './org-switcher';
 import { GlobalSearch } from './global-search';
 import { TopbarClock } from './topbar-clock';
+import { BRAND } from '@/lib/brand';
+import { hasModule } from '@/lib/session';
 
 const COLLAPSE_KEY = 'aluguei.sidebar.collapsed';
 
@@ -95,10 +98,10 @@ export function AppShell({ session, children }: { session: Session; children: Re
           onClick={() => {
             setDrawerOpen(false);
           }}
-          title="Aluguei.app"
+          title={BRAND.b2bName}
         >
-          <span className="app-sidebar__logo">A</span>
-          {!collapsed ? <span className="app-sidebar__wordmark">Aluguei.app</span> : null}
+          <span className="app-sidebar__logo">{BRAND.seal}</span>
+          {!collapsed ? <span className="app-sidebar__wordmark">{BRAND.b2bName}</span> : null}
         </Link>
         {!collapsed ? (
           <button
@@ -131,7 +134,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
               .map((item) => (
                 <RailLink
                   key={item.href}
-                  href={item.href}
+                  href={bloqueioDoItem(item, session)?.href ?? item.href}
                   label={item.label}
                   icon={item.icon}
                   pathname={pathname}
@@ -174,12 +177,24 @@ export function AppShell({ session, children }: { session: Session; children: Re
                   <h2 className="app-sidebar__group-title">{group.title}</h2>
                   {items.map((item) => {
                     const isActive = isItemActive(item, pathname);
+                    const bloqueio = bloqueioDoItem(item, session);
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
-                        className={cx('app-sidebar__link', isActive && 'app-sidebar__link--active')}
+                        href={bloqueio?.href ?? item.href}
+                        className={cx(
+                          'app-sidebar__link',
+                          isActive && 'app-sidebar__link--active',
+                          bloqueio && 'app-sidebar__link--bloqueado',
+                        )}
                         aria-current={isActive ? 'page' : undefined}
+                        aria-label={
+                          bloqueio
+                            ? `${item.label} — ${
+                                bloqueio.motivo === 'plano' ? 'fora do seu plano' : 'em preparação'
+                              }`
+                            : undefined
+                        }
                         onClick={() => {
                           setDrawerOpen(false);
                         }}
@@ -188,6 +203,12 @@ export function AppShell({ session, children }: { session: Session; children: Re
                           <Icon name={item.icon} size={16} />
                         </span>
                         <span className="app-sidebar__label">{item.label}</span>
+                        {item.novo ? <span className="app-sidebar__tag">Novo</span> : null}
+                        {bloqueio ? (
+                          <span className="app-sidebar__icon" aria-hidden="true">
+                            <Icon name="lock" size={14} />
+                          </span>
+                        ) : null}
                         {item.badge !== undefined ? (
                           <span
                             className={cx(
@@ -352,6 +373,23 @@ export function AppShell({ session, children }: { session: Session; children: Re
   );
 }
 
+/**
+ * Item fora do plano (ADR-095) ou de tela ainda não construída: em vez de levar a
+ * um 403 ou a um 404, leva à tela "Fora do seu plano", que explica o que falta.
+ */
+function bloqueioDoItem(
+  item: NavItem,
+  session: Session,
+): { motivo: 'plano' | 'preparacao'; href: string } | null {
+  if (item.module && !hasModule(session, item.module)) {
+    return { motivo: 'plano', href: `/app/plano?modulo=${item.module}` };
+  }
+  if (item.emPreparacao) {
+    return { motivo: 'preparacao', href: `/app/plano?modulo=${item.module ?? ''}` };
+  }
+  return null;
+}
+
 function isItemActive(
   item: { href: string; activePrefixes?: string[] },
   pathname: string,
@@ -393,8 +431,8 @@ function GroupHeader({ onClose }: { onClose: () => void }) {
   return (
     <div className="app-sidebar__header" style={{ justifyContent: 'space-between' }}>
       <span className="app-sidebar__brand">
-        <span className="app-sidebar__logo">A</span>
-        <span className="app-sidebar__wordmark">Aluguei.app</span>
+        <span className="app-sidebar__logo">{BRAND.seal}</span>
+        <span className="app-sidebar__wordmark">{BRAND.b2bName}</span>
       </span>
       <button
         type="button"

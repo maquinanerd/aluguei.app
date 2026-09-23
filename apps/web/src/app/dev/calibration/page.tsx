@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Breadcrumb } from '@aluguei/ui';
 import { Calibration } from './calibration-client';
+import { BRAND } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'Calibração | Aluguei.app' };
+export const metadata: Metadata = { title: 'Calibração' };
 
 const crumbs = [
-  { label: 'Aluguei', href: '/' },
+  { label: BRAND.name, href: '/' },
   { label: 'Desenvolvimento' },
   { label: 'Calibração' },
 ];

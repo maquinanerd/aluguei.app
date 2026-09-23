@@ -3,6 +3,8 @@
  * depois de entrar ou cadastrar, e o texto da tela de situação da conta. Módulo puro.
  */
 
+import { BRAND } from './brand';
+
 export type OrganizationStatus = 'PENDING_APPROVAL' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED';
 
 export interface AccountSnapshot {
@@ -26,17 +28,17 @@ export const ACCOUNT_STATUS_COPY: Record<
 > = {
   PENDING_APPROVAL: {
     title: 'Cadastro em análise',
-    body: 'Recebemos o cadastro da sua imobiliária. Assim que a equipe do Aluguei.app aprovar, o painel fica disponível neste mesmo login.',
+    body: `Recebemos o cadastro da sua imobiliária. Assim que a equipe do ${BRAND.name} aprovar, o painel fica disponível neste mesmo login.`,
     tone: 'warning',
   },
   SUSPENDED: {
     title: 'Imobiliária suspensa',
-    body: 'O acesso ao painel, ao portal de proprietários e inquilinos e ao site público está suspenso. Fale com a equipe do Aluguei.app para reativar.',
+    body: `O acesso ao painel, ao portal de proprietários e inquilinos e ao site público está suspenso. Fale com a equipe do ${BRAND.name} para reativar.`,
     tone: 'danger',
   },
   REJECTED: {
     title: 'Cadastro recusado',
-    body: 'O cadastro da imobiliária não foi aprovado. Fale com a equipe do Aluguei.app se quiser pedir uma nova análise.',
+    body: `O cadastro da imobiliária não foi aprovado. Fale com a equipe do ${BRAND.name} se quiser pedir uma nova análise.`,
     tone: 'danger',
   },
 };

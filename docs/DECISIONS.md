@@ -1580,3 +1580,36 @@ Decisão:
 
 Consequências: a ordem das ondas muda (Vendas sai do caminho crítico) e o portal ganha uma
 especificação escrita no repositório em vez de um arquivo ausente.
+
+## ADR-098 — Marca num lugar só, tokens neutros e portal como app separado (Onda 1B, 2026-09-23)
+
+Status: Aceito.
+
+Contexto: o produto virou AchouImóvel. "Aluguei.app" estava escrito à mão em ~60 arquivos de
+`apps/web` (título de página, sidebar, mensagens de conta), e os tokens da gestão carregavam o nome
+antigo (`--aluguei-brand*`). O portal, por sua vez, tem outra fonte (Guton), outra paleta e outro
+público.
+
+Decisão:
+
+- **`BRAND` em `apps/web/src/lib/brand.ts`**: `name` ("AchouImóvel", consumidor final) e `b2bName`
+  ("AchouImóvel Gestão", lado pago). O `<title>` sai de template de layout — raiz com
+  `%s | AchouImóvel`, `/app` e `/plataforma` com `%s | AchouImóvel Gestão` — e cada página declara
+  só o próprio nome. Um teste varre `apps/web/src` e falha se o nome antigo voltar escrito à mão.
+- **Tokens neutros**: `--aluguei-brand*` → `--brand*`, com os valores intactos (o verde `#41945D`
+  continua o mesmo) e **alias temporário** `--aluguei-brand*: var(--brand*)` no claro e no escuro,
+  para não quebrar nada que ainda use os nomes antigos. O alias sai quando não houver mais uso.
+- **`apps/portal` não depende de `packages/ui`**: os componentes do portal vivem no próprio app.
+  O design system da gestão é denso, com `--peg-*` e Inter; o portal é branco, com Guton e uma cor
+  de acento. Misturar os dois colocaria dois conjuntos de tokens no mesmo escopo (R2 do plano).
+  Os nomes não colidem hoje (`--brand` na gestão, `--brand-accent` no portal), e as telas de conta
+  que a Onda 3B leva para `apps/web` com o visual do portal vão carregar os tokens sob um escopo
+  próprio.
+- **Cadeado na navegação**: cada item do menu declara o módulo que o abre; sem o módulo no plano da
+  sessão (`/auth/me`), o item vira cadeado e leva para `/app/plano`, a tela "Fora do seu plano".
+  Item de tela ainda não construída (Vendas) usa o mesmo caminho com o texto "em preparação" — nunca
+  um 404.
+
+Consequências: trocar o nome do produto de novo é mexer em um arquivo; o alias de tokens é dívida
+declarada, com prazo até a próxima onda que tocar a gestão; e o portal pode divergir do design
+system da gestão sem risco de contaminar o painel que já está no ar.

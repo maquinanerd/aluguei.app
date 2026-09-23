@@ -242,7 +242,7 @@ function InboxBody() {
                       padding: '10px 12px',
                       border: 'none',
                       borderBottom: '1px solid var(--peg-border)',
-                      background: isActive ? 'var(--aluguei-brand-faint)' : 'transparent',
+                      background: isActive ? 'var(--brand-faint)' : 'transparent',
                       cursor: 'pointer',
                       textAlign: 'left',
                     }}
@@ -368,7 +368,7 @@ function InboxBody() {
                         background:
                           m.direction === 'INBOUND'
                             ? 'var(--peg-surface-subtle)'
-                            : 'var(--aluguei-brand-subtle)',
+                            : 'var(--brand-subtle)',
                         border: '1px solid var(--peg-border)',
                         borderRadius: 'var(--peg-radius-md)',
                         padding: '8px 12px',

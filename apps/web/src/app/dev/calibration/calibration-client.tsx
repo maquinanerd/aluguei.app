@@ -30,6 +30,7 @@ import {
   ToastProvider,
   useToast,
 } from '@aluguei/ui';
+import { BRAND } from '@/lib/brand';
 
 interface Row {
   id: string;
@@ -144,7 +145,7 @@ function DemoBody() {
 
   return (
     <Stack gap={6}>
-      <h1 style={{ fontSize: 24 }}>Aluguei.app — Calibração PEG</h1>
+      <h1 style={{ fontSize: 24 }}>{BRAND.b2bName} — Calibração PEG</h1>
       <p style={{ color: 'var(--peg-text-secondary)' }}>
         Laboratório visual da fundação. Comparar com
         design-source/peg-product-design-system/references.

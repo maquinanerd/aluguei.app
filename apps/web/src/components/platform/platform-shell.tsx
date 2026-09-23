@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Avatar, Icon, cx } from '@aluguei/ui';
 import type { IconName } from '@aluguei/ui';
 import { LogoutButton } from '@/components/logout-button';
+import { BRAND } from '@/lib/brand';
 
 interface PlatformNavItem {
   href: string;
@@ -46,7 +47,7 @@ export function PlatformShell({
       <div className="app-frame">
         <aside className="app-sidebar" aria-label="Menu da plataforma">
           <header className="app-sidebar__header">
-            <Link href="/plataforma" className="app-sidebar__brand" title="Aluguei.app">
+            <Link href="/plataforma" className="app-sidebar__brand" title={BRAND.b2bName}>
               <span className="app-sidebar__logo">A</span>
               <span className="app-sidebar__wordmark">Plataforma</span>
             </Link>

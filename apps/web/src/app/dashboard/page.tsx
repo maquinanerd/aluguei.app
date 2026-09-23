@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { apiFetch } from '@/lib/api-server';
 import { LeadStatusButtons } from './lead-status';
 
-export const metadata: Metadata = { title: 'Dashboard | Aluguei.app' };
+export const metadata: Metadata = { title: 'Dashboard' };
 export const dynamic = 'force-dynamic';
 
 interface LeadDto {

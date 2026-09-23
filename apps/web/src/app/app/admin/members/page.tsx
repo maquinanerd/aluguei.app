@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { apiFetch } from '@/lib/api-server';
 import { MembersClient } from './members-client';
 
-export const metadata: Metadata = { title: 'Usuários e equipe | Aluguei.app' };
+export const metadata: Metadata = { title: 'Usuários e equipe' };
 export const dynamic = 'force-dynamic';
 
 export default async function MembersPage() {
