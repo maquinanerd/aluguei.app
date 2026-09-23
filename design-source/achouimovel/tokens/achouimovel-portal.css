@@ -1,130 +1,70 @@
 /* AchouImóvel · portal · tokens (entrega de design 22/09/2026)
  * Uso: apps/portal. A gestão continua com packages/ui/src/styles/tokens.css.
  * Fonte: Guton (fonts/Guton-*.otf), pesos 400–800. */
-@font-face {
-  font-family: Guton;
-  src: url('./fonts/Guton-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: Guton;
-  src: url('./fonts/Guton-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: Guton;
-  src: url('./fonts/Guton-SemiBold.otf') format('opentype');
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: Guton;
-  src: url('./fonts/Guton-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: Guton;
-  src: url('./fonts/Guton-ExtraBold.otf') format('opentype');
-  font-weight: 800;
-  font-display: swap;
-}
+@font-face{font-family:Guton;src:url("./fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("./fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("./fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("./fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("./fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
 
-:root {
+:root{
   /* Marca e acento: valor, botão principal, links */
-  --brand-accent: #037a4b;
-  --brand-accent-hover: #02603b;
-  --brand-on-accent: #ffffff;
+  --brand-accent:#037A4B;
+  --brand-accent-hover:#02603B;
+  --brand-on-accent:#FFFFFF;
 
   /* Superfícies */
-  --portal-bg: #ffffff;
-  --portal-surface: #f4f4f2;
-  --portal-ink: #111111;
-  --portal-ink-2: #333333;
-  --portal-muted: #555555;
-  --portal-muted-2: #6e6e6e;
-  --portal-line: #e6e6e3;
-  --portal-line-soft: #efefec;
-  --portal-field-line: #d5d5d0;
-  --portal-error: #b42318;
-  --portal-error-bg: #fdecea;
-  --portal-focus: #037a4b;
+  --portal-bg:#FFFFFF;
+  --portal-surface:#F4F4F2;
+  --portal-ink:#111111;
+  --portal-ink-2:#333333;
+  --portal-muted:#555555;
+  --portal-muted-2:#6E6E6E;
+  --portal-line:#E6E6E3;
+  --portal-line-soft:#EFEFEC;
+  --portal-field-line:#D5D5D0;
+  --portal-error:#B42318;
+  --portal-error-bg:#FDECEA;
+  --portal-focus:#037A4B;
 
   /* Cor por tipo de imóvel (bloco cheio / quadrado marcador / "Imóvel" do logotipo) */
-  --tipo-apartamento: #0b4a7e;
-  --tipo-apartamento-on: #ffffff;
-  --tipo-casa: #ff6a2a;
-  --tipo-casa-on: #1f0a00;
-  --tipo-casa-condominio: #037a4b;
-  --tipo-casa-condominio-on: #ffffff;
-  --tipo-sobrado: #4a0a4e;
-  --tipo-sobrado-on: #ffffff;
-  --tipo-kitnet-studio: #d42a2a;
-  --tipo-kitnet-studio-on: #ffffff;
-  --tipo-cobertura: #0b3a12;
-  --tipo-cobertura-on: #ffffff;
-  --tipo-sala-loja: #b5b5b5;
-  --tipo-sala-loja-on: #111111;
+  --tipo-apartamento:#0B4A7E;        --tipo-apartamento-on:#FFFFFF;
+  --tipo-casa:#FF6A2A;               --tipo-casa-on:#1F0A00;
+  --tipo-casa-condominio:#037A4B;    --tipo-casa-condominio-on:#FFFFFF;
+  --tipo-sobrado:#4A0A4E;            --tipo-sobrado-on:#FFFFFF;
+  --tipo-kitnet-studio:#D42A2A;      --tipo-kitnet-studio-on:#FFFFFF;
+  --tipo-cobertura:#0B3A12;          --tipo-cobertura-on:#FFFFFF;
+  --tipo-sala-loja:#B5B5B5;          --tipo-sala-loja-on:#111111;
 
   /* Grade dos blocos coloridos */
-  --grid-line: rgba(255, 255, 255, 0.14);
-  --grid-line-strong: rgba(255, 255, 255, 0.16);
-  --grid-size-desktop: 48px;
-  --grid-size-band: 56px;
-  --grid-size-mobile: 40px;
-  --grid-size-tile: 34px;
+  --grid-line:rgba(255,255,255,.14);
+  --grid-line-strong:rgba(255,255,255,.16);
+  --grid-size-desktop:48px; --grid-size-band:56px; --grid-size-mobile:40px; --grid-size-tile:34px;
 
   /* Tipografia */
-  --font-sans: Guton, system-ui, sans-serif;
-  --type-h1-home: 700 clamp(30px, 4.2vw, 52px)/1.08 var(--font-sans);
-  --type-h1: 800 clamp(28px, 4vw, 46px)/1.06 var(--font-sans);
-  --type-h2: 700 clamp(20px, 2.3vw, 26px)/1.1 var(--font-sans);
-  --type-price-xl: 800 clamp(34px, 4.4vw, 48px)/1 var(--font-sans);
-  --type-price-card: 800 20px/1.2 var(--font-sans);
-  --type-body: 400 16px/1.7 var(--font-sans);
-  --type-label: 600 12px/1.4 var(--font-sans);
-  --tracking-title: -0.035em;
-  --tracking-h2: -0.02em;
-  --tracking-logo: -0.03em;
+  --font-sans:Guton,system-ui,sans-serif;
+  --type-h1-home:700 clamp(30px,4.2vw,52px)/1.08 var(--font-sans);
+  --type-h1:800 clamp(28px,4vw,46px)/1.06 var(--font-sans);
+  --type-h2:700 clamp(20px,2.3vw,26px)/1.1 var(--font-sans);
+  --type-price-xl:800 clamp(34px,4.4vw,48px)/1 var(--font-sans);
+  --type-price-card:800 20px/1.2 var(--font-sans);
+  --type-body:400 16px/1.7 var(--font-sans);
+  --type-label:600 12px/1.4 var(--font-sans);
+  --tracking-title:-0.035em; --tracking-h2:-0.02em; --tracking-logo:-0.03em;
 
   /* Espaço e layout */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 64px;
-  --portal-max: 1280px;
-  --portal-header-max: 1440px;
-  --portal-gutter: clamp(18px, 4vw, 36px);
-  --portal-section-gap: clamp(56px, 8vw, 104px);
-  --header-h-desktop: 64px;
-  --header-h-mobile: 56px;
-  --tap-min: 44px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px; --space-8:64px;
+  --portal-max:1280px; --portal-header-max:1440px;
+  --portal-gutter:clamp(18px,4vw,36px);
+  --portal-section-gap:clamp(56px,8vw,104px);
+  --header-h-desktop:64px; --header-h-mobile:56px;
+  --tap-min:44px;
 
   /* Raio */
-  --radius-structure: 0;
-  --radius: 4px;
+  --radius-structure:0;
+  --radius:4px;
 }
-.bloco-grade {
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size-desktop) var(--grid-size-desktop);
-}
-@media (max-width: 899px) {
-  .bloco-grade {
-    background-size: var(--grid-size-mobile) var(--grid-size-mobile);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
+.bloco-grade{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:var(--grid-size-desktop) var(--grid-size-desktop)}
+@media (max-width:899px){.bloco-grade{background-size:var(--grid-size-mobile) var(--grid-size-mobile)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* Breakpoints: 390 (referência celular) · 640 (2 col) · 900 (header completo, filtros fixos) · 1180 (3–4 col, mosaico em linha) · 1440 (referência desktop) */

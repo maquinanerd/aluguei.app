@@ -9,6 +9,6 @@ package-lock.json
 *.pdf
 next-env.d.ts
 
-# Referência visual do design (telas .dc.html e o support.js ao lado): material de
-# origem, não código de produção. Formatar mudaria a tela que serve de referência.
-design-source/**/telas
+# Pacote de design entregue (telas .dc.html, tokens, handoff): material de origem,
+# não código de produção. Formatar mudaria a referência que as telas precisam bater.
+design-source

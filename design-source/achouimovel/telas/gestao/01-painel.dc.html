@@ -1,1438 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <style>
-          body {
-            margin: 0;
-            background: #e4e4e0;
-            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-            color: #2f332b;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #417d55;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #2f5f3f;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Gestão · mudanças no painel atual"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 1040px">
-          <div style="font-size: 12px; font-weight: 600; color: #555a52">
-            Entrega 2 · Gestão · sobre o painel que já está no ar
-          </div>
-          <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em">
-            AchouImóvel Gestão: o que muda no painel
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555a52">
-            Visual inalterado: tokens de <code>packages/ui/src/styles/tokens.css</code> (Inter,
-            #FCFCFC, #2F332B, #41945D), app-frame de 14px, sidebar de 240px, peg-card, peg-btn,
-            peg-badge. Mudanças: marca AchouImóvel Gestão, grupo Vendas (Novo), cadeado por plano,
-            tela de upgrade, card Demanda por bairro, diálogo de publicação com portais parceiros,
-            finalidade e valores de venda, exclusividade, negociação de venda. Único token novo
-            sugerido: renomear <code>--aluguei-brand*</code> para <code>--brand-*</code> mantendo os
-            valores. Dados fictícios.
-          </p>
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
-          <div id="visao" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              1 · Visão Geral · /app · marca nova + Demanda por bairro
-            </div>
-            <div
-              style="
-                width: 1440px;
-                height: 940px;
-                background: #f2f2ef;
-                padding: 10px;
-                display: flex;
-              "
-            >
-              <div
-                style="
-                  flex: 1;
-                  display: flex;
-                  border: 1px solid #e2e2dd;
-                  border-radius: 14px;
-                  background: #fcfcfc;
-                  overflow: hidden;
-                  box-shadow:
-                    0 1px 0 rgba(47, 51, 43, 0.04),
-                    0 2px 6px rgba(47, 51, 43, 0.05);
-                "
-              >
-                <dc-import
-                  name="Painel Sidebar"
-                  ativo="visao"
-                  hint-size="240px,918px"
-                  style="flex: none"
-                ></dc-import>
-                <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      padding: 0 16px 0 20px;
-                      flex: none;
-                    "
-                  >
-                    <span style="font-size: 13px; color: #555a52"
-                      >Painel / <b style="color: #2f332b; font-weight: 500">Visão Geral</b> ·
-                      Imobiliária Exemplo · Segunda-feira, 09:12</span
-                    >
-                    <div style="display: flex; align-items: center; gap: 12px">
-                      <span
-                        style="
-                          width: 340px;
-                          height: 32px;
-                          border: 1px solid #c7c7c7;
-                          border-radius: 6px;
-                          display: flex;
-                          align-items: center;
-                          justify-content: space-between;
-                          padding: 0 10px;
-                          font-size: 13px;
-                          color: #6e746b;
-                        "
-                        >Buscar imóvel, lead, contato, cobrança<span
-                          style="
-                            font-size: 11px;
-                            background: #f0f0f0;
-                            border-radius: 4px;
-                            padding: 2px 5px;
-                          "
-                          >⌘K</span
-                        ></span
-                      ><span
-                        style="
-                          width: 16px;
-                          height: 16px;
-                          border: 1.5px solid #555a52;
-                          border-radius: 8px 8px 3px 3px;
-                          display: block;
-                        "
-                      ></span
-                      ><span style="font-size: 13px; font-weight: 600">RA ⌄</span>
-                    </div>
-                  </div>
-                  <div
-                    style="
-                      flex: 1;
-                      overflow: hidden;
-                      padding: 24px;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 16px;
-                    "
-                  >
-                    <div
-                      style="display: flex; justify-content: space-between; align-items: flex-end"
-                    >
-                      <div style="display: flex; flex-direction: column; gap: 2px">
-                        <span style="font-size: 22px; font-weight: 600; letter-spacing: -0.01em"
-                          >Bom dia, Rafael</span
-                        ><span style="font-size: 13px; color: #555a52"
-                          >3 pendências exigem atenção hoje.</span
-                        >
-                      </div>
-                      <div style="display: flex; gap: 8px">
-                        <span
-                          style="
-                            height: 32px;
-                            padding: 0 12px;
-                            border: 1px solid #c7c7c7;
-                            background: #ffffff;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 13px;
-                            font-weight: 500;
-                          "
-                          >Minha agenda</span
-                        ><span
-                          style="
-                            height: 32px;
-                            padding: 0 12px;
-                            background: #41945d;
-                            color: #ffffff;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 13px;
-                            font-weight: 500;
-                          "
-                          >+ Novo imóvel</span
-                        >
-                      </div>
-                    </div>
-                    <div
-                      style="
-                        display: grid;
-                        grid-template-columns: repeat(4, minmax(0, 1fr));
-                        gap: 16px;
-                      "
-                    >
-                      <sc-for list="{{ summary }}" as="s" hint-placeholder-count="4">
-                        <div
-                          style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px"
-                        >
-                          <div
-                            style="
-                              height: 42px;
-                              display: flex;
-                              align-items: center;
-                              justify-content: space-between;
-                              padding: 0 16px;
-                              border-bottom: 1px solid #e6e6e3;
-                              font-size: 13px;
-                              font-weight: 600;
-                            "
-                          >
-                            {{ s.t }}<span style="color: #6e746b">›</span>
-                          </div>
-                          <div
-                            style="
-                              padding: 10px 16px;
-                              display: flex;
-                              flex-direction: column;
-                              gap: 8px;
-                            "
-                          >
-                            <sc-for list="{{ s.rows }}" as="r" hint-placeholder-count="4"
-                              ><div
-                                style="
-                                  display: flex;
-                                  justify-content: space-between;
-                                  font-size: 12.5px;
-                                "
-                              >
-                                <span style="color: #555a52">{{ r.l }}</span
-                                ><span style="font-weight:600;color:{{ r.cor }}">{{ r.v }}</span>
-                              </div></sc-for
-                            >
-                          </div>
-                        </div>
-                      </sc-for>
-                    </div>
-                    <div
-                      style="
-                        display: grid;
-                        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-                        gap: 16px;
-                        min-height: 0;
-                      "
-                    >
-                      <div
-                        style="
-                          background: #ffffff;
-                          border: 1px solid #e6e6e3;
-                          border-radius: 8px;
-                          align-self: start;
-                        "
-                      >
-                        <div
-                          style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            padding: 12px 16px;
-                            border-bottom: 1px solid #e6e6e3;
-                          "
-                        >
-                          <div style="display: flex; flex-direction: column">
-                            <span style="font-size: 13px; font-weight: 600"
-                              >Próximas ações · minha fila</span
-                            ><span style="font-size: 12px; color: #6e746b"
-                              >5 item(ns) exigem atenção</span
-                            >
-                          </div>
-                          <span style="font-size: 12px; color: #417d55">Ver tarefas</span>
-                        </div>
-                        <sc-for list="{{ fila }}" as="f" hint-placeholder-count="5"
-                          ><div
-                            style="
-                              display: grid;
-                              grid-template-columns: 8px 90px minmax(0, 1fr) 120px 90px 12px;
-                              gap: 12px;
-                              align-items: center;
-                              height: 40px;
-                              padding: 0 16px;
-                              border-bottom: 1px solid #f0f0f0;
-                              font-size: 12.5px;
-                            "
-                          >
-                            <span
-                              style="width:6px;height:6px;border-radius:50%;background:{{ f.dot }};display:block"
-                            ></span
-                            ><span
-                              style="
-                                font-size: 11px;
-                                font-weight: 600;
-                                letter-spacing: 0.04em;
-                                color: #555a52;
-                              "
-                              >{{ f.tipo }}</span
-                            ><span
-                              style="
-                                font-weight: 500;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                              "
-                              >{{ f.t }}</span
-                            ><span style="color: #555a52">{{ f.meta }}</span
-                            ><span style="color: #555a52; text-align: right">{{ f.due }}</span
-                            ><span style="color: #6e746b">›</span>
-                          </div></sc-for
-                        >
-                      </div>
-                      <div style="display: flex; flex-direction: column; gap: 16px">
-                        <div
-                          style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px"
-                        >
-                          <div
-                            style="
-                              padding: 12px 16px;
-                              border-bottom: 1px solid #e6e6e3;
-                              font-size: 13px;
-                              font-weight: 600;
-                            "
-                          >
-                            Ciclo de locação · esta semana
-                          </div>
-                          <div
-                            style="
-                              padding: 12px 16px;
-                              display: flex;
-                              flex-direction: column;
-                              gap: 9px;
-                            "
-                          >
-                            <sc-for list="{{ ciclo }}" as="c" hint-placeholder-count="7"
-                              ><div
-                                style="
-                                  display: grid;
-                                  grid-template-columns: 70px minmax(0, 1fr) 24px;
-                                  gap: 10px;
-                                  align-items: center;
-                                  font-size: 12.5px;
-                                "
-                              >
-                                <span style="color: #555a52">{{ c.l }}</span
-                                ><span
-                                  style="
-                                    height: 6px;
-                                    background: #f0f0f0;
-                                    border-radius: 3px;
-                                    display: flex;
-                                  "
-                                  ><span
-                                    style="width:{{ c.w }};background:#41945D;border-radius:3px;display:block"
-                                  ></span></span
-                                ><span style="font-weight: 600; text-align: right">{{ c.v }}</span>
-                              </div></sc-for
-                            >
-                          </div>
-                        </div>
-                        <div
-                          style="
-                            background: #ffffff;
-                            border: 1px solid #e6e6e3;
-                            border-radius: 8px;
-                            box-shadow: 0 0 0 2px #e9f1eb;
-                          "
-                        >
-                          <div
-                            style="
-                              display: flex;
-                              justify-content: space-between;
-                              align-items: center;
-                              padding: 12px 16px;
-                              border-bottom: 1px solid #e6e6e3;
-                            "
-                          >
-                            <span
-                              style="
-                                font-size: 13px;
-                                font-weight: 600;
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                              "
-                              >Demanda por bairro
-                              <span
-                                style="
-                                  height: 18px;
-                                  padding: 0 6px;
-                                  border-radius: 4px;
-                                  background: #e9f1eb;
-                                  color: #417d55;
-                                  font-size: 10px;
-                                  font-weight: 600;
-                                  display: flex;
-                                  align-items: center;
-                                "
-                                >Novo</span
-                              ></span
-                            ><span style="font-size: 12px; color: #6e746b"
-                              >alertas ativos no portal</span
-                            >
-                          </div>
-                          <div
-                            style="
-                              padding: 10px 16px 12px;
-                              display: flex;
-                              flex-direction: column;
-                              gap: 8px;
-                            "
-                          >
-                            <sc-for list="{{ demanda }}" as="d" hint-placeholder-count="4"
-                              ><div
-                                style="
-                                  display: grid;
-                                  grid-template-columns: minmax(0, 1fr) 90px 28px;
-                                  gap: 10px;
-                                  align-items: center;
-                                  font-size: 12.5px;
-                                "
-                              >
-                                <span
-                                  style="
-                                    white-space: nowrap;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                  "
-                                  ><span style="font-weight: 500">{{ d.b }}</span>
-                                  <span style="color: #555a52">· {{ d.t }}</span></span
-                                ><span
-                                  style="
-                                    height: 6px;
-                                    background: #f0f0f0;
-                                    border-radius: 3px;
-                                    display: flex;
-                                  "
-                                  ><span
-                                    style="width:{{ d.w }};background:#6E746B;border-radius:3px;display:block"
-                                  ></span></span
-                                ><span style="font-weight: 600; text-align: right">{{ d.n }}</span>
-                              </div></sc-for
-                            >
-                            <span style="font-size: 11.5px; color: #6e746b; padding-top: 2px"
-                              >Só contagens. O contato de quem criou o alerta nunca aparece.</span
-                            >
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E4E0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B;-webkit-font-smoothing:antialiased}
+a{color:#417D55;text-underline-offset:3px}a:hover{color:#2F5F3F}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Gestão · mudanças no painel atual" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:1040px">
+    <div style="font-size:12px;font-weight:600;color:#555A52">Entrega 2 · Gestão · sobre o painel que já está no ar</div>
+    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-0.02em">AchouImóvel Gestão: o que muda no painel</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#555A52">Visual inalterado: tokens de <code>packages/ui/src/styles/tokens.css</code> (Inter, #FCFCFC, #2F332B, #41945D), app-frame de 14px, sidebar de 240px, peg-card, peg-btn, peg-badge. Mudanças: marca AchouImóvel Gestão, grupo Vendas (Novo), cadeado por plano, tela de upgrade, card Demanda por bairro, diálogo de publicação com portais parceiros, finalidade e valores de venda, exclusividade, negociação de venda. Único token novo sugerido: renomear <code>--aluguei-brand*</code> para <code>--brand-*</code> mantendo os valores. Dados fictícios.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
 
-          <div id="upgrade" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              2 · Plano Anunciante · cadeado no menu e tela de upgrade ao abrir Locações
+    <div id="visao" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">1 · Visão Geral · /app · marca nova + Demanda por bairro</div>
+      <div style="width:1440px;height:940px;background:#F2F2EF;padding:10px;display:flex">
+        <div style="flex:1;display:flex;border:1px solid #E2E2DD;border-radius:14px;background:#FCFCFC;overflow:hidden;box-shadow:0 1px 0 rgba(47,51,43,.04),0 2px 6px rgba(47,51,43,.05)">
+          <dc-import name="Painel Sidebar" ativo="visao" hint-size="240px,918px" style="flex:none"></dc-import>
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 20px;flex:none">
+              <span style="font-size:13px;color:#555A52">Painel / <b style="color:#2F332B;font-weight:500">Visão Geral</b> · Imobiliária Exemplo · Segunda-feira, 09:12</span>
+              <div style="display:flex;align-items:center;gap:12px"><span style="width:340px;height:32px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;color:#6E746B">Buscar imóvel, lead, contato, cobrança<span style="font-size:11px;background:#F0F0F0;border-radius:4px;padding:2px 5px">⌘K</span></span><span style="width:16px;height:16px;border:1.5px solid #555A52;border-radius:8px 8px 3px 3px;display:block"></span><span style="font-size:13px;font-weight:600">RA ⌄</span></div>
             </div>
-            <div
-              style="
-                width: 1440px;
-                height: 940px;
-                background: #f2f2ef;
-                padding: 10px;
-                display: flex;
-              "
-            >
-              <div
-                style="
-                  flex: 1;
-                  display: flex;
-                  border: 1px solid #e2e2dd;
-                  border-radius: 14px;
-                  background: #fcfcfc;
-                  overflow: hidden;
-                "
-              >
-                <dc-import
-                  name="Painel Sidebar"
-                  ativo="locacoes"
-                  plano="anunciante"
-                  hint-size="240px,918px"
-                  style="flex: none"
-                ></dc-import>
-                <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      align-items: center;
-                      padding: 0 20px;
-                      font-size: 13px;
-                      color: #555a52;
-                    "
-                  >
-                    Painel /
-                    <b style="color: #2f332b; font-weight: 500; margin-left: 4px">Locações</b>
-                  </div>
-                  <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                    <div
-                      style="
-                        width: 560px;
-                        background: #ffffff;
-                        border: 1px solid #e6e6e3;
-                        border-radius: 8px;
-                        padding: 32px;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 14px;
-                      "
-                    >
-                      <span
-                        style="
-                          align-self: flex-start;
-                          height: 20px;
-                          padding: 0 8px;
-                          border-radius: 4px;
-                          background: #e9e9e6;
-                          color: #555a52;
-                          font-size: 11px;
-                          font-weight: 500;
-                          display: flex;
-                          align-items: center;
-                          gap: 5px;
-                        "
-                        ><svg width="10" height="11" viewBox="0 0 12 13" fill="none">
-                          <rect
-                            x="1.5"
-                            y="5.5"
-                            width="9"
-                            height="6.5"
-                            rx="1.2"
-                            stroke="#555A52"
-                            stroke-width="1.3"
-                          ></rect>
-                          <path
-                            d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5"
-                            stroke="#555A52"
-                            stroke-width="1.3"
-                          ></path></svg
-                        >Fora do seu plano</span
-                      >
-                      <span
-                        style="
-                          font-size: 20px;
-                          font-weight: 600;
-                          letter-spacing: -0.01em;
-                          line-height: 1.3;
-                        "
-                        >Locações estão disponíveis no AchouImóvel Gestão Locação</span
-                      >
-                      <span style="font-size: 13.5px; line-height: 1.6; color: #555a52"
-                        >No plano Anunciante você publica nos portais e recebe os leads. Com o
-                        Gestão Locação, o mesmo painel passa a administrar contratos, vistorias,
-                        cobranças e repasses. Nada do que você já tem muda.</span
-                      >
-                      <div
-                        style="
-                          display: grid;
-                          grid-template-columns: 1fr 1fr;
-                          gap: 6px 16px;
-                          padding: 12px 0;
-                          border-top: 1px solid #f0f0f0;
-                          border-bottom: 1px solid #f0f0f0;
-                        "
-                      >
-                        <sc-for list="{{ upgrade }}" as="u" hint-placeholder-count="6"
-                          ><span style="font-size: 12.5px; display: flex; gap: 6px"
-                            ><span style="color: #41945d; font-weight: 700">✓</span>{{ u }}</span
-                          ></sc-for
-                        >
-                      </div>
-                      <div style="display: flex; gap: 8px">
-                        <span
-                          style="
-                            height: 36px;
-                            padding: 0 16px;
-                            background: #41945d;
-                            color: #ffffff;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 13px;
-                            font-weight: 500;
-                          "
-                          >Pedir o Gestão Locação</span
-                        ><span
-                          style="
-                            height: 36px;
-                            padding: 0 16px;
-                            border: 1px solid #c7c7c7;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 13px;
-                            font-weight: 500;
-                          "
-                          >Comparar planos</span
-                        >
-                      </div>
-                      <span style="font-size: 12px; color: #6e746b"
-                        >A troca de plano é feita pela equipe AchouImóvel. Você recebe a confirmação
-                        por e-mail.</span
-                      >
-                    </div>
-                  </div>
-                </div>
+            <div style="flex:1;overflow:hidden;padding:24px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end">
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:22px;font-weight:600;letter-spacing:-0.01em">Bom dia, Rafael</span><span style="font-size:13px;color:#555A52">3 pendências exigem atenção hoje.</span></div>
+                <div style="display:flex;gap:8px"><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;background:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Minha agenda</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">+ Novo imóvel</span></div>
               </div>
-            </div>
-          </div>
-
-          <div id="publicar" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              3 · Diálogo de publicação · /app/listings · pode publicar
-            </div>
-            <div
-              style="
-                width: 520px;
-                background: #ffffff;
-                border: 1px solid #e6e6e3;
-                border-radius: 12px;
-                box-shadow: 0 12px 32px rgba(47, 51, 43, 0.15);
-                display: flex;
-                flex-direction: column;
-              "
-            >
-              <div style="padding: 18px 20px 12px; display: flex; flex-direction: column; gap: 2px">
-                <span style="font-size: 15px; font-weight: 600">Publicar anúncio</span
-                ><span style="font-size: 12.5px; color: #555a52"
-                  >Kitnet 32 m² · Setor Universitário · IMV-0214</span
-                >
-              </div>
-              <div style="padding: 0 20px; display: flex; flex-direction: column">
-                <sc-for list="{{ canais }}" as="c" hint-placeholder-count="4">
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: 20px minmax(0, 1fr) auto;
-                      gap: 12px;
-                      align-items: center;
-                      min-height: 54px;
-                      border-top: 1px solid #f0f0f0;
-                    "
-                  >
-                    <span
-                      style="
-                        width: 16px;
-                        height: 16px;
-                        border-radius: 4px;
-                        background: #41945d;
-                        color: #ffffff;
-                        font-size: 10px;
-                        font-weight: 700;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      "
-                      >✓</span
-                    >
-                    <span style="display: flex; flex-direction: column"
-                      ><span style="font-size: 13px; font-weight: 600">{{ c.nome }}</span
-                      ><span style="font-size: 12px; color: #555a52">{{ c.desc }}</span></span
-                    >
-                    <span
-                      style="
-                        height: 20px;
-                        padding: 0 8px;
-                        border-radius: 4px;
-                        background: #e9f7ee;
-                        color: #0d7a38;
-                        font-size: 11px;
-                        font-weight: 500;
-                        display: flex;
-                        align-items: center;
-                      "
-                      >{{ c.st }}</span
-                    >
+              <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+                <sc-for list="{{ summary }}" as="s" hint-placeholder-count="4">
+                  <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+                    <div style="height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">{{ s.t }}<span style="color:#6E746B">›</span></div>
+                    <div style="padding:10px 16px;display:flex;flex-direction:column;gap:8px"><sc-for list="{{ s.rows }}" as="r" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#555A52">{{ r.l }}</span><span style="font-weight:600;color:{{ r.cor }}">{{ r.v }}</span></div></sc-for></div>
                   </div>
                 </sc-for>
               </div>
-              <div style="padding: 12px 20px 0; font-size: 12px; line-height: 1.55; color: #555a52">
-                A publicação só acontece quando você confirmar. Preço, fotos e descrição ficam
-                iguais em todos os canais marcados.
-              </div>
-              <div
-                style="padding: 14px 20px 18px; display: flex; justify-content: flex-end; gap: 8px"
-              >
-                <span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    border: 1px solid #c7c7c7;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                  >Cancelar</span
-                ><span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    background: #41945d;
-                    color: #ffffff;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                  >Publicar em 4 canais</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <div id="publicar-bloq" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              3b · Diálogo de publicação · não pode publicar
-            </div>
-            <div
-              style="
-                width: 520px;
-                background: #ffffff;
-                border: 1px solid #e6e6e3;
-                border-radius: 12px;
-                box-shadow: 0 12px 32px rgba(47, 51, 43, 0.15);
-                display: flex;
-                flex-direction: column;
-              "
-            >
-              <div style="padding: 18px 20px 12px; display: flex; flex-direction: column; gap: 2px">
-                <span style="font-size: 15px; font-weight: 600">Ainda não dá para publicar</span
-                ><span style="font-size: 12.5px; color: #555a52"
-                  >Apto 2 qts · Setor Bueno · IMV-0231</span
-                >
-              </div>
-              <div style="padding: 0 20px; display: flex; flex-direction: column">
-                <sc-for list="{{ bloqueios }}" as="b" hint-placeholder-count="3">
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: 20px minmax(0, 1fr) auto;
-                      gap: 12px;
-                      align-items: center;
-                      min-height: 50px;
-                      border-top: 1px solid #f0f0f0;
-                    "
-                  >
-                    <span
-                      style="width:16px;height:16px;border-radius:50%;background:{{ b.bg }};color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center"
-                      >{{ b.mk }}</span
-                    >
-                    <span style="display: flex; flex-direction: column"
-                      ><span style="font-size: 13px; font-weight: 600">{{ b.l }}</span
-                      ><span style="font-size: 12px; color: #555a52">{{ b.s }}</span></span
-                    >
-                    <span style="font-size: 12px; font-weight: 500; color: #417d55"
-                      >{{ b.acao }}</span
-                    >
-                  </div>
-                </sc-for>
-              </div>
-              <div
-                style="padding: 14px 20px 18px; display: flex; justify-content: flex-end; gap: 8px"
-              >
-                <span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    border: 1px solid #c7c7c7;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                  >Fechar</span
-                ><span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    background: #41945d;
-                    color: #ffffff;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                    opacity: 0.5;
-                  "
-                  >Publicar</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <div id="valores" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              4 · Cadastro do imóvel · seção Valores com finalidade e venda (Novo) + Exclusividade
-              (Novo)
-            </div>
-            <div
-              style="
-                width: 1040px;
-                background: #fcfcfc;
-                border: 1px solid #e2e2dd;
-                border-radius: 14px;
-                padding: 28px 32px;
-                display: flex;
-                flex-direction: column;
-                gap: 18px;
-              "
-            >
-              <div style="display: flex; flex-direction: column; gap: 2px">
-                <span style="font-size: 12px; color: #6e746b">Novo imóvel · 4 de 7</span
-                ><span style="font-size: 20px; font-weight: 600">Valores</span>
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 6px">
-                <span style="font-size: 12.5px; font-weight: 500">Finalidade</span>
-                <div
-                  style="
-                    display: flex;
-                    background: #f0f0f0;
-                    border-radius: 6px;
-                    padding: 2px;
-                    align-self: flex-start;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                >
-                  <span
-                    style="
-                      height: 28px;
-                      padding: 0 12px;
-                      display: flex;
-                      align-items: center;
-                      color: #555a52;
-                    "
-                    >Aluguel</span
-                  ><span
-                    style="
-                      height: 28px;
-                      padding: 0 12px;
-                      display: flex;
-                      align-items: center;
-                      color: #555a52;
-                    "
-                    >Venda</span
-                  ><span
-                    style="
-                      height: 28px;
-                      padding: 0 12px;
-                      display: flex;
-                      align-items: center;
-                      background: #ffffff;
-                      border-radius: 4px;
-                      box-shadow: 0 1px 2px rgba(47, 51, 43, 0.08);
-                    "
-                    >Aluguel e venda</span
-                  >
+              <div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;min-height:0">
+                <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;align-self:start">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #E6E6E3"><div style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:600">Próximas ações · minha fila</span><span style="font-size:12px;color:#6E746B">5 item(ns) exigem atenção</span></div><span style="font-size:12px;color:#417D55">Ver tarefas</span></div>
+                  <sc-for list="{{ fila }}" as="f" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:8px 90px minmax(0,1fr) 120px 90px 12px;gap:12px;align-items:center;height:40px;padding:0 16px;border-bottom:1px solid #F0F0F0;font-size:12.5px"><span style="width:6px;height:6px;border-radius:50%;background:{{ f.dot }};display:block"></span><span style="font-size:11px;font-weight:600;letter-spacing:0.04em;color:#555A52">{{ f.tipo }}</span><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.t }}</span><span style="color:#555A52">{{ f.meta }}</span><span style="color:#555A52;text-align:right">{{ f.due }}</span><span style="color:#6E746B">›</span></div></sc-for>
                 </div>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
-                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
-                  <div
-                    style="
-                      padding: 12px 16px;
-                      border-bottom: 1px solid #e6e6e3;
-                      font-size: 13px;
-                      font-weight: 600;
-                    "
-                  >
-                    Aluguel
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+                    <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Ciclo de locação · esta semana</div>
+                    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:9px"><sc-for list="{{ ciclo }}" as="c" hint-placeholder-count="7"><div style="display:grid;grid-template-columns:70px minmax(0,1fr) 24px;gap:10px;align-items:center;font-size:12.5px"><span style="color:#555A52">{{ c.l }}</span><span style="height:6px;background:#F0F0F0;border-radius:3px;display:flex"><span style="width:{{ c.w }};background:#41945D;border-radius:3px;display:block"></span></span><span style="font-weight:600;text-align:right">{{ c.v }}</span></div></sc-for></div>
                   </div>
-                  <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
-                    <sc-for list="{{ valAluguel }}" as="v" hint-placeholder-count="3"
-                      ><div style="display: flex; flex-direction: column; gap: 5px">
-                        <span style="font-size: 12.5px; font-weight: 500">{{ v.l }}</span>
-                        <div
-                          style="
-                            height: 36px;
-                            border: 1px solid #c7c7c7;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            padding: 0 10px;
-                            font-size: 13px;
-                          "
-                        >
-                          {{ v.v }}
-                        </div>
-                      </div></sc-for
-                    >
-                    <div
-                      style="
-                        display: flex;
-                        justify-content: space-between;
-                        padding-top: 10px;
-                        border-top: 1px solid #f0f0f0;
-                        font-size: 13px;
-                      "
-                    >
-                      <span style="color: #555a52">Total mensal exibido no portal</span
-                      ><span style="font-weight: 600">R$ 1.340</span>
-                    </div>
-                  </div>
-                </div>
-                <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
-                  <div
-                    style="
-                      padding: 12px 16px;
-                      border-bottom: 1px solid #e6e6e3;
-                      font-size: 13px;
-                      font-weight: 600;
-                      display: flex;
-                      align-items: center;
-                      gap: 8px;
-                    "
-                  >
-                    Venda
-                    <span
-                      style="
-                        height: 18px;
-                        padding: 0 6px;
-                        border-radius: 4px;
-                        background: #e9f1eb;
-                        color: #417d55;
-                        font-size: 10px;
-                        font-weight: 600;
-                        display: flex;
-                        align-items: center;
-                      "
-                      >Novo</span
-                    >
-                  </div>
-                  <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
-                    <div style="display: flex; flex-direction: column; gap: 5px">
-                      <span style="font-size: 12.5px; font-weight: 500">Preço de venda</span>
-                      <div
-                        style="
-                          height: 36px;
-                          border: 1px solid #41945d;
-                          box-shadow: 0 0 0 3px rgba(65, 148, 93, 0.35);
-                          border-radius: 6px;
-                          display: flex;
-                          align-items: center;
-                          padding: 0 10px;
-                          font-size: 13px;
-                        "
-                      >
-                        R$ 210.000
-                      </div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px">
-                      <span style="font-size: 12.5px; font-weight: 500">Preço por m²</span>
-                      <div
-                        style="
-                          height: 36px;
-                          background: #f0f0f0;
-                          border-radius: 6px;
-                          display: flex;
-                          align-items: center;
-                          padding: 0 10px;
-                          font-size: 13px;
-                          color: #555a52;
-                        "
-                      >
-                        R$ 6.560 · calculado com 32 m²
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center; font-size: 13px">
-                      <span
-                        style="
-                          width: 30px;
-                          height: 18px;
-                          border-radius: 9px;
-                          background: #41945d;
-                          display: flex;
-                          align-items: center;
-                          justify-content: flex-end;
-                          padding: 2px;
-                        "
-                        ><span
-                          style="
-                            width: 14px;
-                            height: 14px;
-                            border-radius: 50%;
-                            background: #ffffff;
-                            display: block;
-                          "
-                        ></span></span
-                      >Aceita financiamento
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
-                <div
-                  style="
-                    padding: 12px 16px;
-                    border-bottom: 1px solid #e6e6e3;
-                    font-size: 13px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                  "
-                >
-                  Exclusividade de venda
-                  <span
-                    style="
-                      height: 18px;
-                      padding: 0 6px;
-                      border-radius: 4px;
-                      background: #e9f1eb;
-                      color: #417d55;
-                      font-size: 10px;
-                      font-weight: 600;
-                      display: flex;
-                      align-items: center;
-                    "
-                    >Novo</span
-                  >
-                </div>
-                <div
-                  style="
-                    padding: 16px;
-                    display: grid;
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: 16px;
-                    align-items: end;
-                  "
-                >
-                  <div style="display: flex; flex-direction: column; gap: 5px">
-                    <span style="font-size: 12.5px; font-weight: 500"
-                      >Autorização do proprietário</span
-                    >
-                    <div
-                      style="
-                        height: 36px;
-                        border: 1px dashed #c7c7c7;
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 10px;
-                        font-size: 13px;
-                        color: #555a52;
-                      "
-                    >
-                      autorizacao-venda.pdf · assinada
-                    </div>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 5px">
-                    <span style="font-size: 12.5px; font-weight: 500">Início</span>
-                    <div
-                      style="
-                        height: 36px;
-                        border: 1px solid #c7c7c7;
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 10px;
-                        font-size: 13px;
-                      "
-                    >
-                      22/09/2026
-                    </div>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 5px">
-                    <span style="font-size: 12.5px; font-weight: 500">Fim</span>
-                    <div
-                      style="
-                        height: 36px;
-                        border: 1px solid #c7c7c7;
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 10px;
-                        font-size: 13px;
-                      "
-                    >
-                      22/12/2026 · 91 dias
-                    </div>
-                  </div>
-                </div>
-                <div style="padding: 0 16px 14px; font-size: 12px; color: #6e746b">
-                  Você recebe um aviso 15 dias antes do fim. Sem exclusividade, o imóvel continua
-                  publicado normalmente.
-                </div>
-              </div>
-              <div
-                style="
-                  border: 1px dashed #c7c7c7;
-                  border-radius: 8px;
-                  padding: 12px 14px;
-                  display: grid;
-                  grid-template-columns: auto minmax(0, 1fr) auto;
-                  gap: 12px;
-                  align-items: center;
-                  background: #ffffff;
-                "
-              >
-                <span
-                  style="
-                    height: 20px;
-                    padding: 0 8px;
-                    border-radius: 4px;
-                    background: #e9effd;
-                    color: #1d4ed8;
-                    font-size: 11px;
-                    font-weight: 500;
-                    display: flex;
-                    align-items: center;
-                  "
-                  >Sugestão da IA</span
-                >
-                <span style="font-size: 12.5px; line-height: 1.5"
-                  >Aluguel sugerido de R$ 1.100 a R$ 1.250, pela mediana de 9 kitnets no Setor
-                  Universitário.</span
-                >
-                <div style="display: flex; gap: 12px; font-size: 12.5px; font-weight: 500">
-                  <span style="color: #417d55">Aceitar</span
-                  ><span style="color: #417d55">Editar</span
-                  ><span style="color: #555a52">Descartar</span>
-                </div>
-              </div>
-              <div style="display: flex; justify-content: space-between; padding-top: 6px">
-                <span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    border: 1px solid #c7c7c7;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                  >Voltar</span
-                ><span
-                  style="
-                    height: 32px;
-                    padding: 0 12px;
-                    background: #41945d;
-                    color: #ffffff;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                  "
-                  >Continuar</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <div id="negociacoes" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              5 · Vendas · Negociações (Novo) · board + detalhe
-            </div>
-            <div
-              style="
-                width: 1440px;
-                height: 940px;
-                background: #f2f2ef;
-                padding: 10px;
-                display: flex;
-              "
-            >
-              <div
-                style="
-                  flex: 1;
-                  display: flex;
-                  border: 1px solid #e2e2dd;
-                  border-radius: 14px;
-                  background: #fcfcfc;
-                  overflow: hidden;
-                  position: relative;
-                "
-              >
-                <dc-import
-                  name="Painel Sidebar"
-                  ativo="negociacoes"
-                  hint-size="240px,918px"
-                  style="flex: none"
-                ></dc-import>
-                <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      align-items: center;
-                      padding: 0 20px;
-                      font-size: 13px;
-                      color: #555a52;
-                    "
-                  >
-                    Painel / Vendas /
-                    <b style="color: #2f332b; font-weight: 500; margin-left: 4px">Negociações</b>
-                  </div>
-                  <div
-                    style="
-                      padding: 20px 24px 12px;
-                      margin-right: 420px;
-                      display: flex;
-                      justify-content: space-between;
-                      align-items: center;
-                    "
-                  >
-                    <div style="display: flex; flex-direction: column; gap: 2px">
-                      <span style="font-size: 20px; font-weight: 600">Negociações</span
-                      ><span style="font-size: 12.5px; color: #555a52"
-                        >Setembro · 3 fechadas · R$ 2,43 mi em VGV · R$ 121,5 mil em comissão</span
-                      >
-                    </div>
-                    <span
-                      style="
-                        height: 32px;
-                        padding: 0 12px;
-                        background: #41945d;
-                        color: #ffffff;
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        font-size: 13px;
-                        font-weight: 500;
-                      "
-                      >+ Nova negociação</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      flex: 1;
-                      min-height: 0;
-                      padding: 0 24px 24px;
-                      display: grid;
-                      grid-template-columns: repeat(5, minmax(0, 1fr));
-                      gap: 12px;
-                      margin-right: 420px;
-                    "
-                  >
-                    <sc-for list="{{ board }}" as="c" hint-placeholder-count="5">
-                      <div
-                        style="
-                          background: #f0f0f0;
-                          border-radius: 8px;
-                          display: flex;
-                          flex-direction: column;
-                          gap: 8px;
-                          padding: 8px;
-                          min-height: 0;
-                          overflow: hidden;
-                        "
-                      >
-                        <div
-                          style="
-                            display: flex;
-                            justify-content: space-between;
-                            padding: 4px 4px 2px;
-                            font-size: 12px;
-                            font-weight: 600;
-                          "
-                        >
-                          <span>{{ c.nome }}</span><span style="color: #6e746b">{{ c.n }}</span>
-                        </div>
-                        <sc-for list="{{ c.cards }}" as="k" hint-placeholder-count="2"
-                          ><div
-                            style="background:#FFFFFF;border:1px solid {{ k.bd }};border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px"
-                          >
-                            <span style="font-size: 12.5px; font-weight: 600">{{ k.imovel }}</span
-                            ><span style="font-size: 12px; color: #555a52">{{ k.comprador }}</span
-                            ><span style="font-size: 13px; font-weight: 600">{{ k.valor }}</span
-                            ><span style="font-size:11px;color:{{ k.tCor }}">{{ k.t }}</span>
-                          </div></sc-for
-                        >
-                      </div>
-                    </sc-for>
-                  </div>
-                </div>
-                <div
-                  style="
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    bottom: 0;
-                    width: 420px;
-                    background: #ffffff;
-                    border-left: 1px solid #e6e6e3;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
-                  "
-                >
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      padding: 0 16px;
-                    "
-                  >
-                    <span style="font-size: 13px; font-weight: 600"
-                      >Cobertura 210 m² · Setor Marista</span
-                    ><span style="font-size: 16px; color: #555a52">×</span>
-                  </div>
-                  <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
-                    <div style="display: flex; gap: 6px">
-                      <span
-                        style="
-                          height: 20px;
-                          padding: 0 8px;
-                          border-radius: 4px;
-                          background: #fdf3e3;
-                          color: #a05c06;
-                          font-size: 11px;
-                          font-weight: 500;
-                          display: flex;
-                          align-items: center;
-                        "
-                        >Contraproposta</span
-                      ><span
-                        style="
-                          height: 20px;
-                          padding: 0 8px;
-                          border-radius: 4px;
-                          background: #f0f0f0;
-                          color: #555a52;
-                          font-size: 11px;
-                          font-weight: 500;
-                          display: flex;
-                          align-items: center;
-                        "
-                        >Exclusividade até 22/12</span
-                      >
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px">
-                      <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                        >Histórico da negociação</span
-                      >
-                      <sc-for list="{{ historico }}" as="h" hint-placeholder-count="4"
-                        ><div
-                          style="
-                            display: grid;
-                            grid-template-columns: minmax(0, 1fr) auto;
-                            gap: 2px 10px;
-                            padding: 8px 0;
-                            border-bottom: 1px solid #f0f0f0;
-                          "
-                        >
-                          <span style="font-size: 12.5px; font-weight: 500">{{ h.l }}</span
-                          ><span style="font-size: 13px; font-weight: 600; text-align: right"
-                            >{{ h.v }}</span
-                          ><span style="font-size: 11.5px; color: #6e746b">{{ h.d }}</span
-                          ><span style="font-size:11.5px;color:{{ h.cor }};text-align:right"
-                            >{{ h.st }}</span
-                          >
-                        </div></sc-for
-                      >
-                      <div style="display: flex; gap: 8px; padding-top: 4px">
-                        <span
-                          style="
-                            height: 30px;
-                            padding: 0 10px;
-                            background: #41945d;
-                            color: #ffffff;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 12.5px;
-                            font-weight: 500;
-                          "
-                          >Registrar resposta</span
-                        ><span
-                          style="
-                            height: 30px;
-                            padding: 0 10px;
-                            border: 1px solid #c7c7c7;
-                            border-radius: 6px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 12.5px;
-                            font-weight: 500;
-                          "
-                          >Nova contraproposta</span
-                        >
-                      </div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px">
-                      <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                        >Documentação · 5 de 8</span
-                      >
-                      <sc-for list="{{ docs }}" as="d" hint-placeholder-count="8"
-                        ><div
-                          style="
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            font-size: 12.5px;
-                            height: 24px;
-                          "
-                        >
-                          <span
-                            style="width:14px;height:14px;border-radius:3px;border:1.5px solid {{ d.bd }};background:{{ d.bg }};color:#FFFFFF;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center"
-                            >{{ d.mk }}</span
-                          ><span style="flex:1;color:{{ d.cor }}">{{ d.l }}</span
-                          ><span style="font-size: 11px; color: #6e746b">{{ d.q }}</span>
-                        </div></sc-for
-                      >
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px">
-                      <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                        >Comissão prevista · 5%</span
-                      >
-                      <sc-for list="{{ comissao }}" as="c" hint-placeholder-count="3"
-                        ><div
-                          style="
-                            display: flex;
-                            justify-content: space-between;
-                            font-size: 12.5px;
-                            padding: 5px 0;
-                            border-bottom: 1px solid #f0f0f0;
-                          "
-                        >
-                          <span>{{ c.l }}</span><span style="font-weight: 600">{{ c.v }}</span>
-                        </div></sc-for
-                      >
+                  <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;box-shadow:0 0 0 2px #E9F1EB">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #E6E6E3"><span style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px">Demanda por bairro <span style="height:18px;padding:0 6px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:10px;font-weight:600;display:flex;align-items:center">Novo</span></span><span style="font-size:12px;color:#6E746B">alertas ativos no portal</span></div>
+                    <div style="padding:10px 16px 12px;display:flex;flex-direction:column;gap:8px">
+                      <sc-for list="{{ demanda }}" as="d" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) 90px 28px;gap:10px;align-items:center;font-size:12.5px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="font-weight:500">{{ d.b }}</span> <span style="color:#555A52">· {{ d.t }}</span></span><span style="height:6px;background:#F0F0F0;border-radius:3px;display:flex"><span style="width:{{ d.w }};background:#6E746B;border-radius:3px;display:block"></span></span><span style="font-weight:600;text-align:right">{{ d.n }}</span></div></sc-for>
+                      <span style="font-size:11.5px;color:#6E746B;padding-top:2px">Só contagens. O contato de quem criou o alerta nunca aparece.</span>
                     </div>
                   </div>
                 </div>
@@ -1440,62 +70,203 @@
             </div>
           </div>
         </div>
-      </section>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const R = (l,v,cor) => ({l,v,cor:cor||'#2F332B'});
-          const D = t => t==='danger'?'#DC2626':t==='warning'?'#D97706':'#C7C7C7';
-          const doc = (l,q,ok) => ({l,q,mk:ok?'✓':'',bd:ok?'#41945D':'#C7C7C7',bg:ok?'#41945D':'#FFFFFF',cor:ok?'#555A52':'#2F332B'});
-          const K = (imovel,comprador,valor,t,late,sel) => ({imovel,comprador,valor,t,tCor:late?'#B91C1C':'#6E746B',bd:sel?'#41945D':'#E6E6E3'});
-          return {
-            summary: [
-              {t:'CRM',rows:[R('Novos leads hoje',7),R('Sem atendimento',2,'#A05C06'),R('Aguardando resposta',3),R('Atividades atrasadas',1,'#B91C1C')]},
-              {t:'Imóveis',rows:[R('Disponíveis',58),R('Publicações ativas',212),R('Arquivados',14),R('Reservados',6)]},
-              {t:'Operação',rows:[R('Crédito pendente',2),R('Contratos aguardando',3),R('Vistorias em aberto',4),R('Locações ativas',96)]},
-              {t:'Financeiro',rows:[R('Cobranças agendadas',41),R('Em aberto',12),R('Vencidas',2,'#B91C1C'),R('Repasses pendentes',5)]}
-            ],
-            fila: [
-              {dot:D('danger'),tipo:'LEAD',t:'Mariana Costa · sem retorno há 30 min',meta:'Portal AchouImóvel',due:'Hoje 09:00'},
-              {dot:D('neutral'),tipo:'VISITA',t:'João Pereira · Casa Jardim América',meta:'Agendada',due:'Hoje 10:30'},
-              {dot:D('warning'),tipo:'PROPOSTA',t:'Carlos Dias · Apto 3 qts Marista',meta:'Vence hoje',due:'Hoje 18:00'},
-              {dot:D('neutral'),tipo:'VISTORIA',t:'Entrada · Apto 804 Setor Marista',meta:'Em aberto',due:'Hoje 14:00'},
-              {dot:D('warning'),tipo:'CANAL',t:'OLX recusou IMV-0165 · foto abaixo do mínimo',meta:'Falha de publicação',due:'Ontem'}
-            ],
-            ciclo: [{l:'Leads',v:31,w:'100%'},{l:'Qualif.',v:14,w:'45%'},{l:'Visitas',v:9,w:'29%'},{l:'Propostas',v:4,w:'13%'},{l:'Crédito',v:2,w:'6%'},{l:'Contrato',v:3,w:'10%'},{l:'Locação',v:2,w:'6%'}],
-            demanda: [{b:'Setor Bueno',t:'Apto 2 qts',n:38,w:'100%'},{b:'Setor Marista',t:'Apto 3 qts',n:24,w:'63%'},{b:'Setor Universitário',t:'Kitnet',n:21,w:'55%'},{b:'Jardim América',t:'Casa',n:14,w:'37%'}],
-            upgrade: ['Contratos e encargos','Reajuste, renovação e encerramento','Vistoria de entrada e saída','Cobranças com multa e juros','Split e repasse ao proprietário','Área do proprietário e do inquilino'],
-            canais: [
-              {nome:'AchouImóvel',desc:'Portal próprio · marcado por padrão',st:'Pronto'},
-              {nome:'Canal Pro',desc:'ZAP Imóveis e VivaReal',st:'Conectado'},
-              {nome:'OLX',desc:'Aluguel e venda',st:'Conectado'},
-              {nome:'Imovelweb',desc:'Aluguel e venda',st:'Conectado'}
-            ],
-            bloqueios: [
-              {l:'Faltam 2 fotos públicas',s:'Os portais pedem pelo menos 5. Este imóvel tem 3.',mk:'!',bg:'#DC2626',acao:'Adicionar fotos'},
-              {l:'Bairro preenchido',s:'Setor Bueno, Goiânia',mk:'✓',bg:'#41945D',acao:''},
-              {l:'CRECI da imobiliária',s:'CRECI 0000-J cadastrado',mk:'✓',bg:'#41945D',acao:''}
-            ],
-            valAluguel: [{l:'Aluguel',v:'R$ 1.050'},{l:'Condomínio',v:'R$ 240'},{l:'IPTU mensal',v:'R$ 50'}],
-            board: [
-              {nome:'Proposta',n:3,cards:[K('Apto 3 qts · Oeste','Lucas Gomes','R$ 640.000','recebida hoje'),K('Casa · Nova Suíça','Íris Campos','R$ 980.000','há 2 dias')]},
-              {nome:'Contraproposta',n:2,cards:[K('Cobertura · Marista','Otávio Prado','R$ 1.390.000','aguarda comprador',false,true),K('Kitnet · Universitário','Paula Nunes','R$ 205.000','vence amanhã',true)]},
-              {nome:'Documentação',n:2,cards:[K('Casa cond. · Jd. Atenas','Beatriz Lopes','R$ 870.000','5 de 8 docs')]},
-              {nome:'Contrato',n:1,cards:[K('Sobrado · Nova Suíça','Diego Alves','R$ 950.000','aguardando assinatura')]},
-              {nome:'Fechada',n:3,cards:[K('Apto 2 qts · Bueno','Carla Menezes','R$ 610.000','fechada 18/09')]}
-            ],
-            historico: [
-              {l:'Pedido do proprietário',v:'R$ 1.450.000',d:'Anúncio · 02/09',st:'',cor:'#6E746B'},
-              {l:'Proposta de Otávio Prado',v:'R$ 1.300.000',d:'15/09 · validade 5 dias',st:'Recusada',cor:'#B91C1C'},
-              {l:'Contraproposta do proprietário',v:'R$ 1.420.000',d:'17/09',st:'Recusada',cor:'#B91C1C'},
-              {l:'Nova proposta do comprador',v:'R$ 1.390.000',d:'21/09 · validade até 26/09',st:'Aguardando proprietário',cor:'#A05C06'}
-            ],
-            docs: [doc('Matrícula atualizada','imóvel',true),doc('Certidão de ônus reais','imóvel',true),doc('IPTU quitado','imóvel',true),doc('Declaração de condomínio','imóvel',false),doc('RG e CPF','comprador',true),doc('Comprovante de renda','comprador',true),doc('Carta de crédito','comprador',false),doc('Certidões do vendedor','vendedor',false)],
-            comissao: [{l:'Captador · Luana Castro (40%)',v:'R$ 27.800'},{l:'Vendedor · Rafael Almeida (60%)',v:'R$ 41.700'},{l:'Total sobre R$ 1.390.000',v:'R$ 69.500'}]
-          };
-        }
-      }
-    </script>
-  </body>
+      </div>
+    </div>
+
+    <div id="upgrade" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">2 · Plano Anunciante · cadeado no menu e tela de upgrade ao abrir Locações</div>
+      <div style="width:1440px;height:940px;background:#F2F2EF;padding:10px;display:flex">
+        <div style="flex:1;display:flex;border:1px solid #E2E2DD;border-radius:14px;background:#FCFCFC;overflow:hidden">
+          <dc-import name="Painel Sidebar" ativo="locacoes" plano="anunciante" hint-size="240px,918px" style="flex:none"></dc-import>
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;padding:0 20px;font-size:13px;color:#555A52">Painel / <b style="color:#2F332B;font-weight:500;margin-left:4px">Locações</b></div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center">
+              <div style="width:560px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:32px;display:flex;flex-direction:column;gap:14px">
+                <span style="align-self:flex-start;height:20px;padding:0 8px;border-radius:4px;background:#E9E9E6;color:#555A52;font-size:11px;font-weight:500;display:flex;align-items:center;gap:5px"><svg width="10" height="11" viewBox="0 0 12 13" fill="none"><rect x="1.5" y="5.5" width="9" height="6.5" rx="1.2" stroke="#555A52" stroke-width="1.3"></rect><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" stroke="#555A52" stroke-width="1.3"></path></svg>Fora do seu plano</span>
+                <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em;line-height:1.3">Locações estão disponíveis no AchouImóvel Gestão Locação</span>
+                <span style="font-size:13.5px;line-height:1.6;color:#555A52">No plano Anunciante você publica nos portais e recebe os leads. Com o Gestão Locação, o mesmo painel passa a administrar contratos, vistorias, cobranças e repasses. Nada do que você já tem muda.</span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:12px 0;border-top:1px solid #F0F0F0;border-bottom:1px solid #F0F0F0"><sc-for list="{{ upgrade }}" as="u" hint-placeholder-count="6"><span style="font-size:12.5px;display:flex;gap:6px"><span style="color:#41945D;font-weight:700">✓</span>{{ u }}</span></sc-for></div>
+                <div style="display:flex;gap:8px"><span style="height:36px;padding:0 16px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Pedir o Gestão Locação</span><span style="height:36px;padding:0 16px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Comparar planos</span></div>
+                <span style="font-size:12px;color:#6E746B">A troca de plano é feita pela equipe AchouImóvel. Você recebe a confirmação por e-mail.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="publicar" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">3 · Diálogo de publicação · /app/listings · pode publicar</div>
+      <div style="width:520px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:12px;box-shadow:0 12px 32px rgba(47,51,43,.15);display:flex;flex-direction:column">
+        <div style="padding:18px 20px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Publicar anúncio</span><span style="font-size:12.5px;color:#555A52">Kitnet 32 m² · Setor Universitário · IMV-0214</span></div>
+        <div style="padding:0 20px;display:flex;flex-direction:column">
+          <sc-for list="{{ canais }}" as="c" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:54px;border-top:1px solid #F0F0F0">
+              <span style="width:16px;height:16px;border-radius:4px;background:#41945D;color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">✓</span>
+              <span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:600">{{ c.nome }}</span><span style="font-size:12px;color:#555A52">{{ c.desc }}</span></span>
+              <span style="height:20px;padding:0 8px;border-radius:4px;background:#E9F7EE;color:#0D7A38;font-size:11px;font-weight:500;display:flex;align-items:center">{{ c.st }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:12px 20px 0;font-size:12px;line-height:1.55;color:#555A52">A publicação só acontece quando você confirmar. Preço, fotos e descrição ficam iguais em todos os canais marcados.</div>
+        <div style="padding:14px 20px 18px;display:flex;justify-content:flex-end;gap:8px"><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Cancelar</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Publicar em 4 canais</span></div>
+      </div>
+    </div>
+
+    <div id="publicar-bloq" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">3b · Diálogo de publicação · não pode publicar</div>
+      <div style="width:520px;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:12px;box-shadow:0 12px 32px rgba(47,51,43,.15);display:flex;flex-direction:column">
+        <div style="padding:18px 20px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Ainda não dá para publicar</span><span style="font-size:12.5px;color:#555A52">Apto 2 qts · Setor Bueno · IMV-0231</span></div>
+        <div style="padding:0 20px;display:flex;flex-direction:column">
+          <sc-for list="{{ bloqueios }}" as="b" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:50px;border-top:1px solid #F0F0F0">
+              <span style="width:16px;height:16px;border-radius:50%;background:{{ b.bg }};color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ b.mk }}</span>
+              <span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:600">{{ b.l }}</span><span style="font-size:12px;color:#555A52">{{ b.s }}</span></span>
+              <span style="font-size:12px;font-weight:500;color:#417D55">{{ b.acao }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:14px 20px 18px;display:flex;justify-content:flex-end;gap:8px"><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Fechar</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500;opacity:.5">Publicar</span></div>
+      </div>
+    </div>
+
+    <div id="valores" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">4 · Cadastro do imóvel · seção Valores com finalidade e venda (Novo) + Exclusividade (Novo)</div>
+      <div style="width:1040px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;padding:28px 32px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#6E746B">Novo imóvel · 4 de 7</span><span style="font-size:20px;font-weight:600">Valores</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500">Finalidade</span><div style="display:flex;background:#F0F0F0;border-radius:6px;padding:2px;align-self:flex-start;font-size:13px;font-weight:500"><span style="height:28px;padding:0 12px;display:flex;align-items:center;color:#555A52">Aluguel</span><span style="height:28px;padding:0 12px;display:flex;align-items:center;color:#555A52">Venda</span><span style="height:28px;padding:0 12px;display:flex;align-items:center;background:#FFFFFF;border-radius:4px;box-shadow:0 1px 2px rgba(47,51,43,.08)">Aluguel e venda</span></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600">Aluguel</div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ valAluguel }}" as="v" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">{{ v.l }}</span><div style="height:36px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px">{{ v.v }}</div></div></sc-for>
+              <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #F0F0F0;font-size:13px"><span style="color:#555A52">Total mensal exibido no portal</span><span style="font-weight:600">R$ 1.340</span></div>
+            </div>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px">Venda <span style="height:18px;padding:0 6px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:10px;font-weight:600;display:flex;align-items:center">Novo</span></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Preço de venda</span><div style="height:36px;border:1px solid #41945D;box-shadow:0 0 0 3px rgba(65,148,93,.35);border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px">R$ 210.000</div></div>
+              <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Preço por m²</span><div style="height:36px;background:#F0F0F0;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px;color:#555A52">R$ 6.560 · calculado com 32 m²</div></div>
+              <div style="display:flex;gap:10px;align-items:center;font-size:13px"><span style="width:30px;height:18px;border-radius:9px;background:#41945D;display:flex;align-items:center;justify-content:flex-end;padding:2px"><span style="width:14px;height:14px;border-radius:50%;background:#FFFFFF;display:block"></span></span>Aceita financiamento</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+          <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px">Exclusividade de venda <span style="height:18px;padding:0 6px;border-radius:4px;background:#E9F1EB;color:#417D55;font-size:10px;font-weight:600;display:flex;align-items:center">Novo</span></div>
+          <div style="padding:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end">
+            <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Autorização do proprietário</span><div style="height:36px;border:1px dashed #C7C7C7;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px;color:#555A52">autorizacao-venda.pdf · assinada</div></div>
+            <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Início</span><div style="height:36px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px">22/09/2026</div></div>
+            <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500">Fim</span><div style="height:36px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px">22/12/2026 · 91 dias</div></div>
+          </div>
+          <div style="padding:0 16px 14px;font-size:12px;color:#6E746B">Você recebe um aviso 15 dias antes do fim. Sem exclusividade, o imóvel continua publicado normalmente.</div>
+        </div>
+        <div style="border:1px dashed #C7C7C7;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;background:#FFFFFF">
+          <span style="height:20px;padding:0 8px;border-radius:4px;background:#E9EFFD;color:#1D4ED8;font-size:11px;font-weight:500;display:flex;align-items:center">Sugestão da IA</span>
+          <span style="font-size:12.5px;line-height:1.5">Aluguel sugerido de R$ 1.100 a R$ 1.250, pela mediana de 9 kitnets no Setor Universitário.</span>
+          <div style="display:flex;gap:12px;font-size:12.5px;font-weight:500"><span style="color:#417D55">Aceitar</span><span style="color:#417D55">Editar</span><span style="color:#555A52">Descartar</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-top:6px"><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Voltar</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Continuar</span></div>
+      </div>
+    </div>
+
+    <div id="negociacoes" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">5 · Vendas · Negociações (Novo) · board + detalhe</div>
+      <div style="width:1440px;height:940px;background:#F2F2EF;padding:10px;display:flex">
+        <div style="flex:1;display:flex;border:1px solid #E2E2DD;border-radius:14px;background:#FCFCFC;overflow:hidden;position:relative">
+          <dc-import name="Painel Sidebar" ativo="negociacoes" hint-size="240px,918px" style="flex:none"></dc-import>
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;padding:0 20px;font-size:13px;color:#555A52">Painel / Vendas / <b style="color:#2F332B;font-weight:500;margin-left:4px">Negociações</b></div>
+            <div style="padding:20px 24px 12px;margin-right:420px;display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:600">Negociações</span><span style="font-size:12.5px;color:#555A52">Setembro · 3 fechadas · R$ 2,43 mi em VGV · R$ 121,5 mil em comissão</span></div>
+              <span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">+ Nova negociação</span>
+            </div>
+            <div style="flex:1;min-height:0;padding:0 24px 24px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-right:420px">
+              <sc-for list="{{ board }}" as="c" hint-placeholder-count="5">
+                <div style="background:#F0F0F0;border-radius:8px;display:flex;flex-direction:column;gap:8px;padding:8px;min-height:0;overflow:hidden">
+                  <div style="display:flex;justify-content:space-between;padding:4px 4px 2px;font-size:12px;font-weight:600"><span>{{ c.nome }}</span><span style="color:#6E746B">{{ c.n }}</span></div>
+                  <sc-for list="{{ c.cards }}" as="k" hint-placeholder-count="2"><div style="background:#FFFFFF;border:1px solid {{ k.bd }};border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600">{{ k.imovel }}</span><span style="font-size:12px;color:#555A52">{{ k.comprador }}</span><span style="font-size:13px;font-weight:600">{{ k.valor }}</span><span style="font-size:11px;color:{{ k.tCor }}">{{ k.t }}</span></div></sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="position:absolute;right:0;top:0;bottom:0;width:420px;background:#FFFFFF;border-left:1px solid #E6E6E3;display:flex;flex-direction:column;overflow:hidden">
+            <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span style="font-size:13px;font-weight:600">Cobertura 210 m² · Setor Marista</span><span style="font-size:16px;color:#555A52">×</span></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;gap:6px"><span style="height:20px;padding:0 8px;border-radius:4px;background:#FDF3E3;color:#A05C06;font-size:11px;font-weight:500;display:flex;align-items:center">Contraproposta</span><span style="height:20px;padding:0 8px;border-radius:4px;background:#F0F0F0;color:#555A52;font-size:11px;font-weight:500;display:flex;align-items:center">Exclusividade até 22/12</span></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#555A52">Histórico da negociação</span>
+                <sc-for list="{{ historico }}" as="h" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid #F0F0F0"><span style="font-size:12.5px;font-weight:500">{{ h.l }}</span><span style="font-size:13px;font-weight:600;text-align:right">{{ h.v }}</span><span style="font-size:11.5px;color:#6E746B">{{ h.d }}</span><span style="font-size:11.5px;color:{{ h.cor }};text-align:right">{{ h.st }}</span></div></sc-for>
+                <div style="display:flex;gap:8px;padding-top:4px"><span style="height:30px;padding:0 10px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:12.5px;font-weight:500">Registrar resposta</span><span style="height:30px;padding:0 10px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:12.5px;font-weight:500">Nova contraproposta</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#555A52">Documentação · 5 de 8</span>
+                <sc-for list="{{ docs }}" as="d" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:8px;font-size:12.5px;height:24px"><span style="width:14px;height:14px;border-radius:3px;border:1.5px solid {{ d.bd }};background:{{ d.bg }};color:#FFFFFF;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ d.mk }}</span><span style="flex:1;color:{{ d.cor }}">{{ d.l }}</span><span style="font-size:11px;color:#6E746B">{{ d.q }}</span></div></sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#555A52">Comissão prevista · 5%</span>
+                <sc-for list="{{ comissao }}" as="c" hint-placeholder-count="3"><div style="display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid #F0F0F0"><span>{{ c.l }}</span><span style="font-weight:600">{{ c.v }}</span></div></sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const R = (l,v,cor) => ({l,v,cor:cor||'#2F332B'});
+    const D = t => t==='danger'?'#DC2626':t==='warning'?'#D97706':'#C7C7C7';
+    const doc = (l,q,ok) => ({l,q,mk:ok?'✓':'',bd:ok?'#41945D':'#C7C7C7',bg:ok?'#41945D':'#FFFFFF',cor:ok?'#555A52':'#2F332B'});
+    const K = (imovel,comprador,valor,t,late,sel) => ({imovel,comprador,valor,t,tCor:late?'#B91C1C':'#6E746B',bd:sel?'#41945D':'#E6E6E3'});
+    return {
+      summary: [
+        {t:'CRM',rows:[R('Novos leads hoje',7),R('Sem atendimento',2,'#A05C06'),R('Aguardando resposta',3),R('Atividades atrasadas',1,'#B91C1C')]},
+        {t:'Imóveis',rows:[R('Disponíveis',58),R('Publicações ativas',212),R('Arquivados',14),R('Reservados',6)]},
+        {t:'Operação',rows:[R('Crédito pendente',2),R('Contratos aguardando',3),R('Vistorias em aberto',4),R('Locações ativas',96)]},
+        {t:'Financeiro',rows:[R('Cobranças agendadas',41),R('Em aberto',12),R('Vencidas',2,'#B91C1C'),R('Repasses pendentes',5)]}
+      ],
+      fila: [
+        {dot:D('danger'),tipo:'LEAD',t:'Mariana Costa · sem retorno há 30 min',meta:'Portal AchouImóvel',due:'Hoje 09:00'},
+        {dot:D('neutral'),tipo:'VISITA',t:'João Pereira · Casa Jardim América',meta:'Agendada',due:'Hoje 10:30'},
+        {dot:D('warning'),tipo:'PROPOSTA',t:'Carlos Dias · Apto 3 qts Marista',meta:'Vence hoje',due:'Hoje 18:00'},
+        {dot:D('neutral'),tipo:'VISTORIA',t:'Entrada · Apto 804 Setor Marista',meta:'Em aberto',due:'Hoje 14:00'},
+        {dot:D('warning'),tipo:'CANAL',t:'OLX recusou IMV-0165 · foto abaixo do mínimo',meta:'Falha de publicação',due:'Ontem'}
+      ],
+      ciclo: [{l:'Leads',v:31,w:'100%'},{l:'Qualif.',v:14,w:'45%'},{l:'Visitas',v:9,w:'29%'},{l:'Propostas',v:4,w:'13%'},{l:'Crédito',v:2,w:'6%'},{l:'Contrato',v:3,w:'10%'},{l:'Locação',v:2,w:'6%'}],
+      demanda: [{b:'Setor Bueno',t:'Apto 2 qts',n:38,w:'100%'},{b:'Setor Marista',t:'Apto 3 qts',n:24,w:'63%'},{b:'Setor Universitário',t:'Kitnet',n:21,w:'55%'},{b:'Jardim América',t:'Casa',n:14,w:'37%'}],
+      upgrade: ['Contratos e encargos','Reajuste, renovação e encerramento','Vistoria de entrada e saída','Cobranças com multa e juros','Split e repasse ao proprietário','Área do proprietário e do inquilino'],
+      canais: [
+        {nome:'AchouImóvel',desc:'Portal próprio · marcado por padrão',st:'Pronto'},
+        {nome:'Canal Pro',desc:'ZAP Imóveis e VivaReal',st:'Conectado'},
+        {nome:'OLX',desc:'Aluguel e venda',st:'Conectado'},
+        {nome:'Imovelweb',desc:'Aluguel e venda',st:'Conectado'}
+      ],
+      bloqueios: [
+        {l:'Faltam 2 fotos públicas',s:'Os portais pedem pelo menos 5. Este imóvel tem 3.',mk:'!',bg:'#DC2626',acao:'Adicionar fotos'},
+        {l:'Bairro preenchido',s:'Setor Bueno, Goiânia',mk:'✓',bg:'#41945D',acao:''},
+        {l:'CRECI da imobiliária',s:'CRECI 0000-J cadastrado',mk:'✓',bg:'#41945D',acao:''}
+      ],
+      valAluguel: [{l:'Aluguel',v:'R$ 1.050'},{l:'Condomínio',v:'R$ 240'},{l:'IPTU mensal',v:'R$ 50'}],
+      board: [
+        {nome:'Proposta',n:3,cards:[K('Apto 3 qts · Oeste','Lucas Gomes','R$ 640.000','recebida hoje'),K('Casa · Nova Suíça','Íris Campos','R$ 980.000','há 2 dias')]},
+        {nome:'Contraproposta',n:2,cards:[K('Cobertura · Marista','Otávio Prado','R$ 1.390.000','aguarda comprador',false,true),K('Kitnet · Universitário','Paula Nunes','R$ 205.000','vence amanhã',true)]},
+        {nome:'Documentação',n:2,cards:[K('Casa cond. · Jd. Atenas','Beatriz Lopes','R$ 870.000','5 de 8 docs')]},
+        {nome:'Contrato',n:1,cards:[K('Sobrado · Nova Suíça','Diego Alves','R$ 950.000','aguardando assinatura')]},
+        {nome:'Fechada',n:3,cards:[K('Apto 2 qts · Bueno','Carla Menezes','R$ 610.000','fechada 18/09')]}
+      ],
+      historico: [
+        {l:'Pedido do proprietário',v:'R$ 1.450.000',d:'Anúncio · 02/09',st:'',cor:'#6E746B'},
+        {l:'Proposta de Otávio Prado',v:'R$ 1.300.000',d:'15/09 · validade 5 dias',st:'Recusada',cor:'#B91C1C'},
+        {l:'Contraproposta do proprietário',v:'R$ 1.420.000',d:'17/09',st:'Recusada',cor:'#B91C1C'},
+        {l:'Nova proposta do comprador',v:'R$ 1.390.000',d:'21/09 · validade até 26/09',st:'Aguardando proprietário',cor:'#A05C06'}
+      ],
+      docs: [doc('Matrícula atualizada','imóvel',true),doc('Certidão de ônus reais','imóvel',true),doc('IPTU quitado','imóvel',true),doc('Declaração de condomínio','imóvel',false),doc('RG e CPF','comprador',true),doc('Comprovante de renda','comprador',true),doc('Carta de crédito','comprador',false),doc('Certidões do vendedor','vendedor',false)],
+      comissao: [{l:'Captador · Luana Castro (40%)',v:'R$ 27.800'},{l:'Vendedor · Rafael Almeida (60%)',v:'R$ 41.700'},{l:'Total sobre R$ 1.390.000',v:'R$ 69.500'}]
+    };
+  }
+}
+</script>
+</body>
 </html>

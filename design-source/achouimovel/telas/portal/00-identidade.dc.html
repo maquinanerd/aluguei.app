@@ -1,1090 +1,332 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <style>
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Regular.otf') format('opentype');
-            font-weight: 400;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Medium.otf') format('opentype');
-            font-weight: 500;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-SemiBold.otf') format('opentype');
-            font-weight: 600;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Bold.otf') format('opentype');
-            font-weight: 700;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
-            font-weight: 800;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Black.otf') format('opentype');
-            font-weight: 900;
-            font-display: swap;
-          }
-          body {
-            margin: 0;
-            background: #ffffff;
-            font-family: Guton, system-ui, sans-serif;
-            color: #111111;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #037a4b;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #02603b;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <main
-        style="
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 36px) 120px;
-          display: flex;
-          flex-direction: column;
-          gap: clamp(56px, 8vw, 96px);
-        "
-      >
-        <header
-          data-screen-label="00 Capa"
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            border-bottom: 1px solid #e6e6e3;
-            padding-bottom: 40px;
-          "
-        >
-          <div style="font-size: 12px; font-weight: 600; color: #6e6e6e">
-            Entrega 1 de 2 · Avaliação das referências e proposta de identidade · para aprovação
-          </div>
-          <h1
-            style="
-              margin: 0;
-              font-size: clamp(34px, 5vw, 58px);
-              line-height: 1.04;
-              font-weight: 800;
-              letter-spacing: -0.035em;
-              text-wrap: balance;
-            "
-          >
-            AchouImóvel: identidade do portal
-          </h1>
-          <p style="margin: 0; max-width: 64ch; font-size: 16px; line-height: 1.7; color: #333333">
-            A base é a linguagem do OpaPreço, adaptada para imóvel. O portal é branco, com uma só
-            cor de acento. Nenhuma parte usa fundo escuro, sombra pesada ou gradiente.
-          </p>
-          <nav
-            style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; font-weight: 600"
-          >
-            <a href="#s1">1. Referências</a><a href="#s2">2. Logotipo e acento</a
-            ><a href="#s3">3. Tokens</a><a href="#s4">4. Tipos de imóvel</a
-            ><a href="#s6">5. Componentes</a><a href="#s7">Decisões para aprovar</a>
-          </nav>
-        </header>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Black.otf") format("opentype");font-weight:900;font-display:swap}
+body{margin:0;background:#FFFFFF;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<main style="max-width:1280px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,36px) 120px;display:flex;flex-direction:column;gap:clamp(56px,8vw,96px)">
 
-        <section
-          id="s1"
-          data-screen-label="01 Referências"
-          style="display: flex; flex-direction: column; gap: 20px"
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-              padding-bottom: 12px;
-              border-bottom: 1px solid #111111;
-            "
-          >
-            1. Avaliação das referências
-          </h2>
-          <p style="margin: 0; max-width: 70ch; font-size: 15px; line-height: 1.7; color: #333333">
-            Cada referência foi lida em relação ao AchouImóvel: o que ela resolve que nós também
-            precisamos resolver, e o que quebraria uma regra do produto.
-          </p>
-          <div style="overflow-x: auto; border-top: 1px solid #e6e6e3">
-            <div
-              style="
-                display: grid;
-                grid-template-columns: minmax(150px, 0.8fr) minmax(220px, 1.3fr) minmax(
-                    200px,
-                    1.1fr
-                  ) minmax(200px, 1.1fr);
-                min-width: 860px;
-              "
-            >
-              <div
-                style="
-                  padding: 12px 14px 12px 0;
-                  font-size: 12px;
-                  font-weight: 700;
-                  color: #6e6e6e;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                Arquivo
-              </div>
-              <div
-                style="
-                  padding: 12px 14px;
-                  font-size: 12px;
-                  font-weight: 700;
-                  color: #6e6e6e;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                Aproveitar
-              </div>
-              <div
-                style="
-                  padding: 12px 14px;
-                  font-size: 12px;
-                  font-weight: 700;
-                  color: #6e6e6e;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                Evitar
-              </div>
-              <div
-                style="
-                  padding: 12px 14px;
-                  font-size: 12px;
-                  font-weight: 700;
-                  color: #6e6e6e;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                Motivo
-              </div>
-              <sc-for list="{{ refs }}" as="r" hint-placeholder-count="13">
-                <div
-                  style="
-                    padding: 14px 14px 14px 0;
-                    border-bottom: 1px solid #efefec;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 3px;
-                  "
-                >
-                  <span style="font-size: 14px; font-weight: 700; letter-spacing: -0.01em"
-                    >{{ r.nome }}</span
-                  ><span style="font-size: 11.5px; font-weight: 600; color: #6e6e6e"
-                    >{{ r.arquivo }}</span
-                  >
-                </div>
-                <div
-                  style="
-                    padding: 14px;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 13.5px;
-                    line-height: 1.6;
-                    color: #333333;
-                  "
-                >
-                  {{ r.usar }}
-                </div>
-                <div
-                  style="
-                    padding: 14px;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 13.5px;
-                    line-height: 1.6;
-                    color: #333333;
-                  "
-                >
-                  {{ r.evitar }}
-                </div>
-                <div
-                  style="
-                    padding: 14px;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 13.5px;
-                    line-height: 1.6;
-                    color: #555555;
-                  "
-                >
-                  {{ r.motivo }}
-                </div>
-              </sc-for>
-            </div>
-          </div>
-        </section>
+<header data-screen-label="00 Capa" style="display:flex;flex-direction:column;gap:18px;border-bottom:1px solid #E6E6E3;padding-bottom:40px">
+  <div style="font-size:12px;font-weight:600;color:#6E6E6E">Entrega 1 de 2 · Avaliação das referências e proposta de identidade · para aprovação</div>
+  <h1 style="margin:0;font-size:clamp(34px,5vw,58px);line-height:1.04;font-weight:800;letter-spacing:-0.035em;text-wrap:balance">AchouImóvel: identidade do portal</h1>
+  <p style="margin:0;max-width:64ch;font-size:16px;line-height:1.7;color:#333333">A base é a linguagem do OpaPreço, adaptada para imóvel. O portal é branco, com uma só cor de acento. Nenhuma parte usa fundo escuro, sombra pesada ou gradiente.</p>
+  <nav style="display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;font-weight:600">
+    <a href="#s1">1. Referências</a><a href="#s2">2. Logotipo e acento</a><a href="#s3">3. Tokens</a><a href="#s4">4. Tipos de imóvel</a><a href="#s6">5. Componentes</a><a href="#s7">Decisões para aprovar</a>
+  </nav>
+</header>
 
-        <section
-          id="s2"
-          data-screen-label="02 Logotipo e acento"
-          style="display: flex; flex-direction: column; gap: 24px"
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-              padding-bottom: 12px;
-              border-bottom: 1px solid #111111;
-            "
-          >
-            2. Logotipo e cor de acento
-          </h2>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-              gap: 1px;
-              background: #e6e6e3;
-              border: 1px solid #e6e6e3;
-            "
-          >
-            <div
-              style="
-                background: #ffffff;
-                padding: 48px 32px;
-                display: flex;
-                flex-direction: column;
-                gap: 28px;
-              "
-            >
-              <div style="display: flex; align-items: center; gap: 9px">
-                <span style="font-size: 30px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                >
-              </div>
-              <div style="font-size: 12.5px; line-height: 1.6; color: #555555">
-                Portal · <b style="color: #111">achouimovel.online</b>. Guton 800, tracking −0,04em.
-                "Imóvel" muda de cor conforme a seção do site: verde do acento na Home e nas páginas
-                gerais, e a cor do tipo nas páginas de cada tipo (azul em Apartamento, laranja em
-                Casa etc.). "Achou" fica sempre em #111111.
-              </div>
-            </div>
-            <div
-              style="
-                background: #ffffff;
-                padding: 48px 32px;
-                display: flex;
-                flex-direction: column;
-                gap: 28px;
-              "
-            >
-              <div style="display: flex; align-items: center; gap: 12px">
-                <span style="display: flex; align-items: center; gap: 9px"
-                  ><span style="font-size: 30px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  ></span
-                ><span style="width: 1px; height: 26px; background: #c9c9c4; display: block"></span
-                ><span
-                  style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: #333333"
-                  >Gestão</span
-                >
-              </div>
-              <div style="font-size: 12.5px; line-height: 1.6; color: #555555">
-                Gestão · <b style="color: #111">app.achouimovel.online</b>. Mesma marca com filete
-                vertical e "Gestão" em 600, como a assinatura do OpaPreço. Na sidebar de 238px entra
-                em 21px.
-              </div>
-            </div>
-          </div>
-          <div
-            style="
-              display: flex;
-              flex-wrap: wrap;
-              gap: 14px 28px;
-              padding: 20px 0;
-              border-bottom: 1px solid #e6e6e3;
-            "
-          >
-            <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #0b4a7e">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #ff6a2a">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #037a4b">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #4a0a4e">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #d42a2a">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #0b3a12">Imóvel</span></span
-            ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-              >Achou<span style="color: #b5b5b5">Imóvel</span></span
-            >
-          </div>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-              gap: 16px;
-            "
-          >
-            <div
-              style="
-                border: 2px solid #037a4b;
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-              "
-            >
-              <div
-                style="display: flex; justify-content: space-between; align-items: center; gap: 8px"
-              >
-                <span style="font-size: 13px; font-weight: 700">A · Verde</span
-                ><span style="font-size: 11.5px; font-weight: 700; color: #037a4b"
-                  >Recomendada</span
-                >
-              </div>
-              <div
-                style="
-                  height: 64px;
-                  background: #037a4b;
-                  display: flex;
-                  align-items: flex-end;
-                  padding: 10px;
-                  color: #ffffff;
-                  font-size: 12px;
-                  font-weight: 700;
-                "
-              >
-                #037A4B · 5,4:1 no branco
-              </div>
-              <div
-                style="font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: #037a4b"
-              >
-                R$ 2.910<span style="font-size: 14px; font-weight: 600">/mês</span>
-              </div>
-              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #333333">
-                Nenhum portal da referência usa verde (QuintoAndar e VivaReal azul, ZAP roxo, MySide
-                vermelho). Conversa com o botão "Chamar no WhatsApp" e não disputa com o azul
-                primário da gestão nem com o vermelho de erro.
-              </p>
-            </div>
-            <div
-              style="
-                border: 1px solid #e6e6e3;
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-              "
-            >
-              <span style="font-size: 13px; font-weight: 700">B · Terracota do OpaPreço</span>
-              <div
-                style="
-                  height: 64px;
-                  background: #c2410c;
-                  display: flex;
-                  align-items: flex-end;
-                  padding: 10px;
-                  color: #ffffff;
-                  font-size: 12px;
-                  font-weight: 700;
-                "
-              >
-                #C2410C · 5,2:1 no branco
-              </div>
-              <div
-                style="font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: #c2410c"
-              >
-                R$ 2.910<span style="font-size: 14px; font-weight: 600">/mês</span>
-              </div>
-              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #333333">
-                Lembra tijolo e telha. Risco: as duas marcas do mesmo dono ficam iguais, e o laranja
-                fica perto do vermelho de "vencida" e "recusada".
-              </p>
-            </div>
-            <div
-              style="
-                border: 1px solid #e6e6e3;
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-              "
-            >
-              <span style="font-size: 13px; font-weight: 700">C · Azul-petróleo</span>
-              <div
-                style="
-                  height: 64px;
-                  background: #0e5a7a;
-                  display: flex;
-                  align-items: flex-end;
-                  padding: 10px;
-                  color: #ffffff;
-                  font-size: 12px;
-                  font-weight: 700;
-                "
-              >
-                #0E5A7A · 7,4:1 no branco
-              </div>
-              <div
-                style="font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: #0e5a7a"
-              >
-                R$ 2.910<span style="font-size: 14px; font-weight: 600">/mês</span>
-              </div>
-              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #333333">
-                Sóbrio e seguro. Risco: fica no território do QuintoAndar e do VivaReal e perde
-                contraste com os azuis de Apartamento.
-              </p>
-            </div>
-          </div>
-        </section>
+<section id="s1" data-screen-label="01 Referências" style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">1. Avaliação das referências</h2>
+  <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.7;color:#333333">Cada referência foi lida em relação ao AchouImóvel: o que ela resolve que nós também precisamos resolver, e o que quebraria uma regra do produto.</p>
+  <div style="overflow-x:auto;border-top:1px solid #E6E6E3">
+    <div style="display:grid;grid-template-columns:minmax(150px,0.8fr) minmax(220px,1.3fr) minmax(200px,1.1fr) minmax(200px,1.1fr);min-width:860px">
+      <div style="padding:12px 14px 12px 0;font-size:12px;font-weight:700;color:#6E6E6E;border-bottom:1px solid #E6E6E3">Arquivo</div>
+      <div style="padding:12px 14px;font-size:12px;font-weight:700;color:#6E6E6E;border-bottom:1px solid #E6E6E3">Aproveitar</div>
+      <div style="padding:12px 14px;font-size:12px;font-weight:700;color:#6E6E6E;border-bottom:1px solid #E6E6E3">Evitar</div>
+      <div style="padding:12px 14px;font-size:12px;font-weight:700;color:#6E6E6E;border-bottom:1px solid #E6E6E3">Motivo</div>
+      <sc-for list="{{ refs }}" as="r" hint-placeholder-count="13">
+        <div style="padding:14px 14px 14px 0;border-bottom:1px solid #EFEFEC;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ r.nome }}</span><span style="font-size:11.5px;font-weight:600;color:#6E6E6E">{{ r.arquivo }}</span></div>
+        <div style="padding:14px;border-bottom:1px solid #EFEFEC;font-size:13.5px;line-height:1.6;color:#333333">{{ r.usar }}</div>
+        <div style="padding:14px;border-bottom:1px solid #EFEFEC;font-size:13.5px;line-height:1.6;color:#333333">{{ r.evitar }}</div>
+        <div style="padding:14px;border-bottom:1px solid #EFEFEC;font-size:13.5px;line-height:1.6;color:#555555">{{ r.motivo }}</div>
+      </sc-for>
+    </div>
+  </div>
+</section>
 
-        <section
-          id="s3"
-          data-screen-label="03 Tokens"
-          style="display: flex; flex-direction: column; gap: 28px"
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-              padding-bottom: 12px;
-              border-bottom: 1px solid #111111;
-            "
-          >
-            3. Tokens
-          </h2>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-              gap: 32px;
-            "
-          >
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em">
-                Cor · portal e marca
-              </h3>
-              <sc-for list="{{ portalTokens }}" as="t" hint-placeholder-count="12">
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: 28px minmax(0, 1.1fr) 76px minmax(0, 1.4fr);
-                    gap: 12px;
-                    align-items: center;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #efefec;
-                  "
-                >
-                  <span
-                    style="width:28px;height:28px;border:1px solid #E6E6E3;background:{{ t.v }};display:block"
-                  ></span>
-                  <code
-                    style="
-                      font-size: 12px;
-                      font-weight: 600;
-                      font-family: ui-monospace, Menlo, monospace;
-                    "
-                    >{{ t.n }}</code
-                  >
-                  <code
-                    style="
-                      font-size: 12px;
-                      color: #555555;
-                      font-family: ui-monospace, Menlo, monospace;
-                    "
-                    >{{ t.v }}</code
-                  >
-                  <span style="font-size: 12.5px; line-height: 1.5; color: #333333">{{ t.u }}</span>
-                </div>
-              </sc-for>
-            </div>
+<section id="s2" data-screen-label="02 Logotipo e acento" style="display:flex;flex-direction:column;gap:24px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">2. Logotipo e cor de acento</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:1px;background:#E6E6E3;border:1px solid #E6E6E3">
+    <div style="background:#FFFFFF;padding:48px 32px;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:center;gap:9px"><span style="font-size:30px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span></div>
+      <div style="font-size:12.5px;line-height:1.6;color:#555555">Portal · <b style="color:#111">achouimovel.online</b>. Guton 800, tracking −0,04em. "Imóvel" muda de cor conforme a seção do site: verde do acento na Home e nas páginas gerais, e a cor do tipo nas páginas de cada tipo (azul em Apartamento, laranja em Casa etc.). "Achou" fica sempre em #111111.</div>
+    </div>
+    <div style="background:#FFFFFF;padding:48px 32px;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:center;gap:12px"><span style="display:flex;align-items:center;gap:9px"><span style="font-size:30px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span></span><span style="width:1px;height:26px;background:#C9C9C4;display:block"></span><span style="font-size:17px;font-weight:600;letter-spacing:-0.01em;color:#333333">Gestão</span></div>
+      <div style="font-size:12.5px;line-height:1.6;color:#555555">Gestão · <b style="color:#111">app.achouimovel.online</b>. Mesma marca com filete vertical e "Gestão" em 600, como a assinatura do OpaPreço. Na sidebar de 238px entra em 21px.</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:14px 28px;padding:20px 0;border-bottom:1px solid #E6E6E3"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#0B4A7E">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#FF6A2A">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#4A0A4E">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#D42A2A">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#0B3A12">Imóvel</span></span><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#B5B5B5">Imóvel</span></span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px">
+    <div style="border:2px solid #037A4B;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700">A · Verde</span><span style="font-size:11.5px;font-weight:700;color:#037A4B">Recomendada</span></div>
+      <div style="height:64px;background:#037A4B;display:flex;align-items:flex-end;padding:10px;color:#FFFFFF;font-size:12px;font-weight:700">#037A4B · 5,4:1 no branco</div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:#037A4B">R$ 2.910<span style="font-size:14px;font-weight:600">/mês</span></div>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#333333">Nenhum portal da referência usa verde (QuintoAndar e VivaReal azul, ZAP roxo, MySide vermelho). Conversa com o botão "Chamar no WhatsApp" e não disputa com o azul primário da gestão nem com o vermelho de erro.</p>
+    </div>
+    <div style="border:1px solid #E6E6E3;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:13px;font-weight:700">B · Terracota do OpaPreço</span>
+      <div style="height:64px;background:#C2410C;display:flex;align-items:flex-end;padding:10px;color:#FFFFFF;font-size:12px;font-weight:700">#C2410C · 5,2:1 no branco</div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:#C2410C">R$ 2.910<span style="font-size:14px;font-weight:600">/mês</span></div>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#333333">Lembra tijolo e telha. Risco: as duas marcas do mesmo dono ficam iguais, e o laranja fica perto do vermelho de "vencida" e "recusada".</p>
+    </div>
+    <div style="border:1px solid #E6E6E3;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:13px;font-weight:700">C · Azul-petróleo</span>
+      <div style="height:64px;background:#0E5A7A;display:flex;align-items:flex-end;padding:10px;color:#FFFFFF;font-size:12px;font-weight:700">#0E5A7A · 7,4:1 no branco</div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:#0E5A7A">R$ 2.910<span style="font-size:14px;font-weight:600">/mês</span></div>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#333333">Sóbrio e seguro. Risco: fica no território do QuintoAndar e do VivaReal e perde contraste com os azuis de Apartamento.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s3" data-screen-label="03 Tokens" style="display:flex;flex-direction:column;gap:28px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">3. Tokens</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,500px),1fr));gap:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em">Cor · portal e marca</h3>
+      <sc-for list="{{ portalTokens }}" as="t" hint-placeholder-count="12">
+        <div style="display:grid;grid-template-columns:28px minmax(0,1.1fr) 76px minmax(0,1.4fr);gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #EFEFEC">
+          <span style="width:28px;height:28px;border:1px solid #E6E6E3;background:{{ t.v }};display:block"></span>
+          <code style="font-size:12px;font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ t.n }}</code>
+          <code style="font-size:12px;color:#555555;font-family:ui-monospace,Menlo,monospace">{{ t.v }}</code>
+          <span style="font-size:12.5px;line-height:1.5;color:#333333">{{ t.u }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h3 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em">Tipografia · Guton 400–800, sem caixa alta</h3>
+    <div style="overflow-x:auto">
+      <div style="display:grid;grid-template-columns:minmax(170px,0.9fr) minmax(170px,1fr) 60px 110px minmax(240px,1.6fr);min-width:820px">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="11">
+          <code style="padding:10px 12px 10px 0;border-bottom:1px solid #EFEFEC;font-size:12px;font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ t.n }}</code>
+          <span style="padding:10px 12px;border-bottom:1px solid #EFEFEC;font-size:12.5px;color:#333333">{{ t.s }}</span>
+          <span style="padding:10px 12px;border-bottom:1px solid #EFEFEC;font-size:12.5px;color:#333333">{{ t.w }}</span>
+          <span style="padding:10px 12px;border-bottom:1px solid #EFEFEC;font-size:12.5px;color:#333333">{{ t.tr }}</span>
+          <span style="padding:10px 12px;border-bottom:1px solid #EFEFEC;font-size:12.5px;color:#555555">{{ t.u }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em">Espaçamento</h3>
+      <sc-for list="{{ spacing }}" as="t" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 0;border-bottom:1px solid #EFEFEC;font-size:12.5px"><code style="font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ t.n }}</code><span style="color:#555555;text-align:right">{{ t.v }}</span></div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em">Raio</h3>
+      <sc-for list="{{ radius }}" as="t" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 0;border-bottom:1px solid #EFEFEC;font-size:12.5px"><code style="font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ t.n }}</code><span style="color:#555555;text-align:right">{{ t.v }}</span></div>
+      </sc-for>
+      <p style="margin:4px 0 0;font-size:12.5px;line-height:1.6;color:#333333">Portal: raio 0 na estrutura (faixas, seções, cabeçalho, mosaico) e 4px no que é foto ou alvo de toque. Foto de ambiente com canto vivo em tamanho de card parece recorte de tela; 4px diz "foto" sem virar bolha.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em">Breakpoints</h3>
+      <sc-for list="{{ breakpoints }}" as="t" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:70px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid #EFEFEC;font-size:12.5px"><code style="font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ t.n }}</code><span style="color:#555555">{{ t.v }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="s4" data-screen-label="04 Tipos de imóvel" style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">4. Cor por tipo de imóvel</h2>
+  <p style="margin:0;max-width:72ch;font-size:15px;line-height:1.7;color:#333333">Substitui a cor por nicho do OpaPreço. Aparece como quadrado de 10px antes do tipo, filete de 4px no menu, bloco no mosaico da home e faixa no topo da página de busca. Nunca como fundo de card nem em texto corrido, e sempre ao lado do nome. Paleta e grade vêm da identidade Oficina Conectada: bloco de cor cheia com grade branca de 1px a 14–16%, e fundo branco com a mesma grade no tom do acento a 8%. Textos em caixa normal, nunca em caixa alta.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:#E6E6E3;border:1px solid #E6E6E3">
+    <sc-for list="{{ types }}" as="t" hint-placeholder-count="7">
+      <div style="background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:34px 34px;color:{{ t.fg }};padding:14px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px">
+          <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em;line-height:1.15">{{ t.nome }}</span>
+          <span style="font-size:12px;font-weight:600">{{ t.exemplo }}</span>
+        </div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#555555">
+          <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#111111"><span style="width:10px;height:10px;background:{{ t.bg }};display:block"></span>{{ t.nome }}</span>
+          <code style="font-family:ui-monospace,Menlo,monospace">{{ t.bg }} / {{ t.fg }}</code>
+          <span>{{ t.contraste }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <p style="margin:0;font-size:12px;color:#6E6E6E">As contagens no mosaico são fictícias.</p>
+</section>
+
+<section id="s6" data-screen-label="06 Componentes" style="display:flex;flex-direction:column;gap:28px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">5. Componente de amostra</h2>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px"><h3 style="margin:0;font-size:16px;font-weight:700">ImovelCard · portal</h3><span style="font-size:12px;color:#6E6E6E">Variantes: aluguel, venda, os dois. Valores fictícios. Fotos em cover, sem endereço.</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:28px 20px">
+      <sc-for list="{{ cards }}" as="c" hint-placeholder-count="3">
+        <a href="#s6" style="display:flex;flex-direction:column;gap:12px;text-decoration:none;color:#111111">
+          <div style="position:relative;aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:12px;font-weight:600;color:#6E6E6E">{{ c.foto }}</span>
+            <span style="position:absolute;left:10px;bottom:10px;background:#FFFFFF;color:#111111;font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:4px">{{ c.finalidade }}</span>
+            <span style="position:absolute;right:10px;bottom:10px;background:#FFFFFF;color:#333333;font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:4px">1/{{ c.fotos }}</span>
           </div>
-
-          <div style="display: flex; flex-direction: column; gap: 10px">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em">
-              Tipografia · Guton 400–800, sem caixa alta
-            </h3>
-            <div style="overflow-x: auto">
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: minmax(170px, 0.9fr) minmax(170px, 1fr) 60px 110px minmax(
-                      240px,
-                      1.6fr
-                    );
-                  min-width: 820px;
-                "
-              >
-                <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="11">
-                  <code
-                    style="
-                      padding: 10px 12px 10px 0;
-                      border-bottom: 1px solid #efefec;
-                      font-size: 12px;
-                      font-weight: 600;
-                      font-family: ui-monospace, Menlo, monospace;
-                    "
-                    >{{ t.n }}</code
-                  >
-                  <span
-                    style="
-                      padding: 10px 12px;
-                      border-bottom: 1px solid #efefec;
-                      font-size: 12.5px;
-                      color: #333333;
-                    "
-                    >{{ t.s }}</span
-                  >
-                  <span
-                    style="
-                      padding: 10px 12px;
-                      border-bottom: 1px solid #efefec;
-                      font-size: 12.5px;
-                      color: #333333;
-                    "
-                    >{{ t.w }}</span
-                  >
-                  <span
-                    style="
-                      padding: 10px 12px;
-                      border-bottom: 1px solid #efefec;
-                      font-size: 12.5px;
-                      color: #333333;
-                    "
-                    >{{ t.tr }}</span
-                  >
-                  <span
-                    style="
-                      padding: 10px 12px;
-                      border-bottom: 1px solid #efefec;
-                      font-size: 12.5px;
-                      color: #555555;
-                    "
-                    >{{ t.u }}</span
-                  >
-                </sc-for>
-              </div>
-            </div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:{{ c.cor }};display:block"></span>{{ c.tipo }} · {{ c.bairro }}</div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span>
+            <span style="font-size:12.5px;color:#555555">{{ c.detalhe }}</span>
           </div>
-
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-              gap: 32px;
-            "
-          >
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em">
-                Espaçamento
-              </h3>
-              <sc-for list="{{ spacing }}" as="t" hint-placeholder-count="8">
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: minmax(0, 1fr) auto;
-                    gap: 12px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 12.5px;
-                  "
-                >
-                  <code style="font-weight: 600; font-family: ui-monospace, Menlo, monospace"
-                    >{{ t.n }}</code
-                  ><span style="color: #555555; text-align: right">{{ t.v }}</span>
-                </div>
-              </sc-for>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em">
-                Raio
-              </h3>
-              <sc-for list="{{ radius }}" as="t" hint-placeholder-count="6">
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: minmax(0, 1fr) auto;
-                    gap: 12px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 12.5px;
-                  "
-                >
-                  <code style="font-weight: 600; font-family: ui-monospace, Menlo, monospace"
-                    >{{ t.n }}</code
-                  ><span style="color: #555555; text-align: right">{{ t.v }}</span>
-                </div>
-              </sc-for>
-              <p style="margin: 4px 0 0; font-size: 12.5px; line-height: 1.6; color: #333333">
-                Portal: raio 0 na estrutura (faixas, seções, cabeçalho, mosaico) e 4px no que é foto
-                ou alvo de toque. Foto de ambiente com canto vivo em tamanho de card parece recorte
-                de tela; 4px diz "foto" sem virar bolha.
-              </p>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em">
-                Breakpoints
-              </h3>
-              <sc-for list="{{ breakpoints }}" as="t" hint-placeholder-count="5">
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: 70px minmax(0, 1fr);
-                    gap: 12px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #efefec;
-                    font-size: 12.5px;
-                  "
-                >
-                  <code style="font-weight: 600; font-family: ui-monospace, Menlo, monospace"
-                    >{{ t.n }}</code
-                  ><span style="color: #555555">{{ t.v }}</span>
-                </div>
-              </sc-for>
-            </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;font-weight:600;color:#333333;padding-top:10px;border-top:1px solid #EFEFEC">
+            <sc-for list="{{ c.attrs }}" as="a" hint-placeholder-count="4"><span>{{ a }}</span></sc-for>
           </div>
-        </section>
+          <div style="font-size:11.5px;font-weight:600;color:#6E6E6E">{{ c.imob }}</div>
+        </a>
+      </sc-for>
+    </div>
+    <div style="font-size:12.5px;line-height:1.6;color:#555555;max-width:80ch">Anatomia: foto 4:3 com raio 4 e contador de fotos · quadrado do tipo + tipo · bairro · valor em acento (aluguel: total mensal; venda: preço) · linha de apoio com os valores separados · atributos · imobiliária com CRECI. O card inteiro é o link; sem botão "Contatar" repetido em cada card.</div>
+  </div>
 
-        <section
-          id="s4"
-          data-screen-label="04 Tipos de imóvel"
-          style="display: flex; flex-direction: column; gap: 20px"
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-              padding-bottom: 12px;
-              border-bottom: 1px solid #111111;
-            "
-          >
-            4. Cor por tipo de imóvel
-          </h2>
-          <p style="margin: 0; max-width: 72ch; font-size: 15px; line-height: 1.7; color: #333333">
-            Substitui a cor por nicho do OpaPreço. Aparece como quadrado de 10px antes do tipo,
-            filete de 4px no menu, bloco no mosaico da home e faixa no topo da página de busca.
-            Nunca como fundo de card nem em texto corrido, e sempre ao lado do nome. Paleta e grade
-            vêm da identidade Oficina Conectada: bloco de cor cheia com grade branca de 1px a
-            14–16%, e fundo branco com a mesma grade no tom do acento a 8%. Textos em caixa normal,
-            nunca em caixa alta.
-          </p>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-              gap: 1px;
-              background: #e6e6e3;
-              border: 1px solid #e6e6e3;
-            "
-          >
-            <sc-for list="{{ types }}" as="t" hint-placeholder-count="7">
-              <div style="background: #ffffff; display: flex; flex-direction: column">
-                <div
-                  style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:34px 34px;color:{{ t.fg }};padding:14px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px"
-                >
-                  <span
-                    style="
-                      font-size: 18px;
-                      font-weight: 700;
-                      letter-spacing: -0.02em;
-                      line-height: 1.15;
-                    "
-                    >{{ t.nome }}</span
-                  >
-                  <span style="font-size: 12px; font-weight: 600">{{ t.exemplo }}</span>
-                </div>
-                <div
-                  style="
-                    padding: 10px 12px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    font-size: 11.5px;
-                    color: #555555;
-                  "
-                >
-                  <span
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: 7px;
-                      font-size: 12.5px;
-                      font-weight: 600;
-                      color: #111111;
-                    "
-                    ><span style="width:10px;height:10px;background:{{ t.bg }};display:block"></span
-                    >{{ t.nome }}</span
-                  >
-                  <code style="font-family: ui-monospace, Menlo, monospace"
-                    >{{ t.bg }} / {{ t.fg }}</code
-                  >
-                  <span>{{ t.contraste }}</span>
-                </div>
-              </div>
-            </sc-for>
-          </div>
-          <p style="margin: 0; font-size: 12px; color: #6e6e6e">
-            As contagens no mosaico são fictícias.
-          </p>
-        </section>
+</section>
 
-        <section
-          id="s6"
-          data-screen-label="06 Componentes"
-          style="display: flex; flex-direction: column; gap: 28px"
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-              padding-bottom: 12px;
-              border-bottom: 1px solid #111111;
-            "
-          >
-            5. Componente de amostra
-          </h2>
-
-          <div style="display: flex; flex-direction: column; gap: 14px">
-            <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px">
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700">ImovelCard · portal</h3>
-              <span style="font-size: 12px; color: #6e6e6e"
-                >Variantes: aluguel, venda, os dois. Valores fictícios. Fotos em cover, sem
-                endereço.</span
-              >
-            </div>
-            <div
-              style="
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-                gap: 28px 20px;
-              "
-            >
-              <sc-for list="{{ cards }}" as="c" hint-placeholder-count="3">
-                <a
-                  href="#s6"
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                    text-decoration: none;
-                    color: #111111;
-                  "
-                >
-                  <div
-                    style="
-                      position: relative;
-                      aspect-ratio: 4/3;
-                      background: #f4f4f2;
-                      border-radius: 4px;
-                      overflow: hidden;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                    "
-                  >
-                    <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
-                      >{{ c.foto }}</span
-                    >
-                    <span
-                      style="
-                        position: absolute;
-                        left: 10px;
-                        bottom: 10px;
-                        background: #ffffff;
-                        color: #111111;
-                        font-size: 11.5px;
-                        font-weight: 700;
-                        padding: 4px 8px;
-                        border-radius: 4px;
-                      "
-                      >{{ c.finalidade }}</span
-                    >
-                    <span
-                      style="
-                        position: absolute;
-                        right: 10px;
-                        bottom: 10px;
-                        background: #ffffff;
-                        color: #333333;
-                        font-size: 11.5px;
-                        font-weight: 600;
-                        padding: 4px 8px;
-                        border-radius: 4px;
-                      "
-                      >1/{{ c.fotos }}</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: 7px;
-                      font-size: 12px;
-                      font-weight: 600;
-                      color: #555555;
-                    "
-                  >
-                    <span style="width:10px;height:10px;background:{{ c.cor }};display:block"></span
-                    >{{ c.tipo }} · {{ c.bairro }}
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 2px">
-                    <span
-                      style="
-                        font-size: 20px;
-                        font-weight: 800;
-                        letter-spacing: -0.025em;
-                        color: #037a4b;
-                      "
-                      >{{ c.valor }}</span
-                    >
-                    <span style="font-size: 12.5px; color: #555555">{{ c.detalhe }}</span>
-                  </div>
-                  <div
-                    style="
-                      display: flex;
-                      flex-wrap: wrap;
-                      gap: 4px 14px;
-                      font-size: 13px;
-                      font-weight: 600;
-                      color: #333333;
-                      padding-top: 10px;
-                      border-top: 1px solid #efefec;
-                    "
-                  >
-                    <sc-for list="{{ c.attrs }}" as="a" hint-placeholder-count="4"
-                      ><span>{{ a }}</span></sc-for
-                    >
-                  </div>
-                  <div style="font-size: 11.5px; font-weight: 600; color: #6e6e6e">
-                    {{ c.imob }}
-                  </div>
-                </a>
-              </sc-for>
-            </div>
-            <div style="font-size: 12.5px; line-height: 1.6; color: #555555; max-width: 80ch">
-              Anatomia: foto 4:3 com raio 4 e contador de fotos · quadrado do tipo + tipo · bairro ·
-              valor em acento (aluguel: total mensal; venda: preço) · linha de apoio com os valores
-              separados · atributos · imobiliária com CRECI. O card inteiro é o link; sem botão
-              "Contatar" repetido em cada card.
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="s7"
-          data-screen-label="07 Decisões"
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            border-top: 1px solid #111111;
-            padding-top: 24px;
-          "
-        >
-          <h2
-            style="
-              margin: 0;
-              font-size: clamp(22px, 2.4vw, 28px);
-              font-weight: 700;
-              letter-spacing: -0.02em;
-            "
-          >
-            Decisões para aprovar
-          </h2>
-          <ol
-            style="
-              margin: 0;
-              padding-left: 20px;
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-              font-size: 15px;
-              line-height: 1.65;
-              color: #333333;
-              max-width: 78ch;
-            "
-          >
-            <li>
-              <b style="color: #111">Acento:</b> verde-quintal #037A4B (A), terracota (B) ou
-              azul-petróleo (C).
-            </li>
-            <li>
-              <b style="color: #111">Segundo fundo do portal:</b> #F4F4F2 neutro no lugar do #F4F2EF
-              quente. Como a foto do imóvel ocupa o quadro inteiro, esse fundo só aparece em faixas
-              e enquanto a foto carrega; o tom quente puxaria o verde para o oliva.
-            </li>
-            <li>
-              <b style="color: #111">Raio:</b> 0 na estrutura do portal, 4px em foto, card, botão e
-              campo.
-            </li>
-            <li>
-              <b style="color: #111">Tipos de imóvel:</b> sete tipos com a paleta Oficina Conectada.
-              Terreno e lançamento ficam fora porque estão fora do escopo.
-            </li>
-            <li>
-              <b style="color: #111">Grade:</b> 48px no desktop, 40px no celular, 34px nos blocos do
-              mosaico. Blocos coloridos no hero e na faixa "Para imobiliárias"; o resto do fundo é
-              branco com grade clara.
-            </li>
-          </ol>
-        </section>
-      </main>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const S = {
-            done:{bg:'#00C875',fg:'#053B22'}, work:{bg:'#FDAB3D',fg:'#3D2400'}, wait:{bg:'#FFCB00',fg:'#3D3000'},
-            info:{bg:'#579BFC',fg:'#0A2350'}, stuck:{bg:'#D1344C',fg:'#FFFFFF'}, deal:{bg:'#8E4FCF',fg:'#FFFFFF'},
-            live:{bg:'#037F4C',fg:'#FFFFFF'}, off:{bg:'#C4C4C4',fg:'#323338'}
-          };
-          const p = (l,k) => ({l, bg:S[k].bg, fg:S[k].fg, bd:'0'});
-          const ai = {l:'Sugerido pela IA',bg:'#FFFFFF',fg:'#6B35A8',bd:'1.5px dashed #8E4FCF'};
-          const soon = {l:'Em breve',bg:'#FFFFFF',fg:'#676879',bd:'1px solid #C3C6D4'};
-          const test = {l:'Modo de teste',bg:'#FFFFFF',fg:'#8A4B00',bd:'1px solid #E0A04A'};
-          return {
-            refs: [
-              {nome:'OpaPreço (pacote de front-end)',arquivo:'front_opapreco/',usar:'Base visual inteira: branco, divisórias de 1px, Guton sem caixa alta, uma cor de acento, cor por categoria em quadrado/filete/bloco, FiltrosLaterais em gaveta no celular, ChipsFiltro, FAQ com FAQPage, barra fixa com preço e botão no celular. Painel no estilo Vibe com pílulas de status.',evitar:'Foto em contain com multiply sobre fundo quente, SlideDestaque em carrossel, ProvaSocial com números e nota do Google, malha de fundo.',motivo:'Foto de imóvel é ambiente e precisa preencher o quadro. Número de prova social sem fonte real quebra a regra "todo dado vem do anúncio".'},
-              {nome:'QuintoAndar · home',arquivo:'3541157e…pdf',usar:'Busca no hero com abas Alugar/Comprar, cidade, bairro, "valor total até" e quartos. Colunas por cidade com links por tipo. "Buscas mais populares".',evitar:'Blocos de serviço ilustrados em cores fortes, banner de consórcio, carrosséis de promoção.',motivo:'Valor total como filtro é exatamente o nosso dado. Serviços financeiros não existem no AchouImóvel.'},
-              {nome:'ZAP Imóveis · home',arquivo:'ada78e0d…pdf',usar:'Card com aluguel e a linha "Cond. · IPTU" logo abaixo, atributos em linha. Lista de bairros populares por cidade.',evitar:'Espaços de publicidade, botão "Contatar" em cada card, blog, roxo em todos os botões.',motivo:'O botão no card compete com o clique do card inteiro. Blog e notícias estão fora de escopo.'},
-              {nome:'VivaReal · home',arquivo:'b2ff0f6c…png',usar:'Faixa "Corretores, imobiliárias e incorporadoras" como modelo da nossa "Para imobiliárias". Bloco de cidades com foto e cinco links.',evitar:'Recortes orgânicos em fotos, foto de banco com pessoas, card cortado na borda do carrossel, rodapé escuro.',motivo:'Proibido fundo escuro. Foto de pessoa não é dado de anúncio e ocupa o lugar do imóvel.'},
-              {nome:'MySide · home',arquivo:'a3dce984…pdf',usar:'Hubs por cidade com lista de bairros (base do SEO por bairro). Organização de conteúdo por etapa da procura.',evitar:'Faixa azul-escura com busca, depoimentos com estrelas, vitrine de lançamentos, calculadoras.',motivo:'Lançamentos, calculadoras e guias estão fora do PR A e do PR B.'},
-              {nome:'Kenlo · home',arquivo:'d315eba7…pdf',usar:'Ecossistema apresentado produto a produto com uma frase cada. Lista "como uma imobiliária opera" em passos. FAQ em frase direta.',evitar:'Seções escuras, cartões pastel com formas, números grandes, palavras coloridas no meio do título.',motivo:'Nenhum fundo escuro. Usar como referência de conteúdo e estrutura, não de visual.'},
-              {nome:'Kenlo Imob · CRM',arquivo:'cmr kenlo.pdf',usar:'Roteiro da página B2B: problema → fluxo do lead ao fechamento → módulos → planos com preço público → FAQ longo. Três planos lado a lado com a mesma lista de itens.',evitar:'Chamada escura no meio da página, carrossel de depoimentos com números.',motivo:'É o molde de /para-imobiliarias/gestao e de /planos.'},
-              {nome:'Kenlo Locação · ERP',arquivo:'erp.pdf',usar:'Como apresenta cobrança, repasse e conciliação. Plano cobrado por contratos administrados, que é o modelo do Gestão Locação.',evitar:'DIMOB e NF-e como recurso pronto, bloco final e rodapé escuros.',motivo:'Não temos DIMOB nem NF-e. Cobrança real aparece como "em breve" enquanto não estiver no ar.'},
-              {nome:'LYA SDR (2 arquivos iguais)',arquivo:'4becd22b… / f29d7e6c…pdf',usar:'Fluxo em passos do primeiro atendimento até o lead qualificado e a passagem para o corretor.',evitar:'"A IA atende e agenda sozinha" como promessa.',motivo:'No AchouImóvel o atendimento automático passa para a equipe e a pessoa decide.'},
-              {nome:'LYA Omnichannel',arquivo:'cd80519d…pdf',usar:'Caixa de entrada em três colunas: lista, conversa, contexto do lead. Quem está respondendo sempre visível. Tabela antes × depois.',evitar:'Tabela comparativa em fundo escuro.',motivo:'É o modelo direto da tela Atendimento.'},
-              {nome:'LYA Editor',arquivo:'ca94be27…pdf',usar:'Fluxo sugerir → revisar → aprovar e a fila de anúncios que precisam de melhoria.',evitar:'Geração em massa sem revisão.',motivo:'Regra 1: toda sugestão de IA tem estado "sugerido" e ações aceitar, editar e descartar.'},
-              {nome:'LYA Studio',arquivo:'b945b9e4…pdf',usar:'Galeria com legenda por foto e ações por imagem.',evitar:'Ambientação virtual de fotos publicada no portal.',motivo:'Mostraria um imóvel diferente do real para quem procura. Fora de escopo.'},
-              {nome:'Kenlo · cadastro',arquivo:'77dde5e0…pdf',usar:'Uma pergunta por tela, contador "1 de 6", botão largo "Próximo".',evitar:'Metade da tela com oferta de preço, selo "só este mês" e botão em gradiente.',motivo:'Modelo do /register com plano escolhido, sem gradiente nem urgência.'}
-            ],
-            portalTokens: [
-              {n:'--brand-accent',v:'#037A4B',u:'Valor (total ou preço), botão principal, links de texto'},
-              {n:'--brand-accent-hover',v:'#02603B',u:'Hover e pressionado do botão principal'},
-              {n:'--portal-bg',v:'#FFFFFF',u:'Fundo de todas as páginas'},
-              {n:'--portal-surface',v:'#F4F4F2',u:'Faixas e espaço da foto enquanto carrega'},
-              {n:'--portal-ink',v:'#111111',u:'Títulos, filete de título de seção'},
-              {n:'--portal-ink-2',v:'#333333',u:'Texto corrido'},
-              {n:'--portal-muted',v:'#555555',u:'Subtítulos, linha de valores separados'},
-              {n:'--portal-muted-2',v:'#6E6E6E',u:'Rótulos pequenos, CRECI, trilha (5,1:1)'},
-              {n:'--portal-line',v:'#E6E6E3',u:'Divisória de seção'},
-              {n:'--portal-line-soft',v:'#EFEFEC',u:'Divisória de linha de lista'},
-              {n:'--portal-focus',v:'#037A4B',u:'Anel de foco 2px, afastado 2px'},
-              {n:'--portal-error',v:'#B42318',u:'Erro de formulário (texto e borda)'}
-            ],
-            appTokens: [
-              {n:'--app-bg',v:'#F6F7FB',u:'Fundo do painel'},
-              {n:'--app-surface',v:'#FFFFFF',u:'Cards, tabelas, sidebar'},
-              {n:'--app-line',v:'#E6E9EF',u:'Bordas'},
-              {n:'--app-line-soft',v:'#F0F1F5',u:'Linhas de tabela'},
-              {n:'--app-ink',v:'#323338',u:'Texto'},
-              {n:'--app-muted',v:'#676879',u:'Texto secundário (5,5:1)'},
-              {n:'--app-faint',v:'#767886',u:'Grupo da sidebar, legendas (4,6:1)'},
-              {n:'--app-primary',v:'#0073EA',u:'Ação principal, item ativo (4,6:1)'},
-              {n:'--app-primary-hover',v:'#0060B9',u:'Hover, links de ação'},
-              {n:'--app-primary-soft',v:'#E5F4FF',u:'Item ativo, linha selecionada, chips'},
-              {n:'--app-positive',v:'#00854D',u:'Texto de sucesso'},
-              {n:'--app-negative',v:'#C92C44',u:'Texto de erro e atraso'}
-            ],
-            typeScale: [
-              {n:'--type-h1-home',s:'clamp(30px,4.2vw,52px)/1.1',w:'700',tr:'-0.03em',u:'H1 da home, text-wrap: balance'},
-              {n:'--type-h1',s:'clamp(28px,4vw,46px)/1.08',w:'800',tr:'-0.035em',u:'H1 da busca ("48 apartamentos para alugar…") e do anúncio'},
-              {n:'--type-h2',s:'clamp(20px,2.3vw,26px)/1.1',w:'700',tr:'-0.02em',u:'Título de seção com filete de 1px abaixo'},
-              {n:'--type-price-xl',s:'clamp(34px,4.4vw,52px)/1',w:'800',tr:'-0.035em',u:'Total mensal ou preço na página do anúncio'},
-              {n:'--type-price-card',s:'18–20px/1.2',w:'800',tr:'-0.025em',u:'Valor no ImovelCard'},
-              {n:'--type-card-title',s:'14–15px/1.35',w:'600',tr:'-0.015em',u:'Tipo, bairro e atributos no card'},
-              {n:'--type-body',s:'15–16.5px/1.7',w:'400',tr:'0',u:'Descrição do anúncio, texto de SEO, FAQ'},
-              {n:'--type-label',s:'11.5–12px/1.4',w:'600',tr:'0',u:'Rótulos, CRECI, trilha'}
-            ],
-            spacing: [
-              {n:'--space-1 … --space-6',v:'4 · 8 · 12 · 16 · 24 · 32 px'},
-              {n:'--space-7 · --space-8',v:'48 · 64 px'},
-              {n:'--portal-section-gap',v:'clamp(56px, 8vw, 104px)'},
-              {n:'--portal-gutter',v:'clamp(18px, 4vw, 36px)'},
-              {n:'--portal-max',v:'1280px (cabeçalho 1440px)'},
-              {n:'--tap-min',v:'44px em qualquer alvo de toque'}
-            ],
-            radius: [
-              {n:'--portal-radius-structure',v:'0'},
-              {n:'--portal-radius',v:'4px · foto, card, botão, campo'},
-              {n:'--radius-avatar',v:'50%'}
-            ],
-            breakpoints: [
-              {n:'390',v:'Celular de referência. Menu e filtros em gaveta, barra fixa de contato'},
-              {n:'640',v:'Grade de cards em 2 colunas'},
-              {n:'900',v:'Cabeçalho completo (64px) e filtros laterais fixos'},
-              {n:'1180',v:'Grade em 3–4 colunas, mosaico de tipos numa fileira'},
-              {n:'1440',v:'Desktop de referência das telas'}
-            ],
-            types: [
-              {nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF',exemplo:'312 anúncios',contraste:'Texto branco 9,2:1'},
-              {nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00',exemplo:'148 anúncios',contraste:'Texto escuro 6,8:1 (branco não passa)'},
-              {nome:'Casa de condomínio',bg:'#037A4B',fg:'#FFFFFF',exemplo:'64 anúncios',contraste:'Texto branco 5,4:1'},
-              {nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF',exemplo:'37 anúncios',contraste:'Texto branco 14,6:1'},
-              {nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF',exemplo:'91 anúncios',contraste:'Texto branco 5,0:1'},
-              {nome:'Cobertura',bg:'#0B3A12',fg:'#FFFFFF',exemplo:'22 anúncios',contraste:'Texto branco 13,1:1'},
-              {nome:'Sala e loja',bg:'#B5B5B5',fg:'#111111',exemplo:'45 anúncios',contraste:'Texto escuro 9,4:1'}
-            ],
-            semantic: [
-              {nome:'Concluído',...S.done},{nome:'Ativo contínuo',...S.live},{nome:'Em andamento',...S.work},{nome:'Aguardando terceiro',...S.wait},
-              {nome:'Agendado',...S.info},{nome:'Negociação',...S.deal},{nome:'Problema',...S.stuck},{nome:'Encerrado',...S.off}
-            ],
-            statusGroups: [
-              {nome:'Anúncio',tag:'',itens:[p('Rascunho','off'),p('Pronto para publicar','info'),p('Publicado','done'),p('Pausado','wait'),p('Bloqueado','stuck'),p('Removido','off')]},
-              {nome:'Lead',tag:'',itens:[p('Novo','info'),p('Em atendimento','work'),p('Qualificado','deal'),p('Visita agendada','info'),p('Proposta','deal'),p('Ganho','done'),p('Perdido','off')]},
-              {nome:'Visita',tag:'',itens:[p('Agendada','info'),p('Confirmada','live'),p('Reagendada','work'),p('Realizada','done'),p('Não compareceu','stuck'),p('Cancelada','off')]},
-              {nome:'Proposta de locação',tag:'',itens:[p('Rascunho','off'),p('Enviada','wait'),p('Aceita','done'),p('Recusada','stuck'),p('Expirada','off')]},
-              {nome:'Negociação de venda',tag:'NOVO',itens:[p('Proposta','deal'),p('Contraproposta','work'),p('Documentação','wait'),p('Contrato','info'),p('Fechada','done'),p('Desistência','off')]},
-              {nome:'Análise cadastral',tag:'',itens:[p('Aguardando autorização','wait'),p('Em análise','work'),p('Aprovada','done'),p('Reprovada','stuck')]},
-              {nome:'Contrato',tag:'',itens:[p('Rascunho','off'),p('Aguardando assinatura','wait'),p('Assinado','done'),p('Cancelado','off')]},
-              {nome:'Vistoria',tag:'',itens:[p('Agendada','info'),p('Em andamento','work'),p('Aguardando revisão','wait'),p('Concluída','done')]},
-              {nome:'Locação',tag:'',itens:[p('Ativa','live'),p('Reajuste pendente','wait'),p('Em renovação','work'),p('Encerrando','stuck'),p('Encerrada','off')]},
-              {nome:'Cobrança',tag:'',itens:[p('Em aberto','info'),p('Vence hoje','wait'),p('Vencida','stuck'),p('Paga','done'),p('Cancelada','off')]},
-              {nome:'Repasse',tag:'',itens:[p('Previsto','info'),p('Processando','work'),p('Retido','stuck'),p('Pago','done')]},
-              {nome:'Marcas transversais',tag:'',itens:[ai,soon,test]}
-            ],
-            cards: [
-              {foto:'Foto do imóvel · cover',finalidade:'Alugar',fotos:12,cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno, Goiânia',valor:'R$ 2.910 total/mês',detalhe:'Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130',attrs:['72 m²','2 quartos','1 suíte','1 vaga'],imob:'Imobiliária Exemplo · CRECI 0000-J'},
-              {foto:'Foto do imóvel · cover',finalidade:'Comprar',fotos:18,cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Jardins Atenas, Goiânia',valor:'R$ 890.000',detalhe:'R$ 5.235/m² · Cond. R$ 620 · IPTU R$ 210',attrs:['170 m²','3 quartos','3 suítes','2 vagas'],imob:'Imobiliária Exemplo · CRECI 0000-J'},
-              {foto:'Foto do imóvel · cover',finalidade:'Alugar ou comprar',fotos:9,cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Setor Universitário, Goiânia',valor:'R$ 1.340 total/mês',detalhe:'ou R$ 210.000 à venda',attrs:['32 m²','1 quarto','mobiliado','aceita pet'],imob:'Imobiliária Exemplo · CRECI 0000-J'}
-            ],
-            leads: [
-              {nome:'Mariana Costa',fone:'(62) 9 ••••-1234',origem:'Portal AchouImóvel',origemCor:'#037A4B',imovel:'Apto 2 qts · Setor Bueno',etapa:'Novo',etapaBg:S.info.bg,etapaFg:S.info.fg,resp:'Rafael',ini:'RA',tempo:'há 12 min',tempoCor:'#676879',tempoPeso:500,rowBg:'#FFFFFF',rowBar:'none',chk:'',chkBd:'#C3C6D4',chkBg:'#FFFFFF'},
-              {nome:'João Pereira',fone:'(62) 9 ••••-5678',origem:'WhatsApp',origemCor:'#25A55F',imovel:'Casa 3 qts · Jardim América',etapa:'Em atendimento',etapaBg:S.work.bg,etapaFg:S.work.fg,resp:'Luana',ini:'LU',tempo:'há 2 dias',tempoCor:'#C92C44',tempoPeso:700,rowBg:'#E5F4FF',rowBar:'inset 3px 0 0 #0073EA',chk:'✓',chkBd:'#0073EA',chkBg:'#0073EA'},
-              {nome:'Ana Ribeiro',fone:'(62) 9 ••••-9012',origem:'Manual',origemCor:'#9699A6',imovel:'Studio · Setor Universitário',etapa:'Visita agendada',etapaBg:S.info.bg,etapaFg:S.info.fg,resp:'Rafael',ini:'RA',tempo:'ontem',tempoCor:'#676879',tempoPeso:500,rowBg:'#FFFFFF',rowBar:'none',chk:'',chkBd:'#C3C6D4',chkBg:'#FFFFFF'}
-            ]
-          };
-        }
-      }
-    </script>
-  </body>
+<section id="s7" data-screen-label="07 Decisões" style="display:flex;flex-direction:column;gap:16px;border-top:1px solid #111111;padding-top:24px">
+  <h2 style="margin:0;font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.02em">Decisões para aprovar</h2>
+  <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.65;color:#333333;max-width:78ch">
+    <li><b style="color:#111">Acento:</b> verde-quintal #037A4B (A), terracota (B) ou azul-petróleo (C).</li>
+    <li><b style="color:#111">Segundo fundo do portal:</b> #F4F4F2 neutro no lugar do #F4F2EF quente. Como a foto do imóvel ocupa o quadro inteiro, esse fundo só aparece em faixas e enquanto a foto carrega; o tom quente puxaria o verde para o oliva.</li>
+    <li><b style="color:#111">Raio:</b> 0 na estrutura do portal, 4px em foto, card, botão e campo.</li>
+    <li><b style="color:#111">Tipos de imóvel:</b> sete tipos com a paleta Oficina Conectada. Terreno e lançamento ficam fora porque estão fora do escopo.</li><li><b style="color:#111">Grade:</b> 48px no desktop, 40px no celular, 34px nos blocos do mosaico. Blocos coloridos no hero e na faixa "Para imobiliárias"; o resto do fundo é branco com grade clara.</li>
+  </ol>
+</section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const S = {
+      done:{bg:'#00C875',fg:'#053B22'}, work:{bg:'#FDAB3D',fg:'#3D2400'}, wait:{bg:'#FFCB00',fg:'#3D3000'},
+      info:{bg:'#579BFC',fg:'#0A2350'}, stuck:{bg:'#D1344C',fg:'#FFFFFF'}, deal:{bg:'#8E4FCF',fg:'#FFFFFF'},
+      live:{bg:'#037F4C',fg:'#FFFFFF'}, off:{bg:'#C4C4C4',fg:'#323338'}
+    };
+    const p = (l,k) => ({l, bg:S[k].bg, fg:S[k].fg, bd:'0'});
+    const ai = {l:'Sugerido pela IA',bg:'#FFFFFF',fg:'#6B35A8',bd:'1.5px dashed #8E4FCF'};
+    const soon = {l:'Em breve',bg:'#FFFFFF',fg:'#676879',bd:'1px solid #C3C6D4'};
+    const test = {l:'Modo de teste',bg:'#FFFFFF',fg:'#8A4B00',bd:'1px solid #E0A04A'};
+    return {
+      refs: [
+        {nome:'OpaPreço (pacote de front-end)',arquivo:'front_opapreco/',usar:'Base visual inteira: branco, divisórias de 1px, Guton sem caixa alta, uma cor de acento, cor por categoria em quadrado/filete/bloco, FiltrosLaterais em gaveta no celular, ChipsFiltro, FAQ com FAQPage, barra fixa com preço e botão no celular. Painel no estilo Vibe com pílulas de status.',evitar:'Foto em contain com multiply sobre fundo quente, SlideDestaque em carrossel, ProvaSocial com números e nota do Google, malha de fundo.',motivo:'Foto de imóvel é ambiente e precisa preencher o quadro. Número de prova social sem fonte real quebra a regra "todo dado vem do anúncio".'},
+        {nome:'QuintoAndar · home',arquivo:'3541157e…pdf',usar:'Busca no hero com abas Alugar/Comprar, cidade, bairro, "valor total até" e quartos. Colunas por cidade com links por tipo. "Buscas mais populares".',evitar:'Blocos de serviço ilustrados em cores fortes, banner de consórcio, carrosséis de promoção.',motivo:'Valor total como filtro é exatamente o nosso dado. Serviços financeiros não existem no AchouImóvel.'},
+        {nome:'ZAP Imóveis · home',arquivo:'ada78e0d…pdf',usar:'Card com aluguel e a linha "Cond. · IPTU" logo abaixo, atributos em linha. Lista de bairros populares por cidade.',evitar:'Espaços de publicidade, botão "Contatar" em cada card, blog, roxo em todos os botões.',motivo:'O botão no card compete com o clique do card inteiro. Blog e notícias estão fora de escopo.'},
+        {nome:'VivaReal · home',arquivo:'b2ff0f6c…png',usar:'Faixa "Corretores, imobiliárias e incorporadoras" como modelo da nossa "Para imobiliárias". Bloco de cidades com foto e cinco links.',evitar:'Recortes orgânicos em fotos, foto de banco com pessoas, card cortado na borda do carrossel, rodapé escuro.',motivo:'Proibido fundo escuro. Foto de pessoa não é dado de anúncio e ocupa o lugar do imóvel.'},
+        {nome:'MySide · home',arquivo:'a3dce984…pdf',usar:'Hubs por cidade com lista de bairros (base do SEO por bairro). Organização de conteúdo por etapa da procura.',evitar:'Faixa azul-escura com busca, depoimentos com estrelas, vitrine de lançamentos, calculadoras.',motivo:'Lançamentos, calculadoras e guias estão fora do PR A e do PR B.'},
+        {nome:'Kenlo · home',arquivo:'d315eba7…pdf',usar:'Ecossistema apresentado produto a produto com uma frase cada. Lista "como uma imobiliária opera" em passos. FAQ em frase direta.',evitar:'Seções escuras, cartões pastel com formas, números grandes, palavras coloridas no meio do título.',motivo:'Nenhum fundo escuro. Usar como referência de conteúdo e estrutura, não de visual.'},
+        {nome:'Kenlo Imob · CRM',arquivo:'cmr kenlo.pdf',usar:'Roteiro da página B2B: problema → fluxo do lead ao fechamento → módulos → planos com preço público → FAQ longo. Três planos lado a lado com a mesma lista de itens.',evitar:'Chamada escura no meio da página, carrossel de depoimentos com números.',motivo:'É o molde de /para-imobiliarias/gestao e de /planos.'},
+        {nome:'Kenlo Locação · ERP',arquivo:'erp.pdf',usar:'Como apresenta cobrança, repasse e conciliação. Plano cobrado por contratos administrados, que é o modelo do Gestão Locação.',evitar:'DIMOB e NF-e como recurso pronto, bloco final e rodapé escuros.',motivo:'Não temos DIMOB nem NF-e. Cobrança real aparece como "em breve" enquanto não estiver no ar.'},
+        {nome:'LYA SDR (2 arquivos iguais)',arquivo:'4becd22b… / f29d7e6c…pdf',usar:'Fluxo em passos do primeiro atendimento até o lead qualificado e a passagem para o corretor.',evitar:'"A IA atende e agenda sozinha" como promessa.',motivo:'No AchouImóvel o atendimento automático passa para a equipe e a pessoa decide.'},
+        {nome:'LYA Omnichannel',arquivo:'cd80519d…pdf',usar:'Caixa de entrada em três colunas: lista, conversa, contexto do lead. Quem está respondendo sempre visível. Tabela antes × depois.',evitar:'Tabela comparativa em fundo escuro.',motivo:'É o modelo direto da tela Atendimento.'},
+        {nome:'LYA Editor',arquivo:'ca94be27…pdf',usar:'Fluxo sugerir → revisar → aprovar e a fila de anúncios que precisam de melhoria.',evitar:'Geração em massa sem revisão.',motivo:'Regra 1: toda sugestão de IA tem estado "sugerido" e ações aceitar, editar e descartar.'},
+        {nome:'LYA Studio',arquivo:'b945b9e4…pdf',usar:'Galeria com legenda por foto e ações por imagem.',evitar:'Ambientação virtual de fotos publicada no portal.',motivo:'Mostraria um imóvel diferente do real para quem procura. Fora de escopo.'},
+        {nome:'Kenlo · cadastro',arquivo:'77dde5e0…pdf',usar:'Uma pergunta por tela, contador "1 de 6", botão largo "Próximo".',evitar:'Metade da tela com oferta de preço, selo "só este mês" e botão em gradiente.',motivo:'Modelo do /register com plano escolhido, sem gradiente nem urgência.'}
+      ],
+      portalTokens: [
+        {n:'--brand-accent',v:'#037A4B',u:'Valor (total ou preço), botão principal, links de texto'},
+        {n:'--brand-accent-hover',v:'#02603B',u:'Hover e pressionado do botão principal'},
+        {n:'--portal-bg',v:'#FFFFFF',u:'Fundo de todas as páginas'},
+        {n:'--portal-surface',v:'#F4F4F2',u:'Faixas e espaço da foto enquanto carrega'},
+        {n:'--portal-ink',v:'#111111',u:'Títulos, filete de título de seção'},
+        {n:'--portal-ink-2',v:'#333333',u:'Texto corrido'},
+        {n:'--portal-muted',v:'#555555',u:'Subtítulos, linha de valores separados'},
+        {n:'--portal-muted-2',v:'#6E6E6E',u:'Rótulos pequenos, CRECI, trilha (5,1:1)'},
+        {n:'--portal-line',v:'#E6E6E3',u:'Divisória de seção'},
+        {n:'--portal-line-soft',v:'#EFEFEC',u:'Divisória de linha de lista'},
+        {n:'--portal-focus',v:'#037A4B',u:'Anel de foco 2px, afastado 2px'},
+        {n:'--portal-error',v:'#B42318',u:'Erro de formulário (texto e borda)'}
+      ],
+      appTokens: [
+        {n:'--app-bg',v:'#F6F7FB',u:'Fundo do painel'},
+        {n:'--app-surface',v:'#FFFFFF',u:'Cards, tabelas, sidebar'},
+        {n:'--app-line',v:'#E6E9EF',u:'Bordas'},
+        {n:'--app-line-soft',v:'#F0F1F5',u:'Linhas de tabela'},
+        {n:'--app-ink',v:'#323338',u:'Texto'},
+        {n:'--app-muted',v:'#676879',u:'Texto secundário (5,5:1)'},
+        {n:'--app-faint',v:'#767886',u:'Grupo da sidebar, legendas (4,6:1)'},
+        {n:'--app-primary',v:'#0073EA',u:'Ação principal, item ativo (4,6:1)'},
+        {n:'--app-primary-hover',v:'#0060B9',u:'Hover, links de ação'},
+        {n:'--app-primary-soft',v:'#E5F4FF',u:'Item ativo, linha selecionada, chips'},
+        {n:'--app-positive',v:'#00854D',u:'Texto de sucesso'},
+        {n:'--app-negative',v:'#C92C44',u:'Texto de erro e atraso'}
+      ],
+      typeScale: [
+        {n:'--type-h1-home',s:'clamp(30px,4.2vw,52px)/1.1',w:'700',tr:'-0.03em',u:'H1 da home, text-wrap: balance'},
+        {n:'--type-h1',s:'clamp(28px,4vw,46px)/1.08',w:'800',tr:'-0.035em',u:'H1 da busca ("48 apartamentos para alugar…") e do anúncio'},
+        {n:'--type-h2',s:'clamp(20px,2.3vw,26px)/1.1',w:'700',tr:'-0.02em',u:'Título de seção com filete de 1px abaixo'},
+        {n:'--type-price-xl',s:'clamp(34px,4.4vw,52px)/1',w:'800',tr:'-0.035em',u:'Total mensal ou preço na página do anúncio'},
+        {n:'--type-price-card',s:'18–20px/1.2',w:'800',tr:'-0.025em',u:'Valor no ImovelCard'},
+        {n:'--type-card-title',s:'14–15px/1.35',w:'600',tr:'-0.015em',u:'Tipo, bairro e atributos no card'},
+        {n:'--type-body',s:'15–16.5px/1.7',w:'400',tr:'0',u:'Descrição do anúncio, texto de SEO, FAQ'},
+        {n:'--type-label',s:'11.5–12px/1.4',w:'600',tr:'0',u:'Rótulos, CRECI, trilha'}
+      ],
+      spacing: [
+        {n:'--space-1 … --space-6',v:'4 · 8 · 12 · 16 · 24 · 32 px'},
+        {n:'--space-7 · --space-8',v:'48 · 64 px'},
+        {n:'--portal-section-gap',v:'clamp(56px, 8vw, 104px)'},
+        {n:'--portal-gutter',v:'clamp(18px, 4vw, 36px)'},
+        {n:'--portal-max',v:'1280px (cabeçalho 1440px)'},
+        {n:'--tap-min',v:'44px em qualquer alvo de toque'}
+      ],
+      radius: [
+        {n:'--portal-radius-structure',v:'0'},
+        {n:'--portal-radius',v:'4px · foto, card, botão, campo'},
+        {n:'--radius-avatar',v:'50%'}
+      ],
+      breakpoints: [
+        {n:'390',v:'Celular de referência. Menu e filtros em gaveta, barra fixa de contato'},
+        {n:'640',v:'Grade de cards em 2 colunas'},
+        {n:'900',v:'Cabeçalho completo (64px) e filtros laterais fixos'},
+        {n:'1180',v:'Grade em 3–4 colunas, mosaico de tipos numa fileira'},
+        {n:'1440',v:'Desktop de referência das telas'}
+      ],
+      types: [
+        {nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF',exemplo:'312 anúncios',contraste:'Texto branco 9,2:1'},
+        {nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00',exemplo:'148 anúncios',contraste:'Texto escuro 6,8:1 (branco não passa)'},
+        {nome:'Casa de condomínio',bg:'#037A4B',fg:'#FFFFFF',exemplo:'64 anúncios',contraste:'Texto branco 5,4:1'},
+        {nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF',exemplo:'37 anúncios',contraste:'Texto branco 14,6:1'},
+        {nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF',exemplo:'91 anúncios',contraste:'Texto branco 5,0:1'},
+        {nome:'Cobertura',bg:'#0B3A12',fg:'#FFFFFF',exemplo:'22 anúncios',contraste:'Texto branco 13,1:1'},
+        {nome:'Sala e loja',bg:'#B5B5B5',fg:'#111111',exemplo:'45 anúncios',contraste:'Texto escuro 9,4:1'}
+      ],
+      semantic: [
+        {nome:'Concluído',...S.done},{nome:'Ativo contínuo',...S.live},{nome:'Em andamento',...S.work},{nome:'Aguardando terceiro',...S.wait},
+        {nome:'Agendado',...S.info},{nome:'Negociação',...S.deal},{nome:'Problema',...S.stuck},{nome:'Encerrado',...S.off}
+      ],
+      statusGroups: [
+        {nome:'Anúncio',tag:'',itens:[p('Rascunho','off'),p('Pronto para publicar','info'),p('Publicado','done'),p('Pausado','wait'),p('Bloqueado','stuck'),p('Removido','off')]},
+        {nome:'Lead',tag:'',itens:[p('Novo','info'),p('Em atendimento','work'),p('Qualificado','deal'),p('Visita agendada','info'),p('Proposta','deal'),p('Ganho','done'),p('Perdido','off')]},
+        {nome:'Visita',tag:'',itens:[p('Agendada','info'),p('Confirmada','live'),p('Reagendada','work'),p('Realizada','done'),p('Não compareceu','stuck'),p('Cancelada','off')]},
+        {nome:'Proposta de locação',tag:'',itens:[p('Rascunho','off'),p('Enviada','wait'),p('Aceita','done'),p('Recusada','stuck'),p('Expirada','off')]},
+        {nome:'Negociação de venda',tag:'NOVO',itens:[p('Proposta','deal'),p('Contraproposta','work'),p('Documentação','wait'),p('Contrato','info'),p('Fechada','done'),p('Desistência','off')]},
+        {nome:'Análise cadastral',tag:'',itens:[p('Aguardando autorização','wait'),p('Em análise','work'),p('Aprovada','done'),p('Reprovada','stuck')]},
+        {nome:'Contrato',tag:'',itens:[p('Rascunho','off'),p('Aguardando assinatura','wait'),p('Assinado','done'),p('Cancelado','off')]},
+        {nome:'Vistoria',tag:'',itens:[p('Agendada','info'),p('Em andamento','work'),p('Aguardando revisão','wait'),p('Concluída','done')]},
+        {nome:'Locação',tag:'',itens:[p('Ativa','live'),p('Reajuste pendente','wait'),p('Em renovação','work'),p('Encerrando','stuck'),p('Encerrada','off')]},
+        {nome:'Cobrança',tag:'',itens:[p('Em aberto','info'),p('Vence hoje','wait'),p('Vencida','stuck'),p('Paga','done'),p('Cancelada','off')]},
+        {nome:'Repasse',tag:'',itens:[p('Previsto','info'),p('Processando','work'),p('Retido','stuck'),p('Pago','done')]},
+        {nome:'Marcas transversais',tag:'',itens:[ai,soon,test]}
+      ],
+      cards: [
+        {foto:'Foto do imóvel · cover',finalidade:'Alugar',fotos:12,cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno, Goiânia',valor:'R$ 2.910 total/mês',detalhe:'Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130',attrs:['72 m²','2 quartos','1 suíte','1 vaga'],imob:'Imobiliária Exemplo · CRECI 0000-J'},
+        {foto:'Foto do imóvel · cover',finalidade:'Comprar',fotos:18,cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Jardins Atenas, Goiânia',valor:'R$ 890.000',detalhe:'R$ 5.235/m² · Cond. R$ 620 · IPTU R$ 210',attrs:['170 m²','3 quartos','3 suítes','2 vagas'],imob:'Imobiliária Exemplo · CRECI 0000-J'},
+        {foto:'Foto do imóvel · cover',finalidade:'Alugar ou comprar',fotos:9,cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Setor Universitário, Goiânia',valor:'R$ 1.340 total/mês',detalhe:'ou R$ 210.000 à venda',attrs:['32 m²','1 quarto','mobiliado','aceita pet'],imob:'Imobiliária Exemplo · CRECI 0000-J'}
+      ],
+      leads: [
+        {nome:'Mariana Costa',fone:'(62) 9 ••••-1234',origem:'Portal AchouImóvel',origemCor:'#037A4B',imovel:'Apto 2 qts · Setor Bueno',etapa:'Novo',etapaBg:S.info.bg,etapaFg:S.info.fg,resp:'Rafael',ini:'RA',tempo:'há 12 min',tempoCor:'#676879',tempoPeso:500,rowBg:'#FFFFFF',rowBar:'none',chk:'',chkBd:'#C3C6D4',chkBg:'#FFFFFF'},
+        {nome:'João Pereira',fone:'(62) 9 ••••-5678',origem:'WhatsApp',origemCor:'#25A55F',imovel:'Casa 3 qts · Jardim América',etapa:'Em atendimento',etapaBg:S.work.bg,etapaFg:S.work.fg,resp:'Luana',ini:'LU',tempo:'há 2 dias',tempoCor:'#C92C44',tempoPeso:700,rowBg:'#E5F4FF',rowBar:'inset 3px 0 0 #0073EA',chk:'✓',chkBd:'#0073EA',chkBg:'#0073EA'},
+        {nome:'Ana Ribeiro',fone:'(62) 9 ••••-9012',origem:'Manual',origemCor:'#9699A6',imovel:'Studio · Setor Universitário',etapa:'Visita agendada',etapaBg:S.info.bg,etapaFg:S.info.fg,resp:'Rafael',ini:'RA',tempo:'ontem',tempoCor:'#676879',tempoPeso:500,rowBg:'#FFFFFF',rowBar:'none',chk:'',chkBd:'#C3C6D4',chkBg:'#FFFFFF'}
+      ]
+    };
+  }
+}
+</script>
+</body>
 </html>

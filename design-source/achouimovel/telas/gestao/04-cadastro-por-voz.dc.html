@@ -1,667 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <style>
-          body {
-            margin: 0;
-            background: #e4e4e0;
-            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-            color: #2f332b;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #417d55;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #2f5f3f;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Gestão · Cadastro por voz e fotos"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 1040px">
-          <div style="font-size: 12px; font-weight: 600; color: #555a52">
-            Entrega 2 · Gestão · cadastro do imóvel por áudio e fotos
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E4E0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#2F332B;-webkit-font-smoothing:antialiased}
+a{color:#417D55;text-underline-offset:3px}a:hover{color:#2F5F3F}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Gestão · Cadastro por voz e fotos" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:1040px">
+    <div style="font-size:12px;font-weight:600;color:#555A52">Entrega 2 · Gestão · cadastro do imóvel por áudio e fotos</div>
+    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-0.02em">O corretor fala e fotografa. A IA preenche. A pessoa confirma.</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#555A52">Rota: /app/properties/new?modo=audio (e app de celular). Componentes: CapturaAudio, CapturaFotos, ProcessamentoIA, TranscricaoMarcada (trecho ligado ao campo), CampoSugerido (estados: do áudio, confirmar, faltando, editado), LegendaSugerida, DescricaoSugerida. Regra: nada é salvo como definitivo sem confirmação; cada campo mostra de onde veio. Visual do painel atual. Dados fictícios.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+
+    <div id="captura" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">1 · Captura no celular · gravando</div>
+      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column;position:relative;overflow:hidden">
+        <div style="height:52px;border-bottom:1px solid #E6E6E3;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px">×</span><span style="text-align:center;font-size:14px;font-weight:600">Novo imóvel por áudio</span><span></span></div>
+        <div style="padding:20px 16px;display:flex;flex-direction:column;gap:14px">
+          <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#555A52">Fale o que souber, em qualquer ordem</span><sc-for list="{{ roteiro }}" as="r" hint-placeholder-count="6"><span style="font-size:12.5px;display:flex;gap:6px;color:{{ r.cor }}"><span style="font-weight:700">{{ r.mk }}</span>{{ r.l }}</span></sc-for></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 0 8px">
+            <div style="display:flex;align-items:center;gap:3px;height:56px"><sc-for list="{{ onda }}" as="o" hint-placeholder-count="28"><span style="width:4px;height:{{ o }};background:#41945D;border-radius:2px;display:block"></span></sc-for></div>
+            <span style="font-size:28px;font-weight:600;font-variant-numeric:tabular-nums">01:42</span>
+            <span style="font-size:12px;color:#6E746B">Gravando · o áudio fica guardado junto com o imóvel</span>
           </div>
-          <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em">
-            O corretor fala e fotografa. A IA preenche. A pessoa confirma.
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555a52">
-            Rota: /app/properties/new?modo=audio (e app de celular). Componentes: CapturaAudio,
-            CapturaFotos, ProcessamentoIA, TranscricaoMarcada (trecho ligado ao campo),
-            CampoSugerido (estados: do áudio, confirmar, faltando, editado), LegendaSugerida,
-            DescricaoSugerida. Regra: nada é salvo como definitivo sem confirmação; cada campo
-            mostra de onde veio. Visual do painel atual. Dados fictícios.
-          </p>
+          <div style="display:flex;justify-content:center;gap:20px;align-items:center">
+            <span style="width:52px;height:52px;border-radius:50%;border:1px solid #C7C7C7;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">Pausar</span>
+            <span style="width:76px;height:76px;border-radius:50%;background:#DC2626;display:flex;align-items:center;justify-content:center"><span style="width:26px;height:26px;border-radius:4px;background:#FFFFFF;display:block"></span></span>
+            <span style="width:52px;height:52px;border-radius:50%;border:1px solid #C7C7C7;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">Foto</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px"><span style="font-size:12px;font-weight:600;color:#555A52">Fotos tiradas durante o áudio · 7</span><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"><sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="7"><span style="aspect-ratio:1/1;background:#F0F0F0;border-radius:6px;display:flex;align-items:flex-end;padding:4px;font-size:9.5px;color:#555A52">{{ t }}</span></sc-for></div></div>
         </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
-          <div id="captura" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              1 · Captura no celular · gravando
-            </div>
-            <div
-              style="
-                width: 390px;
-                height: 844px;
-                background: #fcfcfc;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow: hidden;
-              "
-            >
-              <div
-                style="
-                  height: 52px;
-                  border-bottom: 1px solid #e6e6e3;
-                  display: grid;
-                  grid-template-columns: 44px 1fr 44px;
-                  align-items: center;
-                  padding: 0 6px;
-                "
-              >
-                <span
-                  style="
-                    width: 44px;
-                    height: 44px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 18px;
-                  "
-                  >×</span
-                ><span style="text-align: center; font-size: 14px; font-weight: 600"
-                  >Novo imóvel por áudio</span
-                ><span></span>
-              </div>
-              <div style="padding: 20px 16px; display: flex; flex-direction: column; gap: 14px">
-                <div
-                  style="
-                    background: #ffffff;
-                    border: 1px solid #e6e6e3;
-                    border-radius: 8px;
-                    padding: 12px 14px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                  "
-                >
-                  <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                    >Fale o que souber, em qualquer ordem</span
-                  ><sc-for list="{{ roteiro }}" as="r" hint-placeholder-count="6"
-                    ><span style="font-size:12.5px;display:flex;gap:6px;color:{{ r.cor }}"
-                      ><span style="font-weight: 700">{{ r.mk }}</span>{{ r.l }}</span
-                    ></sc-for
-                  >
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 20px 0 8px;
-                  "
-                >
-                  <div style="display: flex; align-items: center; gap: 3px; height: 56px">
-                    <sc-for list="{{ onda }}" as="o" hint-placeholder-count="28"
-                      ><span
-                        style="width:4px;height:{{ o }};background:#41945D;border-radius:2px;display:block"
-                      ></span
-                    ></sc-for>
-                  </div>
-                  <span
-                    style="font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums"
-                    >01:42</span
-                  >
-                  <span style="font-size: 12px; color: #6e746b"
-                    >Gravando · o áudio fica guardado junto com o imóvel</span
-                  >
-                </div>
-                <div style="display: flex; justify-content: center; gap: 20px; align-items: center">
-                  <span
-                    style="
-                      width: 52px;
-                      height: 52px;
-                      border-radius: 50%;
-                      border: 1px solid #c7c7c7;
-                      background: #ffffff;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 12px;
-                      font-weight: 600;
-                    "
-                    >Pausar</span
-                  >
-                  <span
-                    style="
-                      width: 76px;
-                      height: 76px;
-                      border-radius: 50%;
-                      background: #dc2626;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                    "
-                    ><span
-                      style="
-                        width: 26px;
-                        height: 26px;
-                        border-radius: 4px;
-                        background: #ffffff;
-                        display: block;
-                      "
-                    ></span
-                  ></span>
-                  <span
-                    style="
-                      width: 52px;
-                      height: 52px;
-                      border-radius: 50%;
-                      border: 1px solid #c7c7c7;
-                      background: #ffffff;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 12px;
-                      font-weight: 600;
-                    "
-                    >Foto</span
-                  >
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 6px">
-                  <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                    >Fotos tiradas durante o áudio · 7</span
-                  >
-                  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px">
-                    <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="7"
-                      ><span
-                        style="
-                          aspect-ratio: 1/1;
-                          background: #f0f0f0;
-                          border-radius: 6px;
-                          display: flex;
-                          align-items: flex-end;
-                          padding: 4px;
-                          font-size: 9.5px;
-                          color: #555a52;
-                        "
-                        >{{ t }}</span
-                      ></sc-for
-                    >
-                  </div>
-                </div>
-              </div>
-              <div
-                style="
-                  position: absolute;
-                  left: 0;
-                  right: 0;
-                  bottom: 0;
-                  border-top: 1px solid #e6e6e3;
-                  background: #ffffff;
-                  padding: 12px 16px 22px;
-                "
-              >
-                <span
-                  style="
-                    height: 48px;
-                    background: #41945d;
-                    color: #ffffff;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14.5px;
-                    font-weight: 500;
-                  "
-                  >Concluir e enviar para a IA</span
-                >
-              </div>
-            </div>
-          </div>
+        <div style="position:absolute;left:0;right:0;bottom:0;border-top:1px solid #E6E6E3;background:#FFFFFF;padding:12px 16px 22px"><span style="height:48px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:500">Concluir e enviar para a IA</span></div>
+      </div>
+    </div>
 
-          <div id="processando" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">2 · Processando</div>
-            <div
-              style="
-                width: 390px;
-                height: 844px;
-                background: #fcfcfc;
-                display: flex;
-                flex-direction: column;
-              "
-            >
-              <div
-                style="
-                  height: 52px;
-                  border-bottom: 1px solid #e6e6e3;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 14px;
-                  font-weight: 600;
-                "
-              >
-                Novo imóvel por áudio
-              </div>
-              <div style="padding: 28px 16px; display: flex; flex-direction: column; gap: 16px">
-                <span style="font-size: 18px; font-weight: 600">Organizando o cadastro</span>
-                <span style="font-size: 13px; line-height: 1.6; color: #555a52"
-                  >Leva cerca de 1 minuto. Você pode fechar; avisamos quando estiver pronto para
-                  revisar.</span
-                >
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    background: #ffffff;
-                    border: 1px solid #e6e6e3;
-                    border-radius: 8px;
-                  "
-                >
-                  <sc-for list="{{ etapas }}" as="e" hint-placeholder-count="5"
-                    ><div
-                      style="
-                        display: grid;
-                        grid-template-columns: 20px minmax(0, 1fr) auto;
-                        gap: 10px;
-                        align-items: center;
-                        min-height: 52px;
-                        padding: 0 14px;
-                        border-bottom: 1px solid #f0f0f0;
-                      "
-                    >
-                      <span
-                        style="width:18px;height:18px;border-radius:50%;background:{{ e.bg }};border:1.5px solid {{ e.bd }};color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center"
-                        >{{ e.mk }}</span
-                      ><span style="display: flex; flex-direction: column"
-                        ><span style="font-size:13px;font-weight:500;color:{{ e.cor }}"
-                          >{{ e.l }}</span
-                        ><span style="font-size: 11.5px; color: #6e746b">{{ e.s }}</span></span
-                      ><span style="font-size: 11.5px; color: #6e746b">{{ e.t }}</span>
-                    </div></sc-for
-                  >
-                </div>
-              </div>
-            </div>
+    <div id="processando" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">2 · Processando</div>
+      <div style="width:390px;height:844px;background:#FCFCFC;display:flex;flex-direction:column">
+        <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">Novo imóvel por áudio</div>
+        <div style="padding:28px 16px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:18px;font-weight:600">Organizando o cadastro</span>
+          <span style="font-size:13px;line-height:1.6;color:#555A52">Leva cerca de 1 minuto. Você pode fechar; avisamos quando estiver pronto para revisar.</span>
+          <div style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+            <sc-for list="{{ etapas }}" as="e" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:52px;padding:0 14px;border-bottom:1px solid #F0F0F0"><span style="width:18px;height:18px;border-radius:50%;background:{{ e.bg }};border:1.5px solid {{ e.bd }};color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ e.mk }}</span><span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:500;color:{{ e.cor }}">{{ e.l }}</span><span style="font-size:11.5px;color:#6E746B">{{ e.s }}</span></span><span style="font-size:11.5px;color:#6E746B">{{ e.t }}</span></div></sc-for>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div id="revisao" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 600; color: #555a52">
-              3 · Revisão no desktop · transcrição ligada aos campos
+    <div id="revisao" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:600;color:#555A52">3 · Revisão no desktop · transcrição ligada aos campos</div>
+      <div style="width:1440px;background:#FCFCFC;border:1px solid #E2E2DD;border-radius:14px;display:flex;flex-direction:column;overflow:hidden">
+        <div style="height:52px;border-bottom:1px solid #E6E6E3;display:flex;align-items:center;justify-content:space-between;padding:0 20px"><div style="display:flex;align-items:center;gap:14px"><span style="font-size:16px;color:#555A52">×</span><span style="font-size:14px;font-weight:600">Revisar cadastro por áudio</span><span style="font-size:12px;color:#6E746B">Rafael Almeida · gravado hoje 10:12 · 3min 08s</span></div><div style="display:flex;gap:8px;align-items:center"><span style="font-size:12.5px;color:#555A52">14 de 19 campos confirmados</span><span style="height:32px;padding:0 12px;border:1px solid #C7C7C7;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Salvar rascunho</span><span style="height:32px;padding:0 12px;background:#41945D;color:#FFFFFF;border-radius:6px;display:flex;align-items:center;font-size:13px;font-weight:500">Confirmar e criar imóvel</span></div></div>
+        <div style="display:grid;grid-template-columns:420px minmax(0,1fr) 340px;min-height:780px">
+          <div style="border-right:1px solid #E6E6E3;padding:16px;display:flex;flex-direction:column;gap:12px;background:#FFFFFF">
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #E6E6E3;border-radius:8px;padding:10px"><span style="width:32px;height:32px;border-radius:50%;background:#41945D;display:flex;align-items:center;justify-content:center"><span style="width:0;height:0;border-left:9px solid #FFFFFF;border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:3px;display:block"></span></span><span style="flex:1;height:4px;background:#F0F0F0;border-radius:2px;display:flex"><span style="width:38%;background:#41945D;border-radius:2px;display:block"></span></span><span style="font-size:12px;color:#555A52">1:12 / 3:08</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:#555A52">Transcrição</span><span style="font-size:11.5px;color:#6E746B">clique num trecho para ver o campo</span></div>
+            <div style="font-size:13.5px;line-height:1.85;color:#2F332B">
+              <sc-for list="{{ trechos }}" as="t" hint-placeholder-count="14"><span style="background:{{ t.bg }};border-bottom:{{ t.bd }};border-radius:2px;padding:1px 0">{{ t.txt }}</span></sc-for>
             </div>
-            <div
-              style="
-                width: 1440px;
-                background: #fcfcfc;
-                border: 1px solid #e2e2dd;
-                border-radius: 14px;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-              "
-            >
-              <div
-                style="
-                  height: 52px;
-                  border-bottom: 1px solid #e6e6e3;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 20px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 14px">
-                  <span style="font-size: 16px; color: #555a52">×</span
-                  ><span style="font-size: 14px; font-weight: 600">Revisar cadastro por áudio</span
-                  ><span style="font-size: 12px; color: #6e746b"
-                    >Rafael Almeida · gravado hoje 10:12 · 3min 08s</span
-                  >
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center">
-                  <span style="font-size: 12.5px; color: #555a52">14 de 19 campos confirmados</span
-                  ><span
-                    style="
-                      height: 32px;
-                      padding: 0 12px;
-                      border: 1px solid #c7c7c7;
-                      border-radius: 6px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 13px;
-                      font-weight: 500;
-                    "
-                    >Salvar rascunho</span
-                  ><span
-                    style="
-                      height: 32px;
-                      padding: 0 12px;
-                      background: #41945d;
-                      color: #ffffff;
-                      border-radius: 6px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 13px;
-                      font-weight: 500;
-                    "
-                    >Confirmar e criar imóvel</span
-                  >
-                </div>
-              </div>
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: 420px minmax(0, 1fr) 340px;
-                  min-height: 780px;
-                "
-              >
-                <div
-                  style="
-                    border-right: 1px solid #e6e6e3;
-                    padding: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                    background: #ffffff;
-                  "
-                >
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: 10px;
-                      border: 1px solid #e6e6e3;
-                      border-radius: 8px;
-                      padding: 10px;
-                    "
-                  >
-                    <span
-                      style="
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        background: #41945d;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      "
-                      ><span
-                        style="
-                          width: 0;
-                          height: 0;
-                          border-left: 9px solid #ffffff;
-                          border-top: 6px solid transparent;
-                          border-bottom: 6px solid transparent;
-                          margin-left: 3px;
-                          display: block;
-                        "
-                      ></span></span
-                    ><span
-                      style="
-                        flex: 1;
-                        height: 4px;
-                        background: #f0f0f0;
-                        border-radius: 2px;
-                        display: flex;
-                      "
-                      ><span
-                        style="width: 38%; background: #41945d; border-radius: 2px; display: block"
-                      ></span></span
-                    ><span style="font-size: 12px; color: #555a52">1:12 / 3:08</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; align-items: center">
-                    <span style="font-size: 12px; font-weight: 600; color: #555a52"
-                      >Transcrição</span
-                    ><span style="font-size: 11.5px; color: #6e746b"
-                      >clique num trecho para ver o campo</span
-                    >
-                  </div>
-                  <div style="font-size: 13.5px; line-height: 1.85; color: #2f332b">
-                    <sc-for list="{{ trechos }}" as="t" hint-placeholder-count="14"
-                      ><span
-                        style="background:{{ t.bg }};border-bottom:{{ t.bd }};border-radius:2px;padding:1px 0"
-                        >{{ t.txt }}</span
-                      ></sc-for
-                    >
-                  </div>
-                  <div
-                    style="
-                      display: flex;
-                      flex-wrap: wrap;
-                      gap: 10px;
-                      font-size: 11px;
-                      color: #555a52;
-                      padding-top: 6px;
-                      border-top: 1px solid #f0f0f0;
-                    "
-                  >
-                    <span style="display: flex; align-items: center; gap: 5px"
-                      ><span
-                        style="width: 10px; height: 10px; background: #e9f1eb; display: block"
-                      ></span
-                      >virou campo</span
-                    ><span style="display: flex; align-items: center; gap: 5px"
-                      ><span
-                        style="width: 10px; height: 10px; background: #fdf3e3; display: block"
-                      ></span
-                      >precisa confirmar</span
-                    ><span style="display: flex; align-items: center; gap: 5px"
-                      ><span
-                        style="width: 10px; height: 10px; background: #e9effd; display: block"
-                      ></span
-                      >selecionado</span
-                    >
-                  </div>
-                </div>
-                <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 18px">
-                  <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="4">
-                    <div style="background: #ffffff; border: 1px solid #e6e6e3; border-radius: 8px">
-                      <div
-                        style="
-                          padding: 12px 16px;
-                          border-bottom: 1px solid #e6e6e3;
-                          display: flex;
-                          justify-content: space-between;
-                        "
-                      >
-                        <span style="font-size: 13px; font-weight: 600">{{ g.t }}</span
-                        ><span style="font-size: 12px; color: #6e746b">{{ g.n }}</span>
-                      </div>
-                      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))">
-                        <sc-for list="{{ g.campos }}" as="c" hint-placeholder-count="4">
-                          <div
-                            style="padding:12px 16px;border-bottom:1px solid #F0F0F0;border-right:1px solid #F0F0F0;display:flex;flex-direction:column;gap:6px;background:{{ c.rowBg }}"
-                          >
-                            <div
-                              style="
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                              "
-                            >
-                              <span style="font-size: 12px; font-weight: 500">{{ c.l }}</span
-                              ><span
-                                style="height:18px;padding:0 6px;border-radius:4px;background:{{ c.bg }};color:{{ c.fg }};font-size:10.5px;font-weight:500;display:flex;align-items:center"
-                                >{{ c.st }}</span
-                              >
-                            </div>
-                            <div
-                              style="height:34px;border:{{ c.bd }};border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px;color:{{ c.vCor }};background:#FFFFFF"
-                            >
-                              {{ c.v }}
-                            </div>
-                            <div
-                              style="
-                                display: flex;
-                                justify-content: space-between;
-                                gap: 8px;
-                                font-size: 11.5px;
-                              "
-                            >
-                              <span style="color: #6e746b">{{ c.hint }}</span
-                              ><span style="color: #417d55; font-weight: 500; white-space: nowrap"
-                                >{{ c.acao }}</span
-                              >
-                            </div>
-                          </div>
-                        </sc-for>
-                      </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#555A52;padding-top:6px;border-top:1px solid #F0F0F0"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:#E9F1EB;display:block"></span>virou campo</span><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:#FDF3E3;display:block"></span>precisa confirmar</span><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:#E9EFFD;display:block"></span>selecionado</span></div>
+          </div>
+          <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px">
+            <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="4">
+              <div style="background:#FFFFFF;border:1px solid #E6E6E3;border-radius:8px">
+                <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">{{ g.t }}</span><span style="font-size:12px;color:#6E746B">{{ g.n }}</span></div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+                  <sc-for list="{{ g.campos }}" as="c" hint-placeholder-count="4">
+                    <div style="padding:12px 16px;border-bottom:1px solid #F0F0F0;border-right:1px solid #F0F0F0;display:flex;flex-direction:column;gap:6px;background:{{ c.rowBg }}">
+                      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:500">{{ c.l }}</span><span style="height:18px;padding:0 6px;border-radius:4px;background:{{ c.bg }};color:{{ c.fg }};font-size:10.5px;font-weight:500;display:flex;align-items:center">{{ c.st }}</span></div>
+                      <div style="height:34px;border:{{ c.bd }};border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:13px;color:{{ c.vCor }};background:#FFFFFF">{{ c.v }}</div>
+                      <div style="display:flex;justify-content:space-between;gap:8px;font-size:11.5px"><span style="color:#6E746B">{{ c.hint }}</span><span style="color:#417D55;font-weight:500;white-space:nowrap">{{ c.acao }}</span></div>
                     </div>
                   </sc-for>
                 </div>
-                <div
-                  style="
-                    border-left: 1px solid #e6e6e3;
-                    padding: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 14px;
-                    background: #ffffff;
-                  "
-                >
-                  <div style="display: flex; justify-content: space-between">
-                    <span style="font-size: 13px; font-weight: 600">Fotos e legendas</span
-                    ><span style="font-size: 12px; color: #6e746b">7 · capa primeiro</span>
-                  </div>
-                  <sc-for list="{{ fotos }}" as="f" hint-placeholder-count="5"
-                    ><div
-                      style="
-                        display: grid;
-                        grid-template-columns: 72px minmax(0, 1fr);
-                        gap: 10px;
-                        align-items: center;
-                        padding-bottom: 10px;
-                        border-bottom: 1px solid #f0f0f0;
-                      "
-                    >
-                      <span
-                        style="
-                          width: 72px;
-                          height: 54px;
-                          background: #f0f0f0;
-                          border-radius: 6px;
-                          display: flex;
-                          align-items: flex-end;
-                          padding: 4px;
-                          font-size: 9.5px;
-                          color: #555a52;
-                        "
-                        >{{ f.n }}</span
-                      ><span style="display: flex; flex-direction: column; gap: 4px"
-                        ><span style="font-size: 12.5px; font-weight: 500">{{ f.leg }}</span
-                        ><span style="font-size:11px;color:{{ f.cor }}">{{ f.st }}</span></span
-                      >
-                    </div></sc-for
-                  >
-                  <div
-                    style="
-                      border: 1px dashed #93a9e8;
-                      border-radius: 8px;
-                      padding: 12px;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 8px;
-                    "
-                  >
-                    <div style="display: flex; justify-content: space-between">
-                      <span style="font-size: 12.5px; font-weight: 600">Descrição do anúncio</span
-                      ><span
-                        style="
-                          height: 18px;
-                          padding: 0 6px;
-                          border-radius: 4px;
-                          background: #e9effd;
-                          color: #1d4ed8;
-                          font-size: 10.5px;
-                          font-weight: 500;
-                          display: flex;
-                          align-items: center;
-                        "
-                        >Sugestão da IA</span
-                      >
-                    </div>
-                    <span style="font-size: 12.5px; line-height: 1.6; color: #2f332b"
-                      >Apartamento de 72 m² no 8º andar, com sala integrada à varanda e suíte com
-                      closet. Cozinha com armários planejados e área de serviço separada. Prédio com
-                      portaria 24 horas, piscina e academia, perto do Parque Vaca Brava.</span
-                    >
-                    <span style="font-size: 11px; color: #6e746b"
-                      >Escrita só com o que foi dito no áudio e visto nas fotos. Sem endereço.</span
-                    >
-                    <div style="display: flex; gap: 12px; font-size: 12px; font-weight: 500">
-                      <span style="color: #417d55">Aceitar</span
-                      ><span style="color: #417d55">Editar</span
-                      ><span style="color: #555a52">Descartar</span>
-                    </div>
-                  </div>
-                </div>
               </div>
+            </sc-for>
+          </div>
+          <div style="border-left:1px solid #E6E6E3;padding:16px;display:flex;flex-direction:column;gap:14px;background:#FFFFFF">
+            <div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">Fotos e legendas</span><span style="font-size:12px;color:#6E746B">7 · capa primeiro</span></div>
+            <sc-for list="{{ fotos }}" as="f" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid #F0F0F0"><span style="width:72px;height:54px;background:#F0F0F0;border-radius:6px;display:flex;align-items:flex-end;padding:4px;font-size:9.5px;color:#555A52">{{ f.n }}</span><span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12.5px;font-weight:500">{{ f.leg }}</span><span style="font-size:11px;color:{{ f.cor }}">{{ f.st }}</span></span></div></sc-for>
+            <div style="border:1px dashed #93A9E8;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;font-weight:600">Descrição do anúncio</span><span style="height:18px;padding:0 6px;border-radius:4px;background:#E9EFFD;color:#1D4ED8;font-size:10.5px;font-weight:500;display:flex;align-items:center">Sugestão da IA</span></div>
+              <span style="font-size:12.5px;line-height:1.6;color:#2F332B">Apartamento de 72 m² no 8º andar, com sala integrada à varanda e suíte com closet. Cozinha com armários planejados e área de serviço separada. Prédio com portaria 24 horas, piscina e academia, perto do Parque Vaca Brava.</span>
+              <span style="font-size:11px;color:#6E746B">Escrita só com o que foi dito no áudio e visto nas fotos. Sem endereço.</span>
+              <div style="display:flex;gap:12px;font-size:12px;font-weight:500"><span style="color:#417D55">Aceitar</span><span style="color:#417D55">Editar</span><span style="color:#555A52">Descartar</span></div>
             </div>
           </div>
         </div>
-      </section>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const S = {
-            audio:{st:'Do áudio',bg:'#E9F1EB',fg:'#417D55',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Ouvir trecho'},
-            conf:{st:'Confirmar',bg:'#FDF3E3',fg:'#A05C06',bd:'1px solid #E8B870',rowBg:'#FFFCF6',vCor:'#2F332B',acao:'Confirmar'},
-            falta:{st:'Faltando',bg:'#FDECEC',fg:'#B91C1C',bd:'1px dashed #E8A0A0',rowBg:'#FFFFFF',vCor:'#6E746B',acao:'Preencher'},
-            edit:{st:'Editado',bg:'#F0F0F0',fg:'#555A52',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Desfazer'},
-            foto:{st:'Das fotos',bg:'#E9EFFD',fg:'#1D4ED8',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Ver foto'}
-          };
-          const c = (l,v,k,hint) => ({l,v,hint,...S[k]});
-          const T = (txt,k) => ({txt, bg:k==='ok'?'#E9F1EB':k==='conf'?'#FDF3E3':k==='sel'?'#E9EFFD':'transparent', bd:k==='sel'?'2px solid #2563EB':'0'});
-          return {
-            roteiro: [{mk:'✓',l:'Tipo, finalidade e valores',cor:'#417D55'},{mk:'✓',l:'Quartos, suítes, vagas e área',cor:'#417D55'},{mk:'✓',l:'Endereço e bairro',cor:'#417D55'},{mk:'○',l:'Proprietário e participação',cor:'#555A52'},{mk:'○',l:'Condomínio e IPTU',cor:'#555A52'},{mk:'○',l:'O que o imóvel tem de melhor',cor:'#555A52'}],
-            onda: ['18px','30px','42px','26px','50px','36px','22px','44px','54px','32px','20px','38px','48px','28px','16px','34px','46px','40px','24px','52px','30px','18px','36px','44px','26px','20px','32px','14px'],
-            thumbs: ['Fachada','Sala','Varanda','Cozinha','Suíte','Banheiro','Área'],
-            etapas: [
-              {l:'Áudio recebido',s:'3min 08s',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
-              {l:'Transcrição',s:'pt-BR · 612 palavras',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
-              {l:'Campos preenchidos',s:'19 campos encontrados',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
-              {l:'Fotos: ambientes e legendas',s:'5 de 7 analisadas',t:'agora',mk:'',bg:'#FFFFFF',bd:'#41945D',cor:'#2F332B'},
-              {l:'Rascunho da descrição',s:'Aguardando fotos',t:'',mk:'',bg:'#FFFFFF',bd:'#C7C7C7',cor:'#6E746B'}
-            ],
-            trechos: [T('Esse aqui é um '),T('apartamento','ok'),T(' pra '),T('alugar','ok'),T(' no '),T('Setor Bueno','ok'),T(', Rua T-30, número 1.150, apartamento 804. Tem '),T('dois quartos, um é suíte','ok'),T(', '),T('uma vaga','ok'),T(', uns '),T('setenta e dois metros','ok'),T('. O aluguel é '),T('dois mil e trezentos','sel'),T(', condomínio '),T('quatrocentos e oitenta mais ou menos','conf'),T(', o IPTU acho que dá uns '),T('cento e trinta por mês','conf'),T('. O dono é o '),T('seu Marcos','conf'),T(', ele e a esposa. Tem varanda, armário planejado na cozinha, prédio com piscina e academia, perto do Vaca Brava. '),T('Aceita pet','ok'),T(', não é mobiliado.')],
-            grupos: [
-              {t:'Tipo e endereço',n:'4 de 4',campos:[c('Tipo','Apartamento','audio','"é um apartamento"'),c('Finalidade','Aluguel','audio','"pra alugar"'),c('Endereço (privado)','Rua T-30, 1.150 · ap. 804','audio','Nunca vai para o portal'),c('Bairro e cidade','Setor Bueno · Goiânia, GO','audio','Validado no cadastro de bairros')]},
-              {t:'Características',n:'5 de 6',campos:[c('Quartos · suítes','2 · 1 suíte','audio','"dois quartos, um é suíte"'),c('Área útil','72 m²','audio','"uns setenta e dois metros"'),c('Vagas','1','audio','"uma vaga"'),c('Aceita pet · mobiliado','Sim · Não','audio','"aceita pet, não é mobiliado"'),c('Banheiros','2','foto','Suíte + social, vistos nas fotos'),c('Andar','8º','conf','Deduzido do "apartamento 804"')]},
-              {t:'Valores',n:'1 de 3',campos:[c('Aluguel','R$ 2.300','audio','"dois mil e trezentos"'),c('Condomínio','R$ 480','conf','Foi dito "mais ou menos"'),c('IPTU mensal','R$ 130','conf','Foi dito "acho que"'),c('Total no portal','R$ 2.910','audio','Calculado')]},
-              {t:'Proprietários',n:'0 de 2',campos:[c('Proprietário','Marcos Tavares?','conf','2 contatos com esse nome · escolha'),c('Coproprietária','Esposa · nome não dito','falta','Informe nome e CPF'),c('Participação','—','falta','Soma precisa dar 100%'),c('Matrícula','—','falta','Obrigatória para contrato')]}
-            ],
-            fotos: [
-              {n:'1 · capa',leg:'Fachada',st:'Legenda sugerida · aceitar',cor:'#1D4ED8'},
-              {n:'2',leg:'Sala com varanda',st:'Confirmada',cor:'#0D7A38'},
-              {n:'3',leg:'Cozinha',st:'Legenda sugerida · aceitar',cor:'#1D4ED8'},
-              {n:'4',leg:'Suíte',st:'Confirmada',cor:'#0D7A38'},
-              {n:'7',leg:'Sem legenda',st:'Foto com placa de rua · não publicar',cor:'#B91C1C'}
-            ]
-          };
-        }
-      }
-    </script>
-  </body>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const S = {
+      audio:{st:'Do áudio',bg:'#E9F1EB',fg:'#417D55',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Ouvir trecho'},
+      conf:{st:'Confirmar',bg:'#FDF3E3',fg:'#A05C06',bd:'1px solid #E8B870',rowBg:'#FFFCF6',vCor:'#2F332B',acao:'Confirmar'},
+      falta:{st:'Faltando',bg:'#FDECEC',fg:'#B91C1C',bd:'1px dashed #E8A0A0',rowBg:'#FFFFFF',vCor:'#6E746B',acao:'Preencher'},
+      edit:{st:'Editado',bg:'#F0F0F0',fg:'#555A52',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Desfazer'},
+      foto:{st:'Das fotos',bg:'#E9EFFD',fg:'#1D4ED8',bd:'1px solid #C7C7C7',rowBg:'#FFFFFF',vCor:'#2F332B',acao:'Ver foto'}
+    };
+    const c = (l,v,k,hint) => ({l,v,hint,...S[k]});
+    const T = (txt,k) => ({txt, bg:k==='ok'?'#E9F1EB':k==='conf'?'#FDF3E3':k==='sel'?'#E9EFFD':'transparent', bd:k==='sel'?'2px solid #2563EB':'0'});
+    return {
+      roteiro: [{mk:'✓',l:'Tipo, finalidade e valores',cor:'#417D55'},{mk:'✓',l:'Quartos, suítes, vagas e área',cor:'#417D55'},{mk:'✓',l:'Endereço e bairro',cor:'#417D55'},{mk:'○',l:'Proprietário e participação',cor:'#555A52'},{mk:'○',l:'Condomínio e IPTU',cor:'#555A52'},{mk:'○',l:'O que o imóvel tem de melhor',cor:'#555A52'}],
+      onda: ['18px','30px','42px','26px','50px','36px','22px','44px','54px','32px','20px','38px','48px','28px','16px','34px','46px','40px','24px','52px','30px','18px','36px','44px','26px','20px','32px','14px'],
+      thumbs: ['Fachada','Sala','Varanda','Cozinha','Suíte','Banheiro','Área'],
+      etapas: [
+        {l:'Áudio recebido',s:'3min 08s',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
+        {l:'Transcrição',s:'pt-BR · 612 palavras',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
+        {l:'Campos preenchidos',s:'19 campos encontrados',t:'ok',mk:'✓',bg:'#41945D',bd:'#41945D',cor:'#2F332B'},
+        {l:'Fotos: ambientes e legendas',s:'5 de 7 analisadas',t:'agora',mk:'',bg:'#FFFFFF',bd:'#41945D',cor:'#2F332B'},
+        {l:'Rascunho da descrição',s:'Aguardando fotos',t:'',mk:'',bg:'#FFFFFF',bd:'#C7C7C7',cor:'#6E746B'}
+      ],
+      trechos: [T('Esse aqui é um '),T('apartamento','ok'),T(' pra '),T('alugar','ok'),T(' no '),T('Setor Bueno','ok'),T(', Rua T-30, número 1.150, apartamento 804. Tem '),T('dois quartos, um é suíte','ok'),T(', '),T('uma vaga','ok'),T(', uns '),T('setenta e dois metros','ok'),T('. O aluguel é '),T('dois mil e trezentos','sel'),T(', condomínio '),T('quatrocentos e oitenta mais ou menos','conf'),T(', o IPTU acho que dá uns '),T('cento e trinta por mês','conf'),T('. O dono é o '),T('seu Marcos','conf'),T(', ele e a esposa. Tem varanda, armário planejado na cozinha, prédio com piscina e academia, perto do Vaca Brava. '),T('Aceita pet','ok'),T(', não é mobiliado.')],
+      grupos: [
+        {t:'Tipo e endereço',n:'4 de 4',campos:[c('Tipo','Apartamento','audio','"é um apartamento"'),c('Finalidade','Aluguel','audio','"pra alugar"'),c('Endereço (privado)','Rua T-30, 1.150 · ap. 804','audio','Nunca vai para o portal'),c('Bairro e cidade','Setor Bueno · Goiânia, GO','audio','Validado no cadastro de bairros')]},
+        {t:'Características',n:'5 de 6',campos:[c('Quartos · suítes','2 · 1 suíte','audio','"dois quartos, um é suíte"'),c('Área útil','72 m²','audio','"uns setenta e dois metros"'),c('Vagas','1','audio','"uma vaga"'),c('Aceita pet · mobiliado','Sim · Não','audio','"aceita pet, não é mobiliado"'),c('Banheiros','2','foto','Suíte + social, vistos nas fotos'),c('Andar','8º','conf','Deduzido do "apartamento 804"')]},
+        {t:'Valores',n:'1 de 3',campos:[c('Aluguel','R$ 2.300','audio','"dois mil e trezentos"'),c('Condomínio','R$ 480','conf','Foi dito "mais ou menos"'),c('IPTU mensal','R$ 130','conf','Foi dito "acho que"'),c('Total no portal','R$ 2.910','audio','Calculado')]},
+        {t:'Proprietários',n:'0 de 2',campos:[c('Proprietário','Marcos Tavares?','conf','2 contatos com esse nome · escolha'),c('Coproprietária','Esposa · nome não dito','falta','Informe nome e CPF'),c('Participação','—','falta','Soma precisa dar 100%'),c('Matrícula','—','falta','Obrigatória para contrato')]}
+      ],
+      fotos: [
+        {n:'1 · capa',leg:'Fachada',st:'Legenda sugerida · aceitar',cor:'#1D4ED8'},
+        {n:'2',leg:'Sala com varanda',st:'Confirmada',cor:'#0D7A38'},
+        {n:'3',leg:'Cozinha',st:'Legenda sugerida · aceitar',cor:'#1D4ED8'},
+        {n:'4',leg:'Suíte',st:'Confirmada',cor:'#0D7A38'},
+        {n:'7',leg:'Sem legenda',st:'Foto com placa de rua · não publicar',cor:'#B91C1C'}
+      ]
+    };
+  }
+}
+</script>
+</body>
 </html>

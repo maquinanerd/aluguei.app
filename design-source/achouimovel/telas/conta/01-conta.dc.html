@@ -1,872 +1,209 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <style>
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Regular.otf') format('opentype');
-            font-weight: 400;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Medium.otf') format('opentype');
-            font-weight: 500;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-SemiBold.otf') format('opentype');
-            font-weight: 600;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Bold.otf') format('opentype');
-            font-weight: 700;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
-            font-weight: 800;
-            font-display: swap;
-          }
-          body {
-            margin: 0;
-            background: #ececea;
-            font-family: Guton, system-ui, sans-serif;
-            color: #111111;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #037a4b;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #02603b;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Entrada e conta"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 980px">
-          <div style="font-size: 12px; font-weight: 700; color: #555555">
-            Entrega 2 · Entrada e conta · app.achouimovel.online
-          </div>
-          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.035em">
-            Login, cadastro, convite, senha e situação da conta
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333333">
-            Componentes: AuthShell (logo AchouImóvel Gestão, coluna de 440px), CampoTexto,
-            BotaoPrimario, EtapasCadastro (uma pergunta por tela, "2 de 6"), SeletorPlano,
-            AvisoConta. Rotas: /login, /register?plano=, /convite, /esqueci-senha, /redefinir-senha,
-            /situacao-da-conta. Foco visível de 2px em todos os campos. Dados fictícios.
-          </p>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 720px); gap: 40px">
-          <div id="login" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">/login · com erro</div>
-            <div style="height: 620px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 32px;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span style="width: 1px; height: 20px; background: #c9c9c4; display: block"></span
-                ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
-                  <h2
-                    style="
-                      margin: 0 0 6px;
-                      font-size: 30px;
-                      font-weight: 800;
-                      letter-spacing: -0.03em;
-                    "
-                  >
-                    Entrar
-                  </h2>
-                  <div
-                    style="
-                      background: #fdecee;
-                      color: #8a1c2c;
-                      border-radius: 4px;
-                      padding: 12px 14px;
-                      font-size: 13.5px;
-                      font-weight: 600;
-                      line-height: 1.5;
-                    "
-                  >
-                    E-mail ou senha incorretos. Confira e tente de novo.
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 6px">
-                    <span style="font-size: 13px; font-weight: 700">E-mail</span>
-                    <div
-                      style="
-                        height: 48px;
-                        border: 2px solid #037a4b;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 13px;
-                        font-size: 15px;
-                      "
-                    >
-                      rafael@imobiliariaexemplo.com.br
-                    </div>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 6px">
-                    <div style="display: flex; justify-content: space-between">
-                      <span style="font-size: 13px; font-weight: 700">Senha</span
-                      ><a href="#esqueci" style="font-size: 13px; font-weight: 700"
-                        >Esqueci a senha</a
-                      >
-                    </div>
-                    <div
-                      style="
-                        height: 48px;
-                        border: 1px solid #d1344c;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        padding: 0 14px;
-                        font-size: 15px;
-                      "
-                    >
-                      ••••••••<span style="font-size: 13px; font-weight: 700; color: #555555"
-                        >Mostrar</span
-                      >
-                    </div>
-                  </div>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                      margin-top: 4px;
-                    "
-                    >Entrar</span
-                  >
-                  <span style="font-size: 14px; color: #333333; text-align: center"
-                    >Ainda não tem conta?
-                    <a href="#cad1" style="font-weight: 700">Criar conta</a></span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Entrada e conta" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:980px">
+    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Entrada e conta · app.achouimovel.online</div>
+    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Login, cadastro, convite, senha e situação da conta</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Componentes: AuthShell (logo AchouImóvel Gestão, coluna de 440px), CampoTexto, BotaoPrimario, EtapasCadastro (uma pergunta por tela, "2 de 6"), SeletorPlano, AvisoConta. Rotas: /login, /register?plano=, /convite, /esqueci-senha, /redefinir-senha, /situacao-da-conta. Foco visível de 2px em todos os campos. Dados fictícios.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,720px);gap:40px">
 
-          <div id="cad1" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /register?plano=GESTAO_LOCACAO · etapa 1 de 6
-            </div>
-            <div style="height: 620px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 32px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 10px">
-                  <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  ><span
-                    style="width: 1px; height: 20px; background: #c9c9c4; display: block"
-                  ></span
-                  ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-                </div>
-                <span style="font-size: 13px; font-weight: 700; color: #555555"
-                  >Plano: Gestão Locação</span
-                >
-              </div>
-              <div style="height: 3px; background: #efefec; display: flex">
-                <span style="width: 16.6%; background: #037a4b; display: block"></span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
-                  <span style="font-size: 13px; font-weight: 700; color: #555555">1 de 6</span>
-                  <h2 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em">
-                    Qual é o seu nome?
-                  </h2>
-                  <div
-                    style="
-                      height: 52px;
-                      border: 2px solid #037a4b;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      padding: 0 13px;
-                      font-size: 16px;
-                    "
-                  >
-                    Rafael Almeida<span
-                      style="
-                        width: 1.5px;
-                        height: 20px;
-                        background: #111111;
-                        display: block;
-                        margin-left: 2px;
-                      "
-                    ></span>
-                  </div>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Próximo</span
-                  >
-                  <span style="font-size: 13px; color: #555555; text-align: center"
-                    >Já tem conta? <a href="#login" style="font-weight: 700">Entrar</a></span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="cad5" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /register · etapa 5 de 6 · plano pré-selecionado
-            </div>
-            <div style="height: 620px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 32px;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span style="width: 1px; height: 20px; background: #c9c9c4; display: block"></span
-                ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-              </div>
-              <div style="height: 3px; background: #efefec; display: flex">
-                <span style="width: 83%; background: #037a4b; display: block"></span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 480px; display: flex; flex-direction: column; gap: 12px">
-                  <span style="font-size: 13px; font-weight: 700; color: #555555"
-                    >5 de 6 · ← Voltar</span
-                  >
-                  <h2
-                    style="
-                      margin: 0 0 4px;
-                      font-size: 30px;
-                      font-weight: 800;
-                      letter-spacing: -0.03em;
-                    "
-                  >
-                    Qual plano você quer usar?
-                  </h2>
-                  <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
-                    <div
-                      style="border:{{ p.bd }};border-radius:4px;padding:14px 16px;display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;align-items:start"
-                    >
-                      <span
-                        style="width:20px;height:20px;border-radius:50%;border:2px solid {{ p.radio }};display:flex;align-items:center;justify-content:center;margin-top:2px"
-                        ><span
-                          style="width:10px;height:10px;border-radius:50%;background:{{ p.dot }};display:block"
-                        ></span
-                      ></span>
-                      <div style="display: flex; flex-direction: column; gap: 3px">
-                        <span style="font-size: 16px; font-weight: 700">{{ p.nome }}</span
-                        ><span style="font-size: 13px; line-height: 1.5; color: #555555"
-                          >{{ p.desc }}</span
-                        >
-                      </div>
-                    </div>
-                  </sc-for>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                      margin-top: 4px;
-                    "
-                    >Próximo</span
-                  >
-                  <span style="font-size: 12.5px; color: #6e6e6e"
-                    >Sem cobrança agora. A equipe confirma o plano na análise da conta.</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="convite" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">/convite?token=…</div>
-            <div style="height: 560px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 32px;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span style="width: 1px; height: 20px; background: #c9c9c4; display: block"></span
-                ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
-                  <span style="font-size: 13px; font-weight: 700; color: #555555">Convite</span>
-                  <h2
-                    style="
-                      margin: 0;
-                      font-size: 28px;
-                      line-height: 1.12;
-                      font-weight: 800;
-                      letter-spacing: -0.03em;
-                    "
-                  >
-                    Luana Castro convidou você para a Imobiliária Exemplo
-                  </h2>
-                  <div
-                    style="
-                      display: flex;
-                      justify-content: space-between;
-                      padding: 12px 0;
-                      border-top: 1px solid #e6e6e3;
-                      border-bottom: 1px solid #e6e6e3;
-                      font-size: 14px;
-                    "
-                  >
-                    <span style="color: #555555">Papel</span
-                    ><span style="font-weight: 700">Corretor</span>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 6px">
-                    <span style="font-size: 13px; font-weight: 700">Crie sua senha</span>
-                    <div
-                      style="
-                        height: 48px;
-                        border: 1px solid #d5d5d0;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 14px;
-                        font-size: 15px;
-                        color: #6e6e6e;
-                      "
-                    >
-                      Mínimo de 8 caracteres
-                    </div>
-                  </div>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Aceitar convite</span
-                  >
-                  <span style="font-size: 12.5px; color: #6e6e6e"
-                    >O convite vale até 29/09/2026.</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="esqueci" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /esqueci-senha · depois de enviar
-            </div>
-            <div style="height: 560px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 32px;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span style="width: 1px; height: 20px; background: #c9c9c4; display: block"></span
-                ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
-                  <h2 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.03em">
-                    Confira seu e-mail
-                  </h2>
-                  <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #333333">
-                    Se existir uma conta com rafael@imobiliariaexemplo.com.br, você vai receber um
-                    link para criar uma nova senha. O link vale por 1 hora.
-                  </p>
-                  <span
-                    style="
-                      height: 48px;
-                      border: 1px solid #111111;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 14.5px;
-                      font-weight: 700;
-                    "
-                    >Reenviar em 0:42</span
-                  >
-                  <a href="#login" style="font-size: 14px; font-weight: 700"
-                    >← Voltar para entrar</a
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="redefinir" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /redefinir-senha?token=…
-            </div>
-            <div style="height: 560px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 32px;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span style="width: 1px; height: 20px; background: #c9c9c4; display: block"></span
-                ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
-                  <h2 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.03em">
-                    Nova senha
-                  </h2>
-                  <div style="display: flex; flex-direction: column; gap: 6px">
-                    <span style="font-size: 13px; font-weight: 700">Nova senha</span>
-                    <div
-                      style="
-                        height: 48px;
-                        border: 2px solid #037a4b;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 13px;
-                        font-size: 15px;
-                      "
-                    >
-                      ••••••••••
-                    </div>
-                    <div
-                      style="
-                        display: grid;
-                        grid-template-columns: repeat(4, 1fr);
-                        gap: 4px;
-                        padding-top: 4px;
-                      "
-                    >
-                      <span style="height: 4px; background: #037a4b; display: block"></span
-                      ><span style="height: 4px; background: #037a4b; display: block"></span
-                      ><span style="height: 4px; background: #037a4b; display: block"></span
-                      ><span style="height: 4px; background: #e6e6e3; display: block"></span>
-                    </div>
-                    <span style="font-size: 12.5px; color: #00854d; font-weight: 600"
-                      >Boa. 10 caracteres com letras e números.</span
-                    >
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 6px">
-                    <span style="font-size: 13px; font-weight: 700">Repita a senha</span>
-                    <div
-                      style="
-                        height: 48px;
-                        border: 1px solid #d5d5d0;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        padding: 0 14px;
-                        font-size: 15px;
-                      "
-                    >
-                      ••••••••••
-                    </div>
-                  </div>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Salvar senha</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="analise" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /situacao-da-conta · em análise
-            </div>
-            <div style="height: 560px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 32px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 10px">
-                  <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  ><span
-                    style="width: 1px; height: 20px; background: #c9c9c4; display: block"
-                  ></span
-                  ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-                </div>
-                <span style="font-size: 13px; font-weight: 700; color: #555555">Sair</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 480px; display: flex; flex-direction: column; gap: 14px">
-                  <span
-                    style="
-                      align-self: flex-start;
-                      background: #ffcb00;
-                      color: #3d3000;
-                      border-radius: 11px;
-                      padding: 3px 10px;
-                      font-size: 12px;
-                      font-weight: 700;
-                    "
-                    >Em análise</span
-                  >
-                  <h2
-                    style="
-                      margin: 0;
-                      font-size: 28px;
-                      line-height: 1.12;
-                      font-weight: 800;
-                      letter-spacing: -0.03em;
-                    "
-                  >
-                    Recebemos o cadastro da Imobiliária Exemplo
-                  </h2>
-                  <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #333333">
-                    A equipe confere o CNPJ e o CRECI em até 1 dia útil. Você recebe um e-mail
-                    quando a conta for liberada.
-                  </p>
-                  <div style="display: flex; flex-direction: column; border-top: 1px solid #e6e6e3">
-                    <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="4"
-                      ><div
-                        style="
-                          display: flex;
-                          justify-content: space-between;
-                          padding: 11px 0;
-                          border-bottom: 1px solid #efefec;
-                          font-size: 14px;
-                        "
-                      >
-                        <span>{{ c.l }}</span
-                        ><span style="font-weight:700;color:{{ c.cor }}">{{ c.s }}</span>
-                      </div></sc-for
-                    >
-                  </div>
-                  <span style="font-size: 13.5px; color: #333333"
-                    >Enquanto isso, você já pode
-                    <a href="#analise" style="font-weight: 700">cadastrar imóveis como rascunho</a
-                    >.</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="suspensa" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /situacao-da-conta · suspensa
-            </div>
-            <div style="height: 560px; background: #ffffff; display: flex; flex-direction: column">
-              <div
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 32px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 10px">
-                  <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  ><span
-                    style="width: 1px; height: 20px; background: #c9c9c4; display: block"
-                  ></span
-                  ><span style="font-size: 15px; font-weight: 600; color: #333333">Gestão</span>
-                </div>
-                <span style="font-size: 13px; font-weight: 700; color: #555555">Sair</span>
-              </div>
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center">
-                <div style="width: 480px; display: flex; flex-direction: column; gap: 14px">
-                  <span
-                    style="
-                      align-self: flex-start;
-                      background: #d1344c;
-                      color: #ffffff;
-                      border-radius: 11px;
-                      padding: 3px 10px;
-                      font-size: 12px;
-                      font-weight: 700;
-                    "
-                    >Suspensa</span
-                  >
-                  <h2
-                    style="
-                      margin: 0;
-                      font-size: 28px;
-                      line-height: 1.12;
-                      font-weight: 800;
-                      letter-spacing: -0.03em;
-                    "
-                  >
-                    O acesso da Imobiliária Exemplo está suspenso
-                  </h2>
-                  <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #333333">
-                    Motivo informado: documentação do CRECI vencida. Seus dados continuam guardados,
-                    e os anúncios saíram do ar até a regularização.
-                  </p>
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Falar com o suporte</span
-                  >
-                  <span style="font-size: 12.5px; color: #6e6e6e">Suspensa em 18/09/2026.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="cad-mobile" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              Celular · 390 · etapa 3 de 6
-            </div>
-            <div
-              style="
-                width: 390px;
-                height: 720px;
-                background: #ffffff;
-                display: flex;
-                flex-direction: column;
-              "
-            >
-              <div
-                style="
-                  height: 56px;
-                  border-bottom: 1px solid #ececec;
-                  display: grid;
-                  grid-template-columns: 44px 1fr 44px;
-                  align-items: center;
-                  padding: 0 6px;
-                "
-              >
-                <span
-                  style="
-                    width: 44px;
-                    height: 44px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
-                    font-weight: 600;
-                  "
-                  >←</span
-                ><span
-                  style="
-                    text-align: center;
-                    font-size: 17px;
-                    font-weight: 800;
-                    letter-spacing: -0.03em;
-                  "
-                  >Achou<span style="color: #037a4b">Imóvel</span>
-                  <span style="font-weight: 600; color: #333333">Gestão</span></span
-                ><span></span>
-              </div>
-              <div style="height: 3px; background: #efefec; display: flex">
-                <span style="width: 50%; background: #037a4b; display: block"></span>
-              </div>
-              <div
-                style="
-                  padding: 32px 18px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 14px;
-                  flex: 1;
-                "
-              >
-                <span style="font-size: 13px; font-weight: 700; color: #555555">3 de 6</span>
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 26px;
-                    line-height: 1.12;
-                    font-weight: 800;
-                    letter-spacing: -0.03em;
-                  "
-                >
-                  Qual é a sua imobiliária?
-                </h2>
-                <div style="display: flex; flex-direction: column; gap: 6px">
-                  <span style="font-size: 13px; font-weight: 700">Nome da imobiliária</span>
-                  <div
-                    style="
-                      height: 52px;
-                      border: 1px solid #d5d5d0;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      padding: 0 14px;
-                      font-size: 16px;
-                    "
-                  >
-                    Imobiliária Exemplo
-                  </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px">
-                  <span style="font-size: 13px; font-weight: 700">CNPJ</span>
-                  <div
-                    style="
-                      height: 52px;
-                      border: 2px solid #037a4b;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      padding: 0 13px;
-                      font-size: 16px;
-                    "
-                  >
-                    00.000.000/0001-00
-                  </div>
-                  <span style="font-size: 12.5px; color: #00854d; font-weight: 600"
-                    >CNPJ válido</span
-                  >
-                </div>
-                <span
-                  style="
-                    margin-top: auto;
-                    height: 52px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 15px;
-                    font-weight: 700;
-                  "
-                  >Próximo</span
-                >
-              </div>
-            </div>
+    <div id="login" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/login · com erro</div>
+      <div style="height:620px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 32px;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:440px;display:flex;flex-direction:column;gap:14px">
+            <h2 style="margin:0 0 6px;font-size:30px;font-weight:800;letter-spacing:-0.03em">Entrar</h2>
+            <div style="background:#FDECEE;color:#8A1C2C;border-radius:4px;padding:12px 14px;font-size:13.5px;font-weight:600;line-height:1.5">E-mail ou senha incorretos. Confira e tente de novo.</div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">E-mail</span><div style="height:48px;border:2px solid #037A4B;border-radius:4px;display:flex;align-items:center;padding:0 13px;font-size:15px">rafael@imobiliariaexemplo.com.br</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700">Senha</span><a href="#esqueci" style="font-size:13px;font-weight:700">Esqueci a senha</a></div><div style="height:48px;border:1px solid #D1344C;border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:15px">••••••••<span style="font-size:13px;font-weight:700;color:#555555">Mostrar</span></div></div>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-top:4px">Entrar</span>
+            <span style="font-size:14px;color:#333333;text-align:center">Ainda não tem conta? <a href="#cad1" style="font-weight:700">Criar conta</a></span>
           </div>
         </div>
-      </section>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const on = {bd:'2px solid #037A4B',radio:'#037A4B',dot:'#037A4B'}, off = {bd:'1px solid #D5D5D0',radio:'#B9B9B4',dot:'transparent'};
-          return {
-            planos: [
-              {nome:'Anunciante',desc:'Anúncios no AchouImóvel e nos portais parceiros, com caixa de leads.',...off},
-              {nome:'Gestão Locação',desc:'Sistema completo para administrar aluguel, por contratos ativos.',...on},
-              {nome:'Gestão Vendas',desc:'CRM de vendas, negociação e comissão, por corretor.',...off}
-            ],
-            checklist: [
-              {l:'Dados da imobiliária',s:'Enviado',cor:'#00854D'},
-              {l:'CNPJ',s:'Validado',cor:'#00854D'},
-              {l:'CRECI',s:'Em conferência',cor:'#8A4B00'},
-              {l:'Plano pedido',s:'Gestão Locação',cor:'#111111'}
-            ]
-          };
-        }
-      }
-    </script>
-  </body>
+      </div>
+    </div>
+
+    <div id="cad1" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/register?plano=GESTAO_LOCACAO · etapa 1 de 6</div>
+      <div style="height:620px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 32px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div><span style="font-size:13px;font-weight:700;color:#555555">Plano: Gestão Locação</span></div>
+        <div style="height:3px;background:#EFEFEC;display:flex"><span style="width:16.6%;background:#037A4B;display:block"></span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:440px;display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:13px;font-weight:700;color:#555555">1 de 6</span>
+            <h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.03em">Qual é o seu nome?</h2>
+            <div style="height:52px;border:2px solid #037A4B;border-radius:4px;display:flex;align-items:center;padding:0 13px;font-size:16px">Rafael Almeida<span style="width:1.5px;height:20px;background:#111111;display:block;margin-left:2px"></span></div>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Próximo</span>
+            <span style="font-size:13px;color:#555555;text-align:center">Já tem conta? <a href="#login" style="font-weight:700">Entrar</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="cad5" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/register · etapa 5 de 6 · plano pré-selecionado</div>
+      <div style="height:620px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 32px;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div>
+        <div style="height:3px;background:#EFEFEC;display:flex"><span style="width:83%;background:#037A4B;display:block"></span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:480px;display:flex;flex-direction:column;gap:12px">
+            <span style="font-size:13px;font-weight:700;color:#555555">5 de 6 · ← Voltar</span>
+            <h2 style="margin:0 0 4px;font-size:30px;font-weight:800;letter-spacing:-0.03em">Qual plano você quer usar?</h2>
+            <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
+              <div style="border:{{ p.bd }};border-radius:4px;padding:14px 16px;display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;align-items:start">
+                <span style="width:20px;height:20px;border-radius:50%;border:2px solid {{ p.radio }};display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="width:10px;height:10px;border-radius:50%;background:{{ p.dot }};display:block"></span></span>
+                <div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:16px;font-weight:700">{{ p.nome }}</span><span style="font-size:13px;line-height:1.5;color:#555555">{{ p.desc }}</span></div>
+              </div>
+            </sc-for>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-top:4px">Próximo</span>
+            <span style="font-size:12.5px;color:#6E6E6E">Sem cobrança agora. A equipe confirma o plano na análise da conta.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="convite" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/convite?token=…</div>
+      <div style="height:560px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 32px;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:440px;display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:13px;font-weight:700;color:#555555">Convite</span>
+            <h2 style="margin:0;font-size:28px;line-height:1.12;font-weight:800;letter-spacing:-0.03em">Luana Castro convidou você para a Imobiliária Exemplo</h2>
+            <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid #E6E6E3;border-bottom:1px solid #E6E6E3;font-size:14px"><span style="color:#555555">Papel</span><span style="font-weight:700">Corretor</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">Crie sua senha</span><div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:15px;color:#6E6E6E">Mínimo de 8 caracteres</div></div>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Aceitar convite</span>
+            <span style="font-size:12.5px;color:#6E6E6E">O convite vale até 29/09/2026.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="esqueci" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/esqueci-senha · depois de enviar</div>
+      <div style="height:560px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 32px;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:440px;display:flex;flex-direction:column;gap:14px">
+            <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.03em">Confira seu e-mail</h2>
+            <p style="margin:0;font-size:15px;line-height:1.7;color:#333333">Se existir uma conta com rafael@imobiliariaexemplo.com.br, você vai receber um link para criar uma nova senha. O link vale por 1 hora.</p>
+            <span style="height:48px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700">Reenviar em 0:42</span>
+            <a href="#login" style="font-size:14px;font-weight:700">← Voltar para entrar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="redefinir" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/redefinir-senha?token=…</div>
+      <div style="height:560px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;padding:0 32px;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:440px;display:flex;flex-direction:column;gap:14px">
+            <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.03em">Nova senha</h2>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">Nova senha</span><div style="height:48px;border:2px solid #037A4B;border-radius:4px;display:flex;align-items:center;padding:0 13px;font-size:15px">••••••••••</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding-top:4px"><span style="height:4px;background:#037A4B;display:block"></span><span style="height:4px;background:#037A4B;display:block"></span><span style="height:4px;background:#037A4B;display:block"></span><span style="height:4px;background:#E6E6E3;display:block"></span></div>
+              <span style="font-size:12.5px;color:#00854D;font-weight:600">Boa. 10 caracteres com letras e números.</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">Repita a senha</span><div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:15px">••••••••••</div></div>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Salvar senha</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="analise" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/situacao-da-conta · em análise</div>
+      <div style="height:560px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 32px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div><span style="font-size:13px;font-weight:700;color:#555555">Sair</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:480px;display:flex;flex-direction:column;gap:14px">
+            <span style="align-self:flex-start;background:#FFCB00;color:#3D3000;border-radius:11px;padding:3px 10px;font-size:12px;font-weight:700">Em análise</span>
+            <h2 style="margin:0;font-size:28px;line-height:1.12;font-weight:800;letter-spacing:-0.03em">Recebemos o cadastro da Imobiliária Exemplo</h2>
+            <p style="margin:0;font-size:15px;line-height:1.7;color:#333333">A equipe confere o CNPJ e o CRECI em até 1 dia útil. Você recebe um e-mail quando a conta for liberada.</p>
+            <div style="display:flex;flex-direction:column;border-top:1px solid #E6E6E3">
+              <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #EFEFEC;font-size:14px"><span>{{ c.l }}</span><span style="font-weight:700;color:{{ c.cor }}">{{ c.s }}</span></div></sc-for>
+            </div>
+            <span style="font-size:13.5px;color:#333333">Enquanto isso, você já pode <a href="#analise" style="font-weight:700">cadastrar imóveis como rascunho</a>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="suspensa" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/situacao-da-conta · suspensa</div>
+      <div style="height:560px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 32px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="width:1px;height:20px;background:#C9C9C4;display:block"></span><span style="font-size:15px;font-weight:600;color:#333333">Gestão</span></div><span style="font-size:13px;font-weight:700;color:#555555">Sair</span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="width:480px;display:flex;flex-direction:column;gap:14px">
+            <span style="align-self:flex-start;background:#D1344C;color:#FFFFFF;border-radius:11px;padding:3px 10px;font-size:12px;font-weight:700">Suspensa</span>
+            <h2 style="margin:0;font-size:28px;line-height:1.12;font-weight:800;letter-spacing:-0.03em">O acesso da Imobiliária Exemplo está suspenso</h2>
+            <p style="margin:0;font-size:15px;line-height:1.7;color:#333333">Motivo informado: documentação do CRECI vencida. Seus dados continuam guardados, e os anúncios saíram do ar até a regularização.</p>
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Falar com o suporte</span>
+            <span style="font-size:12.5px;color:#6E6E6E">Suspensa em 18/09/2026.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="cad-mobile" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">Celular · 390 · etapa 3 de 6</div>
+      <div style="width:390px;height:720px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="height:56px;border-bottom:1px solid #ECECEC;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600">←</span><span style="text-align:center;font-size:17px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span> <span style="font-weight:600;color:#333333">Gestão</span></span><span></span></div>
+        <div style="height:3px;background:#EFEFEC;display:flex"><span style="width:50%;background:#037A4B;display:block"></span></div>
+        <div style="padding:32px 18px;display:flex;flex-direction:column;gap:14px;flex:1">
+          <span style="font-size:13px;font-weight:700;color:#555555">3 de 6</span>
+          <h2 style="margin:0;font-size:26px;line-height:1.12;font-weight:800;letter-spacing:-0.03em">Qual é a sua imobiliária?</h2>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">Nome da imobiliária</span><div style="height:52px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:16px">Imobiliária Exemplo</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">CNPJ</span><div style="height:52px;border:2px solid #037A4B;border-radius:4px;display:flex;align-items:center;padding:0 13px;font-size:16px">00.000.000/0001-00</div><span style="font-size:12.5px;color:#00854D;font-weight:600">CNPJ válido</span></div>
+          <span style="margin-top:auto;height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Próximo</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const on = {bd:'2px solid #037A4B',radio:'#037A4B',dot:'#037A4B'}, off = {bd:'1px solid #D5D5D0',radio:'#B9B9B4',dot:'transparent'};
+    return {
+      planos: [
+        {nome:'Anunciante',desc:'Anúncios no AchouImóvel e nos portais parceiros, com caixa de leads.',...off},
+        {nome:'Gestão Locação',desc:'Sistema completo para administrar aluguel, por contratos ativos.',...on},
+        {nome:'Gestão Vendas',desc:'CRM de vendas, negociação e comissão, por corretor.',...off}
+      ],
+      checklist: [
+        {l:'Dados da imobiliária',s:'Enviado',cor:'#00854D'},
+        {l:'CNPJ',s:'Validado',cor:'#00854D'},
+        {l:'CRECI',s:'Em conferência',cor:'#8A4B00'},
+        {l:'Plano pedido',s:'Gestão Locação',cor:'#111111'}
+      ]
+    };
+  }
+}
+</script>
+</body>
 </html>

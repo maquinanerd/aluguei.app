@@ -1,5 +1,4 @@
 <!-- Atualizado em 22/09/2026 pela entrega de design: portal nacional, portais parceiros integrados, blocos coloridos permitidos, gestão mantém o visual atual. -->
-
 # Contexto para o Claude Design — AchouImovel
 
 Você vai criar a identidade visual e as telas do AchouImovel. Depois, o Claude Code vai
@@ -19,11 +18,11 @@ Trabalhe em duas entregas, nesta ordem, e pare entre elas para aprovação:
 O AchouImovel é **um produto com dois lados**, no modelo de marketplace. Mesmo banco,
 mesma conta, mesma marca.
 
-| Lado                                                        | Para quem                                               | Endereço                         | Nome exibido       | Paga? |
-| ----------------------------------------------------------- | ------------------------------------------------------- | -------------------------------- | ------------------ | ----- |
-| Portal de anúncios                                          | Quem procura imóvel **para alugar ou comprar**          | `achouimovel.online`             | AchouImovel        | Não   |
-| Sistema de gestão (CRM de locação e venda + ERP de locação) | Imobiliárias: gestor, corretor, vistoriador, financeiro | `app.achouimovel.online`         | AchouImovel Gestão | Sim   |
-| Área do cliente                                             | Proprietário e inquilino de uma locação                 | `app.achouimovel.online/cliente` | AchouImovel        | Não   |
+| Lado | Para quem | Endereço | Nome exibido | Paga? |
+|---|---|---|---|---|
+| Portal de anúncios | Quem procura imóvel **para alugar ou comprar** | `achouimovel.online` | AchouImovel | Não |
+| Sistema de gestão (CRM de locação e venda + ERP de locação) | Imobiliárias: gestor, corretor, vistoriador, financeiro | `app.achouimovel.online` | AchouImovel Gestão | Sim |
+| Área do cliente | Proprietário e inquilino de uma locação | `app.achouimovel.online/cliente` | AchouImovel | Não |
 
 Como os lados se ligam:
 
@@ -64,22 +63,22 @@ O sistema de gestão **já está construído e funcionando** em homologação, c
 50 telas. A sua tarefa no lado de gestão é **redesenhar e corrigir** a interface, não
 inventar funcionalidade. Módulos existentes:
 
-| Módulo                      | O que tem                                                                                                                                                                                                                           |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Painel inicial              | Alertas, resumo, fila do dia, ciclo de locação, atendimento                                                                                                                                                                         |
-| Imóveis                     | Lista densa com abas e contagens, cadastro em modo foco, detalhe, fotos, proprietários com participação percentual, publicação por canal                                                                                            |
-| CRM                         | Leads (funil e lista), detalhe do lead com responsável, contatos (pessoas com CPF/CNPJ validado e documentos), tarefas, agenda, visitas (confirmar, reagendar, cancelar com motivo), propostas (validade, envio, recusa, expiração) |
-| Atendimento (WhatsApp)      | Caixa de entrada, conversa com o bot, "passar para a equipe" e "devolver ao atendimento automático", conexão e verificação do número                                                                                                |
-| Análise cadastral           | Candidatura com autorização LGPD, regras explicáveis, decisão com motivo                                                                                                                                                            |
-| Contratos                   | Modelos versionados, contrato em PDF, envelope de assinatura com eventos                                                                                                                                                            |
-| Vistoria                    | Ambientes, observações com categoria e severidade, fotos e áudio, sugestões de IA que precisam de confirmação humana, comparação entrada × saída, relatório (também no app de celular)                                              |
-| Locações                    | Encargos, coproprietários, reajustar, renovar, encerrar, histórico de alterações                                                                                                                                                    |
-| Financeiro                  | Cobranças (multa e juros calculados), pagamentos, split, repasses, conciliação, contabilidade                                                                                                                                       |
-| Marketing                   | Campanhas de Meta Ads (sempre nascem pausadas)                                                                                                                                                                                      |
-| Relatórios                  | Funil de leads, receita mensal, investimento em anúncios, exportação                                                                                                                                                                |
-| Configurações               | Membros e papéis, convites, integrações, situação da conta                                                                                                                                                                          |
-| Administração da plataforma | Aprovar, recusar ou suspender imobiliárias; planos                                                                                                                                                                                  |
-| Área do cliente             | Proprietário: extratos e repasses. Inquilino: cobranças, pagamento por QR, contrato assinado, vistoria concluída. Acesso por link de uso único                                                                                      |
+| Módulo | O que tem |
+|---|---|
+| Painel inicial | Alertas, resumo, fila do dia, ciclo de locação, atendimento |
+| Imóveis | Lista densa com abas e contagens, cadastro em modo foco, detalhe, fotos, proprietários com participação percentual, publicação por canal |
+| CRM | Leads (funil e lista), detalhe do lead com responsável, contatos (pessoas com CPF/CNPJ validado e documentos), tarefas, agenda, visitas (confirmar, reagendar, cancelar com motivo), propostas (validade, envio, recusa, expiração) |
+| Atendimento (WhatsApp) | Caixa de entrada, conversa com o bot, "passar para a equipe" e "devolver ao atendimento automático", conexão e verificação do número |
+| Análise cadastral | Candidatura com autorização LGPD, regras explicáveis, decisão com motivo |
+| Contratos | Modelos versionados, contrato em PDF, envelope de assinatura com eventos |
+| Vistoria | Ambientes, observações com categoria e severidade, fotos e áudio, sugestões de IA que precisam de confirmação humana, comparação entrada × saída, relatório (também no app de celular) |
+| Locações | Encargos, coproprietários, reajustar, renovar, encerrar, histórico de alterações |
+| Financeiro | Cobranças (multa e juros calculados), pagamentos, split, repasses, conciliação, contabilidade |
+| Marketing | Campanhas de Meta Ads (sempre nascem pausadas) |
+| Relatórios | Funil de leads, receita mensal, investimento em anúncios, exportação |
+| Configurações | Membros e papéis, convites, integrações, situação da conta |
+| Administração da plataforma | Aprovar, recusar ou suspender imobiliárias; planos |
+| Área do cliente | Proprietário: extratos e repasses. Inquilino: cobranças, pagamento por QR, contrato assinado, vistoria concluída. Acesso por link de uso único |
 
 Rotas atuais do painel (para você mapear cada tela redesenhada à rota que ela substitui):
 `/dashboard`, `/app/properties`, `/app/properties/new`, `/app/properties/[id]`,
@@ -98,7 +97,6 @@ Rotas atuais do painel (para você mapear cada tela redesenhada à rota que ela 
 fluxo depois do lead é de locação. Tudo o que for de venda é **tela nova**: marque essas
 telas com a etiqueta "NOVO" na entrega, para o Claude Code saber que precisa criar o
 backend junto. O que a venda precisa ter:
-
 - Imóvel com finalidade (aluguel, venda ou os dois) e valores de venda (preço, e
   condomínio e IPTU que já existem).
 - Funil de venda separado do funil de aluguel no CRM.
@@ -109,7 +107,6 @@ backend junto. O que a venda precisa ter:
 - Exclusividade de venda (autorização do proprietário, com prazo).
 
 Problemas conhecidos do painel atual que o redesenho deve resolver:
-
 - A marca "Aluguei.app" está espalhada à mão; o produto agora é AchouImovel Gestão.
 - Tokens com o nome da marca (`--aluguei-brand*`); os novos devem ser neutros (`--brand-*`).
 - Menu organizado por tabela do banco, não pelo trabalho do dia (o corretor procura
@@ -142,7 +139,6 @@ Problemas conhecidos do painel atual que o redesenho deve resolver:
 ## 4. Dados disponíveis
 
 ### Anúncio no portal (não crie campos além destes)
-
 Finalidade (aluguel, venda ou os dois), tipo, título, descrição. Aluguel: aluguel,
 condomínio, IPTU, **valor total mensal**. Venda: **preço**, preço por m² (calculado),
 condomínio, IPTU (campos de venda são novos; ver seção 2). Demais: quartos,
@@ -152,13 +148,11 @@ bairro, cidade, UF, fotos (mínimo 5, com legenda opcional por foto: "Cozinha",
 WhatsApp da imobiliária (quando verificado).
 
 ### Estatísticas por página de busca (separadas por finalidade)
-
 Contagem de anúncios; no aluguel, mediana/mínimo/máximo do aluguel e do total; na
 venda, mediana/mínimo/máximo do preço e mediana do preço por m²; mediana por número de
 quartos; bairros vizinhos com contagem e mediana.
 
 ### Alerta de imóvel
-
 Quem não acha o que procura pode criar um alerta (cidade, bairro, tipo, filtros,
 e-mail ou WhatsApp, com consentimento). A imobiliária vê só números agregados
 ("demanda por bairro"), nunca o contato.
@@ -170,21 +164,21 @@ e-mail ou WhatsApp, com consentimento). A imobiliária vê só números agregado
 Abra **todos** os arquivos. Para cada um, entregue: o que é, o que aproveitar, o que
 evitar e por quê (em relação ao AchouImovel, não em abstrato).
 
-| Arquivo                               | O que é                                                                                                                                                             | Onde olhar com atenção                                                                                                            |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `front_opapreco.zip`                  | **Base principal de design.** Sistema completo de outro produto do mesmo dono (site de ofertas OpaPreço): tokens, componentes, rotas, painel admin e protótipo HTML | Leia `README.md`, todos os `docs/` e abra `prototypes/OpaPreço - Site Público (offline).html`. É daqui que vem a linguagem visual |
-| `3541157e-...pdf`                     | Home do QuintoAndar                                                                                                                                                 | Busca de aluguel no hero, blocos de serviço, links por cidade e "buscas mais populares"                                           |
-| `ada78e0d-...pdf`                     | Home do ZAP Imóveis                                                                                                                                                 | Busca com abas, cards com aluguel + condomínio + IPTU, bairros populares, blog                                                    |
-| `b2ff0f6c-...png`                     | Home do VivaReal                                                                                                                                                    | Card de imóvel com valores e atributos, faixa "para corretores e imobiliárias", buscas populares                                  |
-| `a3dce984-...pdf`                     | Home da MySide                                                                                                                                                      | Links por cidade e bairro, ferramentas (calculadoras), guias por etapa                                                            |
-| `d315eba7-...pdf`                     | Home da Kenlo (concorrente direto do lado de gestão)                                                                                                                | Como apresenta um ecossistema de produtos, FAQ de respostas diretas, prova social                                                 |
-| `cmr_kenlo.pdf`                       | Página do CRM da Kenlo                                                                                                                                              | Estrutura de página de produto B2B, tabela de planos com preço público, FAQ longo                                                 |
-| `erp.pdf`                             | Página do ERP de locação da Kenlo                                                                                                                                   | Como comunica cobrança, repasse, DIMOB/NF-e e planos por contratos administrados                                                  |
-| `4becd22b-...pdf` e `f29d7e6c-...pdf` | Página da LYA SDR (Kenlo), atendimento com IA no WhatsApp — os dois arquivos são a mesma página                                                                     | Como explica o fluxo do primeiro atendimento até o lead qualificado                                                               |
-| `cd80519d-...pdf`                     | Página do LYA Omnichannel (Kenlo), WhatsApp dentro do CRM                                                                                                           | Caixa de entrada, passagem da IA para a equipe                                                                                    |
-| `ca94be27-...pdf`                     | Página do LYA Editor (Kenlo), descrição de imóvel com IA                                                                                                            | Fluxo "sugerir, revisar, aprovar"                                                                                                 |
-| `b945b9e4-...pdf`                     | Página do LYA Studio (Kenlo), ambientação de fotos com IA                                                                                                           | Galeria e criação sob demanda                                                                                                     |
-| `77dde5e0-...pdf`                     | Formulário de cadastro da Kenlo (6 passos) com oferta de implantação                                                                                                | Fluxo de cadastro em etapas curtas                                                                                                |
+| Arquivo | O que é | Onde olhar com atenção |
+|---|---|---|
+| `front_opapreco.zip` | **Base principal de design.** Sistema completo de outro produto do mesmo dono (site de ofertas OpaPreço): tokens, componentes, rotas, painel admin e protótipo HTML | Leia `README.md`, todos os `docs/` e abra `prototypes/OpaPreço - Site Público (offline).html`. É daqui que vem a linguagem visual |
+| `3541157e-...pdf` | Home do QuintoAndar | Busca de aluguel no hero, blocos de serviço, links por cidade e "buscas mais populares" |
+| `ada78e0d-...pdf` | Home do ZAP Imóveis | Busca com abas, cards com aluguel + condomínio + IPTU, bairros populares, blog |
+| `b2ff0f6c-...png` | Home do VivaReal | Card de imóvel com valores e atributos, faixa "para corretores e imobiliárias", buscas populares |
+| `a3dce984-...pdf` | Home da MySide | Links por cidade e bairro, ferramentas (calculadoras), guias por etapa |
+| `d315eba7-...pdf` | Home da Kenlo (concorrente direto do lado de gestão) | Como apresenta um ecossistema de produtos, FAQ de respostas diretas, prova social |
+| `cmr_kenlo.pdf` | Página do CRM da Kenlo | Estrutura de página de produto B2B, tabela de planos com preço público, FAQ longo |
+| `erp.pdf` | Página do ERP de locação da Kenlo | Como comunica cobrança, repasse, DIMOB/NF-e e planos por contratos administrados |
+| `4becd22b-...pdf` e `f29d7e6c-...pdf` | Página da LYA SDR (Kenlo), atendimento com IA no WhatsApp — os dois arquivos são a mesma página | Como explica o fluxo do primeiro atendimento até o lead qualificado |
+| `cd80519d-...pdf` | Página do LYA Omnichannel (Kenlo), WhatsApp dentro do CRM | Caixa de entrada, passagem da IA para a equipe |
+| `ca94be27-...pdf` | Página do LYA Editor (Kenlo), descrição de imóvel com IA | Fluxo "sugerir, revisar, aprovar" |
+| `b945b9e4-...pdf` | Página do LYA Studio (Kenlo), ambientação de fotos com IA | Galeria e criação sob demanda |
+| `77dde5e0-...pdf` | Formulário de cadastro da Kenlo (6 passos) com oferta de implantação | Fluxo de cadastro em etapas curtas |
 
 **Atenção ao usar a Kenlo:** use como referência de conteúdo e estrutura, não de visual.
 **Blocos coloridos são permitidos** no portal: bloco cheio na cor do tipo de imóvel ou do
@@ -200,7 +194,6 @@ A base é a linguagem do OpaPreço (zip). Adapte, não copie: o OpaPreço vende 
 AchouImovel ajuda alguém a achar onde morar e ajuda imobiliárias a administrar aluguel.
 
 ### Portal público — partir destas regras do OpaPreço
-
 - Fundo branco puro `#FFFFFF`, muito respiro, divisórias de 1px, sem sombra, sem
   gradiente. No máximo um segundo fundo claro para blocos atrás de foto e faixas
   (o OpaPreço usa `#F4F2EF`; avalie se funciona para imóvel ou se um cinza neutro é melhor).
@@ -221,7 +214,6 @@ AchouImovel ajuda alguém a achar onde morar e ajuda imobiliárias a administrar
   `contain`. Adapte a regra.
 
 ### Gestão — partir do painel do OpaPreço
-
 - Linguagem de painel denso inspirada no Vibe Design System (monday.com), como está em
   `docs/01-tokens.md` do zip: fundo `#F6F7FB`, superfícies brancas, bordas `#E6E9EF`,
   primária `#0073EA`, pílulas de status coloridas, board e tabela.
@@ -231,7 +223,6 @@ AchouImovel ajuda alguém a achar onde morar e ajuda imobiliárias a administrar
 - Menu lateral de 238px com grupos por trabalho, contadores, busca e usuário no rodapé.
 
 ### O que a entrega 1 precisa ter
-
 1. Avaliação de cada referência (tabela: arquivo → aproveitar → evitar → motivo).
 2. Logotipo em texto "AchouImovel" e a variação "AchouImovel Gestão", em fundo branco.
 3. Tokens do portal e da gestão em tabela (cor, tipografia, espaçamento, raio,
@@ -252,7 +243,6 @@ sem permissão quando se aplicarem. Celular não é o desktop empilhado: menu em
 filtros em gaveta, botão de contato fixo no rodapé do anúncio, alvos de toque de 44px.
 
 ### 7.1 Portal (`achouimovel.online`)
-
 1. **Home**: busca com abas **Alugar** e **Comprar** (cidade, bairro, tipo, faixa de
    valor), mosaico de tipos, imóveis recentes das duas finalidades, bairros mais
    procurados com contagem, faixa "Para imobiliárias".
@@ -282,12 +272,10 @@ filtros em gaveta, botão de contato fixo no rodapé do anúncio, alvos de toque
 8. **Mapa do site**, **404**.
 
 ### 7.2 Entrada e conta
-
 Login, cadastro com plano escolhido (em etapas curtas, como o da Kenlo), convite,
 esqueci a senha, redefinir senha, conta em análise, conta suspensa.
 
 ### 7.3 Gestão (`app.achouimovel.online`)
-
 1. **Estrutura**: menu lateral agrupado por trabalho (proposta a validar: Hoje,
    Atendimento, Imóveis e anúncios, Vendas, Locação, Financeiro, Marketing, Relatórios,
    Configurações), topo com trilha e busca global (⌘K), módulo bloqueado com cadeado e
@@ -305,9 +293,9 @@ esqueci a senha, redefinir senha, conta em análise, conta suspensa.
 5. **Atendimento**: caixa de entrada do WhatsApp, conversa com indicação clara de quem
    está respondendo (bot ou pessoa), "passar para a equipe" e "devolver ao automático".
 6. **Visitas e agenda**, **Propostas**, **Tarefas**.
-   6b. **Vendas** (NOVO): negociações em board, proposta de compra com contraproposta e
-   histórico, checklist de documentação, contrato de compra e venda com assinatura,
-   fechamento com comissão dividida entre captador e vendedor, painel de vendas do mês.
+6b. **Vendas** (NOVO): negociações em board, proposta de compra com contraproposta e
+    histórico, checklist de documentação, contrato de compra e venda com assinatura,
+    fechamento com comissão dividida entre captador e vendedor, painel de vendas do mês.
 7. **Análise cadastral**: candidatura, autorização LGPD, regras com explicação, decisão.
 8. **Contratos**: modelos, contrato, envelope de assinatura com linha do tempo.
 9. **Vistoria**: ambientes, observações, sugestões de IA com aceitar/editar/descartar,
@@ -320,7 +308,6 @@ esqueci a senha, redefinir senha, conta em análise, conta suspensa.
     **Administração da plataforma** (fila de aprovação de imobiliárias).
 
 ### 7.4 Área do cliente
-
 Proprietário (extrato e repasses) e inquilino (cobranças, pagar por QR, contrato,
 vistoria), mobile-first, com entrada por link de uso único.
 

@@ -1,785 +1,189 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <style>
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Regular.otf') format('opentype');
-            font-weight: 400;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Medium.otf') format('opentype');
-            font-weight: 500;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-SemiBold.otf') format('opentype');
-            font-weight: 600;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Bold.otf') format('opentype');
-            font-weight: 700;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
-            font-weight: 800;
-            font-display: swap;
-          }
-          body {
-            margin: 0;
-            background: #ececea;
-            font-family: Guton, system-ui, sans-serif;
-            color: #111111;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #037a4b;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #02603b;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Para imobiliárias"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 980px">
-          <div style="font-size: 12px; font-weight: 700; color: #555555">
-            Entrega 2 · Portal · tela 7
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Para imobiliárias" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:980px">
+    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Portal · tela 7</div>
+    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Para imobiliárias · <code style="font-size:20px;font-weight:600">/para-imobiliarias/</code> e <code style="font-size:20px;font-weight:600">/planos/</code></h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Componentes: HeroB2B, FluxoSistema, DoisCaminhos, TabelaPlanos (lida da view pública de plans), FaqPlanos (FAQPage), SeloEmBreve. Plano sem monthly_price_cents mostra "Fale com a gente". Todo CTA leva a app.achouimovel.online/register?plano={CODE}. Assinatura e cobrança real aparecem como "em breve"; portais parceiros aparecem como integrados.</p>
+  </div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div id="b2b-home" style="display:flex;flex-direction:column;gap:10px;flex:none">
+      <div style="font-size:12px;font-weight:700;color:#555555">Desktop · 1440 · /para-imobiliarias/</div>
+      <div style="width:1440px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 64px">
+          <div style="display:flex;align-items:center;gap:40px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><nav style="display:flex;gap:28px;font-size:14px;font-weight:600"><span style="box-shadow:0 2px 0 #111111;padding:4px 0">Para imobiliárias</span><span style="padding:4px 0">Anunciar</span><span style="padding:4px 0">Gestão</span><span style="padding:4px 0">Planos</span></nav></div>
+          <div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:600;color:#333333;padding:0 10px">Entrar</span><span style="height:40px;padding:0 16px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14px;font-weight:700">Começar</span></div>
+        </header>
+        <div style="padding:96px 64px 80px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:72px;align-items:end;border-bottom:1px solid #E6E6E3">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <span style="font-size:14px;font-weight:700;color:#555555">AchouImóvel Gestão</span>
+            <h2 style="margin:0;font-size:56px;line-height:1.04;font-weight:800;letter-spacing:-0.035em;text-wrap:balance">Gerencie seus aluguéis e suas vendas e receba leads no mesmo lugar.</h2>
+            <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.7;color:#333333">Publique no portal AchouImóvel e o contato de quem se interessou entra no seu CRM, com o imóvel e a origem. Do atendimento no WhatsApp ao contrato, à vistoria e ao repasse, tudo fica no mesmo sistema.</p>
+            <div style="display:flex;gap:10px;padding-top:6px"><span style="height:52px;padding:0 22px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:15px;font-weight:700">Começar</span><span style="height:52px;padding:0 22px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;font-size:15px;font-weight:700">Ver planos</span></div>
           </div>
-          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.035em">
-            Para imobiliárias ·
-            <code style="font-size: 20px; font-weight: 600">/para-imobiliarias/</code> e
-            <code style="font-size: 20px; font-weight: 600">/planos/</code>
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333333">
-            Componentes: HeroB2B, FluxoSistema, DoisCaminhos, TabelaPlanos (lida da view pública de
-            plans), FaqPlanos (FAQPage), SeloEmBreve. Plano sem monthly_price_cents mostra "Fale com
-            a gente". Todo CTA leva a app.achouimovel.online/register?plano={CODE}. Assinatura e
-            cobrança real aparecem como "em breve"; portais parceiros aparecem como integrados.
-          </p>
+          <div style="aspect-ratio:4/3;background:#F4F4F2;border:1px solid #E6E6E3;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#6E6E6E">Captura do painel Hoje (após o redesenho da gestão)</div>
         </div>
-        <div style="display: flex; gap: 48px; align-items: flex-start">
-          <div id="b2b-home" style="display: flex; flex-direction: column; gap: 10px; flex: none">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              Desktop · 1440 · /para-imobiliarias/
-            </div>
-            <div style="width: 1440px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 64px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 40px">
-                  <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  >
-                  <nav style="display: flex; gap: 28px; font-size: 14px; font-weight: 600">
-                    <span style="box-shadow: 0 2px 0 #111111; padding: 4px 0"
-                      >Para imobiliárias</span
-                    ><span style="padding: 4px 0">Anunciar</span
-                    ><span style="padding: 4px 0">Gestão</span
-                    ><span style="padding: 4px 0">Planos</span>
-                  </nav>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center">
-                  <span style="font-size: 14px; font-weight: 600; color: #333333; padding: 0 10px"
-                    >Entrar</span
-                  ><span
-                    style="
-                      height: 40px;
-                      padding: 0 16px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 14px;
-                      font-weight: 700;
-                    "
-                    >Começar</span
-                  >
-                </div>
-              </header>
-              <div
-                style="
-                  padding: 96px 64px 80px;
-                  display: grid;
-                  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-                  gap: 72px;
-                  align-items: end;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 20px">
-                  <span style="font-size: 14px; font-weight: 700; color: #555555"
-                    >AchouImóvel Gestão</span
-                  >
-                  <h2
-                    style="
-                      margin: 0;
-                      font-size: 56px;
-                      line-height: 1.04;
-                      font-weight: 800;
-                      letter-spacing: -0.035em;
-                      text-wrap: balance;
-                    "
-                  >
-                    Gerencie seus aluguéis e suas vendas e receba leads no mesmo lugar.
-                  </h2>
-                  <p
-                    style="
-                      margin: 0;
-                      max-width: 54ch;
-                      font-size: 17px;
-                      line-height: 1.7;
-                      color: #333333;
-                    "
-                  >
-                    Publique no portal AchouImóvel e o contato de quem se interessou entra no seu
-                    CRM, com o imóvel e a origem. Do atendimento no WhatsApp ao contrato, à vistoria
-                    e ao repasse, tudo fica no mesmo sistema.
-                  </p>
-                  <div style="display: flex; gap: 10px; padding-top: 6px">
-                    <span
-                      style="
-                        height: 52px;
-                        padding: 0 22px;
-                        background: #037a4b;
-                        color: #ffffff;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                      "
-                      >Começar</span
-                    ><span
-                      style="
-                        height: 52px;
-                        padding: 0 22px;
-                        border: 1px solid #111111;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                      "
-                      >Ver planos</span
-                    >
-                  </div>
-                </div>
-                <div
-                  style="
-                    aspect-ratio: 4/3;
-                    background: #f4f4f2;
-                    border: 1px solid #e6e6e3;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #6e6e6e;
-                  "
-                >
-                  Captura do painel Hoje (após o redesenho da gestão)
-                </div>
-              </div>
 
-              <div
-                style="
-                  padding: 88px 64px 0;
-                  display: grid;
-                  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
-                  gap: 64px;
-                  align-items: start;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 16px">
-                  <span style="font-size: 14px; font-weight: 700; color: #037a4b"
-                    >Integração completa com os maiores portais</span
-                  >
-                  <h3
-                    style="
-                      margin: 0;
-                      font-size: 40px;
-                      line-height: 1.06;
-                      font-weight: 800;
-                      letter-spacing: -0.035em;
-                    "
-                  >
-                    Cadastre uma vez. Publique em todos os portais.
-                  </h3>
-                  <p
-                    style="
-                      margin: 0;
-                      font-size: 16px;
-                      line-height: 1.7;
-                      color: #333333;
-                      max-width: 48ch;
-                    "
-                  >
-                    O imóvel sai do AchouImóvel Gestão direto para o Canal Pro, a OLX e o Imovelweb,
-                    além do portal AchouImóvel. Preço, fotos e descrição ficam sincronizados. Quando
-                    o imóvel é alugado ou vendido, sai de todos os canais de uma vez. Os leads de
-                    todos os portais caem no mesmo CRM.
-                  </p>
-                  <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px">
-                    <sc-for list="{{ integra }}" as="i" hint-placeholder-count="4"
-                      ><div style="display: flex; gap: 10px; font-size: 14.5px; font-weight: 600">
-                        <span style="color: #037a4b; font-weight: 800">✓</span>{{ i }}
-                      </div></sc-for
-                    >
-                  </div>
-                </div>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 1px;
-                    background: #e6e6e3;
-                    border: 1px solid #e6e6e3;
-                  "
-                >
-                  <sc-for list="{{ canais }}" as="c" hint-placeholder-count="4">
-                    <div
-                      style="
-                        background: #ffffff;
-                        padding: 24px;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                        min-height: 190px;
-                      "
-                    >
-                      <div
-                        style="
-                          display: flex;
-                          justify-content: space-between;
-                          align-items: center;
-                          gap: 8px;
-                        "
-                      >
-                        <span
-                          style="
-                            height: 44px;
-                            min-width: 44px;
-                            padding: 0 12px;
-                            border: 1px solid #e6e6e3;
-                            border-radius: 4px;
-                            display: flex;
-                            align-items: center;
-                            font-size: 12px;
-                            font-weight: 600;
-                            color: #6e6e6e;
-                          "
-                          >Logo</span
-                        ><span
-                          style="
-                            background: #00c875;
-                            color: #053b22;
-                            border-radius: 11px;
-                            padding: 3px 10px;
-                            font-size: 12px;
-                            font-weight: 700;
-                          "
-                          >{{ c.status }}</span
-                        >
-                      </div>
-                      <span
-                        style="
-                          font-size: 20px;
-                          font-weight: 800;
-                          letter-spacing: -0.02em;
-                          padding-top: 6px;
-                        "
-                        >{{ c.nome }}</span
-                      >
-                      <span style="font-size: 13.5px; line-height: 1.6; color: #333333"
-                        >{{ c.desc }}</span
-                      >
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div style="padding: 88px 64px 0; display: flex; flex-direction: column; gap: 28px">
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 28px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Do anúncio ao repasse
-                </h3>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(6, minmax(0, 1fr));
-                    border-left: 1px solid #e6e6e3;
-                  "
-                >
-                  <sc-for list="{{ fluxo }}" as="f" hint-placeholder-count="6">
-                    <div
-                      style="
-                        padding: 20px 18px 24px;
-                        border-right: 1px solid #e6e6e3;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                      "
-                    >
-                      <span style="font-size: 13px; font-weight: 800; color: #6e6e6e"
-                        >{{ f.n }}</span
-                      >
-                      <span
-                        style="
-                          font-size: 17px;
-                          font-weight: 700;
-                          letter-spacing: -0.015em;
-                          line-height: 1.25;
-                        "
-                        >{{ f.t }}</span
-                      >
-                      <span style="font-size: 13.5px; line-height: 1.6; color: #333333"
-                        >{{ f.d }}</span
-                      >
-                      <sc-if value="{{ f.breve }}" hint-placeholder-val="{{ false }}"
-                        ><span
-                          style="
-                            align-self: flex-start;
-                            border: 1px solid #c3c6d4;
-                            color: #676879;
-                            border-radius: 11px;
-                            padding: 2px 10px;
-                            font-size: 12px;
-                            font-weight: 700;
-                          "
-                          >{{ f.breveTxt }}</span
-                        ></sc-if
-                      >
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div
-                style="
-                  padding: 88px 64px 0;
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 24px;
-                "
-              >
-                <div
-                  style="
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    padding: 32px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 14px;
-                  "
-                >
-                  <span style="font-size: 13px; font-weight: 700; color: #555555"
-                    >Já usa outro sistema</span
-                  >
-                  <h3
-                    style="
-                      margin: 0;
-                      font-size: 28px;
-                      line-height: 1.12;
-                      font-weight: 800;
-                      letter-spacing: -0.025em;
-                    "
-                  >
-                    Anunciante
-                  </h3>
-                  <p style="margin: 0; font-size: 15.5px; line-height: 1.7; color: #333333">
-                    Anúncios no portal e caixa de leads. Você continua no seu sistema atual e recebe
-                    os contatos aqui.
-                  </p>
-                  <a href="#b2b-home" style="font-size: 15px; font-weight: 700"
-                    >Conhecer o plano Anunciante →</a
-                  >
-                </div>
-                <div
-                  style="
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    padding: 32px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 14px;
-                  "
-                >
-                  <span style="font-size: 13px; font-weight: 700; color: #555555"
-                    >Quer tudo num lugar só</span
-                  >
-                  <h3
-                    style="
-                      margin: 0;
-                      font-size: 28px;
-                      line-height: 1.12;
-                      font-weight: 800;
-                      letter-spacing: -0.025em;
-                    "
-                  >
-                    Gestão Locação e Gestão Vendas
-                  </h3>
-                  <p style="margin: 0; font-size: 15.5px; line-height: 1.7; color: #333333">
-                    O sistema completo, com o portal incluído. Contrate as duas frentes juntas ou só
-                    a que você usa.
-                  </p>
-                  <a href="#b2b-home" style="font-size: 15px; font-weight: 700"
-                    >Ver o sistema por módulo →</a
-                  >
-                </div>
-              </div>
-              <div
-                style="
-                  margin-top: 104px;
-                  background: #f4f4f2;
-                  height: 120px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 13px;
-                  font-weight: 600;
-                  color: #555555;
-                "
-              >
-                SiteFooter
-              </div>
+        <div style="padding:88px 64px 0;display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.4fr);gap:64px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <span style="font-size:14px;font-weight:700;color:#037A4B">Integração completa com os maiores portais</span>
+            <h3 style="margin:0;font-size:40px;line-height:1.06;font-weight:800;letter-spacing:-0.035em">Cadastre uma vez. Publique em todos os portais.</h3>
+            <p style="margin:0;font-size:16px;line-height:1.7;color:#333333;max-width:48ch">O imóvel sai do AchouImóvel Gestão direto para o Canal Pro, a OLX e o Imovelweb, além do portal AchouImóvel. Preço, fotos e descrição ficam sincronizados. Quando o imóvel é alugado ou vendido, sai de todos os canais de uma vez. Os leads de todos os portais caem no mesmo CRM.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px">
+              <sc-for list="{{ integra }}" as="i" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:14.5px;font-weight:600"><span style="color:#037A4B;font-weight:800">✓</span>{{ i }}</div></sc-for>
             </div>
           </div>
-
-          <div id="planos" style="display: flex; flex-direction: column; gap: 10px; flex: none">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              Desktop · 1440 · /planos/
-            </div>
-            <div style="width: 1440px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 64px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 40px">
-                  <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  >
-                  <nav style="display: flex; gap: 28px; font-size: 14px; font-weight: 600">
-                    <span style="padding: 4px 0">Para imobiliárias</span
-                    ><span style="padding: 4px 0">Anunciar</span
-                    ><span style="padding: 4px 0">Gestão</span
-                    ><span style="box-shadow: 0 2px 0 #111111; padding: 4px 0">Planos</span>
-                  </nav>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center">
-                  <span style="font-size: 14px; font-weight: 600; color: #333333; padding: 0 10px"
-                    >Entrar</span
-                  ><span
-                    style="
-                      height: 40px;
-                      padding: 0 16px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 14px;
-                      font-weight: 700;
-                    "
-                    >Começar</span
-                  >
-                </div>
-              </header>
-              <div
-                style="padding: 72px 64px 40px; display: flex; flex-direction: column; gap: 14px"
-              >
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 48px;
-                    line-height: 1.05;
-                    font-weight: 800;
-                    letter-spacing: -0.035em;
-                  "
-                >
-                  Planos
-                </h2>
-                <p
-                  style="
-                    margin: 0;
-                    max-width: 62ch;
-                    font-size: 16.5px;
-                    line-height: 1.7;
-                    color: #333333;
-                  "
-                >
-                  Todos os planos publicam no AchouImóvel, no Canal Pro, na OLX e no Imovelweb.
-                  Gestão Locação é contratado pelo número de contratos de locação ativos; Gestão
-                  Vendas, pelo número de corretores.
-                </p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#E6E6E3;border:1px solid #E6E6E3">
+            <sc-for list="{{ canais }}" as="c" hint-placeholder-count="4">
+              <div style="background:#FFFFFF;padding:24px;display:flex;flex-direction:column;gap:10px;min-height:190px">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="height:44px;min-width:44px;padding:0 12px;border:1px solid #E6E6E3;border-radius:4px;display:flex;align-items:center;font-size:12px;font-weight:600;color:#6E6E6E">Logo</span><span style="background:#00C875;color:#053B22;border-radius:11px;padding:3px 10px;font-size:12px;font-weight:700">{{ c.status }}</span></div>
+                <span style="font-size:20px;font-weight:800;letter-spacing:-0.02em;padding-top:6px">{{ c.nome }}</span>
+                <span style="font-size:13.5px;line-height:1.6;color:#333333">{{ c.desc }}</span>
               </div>
-              <div
-                style="
-                  padding: 0 64px;
-                  display: grid;
-                  grid-template-columns: 280px repeat(3, minmax(0, 1fr));
-                  border-top: 1px solid #111111;
-                "
-              >
-                <div style="padding: 24px 16px 24px 0; border-bottom: 1px solid #e6e6e3"></div>
-                <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
-                  <div
-                    style="
-                      padding: 24px;
-                      border-bottom: 1px solid #e6e6e3;
-                      border-left: 1px solid #e6e6e3;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 10px;
-                    "
-                  >
-                    <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em"
-                      >{{ p.nome }}</span
-                    >
-                    <span
-                      style="font-size: 13.5px; line-height: 1.55; color: #333333; min-height: 42px"
-                      >{{ p.desc }}</span
-                    >
-                    <span
-                      style="
-                        font-size: 26px;
-                        font-weight: 800;
-                        letter-spacing: -0.025em;
-                        padding-top: 6px;
-                      "
-                      >{{ p.preco }}</span
-                    >
-                    <span style="font-size: 13px; font-weight: 600; color: #555555"
-                      >{{ p.limite }}</span
-                    >
-                    <span
-                      style="margin-top:8px;height:48px;background:{{ p.btnBg }};color:{{ p.btnFg }};border:1px solid #037A4B;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700"
-                      >Começar</span
-                    >
-                  </div>
-                </sc-for>
-                <sc-for list="{{ linhas }}" as="l" hint-placeholder-count="10">
-                  <div
-                    style="
-                      padding: 14px 16px 14px 0;
-                      border-bottom: 1px solid #efefec;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 2px;
-                    "
-                  >
-                    <span style="font-size: 14.5px; font-weight: 700">{{ l.nome }}</span
-                    ><span style="font-size: 12.5px; color: #555555">{{ l.desc }}</span>
-                  </div>
-                  <sc-for list="{{ l.cels }}" as="c" hint-placeholder-count="3"
-                    ><div
-                      style="padding:14px 24px;border-bottom:1px solid #EFEFEC;border-left:1px solid #E6E6E3;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:{{ c.cor }}"
-                    >
-                      {{ c.t }}<sc-if value="{{ c.breve }}" hint-placeholder-val="{{ false }}"
-                        ><span
-                          style="
-                            border: 1px solid #c3c6d4;
-                            color: #676879;
-                            border-radius: 11px;
-                            padding: 1px 8px;
-                            font-size: 11.5px;
-                            font-weight: 700;
-                          "
-                          >em breve</span
-                        ></sc-if
-                      >
-                    </div></sc-for
-                  >
-                </sc-for>
-              </div>
-              <div style="padding: 16px 64px 0; font-size: 12.5px; color: #6e6e6e">
-                Trocar de plano não apaga dados. Módulos fora do plano ficam visíveis com cadeado no
-                sistema.
-              </div>
-
-              <div
-                style="
-                  padding: 88px 64px 0;
-                  display: grid;
-                  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-                  gap: 64px;
-                  align-items: start;
-                "
-              >
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 32px;
-                    line-height: 1.1;
-                    font-weight: 800;
-                    letter-spacing: -0.03em;
-                  "
-                >
-                  Perguntas sobre os planos
-                </h3>
-                <div style="display: flex; flex-direction: column; border-top: 1px solid #111111">
-                  <div
-                    style="
-                      padding: 20px 0;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 10px;
-                    "
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        justify-content: space-between;
-                        gap: 16px;
-                        font-size: 17px;
-                        font-weight: 700;
-                      "
-                    >
-                      Quanto custa um sistema para imobiliária de locação?<span
-                        style="font-weight: 500"
-                        >−</span
-                      >
-                    </div>
-                    <p
-                      style="
-                        margin: 0;
-                        font-size: 15px;
-                        line-height: 1.7;
-                        color: #333333;
-                        max-width: 64ch;
-                      "
-                    >
-                      No AchouImóvel Gestão Locação o valor depende de quantos contratos de locação
-                      ativos você administra. Fale com a gente para receber a proposta do seu
-                      tamanho de carteira.
-                    </p>
-                  </div>
-                  <sc-for list="{{ faq }}" as="f" hint-placeholder-count="4"
-                    ><div
-                      style="
-                        padding: 20px 0;
-                        border-bottom: 1px solid #e6e6e3;
-                        display: flex;
-                        justify-content: space-between;
-                        gap: 16px;
-                        font-size: 17px;
-                        font-weight: 700;
-                      "
-                    >
-                      {{ f }}<span style="font-weight: 500">+</span>
-                    </div></sc-for
-                  >
-                </div>
-              </div>
-              <div
-                style="
-                  margin-top: 104px;
-                  background: #f4f4f2;
-                  height: 120px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 13px;
-                  font-weight: 600;
-                  color: #555555;
-                "
-              >
-                SiteFooter
-              </div>
-            </div>
+            </sc-for>
           </div>
         </div>
-      </section>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const S = t => ({t, cor:'#111111', breve:false});
-          const N = () => ({t:'—', cor:'#9699A6', breve:false});
-          const B = t => ({t, cor:'#111111', breve:true});
-          return {
-            integra: ['Publicação e atualização automáticas em todos os canais','Retirada de todos os portais quando o imóvel sai','Leads de todos os portais no mesmo CRM, com a origem','Status de cada publicação por canal no painel'],
-            canais: [
-              {nome:'AchouImóvel',status:'Canal nativo',desc:'Portal próprio, com página de bairro, alerta de imóvel e lead direto no CRM.'},
-              {nome:'Canal Pro',status:'Integrado',desc:'Publica no ZAP Imóveis e no VivaReal pela conta da sua imobiliária.'},
-              {nome:'OLX',status:'Integrado',desc:'Anúncios de aluguel e venda na OLX, com fotos e valores sincronizados.'},
-              {nome:'Imovelweb',status:'Integrado',desc:'Publicação e retirada automáticas, com os leads voltando para o CRM.'}
-            ],
-            fluxo: [
-              {n:'01',t:'Cadastre o imóvel',d:'Fotos com legenda, valores de aluguel e de venda e proprietários com participação.',breve:false},
-              {n:'02',t:'Publique em todos os portais',d:'AchouImóvel, Canal Pro, OLX e Imovelweb num só envio. Você confirma antes de publicar.',breve:false},
-              {n:'03',t:'Receba o lead',d:'O contato de qualquer portal chega no CRM com o imóvel, a origem e o responsável.',breve:false},
-              {n:'04',t:'Atenda no WhatsApp',d:'O atendimento automático responde primeiro e passa a conversa para a equipe.',breve:false},
-              {n:'05',t:'Contrato e vistoria',d:'Análise cadastral, contrato por modelo, assinatura e vistoria no celular.',breve:true,breveTxt:'assinatura em breve'},
-              {n:'06',t:'Cobrança e repasse',d:'Cobranças com multa e juros, divisão do valor e repasse ao proprietário.',breve:true,breveTxt:'cobrança real em breve'}
-            ],
-            planos: [
-              {nome:'Anunciante',desc:'Anúncios no portal e caixa de leads.',preco:'Fale com a gente',limite:'Limite de anúncios publicados',btnBg:'#FFFFFF',btnFg:'#037A4B'},
-              {nome:'Gestão Locação',desc:'Sistema completo para administrar aluguel.',preco:'Fale com a gente',limite:'Por contratos de locação ativos',btnBg:'#037A4B',btnFg:'#FFFFFF'},
-              {nome:'Gestão Vendas',desc:'CRM de vendas, negociação e fechamento.',preco:'Fale com a gente',limite:'Por usuários (corretores)',btnBg:'#FFFFFF',btnFg:'#037A4B'}
-            ],
-            linhas: [
-              {nome:'Anúncios no portal',desc:'Publicação no AchouImóvel',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
-              {nome:'Leads e contatos',desc:'Caixa de leads, contatos e tarefas',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
-              {nome:'CRM',desc:'Funil, visitas e propostas',cels:[N(),S('Incluído'),S('Incluído')]},
-              {nome:'Atendimento no WhatsApp',desc:'Conexão, atendimento automático e caixa de entrada',cels:[N(),S('Incluído'),S('Incluído')]},
-              {nome:'Portais parceiros',desc:'Canal Pro (ZAP e VivaReal), OLX e Imovelweb',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
-              {nome:'Análise cadastral',desc:'Candidatura com autorização LGPD',cels:[N(),S('Incluído'),N()]},
-              {nome:'Contratos e assinatura',desc:'Modelos versionados e envelope',cels:[N(),B('Incluído'),B('Incluído')]},
-              {nome:'Vistoria',desc:'Ambientes, fotos, áudio e relatório',cels:[N(),S('Incluído'),N()]},
-              {nome:'Financeiro',desc:'Cobrança, split, repasse e conciliação',cels:[N(),B('Incluído'),N()]},
-              {nome:'Área do cliente',desc:'Proprietário e inquilino',cels:[N(),S('Incluído'),N()]},
-              {nome:'Negociação de venda',desc:'Proposta, contraproposta e comissão',cels:[N(),N(),S('Incluído')]}
-            ],
-            faq: ['O que está incluído no plano Anunciante?','Posso anunciar sem usar o sistema?','O que acontece com meus dados se eu mudar de plano?','Quanto tempo leva para começar a usar?']
-          };
-        }
-      }
-    </script>
-  </body>
+
+        <div style="padding:88px 64px 0;display:flex;flex-direction:column;gap:28px">
+          <h3 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Do anúncio ao repasse</h3>
+          <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-left:1px solid #E6E6E3">
+            <sc-for list="{{ fluxo }}" as="f" hint-placeholder-count="6">
+              <div style="padding:20px 18px 24px;border-right:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:13px;font-weight:800;color:#6E6E6E">{{ f.n }}</span>
+                <span style="font-size:17px;font-weight:700;letter-spacing:-0.015em;line-height:1.25">{{ f.t }}</span>
+                <span style="font-size:13.5px;line-height:1.6;color:#333333">{{ f.d }}</span>
+                <sc-if value="{{ f.breve }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start;border:1px solid #C3C6D4;color:#676879;border-radius:11px;padding:2px 10px;font-size:12px;font-weight:700">{{ f.breveTxt }}</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div style="border:1px solid #111111;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:13px;font-weight:700;color:#555555">Já usa outro sistema</span>
+            <h3 style="margin:0;font-size:28px;line-height:1.12;font-weight:800;letter-spacing:-0.025em">Anunciante</h3>
+            <p style="margin:0;font-size:15.5px;line-height:1.7;color:#333333">Anúncios no portal e caixa de leads. Você continua no seu sistema atual e recebe os contatos aqui.</p>
+            <a href="#b2b-home" style="font-size:15px;font-weight:700">Conhecer o plano Anunciante →</a>
+          </div>
+          <div style="border:1px solid #111111;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:13px;font-weight:700;color:#555555">Quer tudo num lugar só</span>
+            <h3 style="margin:0;font-size:28px;line-height:1.12;font-weight:800;letter-spacing:-0.025em">Gestão Locação e Gestão Vendas</h3>
+            <p style="margin:0;font-size:15.5px;line-height:1.7;color:#333333">O sistema completo, com o portal incluído. Contrate as duas frentes juntas ou só a que você usa.</p>
+            <a href="#b2b-home" style="font-size:15px;font-weight:700">Ver o sistema por módulo →</a>
+          </div>
+        </div>
+        <div style="margin-top:104px;background:#F4F4F2;height:120px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#555555">SiteFooter</div>
+      </div>
+    </div>
+
+    <div id="planos" style="display:flex;flex-direction:column;gap:10px;flex:none">
+      <div style="font-size:12px;font-weight:700;color:#555555">Desktop · 1440 · /planos/</div>
+      <div style="width:1440px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 64px">
+          <div style="display:flex;align-items:center;gap:40px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><nav style="display:flex;gap:28px;font-size:14px;font-weight:600"><span style="padding:4px 0">Para imobiliárias</span><span style="padding:4px 0">Anunciar</span><span style="padding:4px 0">Gestão</span><span style="box-shadow:0 2px 0 #111111;padding:4px 0">Planos</span></nav></div>
+          <div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:600;color:#333333;padding:0 10px">Entrar</span><span style="height:40px;padding:0 16px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14px;font-weight:700">Começar</span></div>
+        </header>
+        <div style="padding:72px 64px 40px;display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-size:48px;line-height:1.05;font-weight:800;letter-spacing:-0.035em">Planos</h2>
+          <p style="margin:0;max-width:62ch;font-size:16.5px;line-height:1.7;color:#333333">Todos os planos publicam no AchouImóvel, no Canal Pro, na OLX e no Imovelweb. Gestão Locação é contratado pelo número de contratos de locação ativos; Gestão Vendas, pelo número de corretores.</p>
+        </div>
+        <div style="padding:0 64px;display:grid;grid-template-columns:280px repeat(3,minmax(0,1fr));border-top:1px solid #111111">
+          <div style="padding:24px 16px 24px 0;border-bottom:1px solid #E6E6E3"></div>
+          <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
+            <div style="padding:24px;border-bottom:1px solid #E6E6E3;border-left:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">{{ p.nome }}</span>
+              <span style="font-size:13.5px;line-height:1.55;color:#333333;min-height:42px">{{ p.desc }}</span>
+              <span style="font-size:26px;font-weight:800;letter-spacing:-0.025em;padding-top:6px">{{ p.preco }}</span>
+              <span style="font-size:13px;font-weight:600;color:#555555">{{ p.limite }}</span>
+              <span style="margin-top:8px;height:48px;background:{{ p.btnBg }};color:{{ p.btnFg }};border:1px solid #037A4B;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700">Começar</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{ linhas }}" as="l" hint-placeholder-count="10">
+            <div style="padding:14px 16px 14px 0;border-bottom:1px solid #EFEFEC;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:700">{{ l.nome }}</span><span style="font-size:12.5px;color:#555555">{{ l.desc }}</span></div>
+            <sc-for list="{{ l.cels }}" as="c" hint-placeholder-count="3"><div style="padding:14px 24px;border-bottom:1px solid #EFEFEC;border-left:1px solid #E6E6E3;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:{{ c.cor }}">{{ c.t }}<sc-if value="{{ c.breve }}" hint-placeholder-val="{{ false }}"><span style="border:1px solid #C3C6D4;color:#676879;border-radius:11px;padding:1px 8px;font-size:11.5px;font-weight:700">em breve</span></sc-if></div></sc-for>
+          </sc-for>
+        </div>
+        <div style="padding:16px 64px 0;font-size:12.5px;color:#6E6E6E">Trocar de plano não apaga dados. Módulos fora do plano ficam visíveis com cadeado no sistema.</div>
+
+        <div style="padding:88px 64px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:64px;align-items:start">
+          <h3 style="margin:0;font-size:32px;line-height:1.1;font-weight:800;letter-spacing:-0.03em">Perguntas sobre os planos</h3>
+          <div style="display:flex;flex-direction:column;border-top:1px solid #111111">
+            <div style="padding:20px 0;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;gap:16px;font-size:17px;font-weight:700">Quanto custa um sistema para imobiliária de locação?<span style="font-weight:500">−</span></div><p style="margin:0;font-size:15px;line-height:1.7;color:#333333;max-width:64ch">No AchouImóvel Gestão Locação o valor depende de quantos contratos de locação ativos você administra. Fale com a gente para receber a proposta do seu tamanho de carteira.</p></div>
+            <sc-for list="{{ faq }}" as="f" hint-placeholder-count="4"><div style="padding:20px 0;border-bottom:1px solid #E6E6E3;display:flex;justify-content:space-between;gap:16px;font-size:17px;font-weight:700">{{ f }}<span style="font-weight:500">+</span></div></sc-for>
+          </div>
+        </div>
+        <div style="margin-top:104px;background:#F4F4F2;height:120px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#555555">SiteFooter</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const S = t => ({t, cor:'#111111', breve:false});
+    const N = () => ({t:'—', cor:'#9699A6', breve:false});
+    const B = t => ({t, cor:'#111111', breve:true});
+    return {
+      integra: ['Publicação e atualização automáticas em todos os canais','Retirada de todos os portais quando o imóvel sai','Leads de todos os portais no mesmo CRM, com a origem','Status de cada publicação por canal no painel'],
+      canais: [
+        {nome:'AchouImóvel',status:'Canal nativo',desc:'Portal próprio, com página de bairro, alerta de imóvel e lead direto no CRM.'},
+        {nome:'Canal Pro',status:'Integrado',desc:'Publica no ZAP Imóveis e no VivaReal pela conta da sua imobiliária.'},
+        {nome:'OLX',status:'Integrado',desc:'Anúncios de aluguel e venda na OLX, com fotos e valores sincronizados.'},
+        {nome:'Imovelweb',status:'Integrado',desc:'Publicação e retirada automáticas, com os leads voltando para o CRM.'}
+      ],
+      fluxo: [
+        {n:'01',t:'Cadastre o imóvel',d:'Fotos com legenda, valores de aluguel e de venda e proprietários com participação.',breve:false},
+        {n:'02',t:'Publique em todos os portais',d:'AchouImóvel, Canal Pro, OLX e Imovelweb num só envio. Você confirma antes de publicar.',breve:false},
+        {n:'03',t:'Receba o lead',d:'O contato de qualquer portal chega no CRM com o imóvel, a origem e o responsável.',breve:false},
+        {n:'04',t:'Atenda no WhatsApp',d:'O atendimento automático responde primeiro e passa a conversa para a equipe.',breve:false},
+        {n:'05',t:'Contrato e vistoria',d:'Análise cadastral, contrato por modelo, assinatura e vistoria no celular.',breve:true,breveTxt:'assinatura em breve'},
+        {n:'06',t:'Cobrança e repasse',d:'Cobranças com multa e juros, divisão do valor e repasse ao proprietário.',breve:true,breveTxt:'cobrança real em breve'}
+      ],
+      planos: [
+        {nome:'Anunciante',desc:'Anúncios no portal e caixa de leads.',preco:'Fale com a gente',limite:'Limite de anúncios publicados',btnBg:'#FFFFFF',btnFg:'#037A4B'},
+        {nome:'Gestão Locação',desc:'Sistema completo para administrar aluguel.',preco:'Fale com a gente',limite:'Por contratos de locação ativos',btnBg:'#037A4B',btnFg:'#FFFFFF'},
+        {nome:'Gestão Vendas',desc:'CRM de vendas, negociação e fechamento.',preco:'Fale com a gente',limite:'Por usuários (corretores)',btnBg:'#FFFFFF',btnFg:'#037A4B'}
+      ],
+      linhas: [
+        {nome:'Anúncios no portal',desc:'Publicação no AchouImóvel',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
+        {nome:'Leads e contatos',desc:'Caixa de leads, contatos e tarefas',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
+        {nome:'CRM',desc:'Funil, visitas e propostas',cels:[N(),S('Incluído'),S('Incluído')]},
+        {nome:'Atendimento no WhatsApp',desc:'Conexão, atendimento automático e caixa de entrada',cels:[N(),S('Incluído'),S('Incluído')]},
+        {nome:'Portais parceiros',desc:'Canal Pro (ZAP e VivaReal), OLX e Imovelweb',cels:[S('Incluído'),S('Incluído'),S('Incluído')]},
+        {nome:'Análise cadastral',desc:'Candidatura com autorização LGPD',cels:[N(),S('Incluído'),N()]},
+        {nome:'Contratos e assinatura',desc:'Modelos versionados e envelope',cels:[N(),B('Incluído'),B('Incluído')]},
+        {nome:'Vistoria',desc:'Ambientes, fotos, áudio e relatório',cels:[N(),S('Incluído'),N()]},
+        {nome:'Financeiro',desc:'Cobrança, split, repasse e conciliação',cels:[N(),B('Incluído'),N()]},
+        {nome:'Área do cliente',desc:'Proprietário e inquilino',cels:[N(),S('Incluído'),N()]},
+        {nome:'Negociação de venda',desc:'Proposta, contraproposta e comissão',cels:[N(),N(),S('Incluído')]}
+      ],
+      faq: ['O que está incluído no plano Anunciante?','Posso anunciar sem usar o sistema?','O que acontece com meus dados se eu mudar de plano?','Quanto tempo leva para começar a usar?']
+    };
+  }
+}
+</script>
+</body>
 </html>

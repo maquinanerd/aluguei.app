@@ -1,1318 +1,236 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <style>
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Regular.otf') format('opentype');
-            font-weight: 400;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Medium.otf') format('opentype');
-            font-weight: 500;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-SemiBold.otf') format('opentype');
-            font-weight: 600;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Bold.otf') format('opentype');
-            font-weight: 700;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
-            font-weight: 800;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Black.otf') format('opentype');
-            font-weight: 900;
-            font-display: swap;
-          }
-          body {
-            margin: 0;
-            background: #ececea;
-            font-family: Guton, system-ui, sans-serif;
-            color: #111111;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #037a4b;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #02603b;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Home"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 900px">
-          <div style="font-size: 12px; font-weight: 700; color: #555555">
-            Entrega 2 · Portal · tela 1
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Black.otf") format("opentype");font-weight:900;font-display:swap}
+body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Home" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:900px">
+    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Portal · tela 1</div>
+    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Home · <code style="font-size:22px;font-weight:600">/</code></h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Componentes: SiteHeader, SearchHero (abas Alugar/Comprar), MosaicoTipos, ImovelCard, BairrosProcurados, FaixaAlerta, BuscasPopulares, SiteFooter. Dados: page_stats (contagens e medianas por bairro e tipo), listings recentes de cada finalidade. Portal nacional. Grade só nos blocos de cor. A cidade do título e da busca vem da localização aproximada do visitante (pelo IP, sem cookie e sem pedir permissão); sem cidade detectada, o título fica genérico. Troque a cidade no painel Tweaks. Todos os números são fictícios.</p>
+  </div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div id="home-desktop" style="display:flex;flex-direction:column;gap:10px;flex:none">
+      <div style="font-size:12px;font-weight:700;color:#555555">Desktop · 1440</div>
+      <div style="width:1440px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;background:#FFFFFF;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 64px">
+          <div style="display:flex;align-items:center;gap:40px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span></div>
+            <nav style="display:flex;gap:28px;font-size:14px;font-weight:600"><span style="color:#111111">Alugar</span><span style="color:#111111">Comprar</span><span style="color:#111111">Cidades</span></nav>
           </div>
-          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.035em">
-            Home · <code style="font-size: 22px; font-weight: 600">/</code>
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333333">
-            Componentes: SiteHeader, SearchHero (abas Alugar/Comprar), MosaicoTipos, ImovelCard,
-            BairrosProcurados, FaixaAlerta, BuscasPopulares, SiteFooter. Dados: page_stats
-            (contagens e medianas por bairro e tipo), listings recentes de cada finalidade. Portal
-            nacional. Grade só nos blocos de cor. A cidade do título e da busca vem da localização
-            aproximada do visitante (pelo IP, sem cookie e sem pedir permissão); sem cidade
-            detectada, o título fica genérico. Troque a cidade no painel Tweaks. Todos os números
-            são fictícios.
-          </p>
-        </div>
-        <div style="display: flex; gap: 48px; align-items: flex-start">
-          <div
-            id="home-desktop"
-            style="display: flex; flex-direction: column; gap: 10px; flex: none"
-          >
-            <div style="font-size: 12px; font-weight: 700; color: #555555">Desktop · 1440</div>
-            <div style="width: 1440px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 64px;
-                  background: #ffffff;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 64px;
-                "
-              >
-                <div style="display: flex; align-items: center; gap: 40px">
-                  <div style="display: flex; align-items: center; gap: 8px">
-                    <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
-                      >Achou<span style="color: #037a4b">Imóvel</span></span
-                    >
-                  </div>
-                  <nav style="display: flex; gap: 28px; font-size: 14px; font-weight: 600">
-                    <span style="color: #111111">Alugar</span
-                    ><span style="color: #111111">Comprar</span
-                    ><span style="color: #111111">Cidades</span>
-                  </nav>
-                </div>
-                <a
-                  href="#home-desktop"
-                  style="
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #333333;
-                    text-decoration: none;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                  "
-                  >Anunciar imóvel</a
-                >
-              </header>
+          <a href="#home-desktop" style="font-size:14px;font-weight:600;color:#333333;text-decoration:none;height:40px;display:flex;align-items:center">Anunciar imóvel</a>
+        </header>
 
-              <div
-                style="
-                  padding: 88px 64px 72px;
-                  display: grid;
-                  grid-template-columns: minmax(0, 1fr) 640px;
-                  gap: 72px;
-                  align-items: end;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 20px">
-                  <h2
-                    style="
-                      margin: 0;
-                      font-size: 52px;
-                      line-height: 1.08;
-                      font-weight: 700;
-                      letter-spacing: -0.03em;
-                      text-wrap: balance;
-                    "
-                  >
-                    {{ h1 }}
-                  </h2>
-                  <p
-                    style="
-                      margin: 0;
-                      max-width: 46ch;
-                      font-size: 16.5px;
-                      line-height: 1.7;
-                      color: #333333;
-                    "
-                  >
-                    Apartamentos, casas e studios para alugar ou comprar em todo o Brasil. O valor
-                    total do mês aparece antes de você clicar, sem surpresa depois.
-                  </p>
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                  "
-                >
-                  <div style="display: flex; border-bottom: 1px solid #e6e6e3">
-                    <span
-                      style="
-                        flex: 1;
-                        height: 52px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                        box-shadow: inset 0 -2px 0 #111111;
-                      "
-                      >Alugar</span
-                    >
-                    <span
-                      style="
-                        flex: 1;
-                        height: 52px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 600;
-                        color: #555555;
-                      "
-                      >Comprar</span
-                    >
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr">
-                    <div
-                      style="
-                        padding: 14px 18px;
-                        border-right: 1px solid #e6e6e3;
-                        border-bottom: 1px solid #e6e6e3;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Cidade</span
-                      ><span style="font-size:15px;font-weight:600;color:{{ cityColor }}"
-                        >{{ cityField }}</span
-                      >
-                    </div>
-                    <div
-                      style="
-                        padding: 14px 18px;
-                        border-bottom: 1px solid #e6e6e3;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Bairro</span
-                      ><span style="font-size: 15px; font-weight: 500; color: #6e6e6e"
-                        >Qualquer bairro</span
-                      >
-                    </div>
-                    <div
-                      style="
-                        padding: 14px 18px;
-                        border-right: 1px solid #e6e6e3;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Tipo</span
-                      ><span style="font-size: 15px; font-weight: 500; color: #6e6e6e"
-                        >Todos os tipos</span
-                      >
-                    </div>
-                    <div
-                      style="padding: 14px 18px; display: flex; flex-direction: column; gap: 4px"
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
-                        >Valor total até</span
-                      ><span style="font-size: 15px; font-weight: 500; color: #6e6e6e"
-                        >Sem limite</span
-                      >
-                    </div>
-                  </div>
-                  <div style="padding: 12px; border-top: 1px solid #e6e6e3">
-                    <span
-                      style="
-                        height: 52px;
-                        background: #037a4b;
-                        color: #ffffff;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                      "
-                      >Buscar imóveis para alugar</span
-                    >
-                  </div>
-                </div>
-              </div>
-
-              <div style="padding: 72px 64px 0; display: flex; flex-direction: column; gap: 24px">
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 26px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Procure pelo tipo
-                </h3>
-                <div
-                  style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px"
-                >
-                  <sc-for list="{{ types }}" as="t" hint-placeholder-count="7">
-                    <div
-                      style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:34px 34px;color:{{ t.fg }};padding:16px;display:flex;flex-direction:column;justify-content:space-between"
-                    >
-                      <span style="font-size: 12.5px; font-weight: 700">{{ t.n }} para alugar</span>
-                      <span
-                        style="
-                          font-size: 19px;
-                          font-weight: 700;
-                          letter-spacing: -0.02em;
-                          line-height: 1.15;
-                        "
-                        >{{ t.nome }}</span
-                      >
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div style="padding: 88px 64px 0; display: flex; flex-direction: column; gap: 24px">
-                <div
-                  style="
-                    display: flex;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  <h3 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">
-                    Publicados recentemente
-                  </h3>
-                  <div style="display: flex; gap: 24px; font-size: 14px; font-weight: 600">
-                    <span style="box-shadow: 0 2px 0 #111111; padding-bottom: 4px">Para alugar</span
-                    ><span style="color: #555555; padding-bottom: 4px">À venda</span
-                    ><a href="#home-desktop" style="font-weight: 700">Ver todos para alugar</a>
-                  </div>
-                </div>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    gap: 28px 24px;
-                  "
-                >
-                  <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
-                    <div style="display: flex; flex-direction: column; gap: 12px">
-                      <div
-                        style="
-                          position: relative;
-                          aspect-ratio: 4/3;
-                          background: #f4f4f2;
-                          border-radius: 4px;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                        "
-                      >
-                        <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
-                          >Foto do imóvel</span
-                        ><span
-                          style="
-                            position: absolute;
-                            right: 10px;
-                            bottom: 10px;
-                            background: #ffffff;
-                            font-size: 11.5px;
-                            font-weight: 600;
-                            color: #333333;
-                            padding: 4px 8px;
-                            border-radius: 4px;
-                          "
-                          >1/{{ c.fotos }}</span
-                        >
-                      </div>
-                      <div
-                        style="
-                          display: flex;
-                          align-items: center;
-                          gap: 7px;
-                          font-size: 12.5px;
-                          font-weight: 600;
-                          color: #555555;
-                        "
-                      >
-                        <span
-                          style="width:10px;height:10px;background:{{ c.cor }};display:block"
-                        ></span
-                        >{{ c.tipo }} · {{ c.bairro }}
-                      </div>
-                      <div style="display: flex; flex-direction: column; gap: 2px">
-                        <span
-                          style="
-                            font-size: 20px;
-                            font-weight: 800;
-                            letter-spacing: -0.025em;
-                            color: #037a4b;
-                          "
-                          >{{ c.valor }}</span
-                        ><span style="font-size: 12.5px; color: #555555">{{ c.detalhe }}</span>
-                      </div>
-                      <div
-                        style="
-                          font-size: 13px;
-                          font-weight: 600;
-                          color: #333333;
-                          padding-top: 10px;
-                          border-top: 1px solid #efefec;
-                        "
-                      >
-                        {{ c.attrs }}
-                      </div>
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div style="padding: 88px 64px 0; display: flex; flex-direction: column; gap: 24px">
-                <div
-                  style="
-                    display: flex;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  <h3 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">
-                    Cidades com mais imóveis
-                  </h3>
-                  <span style="font-size: 12.5px; font-weight: 600; color: #6e6e6e"
-                    >Aluguel · valor total mediano</span
-                  >
-                </div>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    column-gap: 40px;
-                  "
-                >
-                  <sc-for list="{{ bairros }}" as="b" hint-placeholder-count="12">
-                    <div
-                      style="
-                        display: grid;
-                        grid-template-columns: minmax(0, 1fr) auto;
-                        gap: 4px 12px;
-                        padding: 14px 0;
-                        border-bottom: 1px solid #efefec;
-                      "
-                    >
-                      <span
-                        style="
-                          font-size: 15px;
-                          font-weight: 700;
-                          letter-spacing: -0.01em;
-                          color: #037a4b;
-                        "
-                        >{{ b.nome }}</span
-                      >
-                      <span style="font-size: 14px; font-weight: 700; text-align: right"
-                        >{{ b.med }}</span
-                      >
-                      <span style="font-size: 12.5px; color: #555555">{{ b.n }} imóveis</span>
-                      <span style="font-size: 12px; color: #6e6e6e; text-align: right"
-                        >mediana</span
-                      >
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div
-                style="
-                  margin: 96px 64px 0;
-                  background: #f4f4f2;
-                  padding: 56px;
-                  display: grid;
-                  grid-template-columns: minmax(0, 1fr) auto;
-                  gap: 48px;
-                  align-items: center;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 12px">
-                  <span style="font-size: 13px; font-weight: 700; color: #555555"
-                    >Alerta de imóvel</span
-                  >
-                  <h3
-                    style="
-                      margin: 0;
-                      font-size: 32px;
-                      line-height: 1.12;
-                      font-weight: 700;
-                      letter-spacing: -0.025em;
-                      max-width: 22ch;
-                    "
-                  >
-                    Avisamos quando aparecer o imóvel que você procura.
-                  </h3>
-                  <p
-                    style="
-                      margin: 0;
-                      max-width: 60ch;
-                      font-size: 15.5px;
-                      line-height: 1.7;
-                      color: #333333;
-                    "
-                  >
-                    Escolha cidade, bairro, tipo e valor. O aviso chega por e-mail ou WhatsApp, e
-                    você cancela quando quiser.
-                  </p>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px; width: 280px">
-                  <span
-                    style="
-                      height: 52px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Criar alerta</span
-                  >
-                </div>
-              </div>
-
-              <div style="padding: 88px 64px 0; display: flex; flex-direction: column; gap: 24px">
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 26px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Buscas mais populares
-                </h3>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: 12px 40px;
-                  "
-                >
-                  <sc-for list="{{ populares }}" as="p" hint-placeholder-count="12"
-                    ><a
-                      href="#home-desktop"
-                      style="font-size: 14px; font-weight: 600; line-height: 1.5"
-                      >{{ p }}</a
-                    ></sc-for
-                  >
-                </div>
-              </div>
-
-              <footer
-                style="
-                  margin-top: 104px;
-                  background: #f4f4f2;
-                  padding: 56px 64px 40px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 48px;
-                "
-              >
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: 1fr 1fr 1fr 360px;
-                    gap: 40px;
-                    align-items: start;
-                  "
-                >
-                  <div style="display: flex; flex-direction: column; gap: 18px">
-                    <span style="font-size: 15px; font-weight: 700; color: #111111"
-                      >Sobre o AchouImóvel</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Conheça o AchouImóvel</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Cidades atendidas</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Central de ajuda</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Mapa do site</span
-                    >
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 18px">
-                    <span style="font-size: 15px; font-weight: 700; color: #111111">Procurar</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Imóveis para alugar</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Imóveis à venda</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Valor do aluguel por bairro</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Criar alerta de imóvel</span
-                    >
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 18px">
-                    <span style="font-size: 15px; font-weight: 700; color: #111111">Anunciar</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111"
-                      >Anunciar imóvel</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111">Planos</span
-                    ><span style="font-size: 14.5px; font-weight: 500; color: #111111">Entrar</span>
-                  </div>
-                  <div
-                    style="
-                      background-color: #037a4b;
-                      background-image:
-                        linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
-                      background-size: 32px 32px;
-                      color: #ffffff;
-                      padding: 32px;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 18px;
-                    "
-                  >
-                    <div style="display: flex; align-items: center; gap: 8px">
-                      <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em"
-                        >AchouImóvel</span
-                      >
-                    </div>
-                    <p style="margin: 0; font-size: 14.5px; line-height: 1.65">
-                      Todo anúncio mostra o valor total do mês e traz o CRECI de quem anuncia. O
-                      endereço exato você recebe no contato.
-                    </p>
-                    <span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 700;
-                        color: #ffffff;
-                        border-bottom: 1px solid #ffffff;
-                        padding-bottom: 2px;
-                        align-self: flex-start;
-                      "
-                      >Como funciona →</span
-                    >
-                  </div>
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    gap: 24px;
-                  "
-                >
-                  <div style="display: flex; flex-wrap: wrap; gap: 12px 26px">
-                    <span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 500;
-                        color: #111111;
-                        border-bottom: 1px solid #111111;
-                        padding-bottom: 2px;
-                      "
-                      >Termos de uso →</span
-                    ><span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 500;
-                        color: #111111;
-                        border-bottom: 1px solid #111111;
-                        padding-bottom: 2px;
-                      "
-                      >Política de privacidade →</span
-                    ><span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 500;
-                        color: #111111;
-                        border-bottom: 1px solid #111111;
-                        padding-bottom: 2px;
-                      "
-                      >Política de cookies →</span
-                    ><span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 500;
-                        color: #111111;
-                        border-bottom: 1px solid #111111;
-                        padding-bottom: 2px;
-                      "
-                      >Preferências de cookies →</span
-                    ><span
-                      style="
-                        font-size: 14.5px;
-                        font-weight: 500;
-                        color: #111111;
-                        border-bottom: 1px solid #111111;
-                        padding-bottom: 2px;
-                      "
-                      >Cancelar alerta de imóvel →</span
-                    >
-                  </div>
-                  <div style="display: flex; gap: 20px">
-                    <span style="font-size: 13px; font-weight: 600; color: #333333">Instagram</span
-                    ><span style="font-size: 13px; font-weight: 600; color: #333333">Facebook</span
-                    ><span style="font-size: 13px; font-weight: 600; color: #333333">LinkedIn</span>
-                  </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px">
-                  <span style="font-size: 14.5px; color: #111111"
-                    ><b>AchouImóvel Ltda.</b> CNPJ 00.000.000/0001-00 (fictício)</span
-                  ><span style="font-size: 12px; font-weight: 600; color: #555555"
-                    >Versão: 22/09/2026</span
-                  >
-                </div>
-              </footer>
-            </div>
+        <div style="padding:88px 64px 72px;display:grid;grid-template-columns:minmax(0,1fr) 640px;gap:72px;align-items:end;border-bottom:1px solid #E6E6E3">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <h2 style="margin:0;font-size:52px;line-height:1.08;font-weight:700;letter-spacing:-0.03em;text-wrap:balance">{{ h1 }}</h2>
+            <p style="margin:0;max-width:46ch;font-size:16.5px;line-height:1.7;color:#333333">Apartamentos, casas e studios para alugar ou comprar em todo o Brasil. O valor total do mês aparece antes de você clicar, sem surpresa depois.</p>
           </div>
-
-          <div
-            id="home-mobile"
-            style="display: flex; flex-direction: column; gap: 10px; flex: none"
-          >
-            <div style="font-size: 12px; font-weight: 700; color: #555555">Celular · 390</div>
-            <div style="width: 390px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 56px;
-                  background: #ffffff;
-                  border-bottom: 1px solid #ececec;
-                  display: grid;
-                  grid-template-columns: 44px 1fr 44px;
-                  align-items: center;
-                  padding: 0 6px;
-                "
-              >
-                <span
-                  style="
-                    width: 44px;
-                    height: 44px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 5px;
-                  "
-                  ><span
-                    style="width: 18px; height: 2px; background: #111111; display: block"
-                  ></span
-                  ><span
-                    style="width: 18px; height: 2px; background: #111111; display: block"
-                  ></span
-                  ><span
-                    style="width: 18px; height: 2px; background: #111111; display: block"
-                  ></span
-                ></span>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 7px">
-                  <span style="font-size: 19px; font-weight: 800; letter-spacing: -0.03em"
-                    >Achou<span style="color: #037a4b">Imóvel</span></span
-                  >
-                </div>
-                <span
-                  style="
-                    width: 44px;
-                    height: 44px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                  ><span
-                    style="
-                      width: 15px;
-                      height: 15px;
-                      border: 2px solid #111111;
-                      border-radius: 50%;
-                      display: block;
-                    "
-                  ></span
-                ></span>
-              </header>
-              <div
-                style="padding: 32px 18px 28px; display: flex; flex-direction: column; gap: 14px"
-              >
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 31px;
-                    line-height: 1.1;
-                    font-weight: 700;
-                    letter-spacing: -0.03em;
-                  "
-                >
-                  {{ h1 }}
-                </h2>
-                <p style="margin: 0; font-size: 15px; line-height: 1.65; color: #333333">
-                  Para alugar ou comprar, com o valor total do mês antes de você clicar.
-                </p>
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    margin-top: 8px;
-                  "
-                >
-                  <div style="display: flex; border-bottom: 1px solid #e6e6e3">
-                    <span
-                      style="
-                        flex: 1;
-                        height: 48px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                        box-shadow: inset 0 -2px 0 #111111;
-                      "
-                      >Alugar</span
-                    ><span
-                      style="
-                        flex: 1;
-                        height: 48px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 600;
-                        color: #555555;
-                      "
-                      >Comprar</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      padding: 12px 16px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 3px;
-                      min-height: 56px;
-                    "
-                  >
-                    <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Cidade</span
-                    ><span style="font-size:15px;font-weight:600;color:{{ cityColor }}"
-                      >{{ cityField }}</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      padding: 12px 16px;
-                      border-bottom: 1px solid #e6e6e3;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 3px;
-                      min-height: 56px;
-                    "
-                  >
-                    <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Bairro</span
-                    ><span style="font-size: 15px; color: #6e6e6e">Qualquer bairro</span>
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr">
-                    <div
-                      style="
-                        padding: 12px 16px;
-                        border-right: 1px solid #e6e6e3;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 3px;
-                        min-height: 56px;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e">Tipo</span
-                      ><span style="font-size: 15px; color: #6e6e6e">Todos</span>
-                    </div>
-                    <div
-                      style="
-                        padding: 12px 16px;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 3px;
-                        min-height: 56px;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
-                        >Total até</span
-                      ><span style="font-size: 15px; color: #6e6e6e">Sem limite</span>
-                    </div>
-                  </div>
-                  <div style="padding: 10px; border-top: 1px solid #e6e6e3">
-                    <span
-                      style="
-                        height: 50px;
-                        background: #037a4b;
-                        color: #ffffff;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                      "
-                      >Buscar imóveis</span
-                    >
-                  </div>
-                </div>
-              </div>
-              <div
-                style="
-                  padding: 28px 0 0 18px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 16px;
-                  border-top: 1px solid #e6e6e3;
-                "
-              >
-                <h3
-                  style="
-                    margin: 0 18px 0 0;
-                    font-size: 21px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Procure pelo tipo
-                </h3>
-                <div
-                  style="
-                    display: flex;
-                    gap: 1px;
-                    overflow-x: auto;
-                    overflow-y: hidden;
-                    scroll-snap-type: x mandatory;
-                    scroll-padding-left: 18px;
-                    -webkit-overflow-scrolling: touch;
-                    scrollbar-width: none;
-                    padding-right: 18px;
-                    overscroll-behavior-x: contain;
-                    touch-action: pan-x;
-                  "
-                >
-                  <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
-                    <div
-                      style="flex:none;scroll-snap-align:start;width:128px;height:128px;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:32px 32px;color:{{ t.fg }};padding:12px;display:flex;flex-direction:column;justify-content:space-between"
-                    >
-                      <span style="font-size: 11.5px; font-weight: 700">{{ t.n }}</span
-                      ><span
-                        style="
-                          font-size: 16px;
-                          font-weight: 700;
-                          letter-spacing: -0.02em;
-                          line-height: 1.15;
-                        "
-                        >{{ t.nome }}</span
-                      >
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-              <div style="padding: 48px 18px 0; display: flex; flex-direction: column; gap: 16px">
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 21px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Publicados recentemente
-                </h3>
-                <div style="display: flex; gap: 4px; font-size: 14px; font-weight: 600">
-                  <span
-                    style="
-                      height: 40px;
-                      padding: 0 14px;
-                      display: flex;
-                      align-items: center;
-                      border: 1px solid #111111;
-                      border-radius: 4px;
-                    "
-                    >Para alugar</span
-                  ><span
-                    style="
-                      height: 40px;
-                      padding: 0 14px;
-                      display: flex;
-                      align-items: center;
-                      color: #555555;
-                    "
-                    >À venda</span
-                  >
-                </div>
-                <sc-for list="{{ cardsMobile }}" as="c" hint-placeholder-count="2">
-                  <div
-                    style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px"
-                  >
-                    <div
-                      style="
-                        aspect-ratio: 4/3;
-                        background: #f4f4f2;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      "
-                    >
-                      <span style="font-size: 12px; font-weight: 600; color: #6e6e6e"
-                        >Foto do imóvel</span
-                      >
-                    </div>
-                    <div
-                      style="
-                        display: flex;
-                        align-items: center;
-                        gap: 7px;
-                        font-size: 12.5px;
-                        font-weight: 600;
-                        color: #555555;
-                      "
-                    >
-                      <span
-                        style="width:10px;height:10px;background:{{ c.cor }};display:block"
-                      ></span
-                      >{{ c.tipo }} · {{ c.bairro }}
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 2px">
-                      <span
-                        style="
-                          font-size: 20px;
-                          font-weight: 800;
-                          letter-spacing: -0.025em;
-                          color: #037a4b;
-                        "
-                        >{{ c.valor }}</span
-                      ><span style="font-size: 12.5px; color: #555555">{{ c.detalhe }}</span>
-                    </div>
-                    <div style="font-size: 13px; font-weight: 600; color: #333333">
-                      {{ c.attrs }}
-                    </div>
-                  </div>
-                </sc-for>
-                <span
-                  style="
-                    height: 48px;
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14.5px;
-                    font-weight: 700;
-                  "
-                  >Ver todos para alugar</span
-                >
-              </div>
-              <div style="padding: 48px 18px 0; display: flex; flex-direction: column; gap: 4px">
-                <h3
-                  style="
-                    margin: 0 0 8px;
-                    font-size: 21px;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid #111111;
-                  "
-                >
-                  Cidades com mais imóveis
-                </h3>
-                <sc-for list="{{ bairrosMobile }}" as="b" hint-placeholder-count="6">
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: minmax(0, 1fr) auto;
-                      gap: 2px 12px;
-                      padding: 10px 0;
-                      min-height: 56px;
-                      border-bottom: 1px solid #efefec;
-                    "
-                  >
-                    <span style="font-size: 15px; font-weight: 700; color: #037a4b"
-                      >{{ b.nome }}</span
-                    ><span style="font-size: 14px; font-weight: 700; text-align: right"
-                      >{{ b.med }}</span
-                    ><span style="font-size: 12.5px; color: #555555">{{ b.n }} imóveis</span
-                    ><span style="font-size: 12px; color: #6e6e6e; text-align: right">mediana</span>
-                  </div>
-                </sc-for>
-              </div>
-              <div
-                style="
-                  margin: 48px 0 0;
-                  background: #f4f4f2;
-                  padding: 32px 18px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 12px;
-                "
-              >
-                <span style="font-size: 13px; font-weight: 700; color: #555555"
-                  >Alerta de imóvel</span
-                >
-                <h3
-                  style="
-                    margin: 0;
-                    font-size: 24px;
-                    line-height: 1.15;
-                    font-weight: 700;
-                    letter-spacing: -0.025em;
-                  "
-                >
-                  Avisamos quando aparecer o imóvel que você procura.
-                </h3>
-                <span
-                  style="
-                    margin-top: 8px;
-                    height: 50px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 15px;
-                    font-weight: 700;
-                  "
-                  >Criar alerta</span
-                >
-              </div>
-              <footer
-                style="
-                  margin-top: 48px;
-                  background: #f4f4f2;
-                  padding: 32px 18px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 24px;
-                "
-              >
-                <div
-                  style="
-                    background-color: #037a4b;
-                    background-image:
-                      linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
-                    background-size: 32px 32px;
-                    color: #ffffff;
-                    padding: 24px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 18px;
-                  "
-                >
-                  <div style="display: flex; align-items: center; gap: 8px">
-                    <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em"
-                      >AchouImóvel</span
-                    >
-                  </div>
-                  <p style="margin: 0; font-size: 14.5px; line-height: 1.65">
-                    Todo anúncio mostra o valor total do mês e traz o CRECI de quem anuncia. O
-                    endereço exato você recebe no contato.
-                  </p>
-                  <span
-                    style="
-                      font-size: 14.5px;
-                      font-weight: 700;
-                      color: #ffffff;
-                      border-bottom: 1px solid #ffffff;
-                      padding-bottom: 2px;
-                      align-self: flex-start;
-                    "
-                    >Como funciona →</span
-                  >
-                </div>
-                <div style="display: flex; flex-direction: column">
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #dadad6;
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                  >
-                    Sobre o AchouImóvel<span style="font-weight: 600; color: #555555">+</span>
-                  </div>
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #dadad6;
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                  >
-                    Procurar<span style="font-weight: 600; color: #555555">+</span>
-                  </div>
-                  <div
-                    style="
-                      height: 52px;
-                      border-bottom: 1px solid #dadad6;
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                  >
-                    Anunciar<span style="font-weight: 600; color: #555555">+</span>
-                  </div>
-                </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 14px 20px">
-                  <span
-                    style="
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: #111111;
-                      border-bottom: 1px solid #111111;
-                      padding-bottom: 2px;
-                    "
-                    >Termos de uso →</span
-                  ><span
-                    style="
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: #111111;
-                      border-bottom: 1px solid #111111;
-                      padding-bottom: 2px;
-                    "
-                    >Política de privacidade →</span
-                  ><span
-                    style="
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: #111111;
-                      border-bottom: 1px solid #111111;
-                      padding-bottom: 2px;
-                    "
-                    >Política de cookies →</span
-                  ><span
-                    style="
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: #111111;
-                      border-bottom: 1px solid #111111;
-                      padding-bottom: 2px;
-                    "
-                    >Preferências de cookies →</span
-                  ><span
-                    style="
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: #111111;
-                      border-bottom: 1px solid #111111;
-                      padding-bottom: 2px;
-                    "
-                    >Cancelar alerta de imóvel →</span
-                  >
-                </div>
-                <div style="display: flex; gap: 20px">
-                  <span style="font-size: 13px; font-weight: 600; color: #333333">Instagram</span
-                  ><span style="font-size: 13px; font-weight: 600; color: #333333">Facebook</span
-                  ><span style="font-size: 13px; font-weight: 600; color: #333333">LinkedIn</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 4px">
-                  <span style="font-size: 13.5px; color: #111111"
-                    ><b>AchouImóvel Ltda.</b> CNPJ 00.000.000/0001-00 (fictício)</span
-                  ><span style="font-size: 12px; font-weight: 600; color: #555555"
-                    >Versão: 22/09/2026</span
-                  >
-                </div>
-              </footer>
+          <div style="display:flex;flex-direction:column;border:1px solid #111111;border-radius:4px">
+            <div style="display:flex;border-bottom:1px solid #E6E6E3">
+              <span style="flex:1;height:52px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;box-shadow:inset 0 -2px 0 #111111">Alugar</span>
+              <span style="flex:1;height:52px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#555555">Comprar</span>
             </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;">
+              <div style="padding:14px 18px;border-right:1px solid #E6E6E3;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Cidade</span><span style="font-size:15px;font-weight:600;color:{{ cityColor }}">{{ cityField }}</span></div>
+              <div style="padding:14px 18px;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Bairro</span><span style="font-size:15px;font-weight:500;color:#6E6E6E">Qualquer bairro</span></div>
+              <div style="padding:14px 18px;border-right:1px solid #E6E6E3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Tipo</span><span style="font-size:15px;font-weight:500;color:#6E6E6E">Todos os tipos</span></div>
+              <div style="padding:14px 18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Valor total até</span><span style="font-size:15px;font-weight:500;color:#6E6E6E">Sem limite</span></div>
+            </div>
+            <div style="padding:12px;border-top:1px solid #E6E6E3"><span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Buscar imóveis para alugar</span></div>
           </div>
         </div>
-      </section>
-    </x-dc>
-    <script
-      type="text/x-dc"
-      data-dc-script
-      data-props='{"cidade":{"editor":"enum","options":["Goiânia, GO","São Paulo, SP","Rio de Janeiro, RJ","Belo Horizonte, MG","Curitiba, PR","Não detectada"],"default":"Goiânia, GO","tsType":"string","section":"Localização do visitante"}}'
-    >
-      class Component extends DCLogic {
-        renderVals() {
-          const types = [
-            {nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF',n:312},{nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00',n:148},
-            {nome:'Casa de condomínio',bg:'#037A4B',fg:'#FFFFFF',n:64},{nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF',n:37},
-            {nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF',n:91},{nome:'Cobertura',bg:'#0B3A12',fg:'#FFFFFF',n:22},
-            {nome:'Sala e loja',bg:'#B5B5B5',fg:'#111111',n:45}
-          ];
-          const cards = [
-            {fotos:12,cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno, Goiânia · GO',valor:'R$ 2.910 total/mês',detalhe:'Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130',attrs:'72 m² · 2 quartos · 1 vaga'},
-            {fotos:15,cor:'#FF6A2A',tipo:'Casa',bairro:'Pinheiros, São Paulo · SP',valor:'R$ 3.450 total/mês',detalhe:'Aluguel R$ 3.200 · IPTU R$ 250',attrs:'140 m² · 3 quartos · 2 vagas'},
-            {fotos:9,cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Savassi, Belo Horizonte · MG',valor:'R$ 1.340 total/mês',detalhe:'Aluguel R$ 1.050 · Cond. R$ 240 · IPTU R$ 50',attrs:'32 m² · 1 quarto · mobiliado'},
-            {fotos:21,cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Barra da Tijuca, Rio de Janeiro · RJ',valor:'R$ 6.180 total/mês',detalhe:'Aluguel R$ 5.300 · Cond. R$ 620 · IPTU R$ 260',attrs:'170 m² · 3 suítes · 2 vagas'}
-          ];
-          const bairros = [
-            ['São Paulo, SP','4.812','R$ 3.540'],['Rio de Janeiro, RJ','2.967','R$ 3.120'],['Belo Horizonte, MG','1.884','R$ 2.460'],['Curitiba, PR','1.402','R$ 2.310'],
-            ['Porto Alegre, RS','1.176','R$ 2.180'],['Brasília, DF','1.093','R$ 3.020'],['Goiânia, GO','986','R$ 2.240'],['Salvador, BA','871','R$ 2.090'],
-            ['Florianópolis, SC','744','R$ 3.260'],['Fortaleza, CE','702','R$ 1.890'],['Recife, PE','655','R$ 2.010'],['Campinas, SP','618','R$ 2.570']
-          ].map(([nome,n,med])=>({nome,n,med}));
-          const cidade = this.props.cidade ?? 'Goiânia, GO';
-          const detectada = cidade !== 'Não detectada';
-          const nome = cidade.split(',')[0];
-          return {
-            h1: detectada ? `Ache onde morar em ${nome} e região.` : 'Ache onde morar, em qualquer cidade do Brasil.',
-            cityField: detectada ? cidade : 'Digite a cidade',
-            cityColor: detectada ? '#111111' : '#6E6E6E',
-            types, cards, cardsMobile: cards.slice(0,2), bairros, bairrosMobile: bairros.slice(0,6),
-            populares: ['Apartamentos para alugar em São Paulo','Apartamentos para alugar em Pinheiros, São Paulo','Casas à venda em Curitiba','Apartamentos à venda em Belo Horizonte','Kitnets para alugar em Porto Alegre','Apartamentos para alugar no Rio de Janeiro','Casas de condomínio à venda em Brasília','Imóveis que aceitam pet em Florianópolis','Apartamentos para alugar no Setor Bueno, Goiânia','Apartamentos 2 quartos para alugar em Salvador','Coberturas à venda em Recife','Salas comerciais para alugar em Campinas'],
-            footerMobile: ['Procurar','Anunciar','Institucional']
-          };
-        }
-      }
-    </script>
-  </body>
+
+        <div style="padding:72px 64px 0;display:flex;flex-direction:column;gap:24px">
+          <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Procure pelo tipo</h3>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px">
+            <sc-for list="{{ types }}" as="t" hint-placeholder-count="7">
+              <div style="aspect-ratio:1/1;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:34px 34px;color:{{ t.fg }};padding:16px;display:flex;flex-direction:column;justify-content:space-between">
+                <span style="font-size:12.5px;font-weight:700">{{ t.n }} para alugar</span>
+                <span style="font-size:19px;font-weight:700;letter-spacing:-0.02em;line-height:1.15">{{ t.nome }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #111111">
+            <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Publicados recentemente</h3>
+            <div style="display:flex;gap:24px;font-size:14px;font-weight:600"><span style="box-shadow:0 2px 0 #111111;padding-bottom:4px">Para alugar</span><span style="color:#555555;padding-bottom:4px">À venda</span><a href="#home-desktop" style="font-weight:700">Ver todos para alugar</a></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 24px">
+            <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="position:relative;aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span><span style="position:absolute;right:10px;bottom:10px;background:#FFFFFF;font-size:11.5px;font-weight:600;color:#333333;padding:4px 8px;border-radius:4px">1/{{ c.fotos }}</span></div>
+                <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:{{ c.cor }};display:block"></span>{{ c.tipo }} · {{ c.bairro }}</div>
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:12.5px;color:#555555">{{ c.detalhe }}</span></div>
+                <div style="font-size:13px;font-weight:600;color:#333333;padding-top:10px;border-top:1px solid #EFEFEC">{{ c.attrs }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #111111">
+            <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Cidades com mais imóveis</h3>
+            <span style="font-size:12.5px;font-weight:600;color:#6E6E6E">Aluguel · valor total mediano</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:40px">
+            <sc-for list="{{ bairros }}" as="b" hint-placeholder-count="12">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px 0;border-bottom:1px solid #EFEFEC">
+                <span style="font-size:15px;font-weight:700;letter-spacing:-0.01em;color:#037A4B">{{ b.nome }}</span>
+                <span style="font-size:14px;font-weight:700;text-align:right">{{ b.med }}</span>
+                <span style="font-size:12.5px;color:#555555">{{ b.n }} imóveis</span>
+                <span style="font-size:12px;color:#6E6E6E;text-align:right">mediana</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="margin:96px 64px 0;background:#F4F4F2;padding:56px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:48px;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-size:13px;font-weight:700;color:#555555">Alerta de imóvel</span>
+            <h3 style="margin:0;font-size:32px;line-height:1.12;font-weight:700;letter-spacing:-0.025em;max-width:22ch">Avisamos quando aparecer o imóvel que você procura.</h3>
+            <p style="margin:0;max-width:60ch;font-size:15.5px;line-height:1.7;color:#333333">Escolha cidade, bairro, tipo e valor. O aviso chega por e-mail ou WhatsApp, e você cancela quando quiser.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;width:280px">
+            <span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+            
+          </div>
+        </div>
+
+        <div style="padding:88px 64px 0;display:flex;flex-direction:column;gap:24px">
+          <h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Buscas mais populares</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 40px">
+            <sc-for list="{{ populares }}" as="p" hint-placeholder-count="12"><a href="#home-desktop" style="font-size:14px;font-weight:600;line-height:1.5">{{ p }}</a></sc-for>
+          </div>
+        </div>
+
+        <footer style="margin-top:104px;background:#F4F4F2;padding:56px 64px 40px;display:flex;flex-direction:column;gap:48px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 360px;gap:40px;align-items:start"><div style="display:flex;flex-direction:column;gap:18px"><span style="font-size:15px;font-weight:700;color:#111111">Sobre o AchouImóvel</span><span style="font-size:14.5px;font-weight:500;color:#111111">Conheça o AchouImóvel</span><span style="font-size:14.5px;font-weight:500;color:#111111">Cidades atendidas</span><span style="font-size:14.5px;font-weight:500;color:#111111">Central de ajuda</span><span style="font-size:14.5px;font-weight:500;color:#111111">Mapa do site</span></div><div style="display:flex;flex-direction:column;gap:18px"><span style="font-size:15px;font-weight:700;color:#111111">Procurar</span><span style="font-size:14.5px;font-weight:500;color:#111111">Imóveis para alugar</span><span style="font-size:14.5px;font-weight:500;color:#111111">Imóveis à venda</span><span style="font-size:14.5px;font-weight:500;color:#111111">Valor do aluguel por bairro</span><span style="font-size:14.5px;font-weight:500;color:#111111">Criar alerta de imóvel</span></div><div style="display:flex;flex-direction:column;gap:18px"><span style="font-size:15px;font-weight:700;color:#111111">Anunciar</span><span style="font-size:14.5px;font-weight:500;color:#111111">Anunciar imóvel</span><span style="font-size:14.5px;font-weight:500;color:#111111">Planos</span><span style="font-size:14.5px;font-weight:500;color:#111111">Entrar</span></div><div style="background-color:#037A4B;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:32px 32px;color:#FFFFFF;padding:32px;display:flex;flex-direction:column;gap:18px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px;font-weight:800;letter-spacing:-0.03em">AchouImóvel</span></div><p style="margin:0;font-size:14.5px;line-height:1.65">Todo anúncio mostra o valor total do mês e traz o CRECI de quem anuncia. O endereço exato você recebe no contato.</p><span style="font-size:14.5px;font-weight:700;color:#FFFFFF;border-bottom:1px solid #FFFFFF;padding-bottom:2px;align-self:flex-start">Como funciona →</span></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:24px"><div style="display:flex;flex-wrap:wrap;gap:12px 26px"><span style="font-size:14.5px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Termos de uso →</span><span style="font-size:14.5px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Política de privacidade →</span><span style="font-size:14.5px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Política de cookies →</span><span style="font-size:14.5px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Preferências de cookies →</span><span style="font-size:14.5px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Cancelar alerta de imóvel →</span></div><div style="display:flex;gap:20px"><span style="font-size:13px;font-weight:600;color:#333333">Instagram</span><span style="font-size:13px;font-weight:600;color:#333333">Facebook</span><span style="font-size:13px;font-weight:600;color:#333333">LinkedIn</span></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14.5px;color:#111111"><b>AchouImóvel Ltda.</b> CNPJ 00.000.000/0001-00 (fictício)</span><span style="font-size:12px;font-weight:600;color:#555555">Versão: 22/09/2026</span></div>
+        </footer>
+      </div>
+    </div>
+
+    <div id="home-mobile" style="display:flex;flex-direction:column;gap:10px;flex:none">
+      <div style="font-size:12px;font-weight:700;color:#555555">Celular · 390</div>
+      <div style="width:390px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:56px;background:#FFFFFF;border-bottom:1px solid #ECECEC;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px">
+          <span style="width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span></span>
+          <div style="display:flex;align-items:center;justify-content:center;gap:7px"><span style="font-size:19px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span></div>
+          <span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:15px;height:15px;border:2px solid #111111;border-radius:50%;display:block"></span></span>
+        </header>
+        <div style="padding:32px 18px 28px;display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-size:31px;line-height:1.1;font-weight:700;letter-spacing:-0.03em">{{ h1 }}</h2>
+          <p style="margin:0;font-size:15px;line-height:1.65;color:#333333">Para alugar ou comprar, com o valor total do mês antes de você clicar.</p>
+          <div style="display:flex;flex-direction:column;border:1px solid #111111;border-radius:4px;margin-top:8px">
+            <div style="display:flex;border-bottom:1px solid #E6E6E3"><span style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;box-shadow:inset 0 -2px 0 #111111">Alugar</span><span style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#555555">Comprar</span></div>
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:3px;min-height:56px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Cidade</span><span style="font-size:15px;font-weight:600;color:{{ cityColor }}">{{ cityField }}</span></div>
+            <div style="padding:12px 16px;border-bottom:1px solid #E6E6E3;display:flex;flex-direction:column;gap:3px;min-height:56px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Bairro</span><span style="font-size:15px;color:#6E6E6E">Qualquer bairro</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr"><div style="padding:12px 16px;border-right:1px solid #E6E6E3;display:flex;flex-direction:column;gap:3px;min-height:56px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Tipo</span><span style="font-size:15px;color:#6E6E6E">Todos</span></div><div style="padding:12px 16px;display:flex;flex-direction:column;gap:3px;min-height:56px"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Total até</span><span style="font-size:15px;color:#6E6E6E">Sem limite</span></div></div>
+            <div style="padding:10px;border-top:1px solid #E6E6E3"><span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Buscar imóveis</span></div>
+          </div>
+        </div>
+        <div style="padding:28px 0 0 18px;display:flex;flex-direction:column;gap:16px;border-top:1px solid #E6E6E3">
+          <h3 style="margin:0 18px 0 0;font-size:21px;font-weight:700;letter-spacing:-0.02em;padding-bottom:10px;border-bottom:1px solid #111111">Procure pelo tipo</h3>
+          <div style="display:flex;gap:1px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:18px;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:18px;overscroll-behavior-x:contain;touch-action:pan-x">
+            <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
+              <div style="flex:none;scroll-snap-align:start;width:128px;height:128px;background-color:{{ t.bg }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:32px 32px;color:{{ t.fg }};padding:12px;display:flex;flex-direction:column;justify-content:space-between"><span style="font-size:11.5px;font-weight:700">{{ t.n }}</span><span style="font-size:16px;font-weight:700;letter-spacing:-0.02em;line-height:1.15">{{ t.nome }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding:48px 18px 0;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-size:21px;font-weight:700;letter-spacing:-0.02em;padding-bottom:10px;border-bottom:1px solid #111111">Publicados recentemente</h3>
+          <div style="display:flex;gap:4px;font-size:14px;font-weight:600"><span style="height:40px;padding:0 14px;display:flex;align-items:center;border:1px solid #111111;border-radius:4px">Para alugar</span><span style="height:40px;padding:0 14px;display:flex;align-items:center;color:#555555">À venda</span></div>
+          <sc-for list="{{ cardsMobile }}" as="c" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:20px">
+              <div style="aspect-ratio:4/3;background:#F4F4F2;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:600;color:#6E6E6E">Foto do imóvel</span></div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#555555"><span style="width:10px;height:10px;background:{{ c.cor }};display:block"></span>{{ c.tipo }} · {{ c.bairro }}</div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-0.025em;color:#037A4B">{{ c.valor }}</span><span style="font-size:12.5px;color:#555555">{{ c.detalhe }}</span></div>
+              <div style="font-size:13px;font-weight:600;color:#333333">{{ c.attrs }}</div>
+            </div>
+          </sc-for>
+          <span style="height:48px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700">Ver todos para alugar</span>
+        </div>
+        <div style="padding:48px 18px 0;display:flex;flex-direction:column;gap:4px">
+          <h3 style="margin:0 0 8px;font-size:21px;font-weight:700;letter-spacing:-0.02em;padding-bottom:10px;border-bottom:1px solid #111111">Cidades com mais imóveis</h3>
+          <sc-for list="{{ bairrosMobile }}" as="b" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 0;min-height:56px;border-bottom:1px solid #EFEFEC"><span style="font-size:15px;font-weight:700;color:#037A4B">{{ b.nome }}</span><span style="font-size:14px;font-weight:700;text-align:right">{{ b.med }}</span><span style="font-size:12.5px;color:#555555">{{ b.n }} imóveis</span><span style="font-size:12px;color:#6E6E6E;text-align:right">mediana</span></div>
+          </sc-for>
+        </div>
+        <div style="margin:48px 0 0;background:#F4F4F2;padding:32px 18px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:700;color:#555555">Alerta de imóvel</span>
+          <h3 style="margin:0;font-size:24px;line-height:1.15;font-weight:700;letter-spacing:-0.025em">Avisamos quando aparecer o imóvel que você procura.</h3>
+          <span style="margin-top:8px;height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Criar alerta</span>
+          
+        </div>
+        <footer style="margin-top:48px;background:#F4F4F2;padding:32px 18px;display:flex;flex-direction:column;gap:24px">
+          <div style="background-color:#037A4B;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:32px 32px;color:#FFFFFF;padding:24px;display:flex;flex-direction:column;gap:18px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px;font-weight:800;letter-spacing:-0.03em">AchouImóvel</span></div><p style="margin:0;font-size:14.5px;line-height:1.65">Todo anúncio mostra o valor total do mês e traz o CRECI de quem anuncia. O endereço exato você recebe no contato.</p><span style="font-size:14.5px;font-weight:700;color:#FFFFFF;border-bottom:1px solid #FFFFFF;padding-bottom:2px;align-self:flex-start">Como funciona →</span></div>
+          <div style="display:flex;flex-direction:column"><div style="height:52px;border-bottom:1px solid #DADAD6;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700">Sobre o AchouImóvel<span style="font-weight:600;color:#555555">+</span></div><div style="height:52px;border-bottom:1px solid #DADAD6;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700">Procurar<span style="font-weight:600;color:#555555">+</span></div><div style="height:52px;border-bottom:1px solid #DADAD6;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700">Anunciar<span style="font-weight:600;color:#555555">+</span></div></div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px 20px"><span style="font-size:14px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Termos de uso →</span><span style="font-size:14px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Política de privacidade →</span><span style="font-size:14px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Política de cookies →</span><span style="font-size:14px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Preferências de cookies →</span><span style="font-size:14px;font-weight:500;color:#111111;border-bottom:1px solid #111111;padding-bottom:2px">Cancelar alerta de imóvel →</span></div>
+          <div style="display:flex;gap:20px"><span style="font-size:13px;font-weight:600;color:#333333">Instagram</span><span style="font-size:13px;font-weight:600;color:#333333">Facebook</span><span style="font-size:13px;font-weight:600;color:#333333">LinkedIn</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13.5px;color:#111111"><b>AchouImóvel Ltda.</b> CNPJ 00.000.000/0001-00 (fictício)</span><span style="font-size:12px;font-weight:600;color:#555555">Versão: 22/09/2026</span></div>
+        </footer>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;cidade&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Goiânia, GO&quot;,&quot;São Paulo, SP&quot;,&quot;Rio de Janeiro, RJ&quot;,&quot;Belo Horizonte, MG&quot;,&quot;Curitiba, PR&quot;,&quot;Não detectada&quot;],&quot;default&quot;:&quot;Goiânia, GO&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Localização do visitante&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const types = [
+      {nome:'Apartamento',bg:'#0B4A7E',fg:'#FFFFFF',n:312},{nome:'Casa',bg:'#FF6A2A',fg:'#1F0A00',n:148},
+      {nome:'Casa de condomínio',bg:'#037A4B',fg:'#FFFFFF',n:64},{nome:'Sobrado',bg:'#4A0A4E',fg:'#FFFFFF',n:37},
+      {nome:'Kitnet e studio',bg:'#D42A2A',fg:'#FFFFFF',n:91},{nome:'Cobertura',bg:'#0B3A12',fg:'#FFFFFF',n:22},
+      {nome:'Sala e loja',bg:'#B5B5B5',fg:'#111111',n:45}
+    ];
+    const cards = [
+      {fotos:12,cor:'#0B4A7E',tipo:'Apartamento',bairro:'Setor Bueno, Goiânia · GO',valor:'R$ 2.910 total/mês',detalhe:'Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130',attrs:'72 m² · 2 quartos · 1 vaga'},
+      {fotos:15,cor:'#FF6A2A',tipo:'Casa',bairro:'Pinheiros, São Paulo · SP',valor:'R$ 3.450 total/mês',detalhe:'Aluguel R$ 3.200 · IPTU R$ 250',attrs:'140 m² · 3 quartos · 2 vagas'},
+      {fotos:9,cor:'#D42A2A',tipo:'Kitnet e studio',bairro:'Savassi, Belo Horizonte · MG',valor:'R$ 1.340 total/mês',detalhe:'Aluguel R$ 1.050 · Cond. R$ 240 · IPTU R$ 50',attrs:'32 m² · 1 quarto · mobiliado'},
+      {fotos:21,cor:'#037A4B',tipo:'Casa de condomínio',bairro:'Barra da Tijuca, Rio de Janeiro · RJ',valor:'R$ 6.180 total/mês',detalhe:'Aluguel R$ 5.300 · Cond. R$ 620 · IPTU R$ 260',attrs:'170 m² · 3 suítes · 2 vagas'}
+    ];
+    const bairros = [
+      ['São Paulo, SP','4.812','R$ 3.540'],['Rio de Janeiro, RJ','2.967','R$ 3.120'],['Belo Horizonte, MG','1.884','R$ 2.460'],['Curitiba, PR','1.402','R$ 2.310'],
+      ['Porto Alegre, RS','1.176','R$ 2.180'],['Brasília, DF','1.093','R$ 3.020'],['Goiânia, GO','986','R$ 2.240'],['Salvador, BA','871','R$ 2.090'],
+      ['Florianópolis, SC','744','R$ 3.260'],['Fortaleza, CE','702','R$ 1.890'],['Recife, PE','655','R$ 2.010'],['Campinas, SP','618','R$ 2.570']
+    ].map(([nome,n,med])=>({nome,n,med}));
+    const cidade = this.props.cidade ?? 'Goiânia, GO';
+    const detectada = cidade !== 'Não detectada';
+    const nome = cidade.split(',')[0];
+    return {
+      h1: detectada ? `Ache onde morar em ${nome} e região.` : 'Ache onde morar, em qualquer cidade do Brasil.',
+      cityField: detectada ? cidade : 'Digite a cidade',
+      cityColor: detectada ? '#111111' : '#6E6E6E',
+      types, cards, cardsMobile: cards.slice(0,2), bairros, bairrosMobile: bairros.slice(0,6),
+      populares: ['Apartamentos para alugar em São Paulo','Apartamentos para alugar em Pinheiros, São Paulo','Casas à venda em Curitiba','Apartamentos à venda em Belo Horizonte','Kitnets para alugar em Porto Alegre','Apartamentos para alugar no Rio de Janeiro','Casas de condomínio à venda em Brasília','Imóveis que aceitam pet em Florianópolis','Apartamentos para alugar no Setor Bueno, Goiânia','Apartamentos 2 quartos para alugar em Salvador','Coberturas à venda em Recife','Salas comerciais para alugar em Campinas'],
+      footerMobile: ['Procurar','Anunciar','Institucional']
+    };
+  }
+}
+</script>
+</body>
 </html>

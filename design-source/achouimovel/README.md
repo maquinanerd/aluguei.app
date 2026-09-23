@@ -19,9 +19,7 @@ design-source/achouimovel/
 ```
 
 ## Nome dos arquivos no HANDOFF.md
-
 O HANDOFF cita os nomes originais. Equivalência:
-
 - AchouImovel Identidade → portal/00-identidade
 - AchouImovel Portal → portal/01-home
 - AchouImovel Portal - Busca → portal/02-busca
@@ -39,7 +37,6 @@ O HANDOFF cita os nomes originais. Equivalência:
 As âncoras (`#visao`, `#busca-desktop` etc.) continuam as mesmas.
 
 ## Regras
-
 - `.dc.html` é referência, não código de produção. Não importe esses arquivos no app.
 - Números nas telas são fictícios. Textos de interface são finais.
 - Gestão e área do cliente mantêm os tokens de `packages/ui/src/styles/tokens.css`.

@@ -1,809 +1,141 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="./support.js"></script>
-  </head>
-  <body>
-    <x-dc>
-      <helmet>
-        <meta name="design_doc_mode" content="canvas" />
-        <style>
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Regular.otf') format('opentype');
-            font-weight: 400;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Medium.otf') format('opentype');
-            font-weight: 500;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-SemiBold.otf') format('opentype');
-            font-weight: 600;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-Bold.otf') format('opentype');
-            font-weight: 700;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: Guton;
-            src: url('fonts/Guton-ExtraBold.otf') format('opentype');
-            font-weight: 800;
-            font-display: swap;
-          }
-          body {
-            margin: 0;
-            background: #ececea;
-            font-family: Guton, system-ui, sans-serif;
-            color: #111111;
-            -webkit-font-smoothing: antialiased;
-          }
-          a {
-            color: #037a4b;
-            text-underline-offset: 3px;
-          }
-          a:hover {
-            color: #02603b;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        </style>
-      </helmet>
-      <section
-        data-screen-label="Portal · complementos"
-        style="padding: 64px; display: flex; flex-direction: column; gap: 28px"
-      >
-        <div style="display: flex; flex-direction: column; gap: 6px; max-width: 980px">
-          <div style="font-size: 12px; font-weight: 700; color: #555555">
-            Entrega 2 · Portal · complementos
-          </div>
-          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.035em">
-            Anunciar, Gestão por módulo, estados do contato e celular
-          </h1>
-          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333333">
-            Rotas: /para-imobiliarias/anunciar/, /para-imobiliarias/gestao/. Componentes novos:
-            HeroPlano, ListaModulos, CanaisIntegrados, FormContato (estados: enviando, enviado,
-            erro, limite). Preços ficam como "Fale com a gente" até a definição. Dados fictícios.
-          </p>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Guton;src:url("fonts/Guton-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Medium.otf") format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-Bold.otf") format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:Guton;src:url("fonts/Guton-ExtraBold.otf") format("opentype");font-weight:800;font-display:swap}
+body{margin:0;background:#ECECEA;font-family:Guton,system-ui,sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#037A4B;text-underline-offset:3px}a:hover{color:#02603B}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section data-screen-label="Portal · complementos" style="padding:64px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:980px">
+    <div style="font-size:12px;font-weight:700;color:#555555">Entrega 2 · Portal · complementos</div>
+    <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-0.035em">Anunciar, Gestão por módulo, estados do contato e celular</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#333333">Rotas: /para-imobiliarias/anunciar/, /para-imobiliarias/gestao/. Componentes novos: HeroPlano, ListaModulos, CanaisIntegrados, FormContato (estados: enviando, enviado, erro, limite). Preços ficam como "Fale com a gente" até a definição. Dados fictícios.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+    <div id="anunciar" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/para-imobiliarias/anunciar/ · plano Anunciante</div>
+      <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 48px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:600;color:#333333;padding:0 10px">Entrar</span><span style="height:40px;padding:0 16px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14px;font-weight:700">Começar</span></div></header>
+        <div style="background-color:#037A4B;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:48px 48px;color:#FFFFFF;padding:64px 48px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:14px;font-weight:700">Plano Anunciante</span>
+          <h2 style="margin:0;font-size:46px;line-height:1.05;font-weight:800;letter-spacing:-0.035em;max-width:18ch">Anuncie em todos os portais sem trocar de sistema.</h2>
+          <p style="margin:0;max-width:56ch;font-size:16.5px;line-height:1.7">Cadastre o imóvel uma vez e publique no AchouImóvel, no Canal Pro (ZAP e VivaReal), na OLX e no Imovelweb. Os contatos de todos os portais chegam numa caixa de leads só.</p>
+          <div style="display:flex;gap:10px;padding-top:6px"><span style="height:52px;padding:0 22px;background:#FFFFFF;color:#037A4B;border-radius:4px;display:flex;align-items:center;font-size:15px;font-weight:700">Começar com o Anunciante</span><span style="height:52px;padding:0 22px;border:1px solid #FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:15px;font-weight:700">Ver planos</span></div>
         </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
-          <div id="anunciar" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /para-imobiliarias/anunciar/ · plano Anunciante
-            </div>
-            <div style="width: 1040px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 48px;
-                "
-              >
-                <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                >
-                <div style="display: flex; gap: 10px; align-items: center">
-                  <span style="font-size: 14px; font-weight: 600; color: #333333; padding: 0 10px"
-                    >Entrar</span
-                  ><span
-                    style="
-                      height: 40px;
-                      padding: 0 16px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 14px;
-                      font-weight: 700;
-                    "
-                    >Começar</span
-                  >
-                </div>
-              </header>
-              <div
-                style="
-                  background-color: #037a4b;
-                  background-image:
-                    linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
-                  background-size: 48px 48px;
-                  color: #ffffff;
-                  padding: 64px 48px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 16px;
-                "
-              >
-                <span style="font-size: 14px; font-weight: 700">Plano Anunciante</span>
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 46px;
-                    line-height: 1.05;
-                    font-weight: 800;
-                    letter-spacing: -0.035em;
-                    max-width: 18ch;
-                  "
-                >
-                  Anuncie em todos os portais sem trocar de sistema.
-                </h2>
-                <p style="margin: 0; max-width: 56ch; font-size: 16.5px; line-height: 1.7">
-                  Cadastre o imóvel uma vez e publique no AchouImóvel, no Canal Pro (ZAP e
-                  VivaReal), na OLX e no Imovelweb. Os contatos de todos os portais chegam numa
-                  caixa de leads só.
-                </p>
-                <div style="display: flex; gap: 10px; padding-top: 6px">
-                  <span
-                    style="
-                      height: 52px;
-                      padding: 0 22px;
-                      background: #ffffff;
-                      color: #037a4b;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Começar com o Anunciante</span
-                  ><span
-                    style="
-                      height: 52px;
-                      padding: 0 22px;
-                      border: 1px solid #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                    "
-                    >Ver planos</span
-                  >
-                </div>
-              </div>
-              <div
-                style="
-                  padding: 64px 48px 0;
-                  display: grid;
-                  grid-template-columns: repeat(3, minmax(0, 1fr));
-                  gap: 1px;
-                  background: #e6e6e3;
-                  border-bottom: 1px solid #e6e6e3;
-                  margin: 0 48px;
-                  padding: 0;
-                "
-              >
-                <sc-for list="{{ anunciarItens }}" as="i" hint-placeholder-count="6"
-                  ><div
-                    style="
-                      background: #ffffff;
-                      padding: 28px 24px;
-                      display: flex;
-                      flex-direction: column;
-                      gap: 8px;
-                    "
-                  >
-                    <span style="font-size: 13px; font-weight: 800; color: #6e6e6e">{{ i.n }}</span
-                    ><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.015em"
-                      >{{ i.t }}</span
-                    ><span style="font-size: 14px; line-height: 1.6; color: #333333"
-                      >{{ i.d }}</span
-                    >
-                  </div></sc-for
-                >
-              </div>
-              <div
-                style="
-                  padding: 64px 48px;
-                  display: grid;
-                  grid-template-columns: minmax(0, 1fr) 360px;
-                  gap: 48px;
-                  align-items: start;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 12px">
-                  <h3
-                    style="
-                      margin: 0;
-                      font-size: 26px;
-                      font-weight: 700;
-                      letter-spacing: -0.02em;
-                      padding-bottom: 12px;
-                      border-bottom: 1px solid #111111;
-                    "
-                  >
-                    Quando o Gestão faz sentido
-                  </h3>
-                  <p style="margin: 0; font-size: 15.5px; line-height: 1.7; color: #333333">
-                    Se você também administra contratos, vistorias e repasses, o AchouImóvel Gestão
-                    Locação faz tudo isso no mesmo painel. Você pode começar como Anunciante e mudar
-                    depois sem perder nada.
-                  </p>
-                  <a href="#gestao" style="font-size: 15px; font-weight: 700"
-                    >Conhecer o Gestão por módulo →</a
-                  >
-                </div>
-                <div
-                  style="
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    padding: 24px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                  "
-                >
-                  <span style="font-size: 13px; font-weight: 700; color: #555555">Anunciante</span
-                  ><span style="font-size: 28px; font-weight: 800; letter-spacing: -0.025em"
-                    >Fale com a gente</span
-                  ><span style="font-size: 13px; color: #555555"
-                    >Por quantidade de anúncios publicados</span
-                  ><span
-                    style="
-                      height: 50px;
-                      background: #037a4b;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 15px;
-                      font-weight: 700;
-                      margin-top: 6px;
-                    "
-                    >Começar</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="gestao" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              /para-imobiliarias/gestao/ · o sistema por módulo
-            </div>
-            <div style="width: 1040px; background: #ffffff; display: flex; flex-direction: column">
-              <header
-                style="
-                  height: 64px;
-                  border-bottom: 1px solid #ececec;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 48px;
-                "
-              >
-                <span style="font-size: 21px; font-weight: 800; letter-spacing: -0.03em"
-                  >Achou<span style="color: #037a4b">Imóvel</span></span
-                ><span
-                  style="
-                    height: 40px;
-                    padding: 0 16px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    font-size: 14px;
-                    font-weight: 700;
-                  "
-                  >Começar</span
-                >
-              </header>
-              <div
-                style="
-                  padding: 64px 48px 40px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 14px;
-                  border-bottom: 1px solid #e6e6e3;
-                "
-              >
-                <span style="font-size: 14px; font-weight: 700; color: #555555"
-                  >AchouImóvel Gestão</span
-                >
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 44px;
-                    line-height: 1.05;
-                    font-weight: 800;
-                    letter-spacing: -0.035em;
-                    max-width: 20ch;
-                  "
-                >
-                  Do primeiro contato ao repasse, num painel só.
-                </h2>
-                <div
-                  style="
-                    display: flex;
-                    gap: 8px;
-                    padding-top: 6px;
-                    font-size: 14px;
-                    font-weight: 700;
-                  "
-                >
-                  <span
-                    style="
-                      height: 40px;
-                      padding: 0 16px;
-                      background: #111111;
-                      color: #ffffff;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                    "
-                    >Gestão Locação</span
-                  ><span
-                    style="
-                      height: 40px;
-                      padding: 0 16px;
-                      border: 1px solid #d5d5d0;
-                      border-radius: 4px;
-                      display: flex;
-                      align-items: center;
-                    "
-                    >Gestão Vendas</span
-                  >
-                </div>
-              </div>
-              <div style="padding: 0 48px 64px; display: flex; flex-direction: column">
-                <sc-for list="{{ modulos }}" as="m" hint-placeholder-count="7">
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: 56px 240px minmax(0, 1fr) 120px;
-                      gap: 24px;
-                      align-items: start;
-                      padding: 28px 0;
-                      border-bottom: 1px solid #e6e6e3;
-                    "
-                  >
-                    <span
-                      style="width:56px;height:56px;background-color:{{ m.cor }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:14px 14px;display:block"
-                    ></span>
-                    <span
-                      style="
-                        font-size: 20px;
-                        font-weight: 700;
-                        letter-spacing: -0.015em;
-                        line-height: 1.2;
-                      "
-                      >{{ m.t }}</span
-                    >
-                    <span style="font-size: 14.5px; line-height: 1.65; color: #333333"
-                      >{{ m.d }}</span
-                    >
-                    <span
-                      style="justify-self:end;font-size:12px;font-weight:700;color:{{ m.stCor }};border:1px solid {{ m.stBd }};border-radius:11px;padding:3px 10px;white-space:nowrap"
-                      >{{ m.st }}</span
-                    >
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-          </div>
-
-          <div id="contato-estados" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              FormContato do anúncio · estados
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(4, 340px); gap: 20px">
-              <div
-                style="
-                  background: #ffffff;
-                  border: 1px solid #111111;
-                  border-radius: 4px;
-                  padding: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 12px; font-weight: 700; color: #555555">Erro de campo</span>
-                <div
-                  style="
-                    height: 48px;
-                    border: 1px solid #d5d5d0;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 14px;
-                    font-size: 14.5px;
-                  "
-                >
-                  Fernanda Souza
-                </div>
-                <div
-                  style="
-                    height: 48px;
-                    border: 2px solid #b42318;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 13px;
-                    font-size: 14.5px;
-                  "
-                >
-                  (62) 9 88
-                </div>
-                <span style="font-size: 12.5px; font-weight: 600; color: #b42318"
-                  >Informe o celular com DDD.</span
-                >
-                <div
-                  style="
-                    display: flex;
-                    gap: 10px;
-                    font-size: 12.5px;
-                    color: #b42318;
-                    font-weight: 600;
-                  "
-                >
-                  <span
-                    style="
-                      flex: none;
-                      width: 18px;
-                      height: 18px;
-                      border: 2px solid #b42318;
-                      border-radius: 4px;
-                      display: block;
-                    "
-                  ></span
-                  >Marque a autorização para enviar.
-                </div>
-                <span
-                  style="
-                    height: 52px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 15px;
-                    font-weight: 700;
-                  "
-                  >Enviar mensagem</span
-                >
-              </div>
-              <div
-                style="
-                  background: #ffffff;
-                  border: 1px solid #111111;
-                  border-radius: 4px;
-                  padding: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 12px; font-weight: 700; color: #555555">Enviando</span>
-                <div
-                  style="height: 48px; background: #f4f4f2; border-radius: 4px; display: block"
-                ></div>
-                <div
-                  style="height: 48px; background: #f4f4f2; border-radius: 4px; display: block"
-                ></div>
-                <div
-                  style="height: 84px; background: #f4f4f2; border-radius: 4px; display: block"
-                ></div>
-                <span
-                  style="
-                    height: 52px;
-                    background: #02603b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    font-size: 15px;
-                    font-weight: 700;
-                  "
-                  ><span
-                    style="
-                      width: 16px;
-                      height: 16px;
-                      border: 2px solid rgba(255, 255, 255, 0.4);
-                      border-top-color: #ffffff;
-                      border-radius: 50%;
-                      display: block;
-                    "
-                  ></span
-                  >Enviando…</span
-                >
-              </div>
-              <div
-                style="
-                  background: #ffffff;
-                  border: 1px solid #111111;
-                  border-radius: 4px;
-                  padding: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 12px; font-weight: 700; color: #555555">Enviado</span
-                ><span
-                  style="
-                    width: 40px;
-                    height: 40px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
-                    font-weight: 800;
-                  "
-                  >✓</span
-                ><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.02em"
-                  >Mensagem enviada</span
-                ><span style="font-size: 14px; line-height: 1.6; color: #333333"
-                  >A Imobiliária Exemplo recebeu seu contato e costuma responder no mesmo dia.</span
-                ><span
-                  style="
-                    height: 48px;
-                    border: 1px solid #111111;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14.5px;
-                    font-weight: 700;
-                  "
-                  >Chamar no WhatsApp</span
-                ><span style="font-size: 13.5px; font-weight: 700; color: #037a4b"
-                  >Criar alerta para este bairro</span
-                >
-              </div>
-              <div
-                style="
-                  background: #ffffff;
-                  border: 1px solid #111111;
-                  border-radius: 4px;
-                  padding: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                "
-              >
-                <span style="font-size: 12px; font-weight: 700; color: #555555"
-                  >Falha ou limite de envios</span
-                >
-                <div
-                  style="
-                    background: #fdecea;
-                    color: #8a1c12;
-                    border-radius: 4px;
-                    padding: 12px 14px;
-                    font-size: 13.5px;
-                    font-weight: 600;
-                    line-height: 1.5;
-                  "
-                >
-                  Não conseguimos enviar agora. Seus dados continuam aqui; tente de novo em 1
-                  minuto.
-                </div>
-                <div
-                  style="
-                    height: 48px;
-                    border: 1px solid #d5d5d0;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 14px;
-                    font-size: 14.5px;
-                  "
-                >
-                  Fernanda Souza
-                </div>
-                <div
-                  style="
-                    height: 48px;
-                    border: 1px solid #d5d5d0;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 14px;
-                    font-size: 14.5px;
-                  "
-                >
-                  (62) 9 8812-5678
-                </div>
-                <span
-                  style="
-                    height: 52px;
-                    background: #037a4b;
-                    color: #ffffff;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 15px;
-                    font-weight: 700;
-                  "
-                  >Tentar de novo</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <div id="celular-secundarias" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="font-size: 12px; font-weight: 700; color: #555555">
-              Celular · 390 · indisponível, vitrine, alerta, planos, 404
-            </div>
-            <div style="display: flex; gap: 24px; align-items: flex-start">
-              <sc-for list="{{ mobiles }}" as="m" hint-placeholder-count="5">
-                <div
-                  style="
-                    width: 390px;
-                    height: 760px;
-                    background: #ffffff;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
-                  "
-                >
-                  <header
-                    style="
-                      height: 56px;
-                      border-bottom: 1px solid #ececec;
-                      display: grid;
-                      grid-template-columns: 44px 1fr 44px;
-                      align-items: center;
-                      padding: 0 6px;
-                      flex: none;
-                    "
-                  >
-                    <span
-                      style="
-                        width: 44px;
-                        height: 44px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 5px;
-                      "
-                      ><span
-                        style="width: 18px; height: 2px; background: #111111; display: block"
-                      ></span
-                      ><span
-                        style="width: 18px; height: 2px; background: #111111; display: block"
-                      ></span
-                      ><span
-                        style="width: 18px; height: 2px; background: #111111; display: block"
-                      ></span></span
-                    ><span
-                      style="
-                        text-align: center;
-                        font-size: 19px;
-                        font-weight: 800;
-                        letter-spacing: -0.03em;
-                      "
-                      >Achou<span style="color:{{ m.cor }}">Imóvel</span></span
-                    ><span></span>
-                  </header>
-                  <div style="padding: 24px 18px; display: flex; flex-direction: column; gap: 12px">
-                    <span
-                      style="align-self:flex-start;font-size:12px;font-weight:700;padding:4px 9px;border-radius:4px;background:{{ m.tagBg }};color:{{ m.tagFg }}"
-                      >{{ m.tag }}</span
-                    >
-                    <h2
-                      style="
-                        margin: 0;
-                        font-size: 26px;
-                        line-height: 1.1;
-                        font-weight: 800;
-                        letter-spacing: -0.03em;
-                      "
-                    >
-                      {{ m.h }}
-                    </h2>
-                    <p style="margin: 0; font-size: 15px; line-height: 1.65; color: #333333">
-                      {{ m.p }}
-                    </p>
-                    <span
-                      style="
-                        height: 50px;
-                        background: #037a4b;
-                        color: #ffffff;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 15px;
-                        font-weight: 700;
-                      "
-                      >{{ m.cta }}</span
-                    >
-                    <span
-                      style="
-                        height: 48px;
-                        border: 1px solid #111111;
-                        border-radius: 4px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 14.5px;
-                        font-weight: 700;
-                      "
-                      >{{ m.cta2 }}</span
-                    >
-                    <div style="display: flex; flex-direction: column; padding-top: 8px">
-                      <sc-for list="{{ m.linhas }}" as="l" hint-placeholder-count="4"
-                        ><div
-                          style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            min-height: 52px;
-                            border-bottom: 1px solid #efefec;
-                            font-size: 14.5px;
-                          "
-                        >
-                          <span style="font-weight: 600">{{ l.a }}</span
-                          ><span style="font-size: 13px; color: #555555">{{ l.b }}</span>
-                        </div></sc-for
-                      >
-                    </div>
-                  </div>
-                </div>
-              </sc-for>
-            </div>
-          </div>
+        <div style="padding:64px 48px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#E6E6E3;border-bottom:1px solid #E6E6E3;margin:0 48px;padding:0">
+          <sc-for list="{{ anunciarItens }}" as="i" hint-placeholder-count="6"><div style="background:#FFFFFF;padding:28px 24px;display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:800;color:#6E6E6E">{{ i.n }}</span><span style="font-size:18px;font-weight:700;letter-spacing:-0.015em">{{ i.t }}</span><span style="font-size:14px;line-height:1.6;color:#333333">{{ i.d }}</span></div></sc-for>
         </div>
-      </section>
-    </x-dc>
-    <script type="text/x-dc" data-dc-script>
-      class Component extends DCLogic {
-        renderVals() {
-          const ok = {st:'No ar',stCor:'#037A4B',stBd:'#037A4B'}, soon = {st:'Em breve',stCor:'#555555',stBd:'#C9C9C4'};
-          return {
-            anunciarItens: [
-              {n:'01',t:'Um cadastro, quatro portais',d:'AchouImóvel, Canal Pro, OLX e Imovelweb recebem o mesmo anúncio.'},
-              {n:'02',t:'Tudo sincronizado',d:'Mudou o preço ou uma foto, todos os portais atualizam.'},
-              {n:'03',t:'Retirada automática',d:'Alugou ou vendeu, o imóvel sai de todos os canais de uma vez.'},
-              {n:'04',t:'Leads num lugar só',d:'Cada contato chega com o imóvel e o portal de origem.'},
-              {n:'05',t:'Demanda por bairro',d:'Veja quantas pessoas pediram alerta por bairro e tipo.'},
-              {n:'06',t:'Página da imobiliária',d:'Vitrine no portal com nome, CRECI e todos os anúncios.'}
-            ],
-            modulos: [
-              {cor:'#0B4A7E',t:'CRM e leads',d:'Funil de aluguel e funil de venda separados, contatos com CPF e CNPJ validados, tarefas, agenda e visitas.',...ok},
-              {cor:'#037A4B',t:'Atendimento no WhatsApp',d:'O atendimento automático responde primeiro e passa para a equipe quando precisa. Quem está respondendo fica sempre visível.',...ok},
-              {cor:'#FF6A2A',t:'Imóveis e portais',d:'Cadastro com fotos e legendas, publicação no AchouImóvel, Canal Pro, OLX e Imovelweb.',...ok},
-              {cor:'#4A0A4E',t:'Análise, contrato e assinatura',d:'Análise cadastral com autorização LGPD, contratos por modelo versionado e envelope de assinatura.',...soon},
-              {cor:'#D42A2A',t:'Vistoria no celular',d:'Ambientes, fotos, áudio e sugestões de IA que a pessoa confirma. Comparação entre entrada e saída.',...ok},
-              {cor:'#0B3A12',t:'Cobrança, split e repasse',d:'Cobranças com multa e juros, divisão do valor, repasse ao proprietário e conciliação.',...soon},
-              {cor:'#B5B5B5',t:'Área do cliente',d:'Proprietário vê extrato e repasses; inquilino vê cobranças, contrato e vistoria. Entrada por link de uso único.',...ok}
-            ],
-            mobiles: [
-              {cor:'#0B4A7E',tag:'Já foi alugado',tagBg:'#111111',tagFg:'#FFFFFF',h:'Este apartamento não está mais disponível',p:'Veja imóveis parecidos no Setor Bueno.',cta:'Ver parecidos',cta2:'Criar alerta',linhas:[{a:'Apto 2 qts · 64 m²',b:'R$ 2.480'},{a:'Apto 2 qts · 76 m²',b:'R$ 3.060'},{a:'Apto 2 qts · 70 m²',b:'R$ 2.690'}]},
-              {cor:'#037A4B',tag:'CRECI 0000-J',tagBg:'#F4F4F2',tagFg:'#111111',h:'Imobiliária Exemplo',p:'17 imóveis para alugar e 6 à venda em Goiânia.',cta:'Ver para alugar',cta2:'Ver à venda',linhas:[{a:'Apartamentos',b:'9'},{a:'Casas',b:'6'},{a:'Kitnets e studios',b:'4'}]},
-              {cor:'#037A4B',tag:'Alerta de imóvel',tagBg:'#F4F4F2',tagFg:'#111111',h:'Avisamos quando aparecer',p:'Apto 2 quartos para alugar no Setor Bueno, até R$ 3.000.',cta:'Criar alerta',cta2:'Mudar filtros',linhas:[{a:'Receber por',b:'E-mail'},{a:'Frequência',b:'1 por dia no máximo'}]},
-              {cor:'#037A4B',tag:'Planos',tagBg:'#F4F4F2',tagFg:'#111111',h:'Todos publicam em 4 portais',p:'AchouImóvel, Canal Pro, OLX e Imovelweb.',cta:'Começar',cta2:'Comparar planos',linhas:[{a:'Anunciante',b:'Fale com a gente'},{a:'Gestão Locação',b:'Fale com a gente'},{a:'Gestão Vendas',b:'Fale com a gente'}]},
-              {cor:'#037A4B',tag:'Erro 404',tagBg:'#F4F4F2',tagFg:'#111111',h:'Não achamos esta página',p:'Comece por uma cidade.',cta:'Buscar imóveis',cta2:'Ir para o início',linhas:[{a:'São Paulo, SP',b:'4.812'},{a:'Rio de Janeiro, RJ',b:'2.967'},{a:'Goiânia, GO',b:'986'}]}
-            ]
-          };
-        }
-      }
-    </script>
-  </body>
+        <div style="padding:64px 48px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:48px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:12px"><h3 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em;padding-bottom:12px;border-bottom:1px solid #111111">Quando o Gestão faz sentido</h3><p style="margin:0;font-size:15.5px;line-height:1.7;color:#333333">Se você também administra contratos, vistorias e repasses, o AchouImóvel Gestão Locação faz tudo isso no mesmo painel. Você pode começar como Anunciante e mudar depois sem perder nada.</p><a href="#gestao" style="font-size:15px;font-weight:700">Conhecer o Gestão por módulo →</a></div>
+          <div style="border:1px solid #111111;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:10px"><span style="font-size:13px;font-weight:700;color:#555555">Anunciante</span><span style="font-size:28px;font-weight:800;letter-spacing:-0.025em">Fale com a gente</span><span style="font-size:13px;color:#555555">Por quantidade de anúncios publicados</span><span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-top:6px">Começar</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="gestao" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">/para-imobiliarias/gestao/ · o sistema por módulo</div>
+      <div style="width:1040px;background:#FFFFFF;display:flex;flex-direction:column">
+        <header style="height:64px;border-bottom:1px solid #ECECEC;display:flex;align-items:center;justify-content:space-between;padding:0 48px"><span style="font-size:21px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:#037A4B">Imóvel</span></span><span style="height:40px;padding:0 16px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;font-size:14px;font-weight:700">Começar</span></header>
+        <div style="padding:64px 48px 40px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #E6E6E3">
+          <span style="font-size:14px;font-weight:700;color:#555555">AchouImóvel Gestão</span>
+          <h2 style="margin:0;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-0.035em;max-width:20ch">Do primeiro contato ao repasse, num painel só.</h2>
+          <div style="display:flex;gap:8px;padding-top:6px;font-size:14px;font-weight:700"><span style="height:40px;padding:0 16px;background:#111111;color:#FFFFFF;border-radius:4px;display:flex;align-items:center">Gestão Locação</span><span style="height:40px;padding:0 16px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center">Gestão Vendas</span></div>
+        </div>
+        <div style="padding:0 48px 64px;display:flex;flex-direction:column">
+          <sc-for list="{{ modulos }}" as="m" hint-placeholder-count="7">
+            <div style="display:grid;grid-template-columns:56px 240px minmax(0,1fr) 120px;gap:24px;align-items:start;padding:28px 0;border-bottom:1px solid #E6E6E3">
+              <span style="width:56px;height:56px;background-color:{{ m.cor }};background-image:linear-gradient(rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.16) 1px,transparent 1px);background-size:14px 14px;display:block"></span>
+              <span style="font-size:20px;font-weight:700;letter-spacing:-0.015em;line-height:1.2">{{ m.t }}</span>
+              <span style="font-size:14.5px;line-height:1.65;color:#333333">{{ m.d }}</span>
+              <span style="justify-self:end;font-size:12px;font-weight:700;color:{{ m.stCor }};border:1px solid {{ m.stBd }};border-radius:11px;padding:3px 10px;white-space:nowrap">{{ m.st }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div id="contato-estados" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">FormContato do anúncio · estados</div>
+      <div style="display:grid;grid-template-columns:repeat(4,340px);gap:20px">
+        <div style="background:#FFFFFF;border:1px solid #111111;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:700;color:#555555">Erro de campo</span><div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px">Fernanda Souza</div><div style="height:48px;border:2px solid #B42318;border-radius:4px;display:flex;align-items:center;padding:0 13px;font-size:14.5px">(62) 9 88</div><span style="font-size:12.5px;font-weight:600;color:#B42318">Informe o celular com DDD.</span><div style="display:flex;gap:10px;font-size:12.5px;color:#B42318;font-weight:600"><span style="flex:none;width:18px;height:18px;border:2px solid #B42318;border-radius:4px;display:block"></span>Marque a autorização para enviar.</div><span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Enviar mensagem</span></div>
+        <div style="background:#FFFFFF;border:1px solid #111111;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:700;color:#555555">Enviando</span><div style="height:48px;background:#F4F4F2;border-radius:4px;display:block"></div><div style="height:48px;background:#F4F4F2;border-radius:4px;display:block"></div><div style="height:84px;background:#F4F4F2;border-radius:4px;display:block"></div><span style="height:52px;background:#02603B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700"><span style="width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#FFFFFF;border-radius:50%;display:block"></span>Enviando…</span></div>
+        <div style="background:#FFFFFF;border:1px solid #111111;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:700;color:#555555">Enviado</span><span style="width:40px;height:40px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800">✓</span><span style="font-size:20px;font-weight:800;letter-spacing:-0.02em">Mensagem enviada</span><span style="font-size:14px;line-height:1.6;color:#333333">A Imobiliária Exemplo recebeu seu contato e costuma responder no mesmo dia.</span><span style="height:48px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700">Chamar no WhatsApp</span><span style="font-size:13.5px;font-weight:700;color:#037A4B">Criar alerta para este bairro</span></div>
+        <div style="background:#FFFFFF;border:1px solid #111111;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:700;color:#555555">Falha ou limite de envios</span><div style="background:#FDECEA;color:#8A1C12;border-radius:4px;padding:12px 14px;font-size:13.5px;font-weight:600;line-height:1.5">Não conseguimos enviar agora. Seus dados continuam aqui; tente de novo em 1 minuto.</div><div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px">Fernanda Souza</div><div style="height:48px;border:1px solid #D5D5D0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14.5px">(62) 9 8812-5678</div><span style="height:52px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Tentar de novo</span></div>
+      </div>
+    </div>
+
+    <div id="celular-secundarias" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;color:#555555">Celular · 390 · indisponível, vitrine, alerta, planos, 404</div>
+      <div style="display:flex;gap:24px;align-items:flex-start">
+        <sc-for list="{{ mobiles }}" as="m" hint-placeholder-count="5">
+          <div style="width:390px;height:760px;background:#FFFFFF;display:flex;flex-direction:column;overflow:hidden">
+            <header style="height:56px;border-bottom:1px solid #ECECEC;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 6px;flex:none"><span style="width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span><span style="width:18px;height:2px;background:#111111;display:block"></span></span><span style="text-align:center;font-size:19px;font-weight:800;letter-spacing:-0.03em">Achou<span style="color:{{ m.cor }}">Imóvel</span></span><span></span></header>
+            <div style="padding:24px 18px;display:flex;flex-direction:column;gap:12px">
+              <span style="align-self:flex-start;font-size:12px;font-weight:700;padding:4px 9px;border-radius:4px;background:{{ m.tagBg }};color:{{ m.tagFg }}">{{ m.tag }}</span>
+              <h2 style="margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-0.03em">{{ m.h }}</h2>
+              <p style="margin:0;font-size:15px;line-height:1.65;color:#333333">{{ m.p }}</p>
+              <span style="height:50px;background:#037A4B;color:#FFFFFF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ m.cta }}</span>
+              <span style="height:48px;border:1px solid #111111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700">{{ m.cta2 }}</span>
+              <div style="display:flex;flex-direction:column;padding-top:8px">
+                <sc-for list="{{ m.linhas }}" as="l" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;align-items:center;min-height:52px;border-bottom:1px solid #EFEFEC;font-size:14.5px"><span style="font-weight:600">{{ l.a }}</span><span style="font-size:13px;color:#555555">{{ l.b }}</span></div></sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const ok = {st:'No ar',stCor:'#037A4B',stBd:'#037A4B'}, soon = {st:'Em breve',stCor:'#555555',stBd:'#C9C9C4'};
+    return {
+      anunciarItens: [
+        {n:'01',t:'Um cadastro, quatro portais',d:'AchouImóvel, Canal Pro, OLX e Imovelweb recebem o mesmo anúncio.'},
+        {n:'02',t:'Tudo sincronizado',d:'Mudou o preço ou uma foto, todos os portais atualizam.'},
+        {n:'03',t:'Retirada automática',d:'Alugou ou vendeu, o imóvel sai de todos os canais de uma vez.'},
+        {n:'04',t:'Leads num lugar só',d:'Cada contato chega com o imóvel e o portal de origem.'},
+        {n:'05',t:'Demanda por bairro',d:'Veja quantas pessoas pediram alerta por bairro e tipo.'},
+        {n:'06',t:'Página da imobiliária',d:'Vitrine no portal com nome, CRECI e todos os anúncios.'}
+      ],
+      modulos: [
+        {cor:'#0B4A7E',t:'CRM e leads',d:'Funil de aluguel e funil de venda separados, contatos com CPF e CNPJ validados, tarefas, agenda e visitas.',...ok},
+        {cor:'#037A4B',t:'Atendimento no WhatsApp',d:'O atendimento automático responde primeiro e passa para a equipe quando precisa. Quem está respondendo fica sempre visível.',...ok},
+        {cor:'#FF6A2A',t:'Imóveis e portais',d:'Cadastro com fotos e legendas, publicação no AchouImóvel, Canal Pro, OLX e Imovelweb.',...ok},
+        {cor:'#4A0A4E',t:'Análise, contrato e assinatura',d:'Análise cadastral com autorização LGPD, contratos por modelo versionado e envelope de assinatura.',...soon},
+        {cor:'#D42A2A',t:'Vistoria no celular',d:'Ambientes, fotos, áudio e sugestões de IA que a pessoa confirma. Comparação entre entrada e saída.',...ok},
+        {cor:'#0B3A12',t:'Cobrança, split e repasse',d:'Cobranças com multa e juros, divisão do valor, repasse ao proprietário e conciliação.',...soon},
+        {cor:'#B5B5B5',t:'Área do cliente',d:'Proprietário vê extrato e repasses; inquilino vê cobranças, contrato e vistoria. Entrada por link de uso único.',...ok}
+      ],
+      mobiles: [
+        {cor:'#0B4A7E',tag:'Já foi alugado',tagBg:'#111111',tagFg:'#FFFFFF',h:'Este apartamento não está mais disponível',p:'Veja imóveis parecidos no Setor Bueno.',cta:'Ver parecidos',cta2:'Criar alerta',linhas:[{a:'Apto 2 qts · 64 m²',b:'R$ 2.480'},{a:'Apto 2 qts · 76 m²',b:'R$ 3.060'},{a:'Apto 2 qts · 70 m²',b:'R$ 2.690'}]},
+        {cor:'#037A4B',tag:'CRECI 0000-J',tagBg:'#F4F4F2',tagFg:'#111111',h:'Imobiliária Exemplo',p:'17 imóveis para alugar e 6 à venda em Goiânia.',cta:'Ver para alugar',cta2:'Ver à venda',linhas:[{a:'Apartamentos',b:'9'},{a:'Casas',b:'6'},{a:'Kitnets e studios',b:'4'}]},
+        {cor:'#037A4B',tag:'Alerta de imóvel',tagBg:'#F4F4F2',tagFg:'#111111',h:'Avisamos quando aparecer',p:'Apto 2 quartos para alugar no Setor Bueno, até R$ 3.000.',cta:'Criar alerta',cta2:'Mudar filtros',linhas:[{a:'Receber por',b:'E-mail'},{a:'Frequência',b:'1 por dia no máximo'}]},
+        {cor:'#037A4B',tag:'Planos',tagBg:'#F4F4F2',tagFg:'#111111',h:'Todos publicam em 4 portais',p:'AchouImóvel, Canal Pro, OLX e Imovelweb.',cta:'Começar',cta2:'Comparar planos',linhas:[{a:'Anunciante',b:'Fale com a gente'},{a:'Gestão Locação',b:'Fale com a gente'},{a:'Gestão Vendas',b:'Fale com a gente'}]},
+        {cor:'#037A4B',tag:'Erro 404',tagBg:'#F4F4F2',tagFg:'#111111',h:'Não achamos esta página',p:'Comece por uma cidade.',cta:'Buscar imóveis',cta2:'Ir para o início',linhas:[{a:'São Paulo, SP',b:'4.812'},{a:'Rio de Janeiro, RJ',b:'2.967'},{a:'Goiânia, GO',b:'986'}]}
+      ]
+    };
+  }
+}
+</script>
+</body>
 </html>
