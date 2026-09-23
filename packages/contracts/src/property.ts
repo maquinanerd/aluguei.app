@@ -8,14 +8,31 @@ import {
   uuidSchema,
 } from './common.js';
 
-export const propertyTypeSchema = z.enum(['APARTMENT', 'HOUSE', 'COMMERCIAL', 'LAND']);
+/**
+ * Tipos de imóvel. Os quatro primeiros já existiam; HOUSE_CONDO, TOWNHOUSE,
+ * STUDIO e PENTHOUSE entram com a entrega de design do AchouImóvel, que dá cor e
+ * página própria a cada tipo no portal.
+ */
+export const propertyTypeSchema = z.enum([
+  'APARTMENT',
+  'HOUSE',
+  'HOUSE_CONDO',
+  'TOWNHOUSE',
+  'STUDIO',
+  'PENTHOUSE',
+  'COMMERCIAL',
+  'LAND',
+]);
 export const propertyStatusSchema = z.enum(['ACTIVE', 'ARCHIVED']);
+/** Aluguel, venda, ou os dois (o mesmo imóvel pode estar nas duas listas). */
+export const propertyPurposeSchema = z.enum(['RENT', 'SALE', 'BOTH']);
 
 export const propertySummarySchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
   title: z.string(),
   propertyType: propertyTypeSchema,
+  purpose: propertyPurposeSchema,
   status: propertyStatusSchema,
   totalAreaSqm: z.number().nullable(),
   builtAreaSqm: z.number().nullable(),
@@ -43,7 +60,12 @@ export const propertyAddressSchema = z.object({
 });
 
 export const propertyFinancialTermsSchema = z.object({
-  monthlyRentCents: z.number().int().nonnegative(),
+  /** Nulo no imóvel só à venda. */
+  monthlyRentCents: z.number().int().nonnegative().nullable(),
+  /** Nulo no imóvel só para alugar. */
+  salePriceCents: z.number().int().nonnegative().nullable(),
+  /** Calculado a partir do preço e da área; nulo sem área. */
+  pricePerSqmCents: z.number().int().nonnegative().nullable(),
   condoFeeCents: z.number().int().nonnegative().nullable(),
   iptuCents: z.number().int().nonnegative().nullable(),
   securityDepositCents: z.number().int().nonnegative().nullable(),
@@ -63,6 +85,10 @@ export const propertyMediaSchema = z.object({
   mimeType: z.string().nullable(),
   sizeBytes: z.number().int().nonnegative().nullable(),
   isPublic: z.boolean(),
+  /** Legenda que aparece na galeria do portal. */
+  caption: z.string().nullable(),
+  sortOrder: z.number().int().nonnegative(),
+  isCover: z.boolean(),
   createdAt: z.string(),
 });
 
@@ -75,9 +101,22 @@ export const propertySchema = z.object({
   media: z.array(propertyMediaSchema),
 });
 
+/** Legenda, ordem e capa da foto (etapa 5 do cadastro). */
+export const updatePropertyMediaRequestSchema = z
+  .object({
+    caption: z.string().trim().max(120).nullable(),
+    sortOrder: z.number().int().min(0).max(200),
+    isCover: z.boolean(),
+  })
+  .partial();
+
+export const updatePropertyMediaResponseSchema = z.object({ property: propertySchema });
+
 export const createPropertyRequestSchema = z.object({
   title: z.string().min(1).max(200),
   propertyType: propertyTypeSchema,
+  /** Omitido, o imóvel nasce de aluguel — como todo imóvel criado até aqui. */
+  purpose: propertyPurposeSchema.optional(),
   description: z.string().optional(),
   status: propertyStatusSchema.optional(),
   totalAreaSqm: z.number().positive().optional(),
@@ -106,6 +145,8 @@ export const listPropertiesResponseSchema = z.object({
 
 export const updatePropertyRequestSchema = z.object({
   title: z.string().min(1).max(200).optional(),
+  propertyType: propertyTypeSchema.optional(),
+  purpose: propertyPurposeSchema.optional(),
   description: z.string().optional(),
   status: propertyStatusSchema.optional(),
   totalAreaSqm: z.number().positive().nullable().optional(),
@@ -139,7 +180,10 @@ export const upsertAddressRequestSchema = z.object({
 export const upsertAddressResponseSchema = z.object({ property: propertySchema });
 
 export const upsertFinancialTermsRequestSchema = z.object({
-  monthlyRentCents: positiveAmountCentsSchema,
+  /** Obrigatório para alugar; ausente no imóvel só à venda (o domínio confere). */
+  monthlyRentCents: positiveAmountCentsSchema.optional(),
+  /** Obrigatório à venda; ausente no imóvel só para alugar. */
+  salePriceCents: positiveAmountCentsSchema.optional(),
   condoFeeCents: amountCentsSchema.optional(),
   iptuCents: amountCentsSchema.optional(),
   securityDepositCents: amountCentsSchema.optional(),

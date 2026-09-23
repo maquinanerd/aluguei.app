@@ -169,6 +169,27 @@
       "when": 1790136799959,
       "tag": "0024_plan_modules_price_active_leases",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790167958069,
+      "tag": "0025_property_purpose_sale_media",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790168611964,
+      "tag": "0026_portal_public_slug_place",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1790170058771,
+      "tag": "0027_search_alerts",
+      "breakpoints": true
     }
   ]
 }

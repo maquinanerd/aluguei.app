@@ -50,6 +50,7 @@ export const AUDIT_ACTIONS = {
   PROPERTY_FEATURE_REMOVED: 'property.feature_removed',
   PROPERTY_MEDIA_CONFIRMED: 'property.media_confirmed',
   PROPERTY_MEDIA_DELETED: 'property.media_deleted',
+  PROPERTY_MEDIA_UPDATED: 'property.media_updated',
   LISTING_CREATED: 'listing.created',
   LISTING_UPDATED: 'listing.updated',
   LISTING_STATUS_CHANGED: 'listing.status_changed',

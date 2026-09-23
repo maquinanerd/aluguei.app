@@ -73,7 +73,13 @@ describe('worker: channel jobs (claim no Postgres, sem Redis)', () => {
     });
     const [listing] = await db
       .insert(listings)
-      .values({ orgId, propertyId: property.id, title: 'Casa Jobs', slug: 'casa-jobs' })
+      .values({
+        orgId,
+        propertyId: property.id,
+        title: 'Casa Jobs',
+        slug: 'casa-jobs',
+        publicSlug: 'casa-jobs',
+      })
       .returning();
     if (!listing) throw new Error('listing seed failed');
     listingId = listing.id;

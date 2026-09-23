@@ -56,6 +56,12 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'tasks.status': { values: c.taskStatusSchema.options },
   'properties.status': { values: c.propertyStatusSchema.options },
   'properties.property_type': { values: c.propertyTypeSchema.options },
+  // Onda 2A: finalidade do imóvel (alugar, vender ou os dois).
+  'properties.purpose': { values: d.PROPERTY_PURPOSES },
+  // Onda 2A: alerta de imóvel do portal.
+  'search_alerts.purpose': { values: ['RENT', 'SALE'] },
+  'search_alerts.status': { values: ['PENDING', 'ACTIVE', 'CANCELED'] },
+  'search_alerts.contact_kind': { values: ['EMAIL', 'WHATSAPP'] },
   'property_media.kind': { values: c.mediaKindSchema.options },
   'listings.status': { values: d.LISTING_STATUSES },
   'portal_access.kind': { values: c.portalKindSchema.options },

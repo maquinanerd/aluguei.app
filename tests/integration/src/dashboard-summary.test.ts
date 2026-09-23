@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { sql } from 'drizzle-orm';
@@ -152,8 +153,23 @@ async function seedOrganization(
   const listingRows = await db
     .insert(listings)
     .values([
-      { orgId, propertyId: p1.id, title: 'Anúncio 1', slug: 'anuncio-1', status: 'PUBLISHED' },
-      { orgId, propertyId: p2.id, title: 'Anúncio 2', slug: 'anuncio-2', status: 'DRAFT' },
+      {
+        orgId,
+        propertyId: p1.id,
+        title: 'Anúncio 1',
+        slug: 'anuncio-1',
+        // Slug público é único no país: cada semente precisa do seu.
+        publicSlug: `anuncio-1-${randomUUID().slice(0, 8)}`,
+        status: 'PUBLISHED',
+      },
+      {
+        orgId,
+        propertyId: p2.id,
+        title: 'Anúncio 2',
+        slug: 'anuncio-2',
+        publicSlug: `anuncio-2-${randomUUID().slice(0, 8)}`,
+        status: 'DRAFT',
+      },
     ])
     .returning();
   const l1 = must(listingRows[0], 'anúncio 1');

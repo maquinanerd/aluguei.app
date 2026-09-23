@@ -258,12 +258,36 @@ A ordem das ondas passa a ser: 1A → 1B → 2A → 2B → 3A → 3B → 4A → 
     `--brand*` com alias temporário; grupo **Vendas** no menu com "Negociações" marcado como Novo;
     cadeado por módulo lendo `plan.modules` do `/auth/me`; tela `/app/plano` ("Fora do seu plano");
     `AvisoModoTeste` em `packages/ui`. ADR-098.
-- **Próxima — Onda 2A.** Backend do portal: finalidade e valores de venda no imóvel, legenda/ordem/
-  capa em `property_media`, URL pública de foto (decisão do R3), busca nacional com filtros e slug
-  canônico, `page_stats`, vizinhos, lead público e alerta de busca. Junto dela sai
-  `docs/frontend/PORTAL_SPEC.md`, que ocupa o lugar do `PROMPT_apps-portal.md` ausente (ADR-097).
+- **Onda 2A — feita.**
+  - Imóvel com **finalidade** (`RENT`/`SALE`/`BOTH`), **preço de venda** e preço por m² calculado;
+    os **7 tipos** do design no vocabulário (mais `LAND`, que já existia); foto com **legenda,
+    ordem e capa** (capa única por imóvel, por índice parcial).
+  - **Slug público único no país** com histórico: trocar o endereço do anúncio guarda o antigo, que
+    passa a responder **301**; endereço que já foi de alguém não é reaproveitado (409).
+  - **Cidade e bairro em slug** no endereço público, calculados pelo domínio na escrita e
+    preenchidos nas linhas antigas pela migration.
+  - **`GET /public/search`** — busca nacional com filtros, contagem do recorte, estatística
+    (mediana, faixa e mediana por quartos, só com amostra ≥5), bairros vizinhos e a decisão de
+    indexação vinda do domínio (`indexable`/`robots`).
+  - **`GET /public/listings/:slug`** — 200 no ar, **301** quando o slug mudou, **410** com imóveis
+    parecidos quando saiu do ar, 404 quando nunca existiu. Traz galeria com legenda,
+    características e a mediana do bairro para a comparação.
+  - **`GET /public/media/:id`** — 302 para URL assinada, caminho estável no HTML, `storage_key`
+    nunca exposto.
+  - **`POST /public/listings/:slug/leads`** — contato do portal vira lead no CRM da imobiliária
+    dona do anúncio, com consentimento obrigatório e limite por IP.
+  - **Alerta de imóvel** (`search_alerts`): nasce PENDING, confirma por link de uso único que só
+    existe na caixa de saída local, e cancela pelo mesmo token. A tabela não tem `org_id` — o
+    contato de quem procura imóvel não é de nenhuma imobiliária.
+  - **`GET /public/sitemap`** — só recortes indexáveis (≥3) e anúncios no ar; o que sai do ar
+    some na hora.
+
+  Migrations 0025, 0026 e 0027, todas com pré-voo ou backfill. ADR-099.
+
+- **Próxima — Onda 2B.** Telas do portal sobre esta API, com robots, canônica, JSON-LD, sitemap e
+  cache por tag conforme `docs/frontend/PORTAL_SEO.md`, e lançamento por cidade em lotes.
 
 ### O que ainda não existe de propósito
 
-O portal não tem `/` nem telas públicas: elas são a Onda 2B e dependem do backend da 2A. Hoje o app
-serve só o catálogo de componentes, e por isso ainda não entra no compose da homologação.
+O portal não tem `/` nem telas públicas: elas são a Onda 2B. O backend que as sustenta já está de
+pé; o app ainda serve só o catálogo de componentes e por isso não entra no compose da homologação.

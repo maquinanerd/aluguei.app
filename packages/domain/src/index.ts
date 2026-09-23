@@ -71,6 +71,8 @@ export * from './meta/budget.js';
 export * from './meta/stateMachine.js';
 export * from './meta/campaignFlow.js';
 export * from './portal/portal.js';
+export * from './portal/indexing.js';
+export * from './portal/place-slug.js';
 export * from './platform/organization-status.js';
 export * from './platform/plan-limits.js';
 export * from './platform/plan-modules.js';
@@ -83,6 +85,7 @@ export {
   transitionListing,
 } from './property/listing.js';
 export type { ListingStatus } from './property/listing.js';
+export * from './property/purpose.js';
 
 export {
   CHANNEL_TYPES,

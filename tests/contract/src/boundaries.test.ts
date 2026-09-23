@@ -31,6 +31,9 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
       mimeType: 'image/jpeg',
       sizeBytes: 100,
       isPublic: true,
+      caption: 'Cozinha',
+      sortOrder: 0,
+      isCover: true,
       createdAt: ISO,
     });
     expect(ok.success).toBe(true);
@@ -41,6 +44,9 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
       mimeType: null,
       sizeBytes: null,
       isPublic: false,
+      caption: null,
+      sortOrder: 0,
+      isCover: false,
       createdAt: new Date(ISO),
     });
     expect(bad.success).toBe(false);
@@ -54,6 +60,7 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
       description: null,
       status: 'ACTIVE',
       propertyType: 'APARTMENT',
+      purpose: 'RENT',
       totalAreaSqm: null,
       builtAreaSqm: null,
       bedrooms: null,
@@ -74,6 +81,9 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
           mimeType: 'image/jpeg',
           sizeBytes: 1,
           isPublic: true,
+          caption: null,
+          sortOrder: 0,
+          isCover: false,
           createdAt: ISO,
         },
       ],

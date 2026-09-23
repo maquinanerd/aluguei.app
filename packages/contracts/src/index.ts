@@ -13,6 +13,8 @@ export * from './property.js';
 export * from './listing.js';
 export * from './media.js';
 export * from './public.js';
+export * from './public-search.js';
+export * from './public-portal.js';
 export * from './channels.js';
 export * from './conversations.js';
 export * from './inspections.js';

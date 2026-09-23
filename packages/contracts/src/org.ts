@@ -99,7 +99,7 @@ export const acceptMemberInviteResponseSchema = z.object({
 /** Caixa de saída local de e-mail da organização (nada é enviado). */
 export const emailOutboxMessageSchema = z.object({
   id: uuidSchema,
-  kind: z.enum(['PASSWORD_RESET', 'MEMBER_INVITE']),
+  kind: z.enum(['PASSWORD_RESET', 'MEMBER_INVITE', 'SEARCH_ALERT_CONFIRM']),
   toEmail: z.string(),
   subject: z.string(),
   body: z.string(),

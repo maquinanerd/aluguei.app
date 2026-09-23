@@ -57,6 +57,8 @@ import { propertyRoutes } from './routes/properties.js';
 import { placesRoutes } from './routes/places.js';
 import { listingRoutes } from './routes/listings.js';
 import { publicRoutes } from './routes/public.js';
+import { publicSearchRoutes } from './routes/public-search.js';
+import { publicPortalRoutes } from './routes/public-portal.js';
 import { channelRoutes } from './routes/channels.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
@@ -390,6 +392,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(placesRoutes);
   await app.register(listingRoutes);
   await app.register(publicRoutes);
+  await app.register(publicSearchRoutes);
+  await app.register(publicPortalRoutes);
   await app.register(channelRoutes);
   await app.register(webhookRoutes);
   // Grupos atrás do módulo do plano: fora do plano a API responde 403 com
