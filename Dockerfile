@@ -49,3 +49,15 @@ USER node
 WORKDIR /app/apps/web
 EXPOSE 3000
 CMD ["node_modules/.bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000"]
+
+# Portal publico (AchouImovel). Mesma receita da gestao, outro app e outra porta.
+FROM fetch AS portal
+COPY . .
+RUN pnpm install --offline --frozen-lockfile --filter aluguei-app --filter "@aluguei/portal..." \
+ && pnpm turbo run build --filter=@aluguei/portal \
+ && chown -R node:node apps/portal/.next
+ENV NODE_ENV=production
+USER node
+WORKDIR /app/apps/portal
+EXPOSE 3100
+CMD ["node_modules/.bin/next", "start", "--hostname", "0.0.0.0", "--port", "3100"]
