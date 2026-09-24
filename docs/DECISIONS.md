@@ -1673,12 +1673,47 @@ Decisão:
 - **Os endereços `sslip.io` continuam no ar**, somados e não substituídos. São a porta de serviço
   quando o DNS ou o certificado do domínio próprio falha — foi por não ter essa porta que a queda de
   2026-09-24 ficou difícil de diagnosticar.
-- **Endereço público é configuração de execução, nunca de build.** `PORTAL_BASE_URL`, `APP_BASE_URL`
-  e `API_BASE_URL` são lidos pelo contêiner em execução. Rota que escreve URL absoluta (canônica,
-  `robots.txt`, sitemap, JSON-LD) renderiza por requisição; se for gerada no `next build`, o padrão de
-  desenvolvimento é assado e vai para produção — foi o que aconteceu na primeira implantação, com
-  `http://localhost:3100` na canônica do portal no ar. A CI sobe a imagem do portal com o endereço
-  definido e exige que ele apareça no `robots.txt`, porque a suíte de testes não pega esse defeito.
+- **O endereço público entra no build e na execução.** ~~Endereço público é configuração de
+  execução, nunca de build.~~ **Corrigido em 2026-09-24 (ver ADR-101).** A primeira versão desta
+  decisão tornava dinâmicas as rotas que escrevem URL absoluta, o que contraria o critério de
+  aceite do prompt orquestrado ("nenhuma página pública com `force-dynamic`"). A divisão correta
+  segue o que cada coisa é: **página pública** é gerada no build e recebe o endereço pelo
+  `ARG PORTAL_BASE_URL` do Dockerfile; **rota** (`robots.txt`, `sitemap.xml`) renderiza por
+  requisição e lê a variável de ambiente, porque o conteúdo depende do que a API tem agora.
 
-Consequência: trocar de domínio é mudar variável e reimplantar, sem tocar em código. O custo é que
-essas quatro rotas não são mais estáticas; o peso real (a chamada à API) continua em cache por tag.
+Consequência: trocar de domínio é mudar variável e reimplantar — com rebuild, porque o endereço
+participa das páginas geradas. A CI exercita as duas metades: constrói a imagem com um endereço e
+sobe o contêiner com outro, exigindo o do build na canônica e o do ambiente no `robots.txt`.
+
+## ADR-101 — Planos na vitrine, plano pedido no cadastro e endereço no build (Onda 3, 2026-09-24)
+
+Status: Aceito. Corrige um ponto do ADR-100.
+
+Contexto: as telas B2B (`/para-imobiliarias`, `/anunciar`, `/gestao`, `/planos`) e o cadastro em
+etapas precisavam falar de plano. Escrever preço e recurso na página seria a forma mais rápida — e a
+que o `AGENTS.md` proíbe, porque vira número inventado assim que o plano muda.
+
+Decisão:
+
+- **A vitrine lê plano de verdade.** `GET /public/plans` devolve uma view reduzida: sem `id`, sem
+  `organizationCount` e sem `isActive`; só plano ativo, ordenado pelo preço publicado com os sem
+  preço no fim. Cada campo exposto numa rota pública é uma decisão, não um `select *`.
+- **A tabela é derivada, não escrita.** As colunas vêm da API e o "Incluído / —" de cada célula sai
+  dos módulos do plano (`PLAN_MODULES`, ADR-095). Criar um plano novo no painel já preenche a tabela
+  certa, sem ninguém editar o portal.
+- **Preço nulo é "Fale com a gente", nunca zero.** A tela precisa distinguir "sem preço publicado" de
+  "de graça"; e lista vazia é estado de tela, porque a página não pode afirmar que a empresa não tem
+  plano só porque a API não respondeu.
+- **Pedir não é contratar.** O cadastro guarda `requested_plan_code` (o código, não o id — é ele que
+  viaja no `?plano=` público, e plano apagado não apaga o pedido). O plano vigente continua sendo
+  decidido pelo admin na aprovação (ADR-060). Código que a API não conhece não é pré-selecionado: a
+  etapa pergunta de novo em vez de a tela afirmar um plano que não existe.
+- **Endereço público: build para página, ambiente para rota** — corrige o bullet correspondente do
+  ADR-100. Página pública volta a ser gerada no build, recebendo `PORTAL_BASE_URL`, `APP_BASE_URL` e
+  `API_BASE_URL` por `ARG` do Dockerfile; `robots.txt` e `sitemap.xml` continuam por requisição.
+  As três variáveis entram no `env` da tarefa de build do Turbo: no **modo estrito do Turbo 2**,
+  variável que a tarefa não declara não chega nela — foi por isso que o defeito não apareceu no teste
+  local (`pnpm --filter … build` executa `next build` direto e herda o shell) e apareceu na imagem.
+
+Consequência: o portal não tem número de plano no código, e o painel sabe o que cada imobiliária
+pediu antes mesmo de existir cobrança. Trocar o domínio passa a exigir rebuild, o que a CI cobre.
