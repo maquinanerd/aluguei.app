@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Icon } from '@aluguei/ui';
+import { CampoSenha } from '@/components/campo-senha';
 import { destinationFor } from '@/lib/account-status';
 import type { AccountSnapshot } from '@/lib/account-status';
 
@@ -78,14 +79,12 @@ export function LoginForm() {
         placeholder="voce@imob.com.br"
         autoFocus
       />
-      <Input
+      <CampoSenha
         id="login-password"
         name="password"
-        type="password"
         required
         autoComplete="current-password"
         label="Senha"
-        placeholder="••••••••"
       />
       <Button type="submit" variant="primary" fullWidth loading={submitting}>
         Entrar
