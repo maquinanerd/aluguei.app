@@ -15,8 +15,26 @@ import { formatarValor } from './formato';
  *    página nunca decide sozinha que merece ser indexada.
  */
 
+const BASE_PADRAO = 'http://localhost:3100';
+
+/**
+ * Endereço público do portal, usado na canônica, no JSON-LD e no sitemap.
+ *
+ * Variável de ambiente **vazia** é o caso que derrubou a primeira implantação:
+ * `??` não pega string vazia, e `new URL(caminho, '')` lança na carga do módulo
+ * (o metadata é montado no import), o que reinicia o contêiner em laço. Aqui,
+ * valor em branco ou inválido cai no padrão em vez de quebrar a página.
+ */
 export function baseUrl(): string {
-  return process.env.PORTAL_BASE_URL ?? 'http://localhost:3100';
+  const configurado = process.env.PORTAL_BASE_URL;
+  if (configurado === undefined || configurado.trim() === '') {
+    return BASE_PADRAO;
+  }
+  try {
+    return new URL(configurado).toString().replace(/\/$/, '');
+  } catch {
+    return BASE_PADRAO;
+  }
 }
 
 export function urlAbsoluta(caminho: string): string {
