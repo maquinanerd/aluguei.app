@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Entrar' };
 
 export default function LoginPage() {
   return (
-    <AuthShell rotulo="Entrar">
+    <AuthShell>
       <LoginForm />
     </AuthShell>
   );

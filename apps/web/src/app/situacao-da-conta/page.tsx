@@ -37,7 +37,7 @@ export default async function AccountStatusPage() {
   const copy = ACCOUNT_STATUS_COPY[org.status];
 
   return (
-    <AuthShell rotulo="Situação da conta" acaoTopo={<LogoutButton variant="tertiary" />}>
+    <AuthShell acaoTopo={<LogoutButton variant="tertiary" />}>
       <div className="peg-stack" style={{ gap: 12 }}>
         <span className={`peg-badge peg-badge--${copy.tone}`} style={{ alignSelf: 'flex-start' }}>
           {org.name}

@@ -11,7 +11,7 @@ export default async function InvitePage({
 }) {
   const { token } = await searchParams;
   return (
-    <AuthShell rotulo="Convite">
+    <AuthShell>
       <AcceptInviteForm token={typeof token === 'string' ? token : ''} />
     </AuthShell>
   );

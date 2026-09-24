@@ -59,7 +59,7 @@ export default async function RegisterPage({
   );
 
   return (
-    <AuthShell rotulo="Criar conta">
+    <AuthShell>
       <RegisterForm planos={planos} planoInicial={planoInicial} />
     </AuthShell>
   );

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Recuperar senha' };
 
 export default function ForgotPasswordPage() {
   return (
-    <AuthShell rotulo="Recuperar senha">
+    <AuthShell>
       <ForgotPasswordForm />
     </AuthShell>
   );

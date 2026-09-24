@@ -104,6 +104,48 @@ export async function waitForRetryAfter(retryAfter: string | null): Promise<void
 }
 
 /** Clica em "Criar conta" e repete depois do `retry-after` se o cadastro bater no limite. */
+export interface DadosDoCadastro {
+  nome: string;
+  email: string;
+  senha: string;
+  imobiliaria: string;
+  documento?: string;
+  creci?: string;
+  telefone?: string;
+}
+
+/**
+ * Cadastro pela tela (Onda 3): seis etapas, uma pergunta por vez. O helper
+ * percorre as etapas e só então envia — o `POST /api/auth/register` continua
+ * acontecendo uma vez só, no fim.
+ */
+export async function preencherCadastroEmEtapas(page: Page, dados: DadosDoCadastro): Promise<void> {
+  await page.getByLabel('Qual é o seu nome?').fill(dados.nome);
+  await page.getByRole('button', { name: 'Próximo' }).click();
+
+  await page.getByLabel('Qual é o seu e-mail?').fill(dados.email);
+  await page.getByRole('button', { name: 'Próximo' }).click();
+
+  await page.getByLabel('Qual é a sua imobiliária?').fill(dados.imobiliaria);
+  if (dados.documento !== undefined) {
+    await page.getByLabel('CNPJ ou CPF').fill(dados.documento);
+  }
+  await page.getByRole('button', { name: 'Próximo' }).click();
+
+  if (dados.creci !== undefined) {
+    await page.getByLabel('Qual é o CRECI da imobiliária?').fill(dados.creci);
+  }
+  if (dados.telefone !== undefined) {
+    await page.getByLabel('Telefone com DDD').fill(dados.telefone);
+  }
+  await page.getByRole('button', { name: 'Próximo' }).click();
+
+  // Etapa 5 (plano) não trava: quem não escolhe combina na análise.
+  await page.getByRole('button', { name: 'Próximo' }).click();
+
+  await page.getByLabel('Crie sua senha').fill(dados.senha);
+}
+
 export async function submitRegistration(page: Page): Promise<void> {
   for (let attempt = 1; ; attempt += 1) {
     const response = page.waitForResponse(

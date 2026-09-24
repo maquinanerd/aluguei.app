@@ -11,7 +11,7 @@ export default async function ResetPasswordPage({
 }) {
   const { token } = await searchParams;
   return (
-    <AuthShell rotulo="Nova senha">
+    <AuthShell>
       <ResetPasswordForm token={typeof token === 'string' ? token : ''} />
     </AuthShell>
   );

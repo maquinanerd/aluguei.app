@@ -5,8 +5,6 @@ export interface AuthShellProps {
   children: ReactNode;
   /** Ação no topo do cartão (sair, voltar), quando a tela tem uma. */
   acaoTopo?: ReactNode;
-  /** Rótulo da região, para quem navega por leitor de tela. */
-  rotulo?: string;
 }
 
 /**
@@ -16,11 +14,15 @@ export interface AuthShellProps {
  * Existe para a marca aparecer em um lugar só. Antes, cada uma das seis telas
  * repetia o mesmo bloco do logotipo — e foi assim que o nome antigo do produto
  * sobreviveu em tela durante o rebranding.
+ *
+ * Sem `aria-label` no cartão de propósito: o título de cada tela já nomeia a
+ * região, e um rótulo aqui duplicaria o nome de campos como "Nova senha" para
+ * quem procura por rótulo — inclusive nos testes de ponta a ponta.
  */
-export function AuthShell({ children, acaoTopo, rotulo }: AuthShellProps) {
+export function AuthShell({ children, acaoTopo }: AuthShellProps) {
   return (
     <main className="auth-page">
-      <section className="auth-card" {...(rotulo === undefined ? {} : { 'aria-label': rotulo })}>
+      <section className="auth-card">
         <div className="auth-card__brand">
           <span className="app-sidebar__logo" aria-hidden="true">
             A
