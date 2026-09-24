@@ -248,7 +248,7 @@ services:
     environment:
       SERVICE_URL_PORTAL_3100: ''
       NODE_ENV: production
-      PORTAL_BASE_URL: ${PORTAL_BASE_URL:-}
+      PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3100}
       API_BASE_URL: ${API_BASE_URL}
       API_BASE_URL_ALLOW_HTTP: ${API_BASE_URL_ALLOW_HTTP:-}
     depends_on:

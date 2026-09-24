@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import type { PublicListingDetail } from '@aluguei/contracts';
 import {
+  baseUrl,
+  urlAbsoluta,
   descricaoDoRecorte,
   jsonLdAnuncio,
   jsonLdTrilha,
@@ -153,5 +155,44 @@ describe('dados estruturados', () => {
   it('sem CRECI, não afirma que existe corretor responsável', () => {
     const json = jsonLdAnuncio({ ...ANUNCIO, org: { ...ANUNCIO.org, creci: null } });
     expect(json.provider).toBeUndefined();
+  });
+});
+
+/**
+ * Regressão da primeira implantação do portal: `PORTAL_BASE_URL` vazio no
+ * compose passava pelo `??`, e `new URL(caminho, '')` lançava na carga do
+ * módulo (o metadata é montado no import), derrubando o contêiner em laço.
+ */
+describe('endereço base do portal', () => {
+  const original = process.env.PORTAL_BASE_URL;
+
+  afterEach(() => {
+    if (original === undefined) {
+      delete process.env.PORTAL_BASE_URL;
+    } else {
+      process.env.PORTAL_BASE_URL = original;
+    }
+  });
+
+  it('variável vazia não quebra: cai no padrão', () => {
+    process.env.PORTAL_BASE_URL = '';
+    expect(baseUrl()).toBe('http://localhost:3100');
+    expect(() => urlAbsoluta('/alugar/goiania-go')).not.toThrow();
+  });
+
+  it('variável só com espaço também cai no padrão', () => {
+    process.env.PORTAL_BASE_URL = '   ';
+    expect(baseUrl()).toBe('http://localhost:3100');
+  });
+
+  it('endereço inválido cai no padrão em vez de derrubar a página', () => {
+    process.env.PORTAL_BASE_URL = 'nao-e-url';
+    expect(baseUrl()).toBe('http://localhost:3100');
+  });
+
+  it('endereço válido é usado, sem barra no fim', () => {
+    process.env.PORTAL_BASE_URL = 'https://achouimovel.online/';
+    expect(baseUrl()).toBe('https://achouimovel.online');
+    expect(urlAbsoluta('/imovel/abc')).toBe('https://achouimovel.online/imovel/abc');
   });
 });

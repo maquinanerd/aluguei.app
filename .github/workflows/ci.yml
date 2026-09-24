@@ -166,3 +166,22 @@ jobs:
 
       - name: Build da imagem web
         run: docker build --progress=plain --target web -t aluguei-web:ci .
+
+      - name: Build da imagem portal
+        run: docker build --progress=plain --target portal -t aluguei-portal:ci .
+
+      - name: Portal sobe e responde (pega quebra na carga do módulo)
+        run: |
+          docker run -d --name portal-ci -p 3100:3100 -e PORTAL_BASE_URL= aluguei-portal:ci
+          for tentativa in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3100/robots.txt > /dev/null; then
+              echo "portal respondeu na tentativa $tentativa"
+              docker rm -f portal-ci
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "portal não respondeu; log do contêiner:"
+          docker logs portal-ci
+          docker rm -f portal-ci
+          exit 1
