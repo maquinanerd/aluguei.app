@@ -629,3 +629,394 @@
   gap: 6px 18px;
   font-size: 14px;
 }
+
+/* ── B2B (Onda 3): /para-imobiliarias, /anunciar, /gestao e /planos ────────── */
+
+.pagina--b2b {
+  padding-bottom: var(--space-8);
+}
+
+.hero-b2b {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+
+.hero-b2b__sobretitulo {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-accent);
+}
+
+.hero-b2b__titulo {
+  margin: 0;
+  font: var(--type-h1);
+  letter-spacing: var(--tracking-title);
+  text-wrap: balance;
+}
+
+.hero-b2b__descricao {
+  margin: var(--space-4) 0 0;
+  max-width: 56ch;
+  color: var(--portal-ink-2);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.hero-b2b__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.hero-b2b__arte {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  background: var(--portal-surface);
+  border: 1px solid var(--portal-line);
+  color: var(--portal-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.secao__texto {
+  margin: 0 0 var(--space-5);
+  max-width: 72ch;
+  color: var(--portal-ink-2);
+  line-height: 1.6;
+}
+
+.lista-beneficios {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.lista-beneficios li {
+  position: relative;
+  padding-left: 26px;
+  color: var(--portal-ink-2);
+  line-height: 1.5;
+}
+
+.lista-beneficios li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--brand-accent);
+  font-weight: 700;
+}
+
+.canais {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.canal {
+  padding: var(--space-5);
+  border: 1px solid var(--portal-line);
+  background: var(--portal-bg);
+}
+
+.canal__nome {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.canal__status {
+  margin: var(--space-1) 0 var(--space-3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand-accent);
+}
+
+.canal__descricao {
+  margin: 0;
+  color: var(--portal-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fluxo {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+  counter-reset: passo;
+}
+
+.fluxo__passo {
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--portal-ink);
+}
+
+.fluxo__numero {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--portal-muted-2);
+}
+
+.fluxo__titulo {
+  margin: var(--space-2) 0 var(--space-2);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fluxo__texto {
+  margin: 0;
+  color: var(--portal-muted);
+  line-height: 1.55;
+}
+
+.selo-breve {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--portal-field-line);
+  background: var(--portal-surface);
+  color: var(--portal-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.caminhos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+.caminho {
+  padding: var(--space-6);
+  border: 1px solid var(--portal-line);
+  background: var(--portal-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.caminho__chapeu {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--portal-muted-2);
+}
+
+.caminho__titulo {
+  margin: 0;
+  font: var(--type-h2);
+}
+
+.caminho__texto {
+  margin: 0;
+  color: var(--portal-ink-2);
+  line-height: 1.55;
+}
+
+.caminho__link {
+  margin-top: auto;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--brand-accent);
+}
+
+.cabecalho-pagina__titulo {
+  margin: 0;
+  font: var(--type-h1);
+  letter-spacing: var(--tracking-title);
+}
+
+.cabecalho-pagina__texto {
+  margin: var(--space-4) 0 0;
+  max-width: 72ch;
+  color: var(--portal-ink-2);
+  line-height: 1.6;
+}
+
+.tabela-planos__area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.tabela-planos__cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.plano-cartao {
+  padding: var(--space-5);
+  border: 1px solid var(--portal-line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.plano-cartao__nome {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.plano-cartao__descricao {
+  margin: 0;
+  color: var(--portal-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.plano-cartao__preco {
+  margin: var(--space-3) 0 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.plano-cartao__mes {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--portal-muted);
+}
+
+.plano-cartao__limite {
+  margin: 0 0 var(--space-4);
+  color: var(--portal-muted);
+  font-size: 14px;
+}
+
+.plano-cartao .botao {
+  margin-top: auto;
+}
+
+.tabela-planos {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabela-planos__legenda {
+  margin-bottom: var(--space-3);
+  color: var(--portal-muted);
+  font-size: 14px;
+  text-align: left;
+}
+
+.tabela-planos th,
+.tabela-planos td {
+  padding: var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--portal-line);
+  vertical-align: top;
+}
+
+.tabela-planos thead th {
+  border-bottom: 2px solid var(--portal-ink);
+  font-size: 15px;
+}
+
+.tabela-planos tbody td {
+  text-align: center;
+  font-size: 18px;
+  color: var(--brand-accent);
+}
+
+.tabela-planos__recurso {
+  display: block;
+  font-weight: 700;
+}
+
+.tabela-planos__descricao {
+  display: block;
+  margin-top: 2px;
+  color: var(--portal-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.modulos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-5);
+}
+
+.modulo {
+  padding: var(--space-5);
+  border: 1px solid var(--portal-line);
+}
+
+.modulo__nome {
+  margin: 0 0 var(--space-2);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.modulo__texto {
+  margin: 0 0 var(--space-3);
+  color: var(--portal-ink-2);
+  line-height: 1.5;
+}
+
+.modulo__itens {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--portal-muted);
+  line-height: 1.6;
+}
+
+.nota {
+  margin: 0;
+  color: var(--portal-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media (max-width: 860px) {
+  .hero-b2b {
+    grid-template-columns: 1fr;
+  }
+
+  .tabela-planos {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .tabela-planos__descricao {
+    white-space: normal;
+  }
+}

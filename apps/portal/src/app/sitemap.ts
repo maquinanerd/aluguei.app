@@ -21,6 +21,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const institucional: MetadataRoute.Sitemap = [
     { url: urlAbsoluta('/'), changeFrequency: 'daily', priority: 1 },
+    // B2B (Onda 3): páginas fixas, que existem sempre e não dependem de estoque.
+    { url: urlAbsoluta('/para-imobiliarias'), changeFrequency: 'monthly', priority: 0.7 },
+    { url: urlAbsoluta('/anunciar'), changeFrequency: 'monthly', priority: 0.6 },
+    { url: urlAbsoluta('/gestao'), changeFrequency: 'monthly', priority: 0.6 },
+    { url: urlAbsoluta('/planos'), changeFrequency: 'monthly', priority: 0.6 },
     { url: urlAbsoluta('/mapa-do-site'), changeFrequency: 'weekly', priority: 0.3 },
   ];
 
