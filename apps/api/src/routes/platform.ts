@@ -63,6 +63,7 @@ const organizationColumns = {
   document: organizations.document,
   phone: organizations.phone,
   creci: organizations.creci,
+  requestedPlanCode: organizations.requestedPlanCode,
   createdAt: organizations.createdAt,
   planId: plans.id,
   planCode: plans.code,
@@ -105,6 +106,7 @@ interface OrganizationRow {
   document: string | null;
   phone: string | null;
   creci: string | null;
+  requestedPlanCode: string | null;
   createdAt: Date;
   planId: string;
   planCode: string;
@@ -147,6 +149,7 @@ function toPlatformOrganization(row: OrganizationRow) {
     document: row.document,
     phone: row.phone,
     creci: row.creci,
+    requestedPlanCode: row.requestedPlanCode,
     createdAt: row.createdAt.toISOString(),
     plan: {
       id: row.planId,

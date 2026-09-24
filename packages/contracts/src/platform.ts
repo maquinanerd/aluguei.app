@@ -81,6 +81,8 @@ export const platformOrganizationSchema = z.object({
   document: z.string().nullable(),
   phone: z.string().nullable(),
   creci: z.string().nullable(),
+  /** Plano que a imobiliária pediu no cadastro; quem decide o vigente é o admin. */
+  requestedPlanCode: z.string().nullable(),
   createdAt: z.string(),
   plan: z.object({ id: uuidSchema, code: z.string(), name: z.string() }).extend({
     maxUsers: z.number().int().nullable(),

@@ -79,6 +79,7 @@ export async function registerAgency(
     document: string;
     phone: string;
     creci: string;
+    requestedPlanCode: string;
   }> = {},
 ): Promise<RegisteredAgency> {
   registrations += 1;
@@ -95,6 +96,9 @@ export async function registerAgency(
       ...(extra.document !== undefined ? { document: extra.document } : {}),
       ...(extra.phone !== undefined ? { phone: extra.phone } : {}),
       ...(extra.creci !== undefined ? { creci: extra.creci } : {}),
+      ...(extra.requestedPlanCode !== undefined
+        ? { requestedPlanCode: extra.requestedPlanCode }
+        : {}),
     },
   });
   if (res.statusCode !== 201) {

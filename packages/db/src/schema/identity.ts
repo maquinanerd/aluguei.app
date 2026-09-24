@@ -44,6 +44,12 @@ export const organizations = pgTable(
     document: text('document'),
     phone: text('phone'),
     creci: text('creci'),
+    /**
+     * Plano pedido no cadastro (código, não id). Não é o plano vigente: quem
+     * decide é o admin na aprovação (ADR-060), em `planId`. Aqui fica só a
+     * intenção declarada, para a fila de aprovação não ter de adivinhar.
+     */
+    requestedPlanCode: text('requested_plan_code'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -52,6 +58,10 @@ export const organizations = pgTable(
     check(
       'organizations_status_valid',
       sql`${t.status} in ('PENDING_APPROVAL', 'ACTIVE', 'SUSPENDED', 'REJECTED')`,
+    ),
+    check(
+      'organizations_requested_plan_code_format',
+      sql`${t.requestedPlanCode} is null or ${t.requestedPlanCode} ~ '^[A-Z0-9_]{2,40}$'`,
     ),
   ],
 );
