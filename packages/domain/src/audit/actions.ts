@@ -144,6 +144,7 @@ export const AUDIT_ACTIONS = {
   PLATFORM_PLAN_CREATED: 'platform.plan.created',
   PLATFORM_PLAN_UPDATED: 'platform.plan.updated',
   PLATFORM_ADMIN_BOOTSTRAPPED: 'platform.admin.bootstrapped',
+  PLATFORM_ADMIN_PASSWORD_RESET: 'platform.admin.password_reset',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

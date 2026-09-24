@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { sql } from 'drizzle-orm';
-import { createPlatformAdminAccount } from '@aluguei/api';
+import { createPlatformAdminAccount, resetPlatformAdminPassword } from '@aluguei/api';
 import type { AppDb } from '@aluguei/db';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import { buildTestApp } from './helpers.js';
@@ -81,5 +81,75 @@ describe('bootstrap da conta do admin da plataforma', () => {
       select count(*)::int as n from users where email in ('intruso@aluguei.test', 'plataforma@aluguei.test')
     `);
     expect((users.rows[0] as { n: number }).n).toBe(0);
+  });
+});
+
+describe('redefinição da senha do admin da plataforma', () => {
+  /**
+   * O admin não tem outra porta: o cadastro aberto recusa a allowlist e a recuperação por
+   * link depende de e-mail, que nenhum ambiente envia. Sem isto, admin sem senha fica sem
+   * acesso.
+   */
+  it('troca a senha, derruba as sessões abertas e registra auditoria', async () => {
+    await createPlatformAdminAccount(db, allowlist, {
+      email: 'plataforma@aluguei.test',
+      name: 'Admin Redefine',
+      password: 'senha-inicial-bem-longa',
+    });
+    const antes = await call(app, 'POST', '/auth/login', {
+      remoteAddress: '10.221.0.1',
+      payload: { email: 'plataforma@aluguei.test', password: 'senha-inicial-bem-longa' },
+    });
+    expect(antes.status, JSON.stringify(antes.body)).toBe(200);
+
+    const { revokedSessions } = await resetPlatformAdminPassword(db, allowlist, {
+      email: '  Plataforma@Aluguei.test ',
+      password: 'senha-nova-bem-longa-2',
+    });
+    expect(revokedSessions).toBe(1);
+
+    const senhaAntiga = await call(app, 'POST', '/auth/login', {
+      remoteAddress: '10.221.0.2',
+      payload: { email: 'plataforma@aluguei.test', password: 'senha-inicial-bem-longa' },
+    });
+    expect(senhaAntiga.status).toBe(401);
+    const senhaNova = await call(app, 'POST', '/auth/login', {
+      remoteAddress: '10.221.0.3',
+      payload: { email: 'plataforma@aluguei.test', password: 'senha-nova-bem-longa-2' },
+    });
+    expect(senhaNova.status, JSON.stringify(senhaNova.body)).toBe(200);
+
+    const audit = await db.execute(sql`
+      select count(*)::int as n from audit_events
+      where action = 'platform.admin.password_reset' and entity_type = 'USER'
+    `);
+    expect((audit.rows[0] as { n: number }).n).toBe(1);
+  });
+
+  it('recusa e-mail fora da allowlist, senha curta e conta inexistente', async () => {
+    await expect(
+      resetPlatformAdminPassword(db, allowlist, {
+        email: 'intruso@aluguei.test',
+        password: 'senha-nova-bem-longa',
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(
+      resetPlatformAdminPassword(db, allowlist, {
+        email: 'reservado@aluguei.test',
+        password: 'curta',
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    await expect(
+      resetPlatformAdminPassword(db, parsePlatformAdminEmails('ninguem@aluguei.test'), {
+        email: 'ninguem@aluguei.test',
+        password: 'senha-nova-bem-longa',
+      }),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+
+    const ainda = await call(app, 'POST', '/auth/login', {
+      remoteAddress: '10.221.0.4',
+      payload: { email: 'reservado@aluguei.test', password: 'senha-bem-longa-123' },
+    });
+    expect(ainda.status).toBe(200);
   });
 });

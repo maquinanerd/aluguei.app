@@ -89,7 +89,7 @@ import type { PortalSessionPluginOptions } from './plugins/portal-session.js';
 /** Trava e contagem do plano — exportadas para a suíte de concorrência real (test:pg). */
 export { assertPlanAllowsOneMore } from './platform/usage.js';
 /** Conta do admin da plataforma (comando de servidor e testes). */
-export { createPlatformAdminAccount } from './platform/bootstrap.js';
+export { createPlatformAdminAccount, resetPlatformAdminPassword } from './platform/bootstrap.js';
 
 export interface BuildAppOptions extends FastifyServerOptions {
   db?: AppDb;

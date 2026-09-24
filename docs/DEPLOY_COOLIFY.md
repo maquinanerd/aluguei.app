@@ -166,6 +166,15 @@ Cadastro aberto de imobiliária nasce **em análise** e só opera depois de apro
 
      A senha é pedida sem eco (mínimo de 12 caracteres) e nunca vai em argumento ou log.
 
+   - **Existe e a senha se perdeu**: o mesmo comando com `--reset-password` (aí `--name` não
+     é usado). É a única porta: o cadastro aberto recusa os e-mails da allowlist e a
+     recuperação por link depende de e-mail, que nenhum ambiente envia — a mensagem só é
+     gravada na caixa de saída local. Todas as sessões abertas caem.
+
+     ```bash
+     node --import tsx apps/api/src/cli/create-platform-admin.ts --email voce@exemplo.com --reset-password
+     ```
+
 3. Entrar em `/login`: sem imobiliária, a pessoa cai direto em `/plataforma`.
 
 Na área: fila de cadastros em análise, busca por nome, e-mail do responsável ou CNPJ, aprovar
