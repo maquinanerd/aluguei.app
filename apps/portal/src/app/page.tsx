@@ -12,6 +12,17 @@ import { metadataDaPagina } from '@/lib/seo';
 import { carregarHome } from './home-dados';
 
 /**
+ * Renderizada a cada requisição, de propósito: esta rota escreve **URL
+ * absoluta** (canônica, sitemap, JSON-LD), e o endereço do portal vem do
+ * ambiente do contêiner. Se a rota for gerada no `next build`, o endereço é
+ * assado com o padrão de desenvolvimento e vai para produção como
+ * `http://localhost:3100` — foi o que aconteceu na primeira implantação em
+ * `achouimovel.online`. O custo é baixo: a chamada à API continua em cache por
+ * tag (`src/lib/api.ts`).
+ */
+export const dynamic = 'force-dynamic';
+
+/**
  * Home do portal. O HTML é genérico e fica em cache: o título e o campo de
  * cidade usam a cidade do visitante só como camada do cliente, por cima
  * (decisão 1 do prompt orquestrado). O que o Google lê é sempre o texto amplo.
