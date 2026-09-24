@@ -251,7 +251,9 @@ services:
       NODE_ENV: production
       PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3100}
       API_BASE_URL: ${API_BASE_URL}
-      API_BASE_URL_ALLOW_HTTP: ${API_BASE_URL_ALLOW_HTTP:-}
+      # Valor vazio quebraria a API: o Coolify repassa as variaveis do compose a
+      # todos os servicos e o schema so aceita "true"/"false" (2026-09-24).
+      API_BASE_URL_ALLOW_HTTP: ${API_BASE_URL_ALLOW_HTTP:-false}
     depends_on:
       api:
         condition: service_healthy
