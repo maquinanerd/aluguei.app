@@ -1648,3 +1648,37 @@ Decisão:
 Consequências: a Onda 2A ganha requisitos concretos (slug global, contagem do recorte, `page_stats`,
 vizinhos, fonte do sitemap, status de remoção legível no público, URL de foto), e a Onda 2B já nasce
 com a régua de quando uma página pode ser indexada.
+
+## ADR-100 — Domínio próprio achouimovel.online e endereço público como configuração de execução (2026-09-24)
+
+Status: Aceito.
+
+Contexto: até aqui a homologação vivia em endereços `sslip.io`, que derivam do IP do servidor. Isso
+serve para testar, mas não para SEO: o domínio é do provedor, muda se o IP mudar, e os servidores do
+Let's Encrypt limitam emissão para esse domínio compartilhado. O portal é o produto de busca — sem
+domínio próprio ele não tem como acumular autoridade.
+
+Decisão:
+
+- **Zona no Cloudflare, registro na Hostinger.** `achouimovel.online` continua registrado na
+  Hostinger; os nameservers apontam para o Cloudflare (`meera`/`rick.ns.cloudflare.com`), que passa a
+  ser o DNS autoritativo.
+- **Registros em Somente DNS, proxy desligado.** `@`, `api`, `app`, `s3` e `www` respondem direto no
+  servidor. O proxy do Cloudflare quebraria o desafio HTTP-01 do Let's Encrypt que o Traefik do
+  Coolify usa para emitir certificado. Ligar o proxy exige antes trocar o desafio ou subir certificado
+  de origem — decisão futura, não pré-requisito.
+- **Um subdomínio por superfície**: portal em `achouimovel.online` (e `www`), painel em
+  `app.`, API em `api.`, objetos em `s3.`. Superfície pública e painel em hosts separados mantêm
+  cookie e CORS do painel fora do domínio que o buscador rastreia.
+- **Os endereços `sslip.io` continuam no ar**, somados e não substituídos. São a porta de serviço
+  quando o DNS ou o certificado do domínio próprio falha — foi por não ter essa porta que a queda de
+  2026-09-24 ficou difícil de diagnosticar.
+- **Endereço público é configuração de execução, nunca de build.** `PORTAL_BASE_URL`, `APP_BASE_URL`
+  e `API_BASE_URL` são lidos pelo contêiner em execução. Rota que escreve URL absoluta (canônica,
+  `robots.txt`, sitemap, JSON-LD) renderiza por requisição; se for gerada no `next build`, o padrão de
+  desenvolvimento é assado e vai para produção — foi o que aconteceu na primeira implantação, com
+  `http://localhost:3100` na canônica do portal no ar. A CI sobe a imagem do portal com o endereço
+  definido e exige que ele apareça no `robots.txt`, porque a suíte de testes não pega esse defeito.
+
+Consequência: trocar de domínio é mudar variável e reimplantar, sem tocar em código. O custo é que
+essas quatro rotas não são mais estáticas; o peso real (a chamada à API) continua em cache por tag.
