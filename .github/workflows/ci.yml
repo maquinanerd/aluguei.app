@@ -168,7 +168,7 @@ jobs:
         run: docker build --progress=plain --target web -t aluguei-web:ci .
 
       - name: Build da imagem portal
-        run: docker build --progress=plain --target portal -t aluguei-portal:ci .
+        run: docker build --progress=plain --target portal --build-arg PORTAL_BASE_URL=https://build.teste -t aluguei-portal:ci .
 
       - name: Portal sobe e responde (pega quebra na carga do módulo)
         run: |
@@ -186,12 +186,13 @@ jobs:
           docker rm -f portal-ci
           exit 1
 
-      # O endereço público é de execução, não de build. Sem isto, rota gerada no
-      # `next build` sai com `http://localhost:3100` na canônica e no sitemap —
-      # foi o que a primeira implantação em achouimovel.online mostrou.
-      - name: Portal usa o endereço do ambiente, não o assado no build
+      # Duas metades da mesma regra, e a primeira implantação em achouimovel.online quebrou nas duas:
+      # a pagina publica e gerada no build e leva o ARG; robots.txt roda por
+      # requisicao e leva a variavel de ambiente. A imagem acima foi construida
+      # com https://build.teste; o conteiner sobe com outro endereco.
+      - name: Portal usa o endereço do build na página e o do ambiente na rota
         run: |
-          docker run -d --name portal-url-ci -p 3101:3100             -e PORTAL_BASE_URL=https://portal.teste aluguei-portal:ci
+          docker run -d --name portal-url-ci -p 3101:3100 -e PORTAL_BASE_URL=https://exec.teste aluguei-portal:ci
           for tentativa in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:3101/robots.txt > /dev/null; then
               break
@@ -199,9 +200,14 @@ jobs:
             sleep 2
           done
           robots=$(curl -fsS http://127.0.0.1:3101/robots.txt || true)
-          echo "$robots"
+          home=$(curl -fsS http://127.0.0.1:3101/ || true)
           docker rm -f portal-url-ci
+          echo "$robots"
           case "$robots" in
-            *"https://portal.teste/sitemap.xml"*) echo 'endereço veio do ambiente' ;;
-            *) echo 'FALHA: robots.txt não usou PORTAL_BASE_URL'; exit 1 ;;
+            *"https://exec.teste/sitemap.xml"*) echo "rota usou o ambiente" ;;
+            *) echo "FALHA: robots.txt não usou PORTAL_BASE_URL do ambiente"; exit 1 ;;
+          esac
+          case "$home" in
+            *"https://build.teste/"*) echo "página usou o endereço do build" ;;
+            *) echo "FALHA: a canônica da home não veio do ARG PORTAL_BASE_URL"; exit 1 ;;
           esac

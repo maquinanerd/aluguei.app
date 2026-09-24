@@ -53,6 +53,12 @@ CMD ["node_modules/.bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000
 # Portal publico (AchouImovel). Mesma receita da gestao, outro app e outra porta.
 FROM fetch AS portal
 COPY . .
+# As paginas publicas sao geradas no build e escrevem URL absoluta (canonica,
+# JSON-LD). O endereco precisa existir aqui, senao o padrao de desenvolvimento e
+# assado e vai para producao. Em execucao a variavel continua valendo, para as
+# rotas que rendem por requisicao (robots.txt e sitemap.xml).
+ARG PORTAL_BASE_URL=http://localhost:3100
+ENV PORTAL_BASE_URL=$PORTAL_BASE_URL
 RUN pnpm install --offline --frozen-lockfile --filter aluguei-app --filter "@aluguei/portal..." \
  && pnpm turbo run build --filter=@aluguei/portal \
  && chown -R node:node apps/portal/.next

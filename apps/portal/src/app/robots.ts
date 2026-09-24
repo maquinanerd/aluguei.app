@@ -2,13 +2,11 @@ import type { MetadataRoute } from 'next';
 import { baseUrl } from '@/lib/seo';
 
 /**
- * Renderizada a cada requisição, de propósito: esta rota escreve **URL
- * absoluta** (canônica, sitemap, JSON-LD), e o endereço do portal vem do
- * ambiente do contêiner. Se a rota for gerada no `next build`, o endereço é
- * assado com o padrão de desenvolvimento e vai para produção como
- * `http://localhost:3100` — foi o que aconteceu na primeira implantação em
- * `achouimovel.online`. O custo é baixo: a chamada à API continua em cache por
- * tag (`src/lib/api.ts`).
+ * Rota (não página) que roda a cada requisição, de propósito. Dois motivos:
+ * o conteúdo depende do que a API tem agora, e o endereço público do portal vem
+ * do ambiente do contêiner. O critério "nenhum force-dynamic" do prompt vale para
+ * as páginas públicas, que continuam geradas no build — o endereço delas chega
+ * pelo `ARG PORTAL_BASE_URL` do Dockerfile.
  */
 export const dynamic = 'force-dynamic';
 

@@ -6,17 +6,6 @@ import { buscarSitemap } from '@/lib/api';
 import { cidadeLegivel, lugarLegivel } from '@/lib/rotas';
 import { metadataDaPagina } from '@/lib/seo';
 
-/**
- * Renderizada a cada requisição, de propósito: esta rota escreve **URL
- * absoluta** (canônica, sitemap, JSON-LD), e o endereço do portal vem do
- * ambiente do contêiner. Se a rota for gerada no `next build`, o endereço é
- * assado com o padrão de desenvolvimento e vai para produção como
- * `http://localhost:3100` — foi o que aconteceu na primeira implantação em
- * `achouimovel.online`. O custo é baixo: a chamada à API continua em cache por
- * tag (`src/lib/api.ts`).
- */
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = metadataDaPagina({
   titulo: 'Mapa do site',
   descricao:
