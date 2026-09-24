@@ -5,7 +5,7 @@ import { apiFetch, assertSecureApiBase } from '@/lib/api-server';
 import { ACCOUNT_STATUS_COPY, destinationFor } from '@/lib/account-status';
 import type { OrganizationStatus } from '@/lib/account-status';
 import { LogoutButton } from '@/components/logout-button';
-import { BRAND } from '@/lib/brand';
+import { AuthShell } from '@/components/auth-shell';
 
 export const metadata: Metadata = { title: 'Situação da conta' };
 export const dynamic = 'force-dynamic';
@@ -37,48 +37,37 @@ export default async function AccountStatusPage() {
   const copy = ACCOUNT_STATUS_COPY[org.status];
 
   return (
-    <main className="auth-page">
-      <section className="auth-card" aria-labelledby="account-status-title">
-        <div className="auth-card__brand">
-          <span className="app-sidebar__logo">A</span>
-          <strong>{BRAND.name}</strong>
-        </div>
-        <div className="peg-stack" style={{ gap: 12 }}>
-          <span className={`peg-badge peg-badge--${copy.tone}`} style={{ alignSelf: 'flex-start' }}>
-            {org.name}
-          </span>
-          <h1 id="account-status-title" style={{ fontSize: 20 }}>
-            {copy.title}
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--peg-text-secondary)' }}>{copy.body}</p>
-          {org.statusReason ? (
-            <div
-              role="note"
-              style={{
-                padding: '8px 12px',
-                background: 'var(--peg-surface-subtle, var(--peg-danger-bg))',
-                borderRadius: 'var(--peg-radius-sm)',
-                fontSize: 13,
-              }}
-            >
-              <strong>Motivo:</strong> {org.statusReason}
-            </div>
-          ) : null}
-          <p style={{ fontSize: 13, color: 'var(--peg-text-tertiary)' }}>
-            Conta: {me.user.name} · {me.user.email}
-          </p>
-          <div className="peg-group" style={{ gap: 12, justifyContent: 'space-between' }}>
-            {me.platformAdmin ? (
-              <Link href="/plataforma" style={{ fontWeight: 500, fontSize: 13 }}>
-                Abrir o admin da plataforma
-              </Link>
-            ) : (
-              <span />
-            )}
-            <LogoutButton variant="secondary" />
+    <AuthShell acaoTopo={<LogoutButton variant="tertiary" />}>
+      <div className="peg-stack" style={{ gap: 12 }}>
+        <span className={`peg-badge peg-badge--${copy.tone}`} style={{ alignSelf: 'flex-start' }}>
+          {org.name}
+        </span>
+        <h1 id="account-status-title" style={{ fontSize: 20 }}>
+          {copy.title}
+        </h1>
+        <p style={{ fontSize: 14, color: 'var(--peg-text-secondary)' }}>{copy.body}</p>
+        {org.statusReason ? (
+          <div
+            role="note"
+            style={{
+              padding: '8px 12px',
+              background: 'var(--peg-surface-subtle, var(--peg-danger-bg))',
+              borderRadius: 'var(--peg-radius-sm)',
+              fontSize: 13,
+            }}
+          >
+            <strong>Motivo:</strong> {org.statusReason}
           </div>
-        </div>
-      </section>
-    </main>
+        ) : null}
+        <p style={{ fontSize: 13, color: 'var(--peg-text-tertiary)' }}>
+          Conta: {me.user.name} · {me.user.email}
+        </p>
+        {me.platformAdmin ? (
+          <Link href="/plataforma" style={{ fontWeight: 500, fontSize: 13 }}>
+            Abrir o admin da plataforma
+          </Link>
+        ) : null}
+      </div>
+    </AuthShell>
   );
 }

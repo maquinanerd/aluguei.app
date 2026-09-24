@@ -246,10 +246,16 @@ services:
       context: .
       dockerfile: Dockerfile
       target: portal
+      args:
+        # Mesmo valor do ambiente: as paginas geradas no build precisam deles.
+        PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3100}
+        APP_BASE_URL: ${APP_BASE_URL}
+        API_BASE_URL: ${API_BASE_URL}
     environment:
       SERVICE_URL_PORTAL_3100: ''
       NODE_ENV: production
       PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3100}
+      APP_BASE_URL: ${APP_BASE_URL}
       API_BASE_URL: ${API_BASE_URL}
       # Valor vazio quebraria a API: o Coolify repassa as variaveis do compose a
       # todos os servicos e o schema so aceita "true"/"false" (2026-09-24).

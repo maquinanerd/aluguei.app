@@ -2,6 +2,7 @@ import type {
   PublicSearchResponse,
   PublicListingDetail,
   PublicListingCard,
+  PublicPlansResponse,
 } from '@aluguei/contracts';
 
 /**
@@ -197,6 +198,15 @@ export interface Sitemap {
 
 export async function buscarSitemap(): Promise<Sitemap> {
   return buscarJson<Sitemap>('/public/sitemap', ['portal:sitemap']);
+}
+
+/**
+ * Planos da vitrine (Onda 3). As páginas B2B são geradas no build, então esta
+ * chamada acontece lá — e falha lá, quando a API não está de pé no construtor.
+ * Quem chama trata a lista vazia como estado da tela, nunca como zero planos.
+ */
+export async function buscarPlanos(): Promise<PublicPlansResponse> {
+  return buscarJson<PublicPlansResponse>('/public/plans', ['portal:planos']);
 }
 
 export interface ContatoDoAnuncio {

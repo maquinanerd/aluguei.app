@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Logotipo } from './Logotipo';
 import type { CorLogotipo } from './Logotipo';
 import { Gaveta } from './Gaveta';
+import { urlEntrar } from '@/lib/plataforma';
 
 export interface SiteHeaderProps {
   /** `consumidor` é o padrão; `b2b` troca os links por Entrar e Começar. */
@@ -20,6 +21,8 @@ const LINKS_CONSUMIDOR = [
 
 const LINKS_B2B = [
   { href: '/para-imobiliarias', rotulo: 'Para imobiliárias' },
+  { href: '/anunciar', rotulo: 'Anunciar' },
+  { href: '/gestao', rotulo: 'Gestão' },
   { href: '/planos', rotulo: 'Planos' },
 ];
 
@@ -30,10 +33,12 @@ const LINKS_B2B = [
 export function SiteHeader({ variante = 'consumidor', cor = 'acento' }: SiteHeaderProps) {
   const [menuAberto, setMenuAberto] = useState(false);
   const links = variante === 'b2b' ? LINKS_B2B : LINKS_CONSUMIDOR;
+  // No B2B a ação leva ao painel, que é outro host (ADR-100); no consumidor,
+  // leva à página de anunciar do próprio portal.
   const acao =
     variante === 'b2b'
-      ? { href: '/login', rotulo: 'Entrar' }
-      : { href: '/para-imobiliarias/anunciar', rotulo: 'Anunciar imóvel' };
+      ? { href: urlEntrar(), rotulo: 'Entrar' }
+      : { href: '/anunciar', rotulo: 'Anunciar imóvel' };
 
   return (
     <>

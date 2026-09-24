@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { PLATFORM_ADMIN, submitRegistration, uniq } from './g2-b1-support';
+import {
+  PLATFORM_ADMIN,
+  preencherCadastroEmEtapas,
+  submitRegistration,
+  uniq,
+} from './g2-b1-support';
 
 /**
  * Admin da plataforma (decisão do usuário, 2026-09-15), pelo navegador: o cadastro
@@ -16,13 +21,15 @@ test.describe('Admin da plataforma', () => {
 
     // 1. Cadastro aberto pela tela: fica em análise e o painel continua fechado.
     await page.goto('/register');
-    await page.getByLabel('Nome', { exact: true }).fill('Dona da Imobiliária');
-    await page.getByLabel('E-mail').fill(`dona-${id}@teste.com`);
-    await page.getByLabel('Senha').fill('e2e-password-123');
-    await page.getByLabel('Nome da imobiliária').fill(orgName);
-    await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
-    await page.getByLabel('CNPJ ou CPF').fill('11.222.333/0001-81');
-    await page.getByLabel('CRECI').fill('J-12345');
+    await preencherCadastroEmEtapas(page, {
+      nome: 'Dona da Imobiliária',
+      email: `dona-${id}@teste.com`,
+      senha: 'e2e-password-123',
+      imobiliaria: orgName,
+      documento: '11.222.333/0001-81',
+      creci: 'J-12345',
+      telefone: '(11) 98765-4321',
+    });
     await submitRegistration(page);
     await expect(page).toHaveURL(/\/situacao-da-conta/, { timeout: 20_000 });
     await expect(page.getByRole('heading', { name: 'Cadastro em análise' })).toBeVisible();

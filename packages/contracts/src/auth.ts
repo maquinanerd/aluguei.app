@@ -58,6 +58,19 @@ export const registerRequestSchema = z.object({
       .optional(),
   ),
   creci: z.preprocess(blankToUndefined, z.string().trim().max(30).optional()),
+  /**
+   * Plano pedido no cadastro (Onda 3). É intenção, não contratação: quem define
+   * o plano vigente é o admin na aprovação (ADR-060). O formato é o mesmo do
+   * código de plano, porque o valor chega pela URL pública (`/register?plano=`).
+   */
+  requestedPlanCode: z.preprocess(
+    blankToUndefined,
+    z
+      .string()
+      .trim()
+      .regex(/^[A-Z0-9_]{2,40}$/, 'Código de plano inválido')
+      .optional(),
+  ),
 });
 
 export const registerResponseSchema = z.object({

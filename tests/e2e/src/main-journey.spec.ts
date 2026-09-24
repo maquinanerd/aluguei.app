@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { approveOrganization, submitRegistration } from './g2-b1-support';
+import {
+  approveOrganization,
+  preencherCadastroEmEtapas,
+  submitRegistration,
+} from './g2-b1-support';
 
 /**
  * Jornada principal E2E (browser + API, providers FAKE):
@@ -73,11 +77,13 @@ test.describe('Jornada principal (browser + API, fakes)', () => {
 
   test('1. registro e criação de imóvel pela UI', async ({ page }) => {
     await page.goto('/register');
-    await page.getByLabel('Nome', { exact: true }).fill('Corretor E2E');
-    await page.getByLabel('E-mail').fill(email);
-    await page.getByLabel('Senha').fill(password);
-    await page.getByLabel('Nome da imobiliária').fill(orgName);
-    await page.getByLabel('Telefone com DDD').fill('(11) 98765-4321');
+    await preencherCadastroEmEtapas(page, {
+      nome: 'Corretor E2E',
+      email,
+      senha: password,
+      imobiliaria: orgName,
+      telefone: '(11) 98765-4321',
+    });
     await submitRegistration(page);
 
     // Cadastro aberto nasce em análise (admin da plataforma): aprova pela API e segue.

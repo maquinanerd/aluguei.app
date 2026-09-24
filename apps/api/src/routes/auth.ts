@@ -123,6 +123,9 @@ export const authRoutes: FastifyPluginAsync = (app) => {
                 document: input.document ?? null,
                 phone: input.phone ?? null,
                 creci: input.creci ?? null,
+                // Intenção declarada no cadastro; o plano vigente continua sendo
+                // decidido na aprovação (ADR-060).
+                requestedPlanCode: input.requestedPlanCode ?? null,
               })
               .returning(),
           );

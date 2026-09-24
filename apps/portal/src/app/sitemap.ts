@@ -3,13 +3,11 @@ import { buscarSitemap } from '@/lib/api';
 import { urlAbsoluta } from '@/lib/seo';
 
 /**
- * Renderizada a cada requisição, de propósito: esta rota escreve **URL
- * absoluta** (canônica, sitemap, JSON-LD), e o endereço do portal vem do
- * ambiente do contêiner. Se a rota for gerada no `next build`, o endereço é
- * assado com o padrão de desenvolvimento e vai para produção como
- * `http://localhost:3100` — foi o que aconteceu na primeira implantação em
- * `achouimovel.online`. O custo é baixo: a chamada à API continua em cache por
- * tag (`src/lib/api.ts`).
+ * Rota (não página) que roda a cada requisição, de propósito. Dois motivos:
+ * o conteúdo depende do que a API tem agora, e o endereço público do portal vem
+ * do ambiente do contêiner. O critério "nenhum force-dynamic" do prompt vale para
+ * as páginas públicas, que continuam geradas no build — o endereço delas chega
+ * pelo `ARG PORTAL_BASE_URL` do Dockerfile.
  */
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +21,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const institucional: MetadataRoute.Sitemap = [
     { url: urlAbsoluta('/'), changeFrequency: 'daily', priority: 1 },
+    // B2B (Onda 3): páginas fixas, que existem sempre e não dependem de estoque.
+    { url: urlAbsoluta('/para-imobiliarias'), changeFrequency: 'monthly', priority: 0.7 },
+    { url: urlAbsoluta('/anunciar'), changeFrequency: 'monthly', priority: 0.6 },
+    { url: urlAbsoluta('/gestao'), changeFrequency: 'monthly', priority: 0.6 },
+    { url: urlAbsoluta('/planos'), changeFrequency: 'monthly', priority: 0.6 },
     { url: urlAbsoluta('/mapa-do-site'), changeFrequency: 'weekly', priority: 0.3 },
   ];
 

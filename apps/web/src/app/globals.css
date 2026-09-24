@@ -1154,3 +1154,120 @@ body {
     font-weight: 600;
   }
 }
+
+/* ============ Entrada e conta (Onda 3) ============ */
+
+.auth-card__brand {
+  justify-content: space-between;
+}
+
+.auth-card__acao {
+  margin-left: auto;
+}
+
+.campo-senha__alternar {
+  min-height: 32px;
+  padding: 0 var(--peg-space-2);
+  border: 0;
+  background: transparent;
+  color: var(--peg-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.campo-senha__alternar:hover {
+  color: var(--peg-text-primary);
+}
+
+.cadastro__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--peg-space-3);
+}
+
+.cadastro__voltar {
+  min-height: 32px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--peg-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cadastro__contador {
+  font-size: 13px;
+  color: var(--peg-text-tertiary);
+}
+
+.cadastro__plano {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--peg-text-secondary);
+}
+
+.cadastro__erro {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--peg-danger-bg);
+  border-radius: var(--peg-radius-sm);
+  color: var(--peg-danger);
+  font-size: 13px;
+}
+
+.cadastro__planos {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--peg-space-2);
+}
+
+.cadastro__planos legend {
+  padding: 0;
+  margin-bottom: var(--peg-space-2);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cadastro__plano-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--peg-space-3);
+  padding: var(--peg-space-3);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-sm);
+  cursor: pointer;
+}
+
+.cadastro__plano-opcao:has(input:checked) {
+  border-color: var(--peg-primary, var(--peg-text-primary));
+}
+
+.cadastro__plano-opcao span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cadastro__plano-opcao em {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--peg-text-secondary);
+}
+
+.cadastro__plano-opcao small {
+  font-size: 12px;
+  color: var(--peg-text-tertiary);
+}
+
+.cadastro__ajuda {
+  margin: 0;
+  font-size: 13px;
+  color: var(--peg-text-tertiary);
+}
