@@ -284,10 +284,26 @@ A ordem das ondas passa a ser: 1A → 1B → 2A → 2B → 3A → 3B → 4A → 
 
   Migrations 0025, 0026 e 0027, todas com pré-voo ou backfill. ADR-099.
 
-- **Próxima — Onda 2B.** Telas do portal sobre esta API, com robots, canônica, JSON-LD, sitemap e
-  cache por tag conforme `docs/frontend/PORTAL_SEO.md`, e lançamento por cidade em lotes.
+- **Onda 2B — feita.** Telas públicas do portal sobre a API da 2A:
+  - **Home** com busca (abas Alugar/Comprar, cidade e tipo), mosaico de tipos, publicados
+    recentemente, cidades com mais imóveis e buscas populares — tudo a partir de contagem real.
+  - **Busca** em `/alugar/[...]` e `/comprar/[...]`, com a leitura determinística do caminho
+    (tipo tem vocabulário fechado; o que não casa é bairro), chips de filtro, estatística,
+    bairros vizinhos, links modificadores (só os que indexam), FAQ calculado, paginação e alerta.
+  - **Anúncio** em `/imovel/[slug]`: galeria com legenda, atributos, características, bairro sem
+    endereço, comparação com a mediana, quem anuncia com CRECI, bloco de valor (aluguel, venda ou
+    os dois) e formulário de contato com consentimento.
+  - **Vitrine** da imobiliária, **alerta** (confirmar e cancelar), **mapa do site** e **404**.
+  - **SEO**: `robots` e canônica vindos do servidor, título estável sem contagem, `robots.txt`,
+    `sitemap.xml` a partir da fonte da API, JSON-LD (Organization, WebSite, BreadcrumbList,
+    ItemList e RealEstateListing sem endereço exato) e cache por tag de cidade, bairro e anúncio.
+  - **Ciclo de vida da URL** no `proxy.ts`: **301** quando o slug muda e **410** quando o anúncio
+    sai do ar — o App Router só sabe responder 404 de dentro da página.
+  - **Deploy**: alvo `portal` no Dockerfile e serviço no `docker-compose.prod.yml`. O domínio do
+    portal no Coolify é pendência do dono (`docker_compose_domains`).
 
 ### O que ainda não existe de propósito
 
-O portal não tem `/` nem telas públicas: elas são a Onda 2B. O backend que as sustenta já está de
-pé; o app ainda serve só o catálogo de componentes e por isso não entra no compose da homologação.
+O portal ainda não tem as páginas B2B (`/para-imobiliarias`, `/anunciar`, `/gestao`, `/planos`) nem
+as telas de conta com o visual do portal: são a Onda 3. A conversão de fontes para `woff2`, as
+variantes de imagem em WebP e a detecção de cidade por IP seguem como pendências registradas.
