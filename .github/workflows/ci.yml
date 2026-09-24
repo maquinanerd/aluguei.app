@@ -185,3 +185,23 @@ jobs:
           docker logs portal-ci
           docker rm -f portal-ci
           exit 1
+
+      # O endereço público é de execução, não de build. Sem isto, rota gerada no
+      # `next build` sai com `http://localhost:3100` na canônica e no sitemap —
+      # foi o que a primeira implantação em achouimovel.online mostrou.
+      - name: Portal usa o endereço do ambiente, não o assado no build
+        run: |
+          docker run -d --name portal-url-ci -p 3101:3100             -e PORTAL_BASE_URL=https://portal.teste aluguei-portal:ci
+          for tentativa in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3101/robots.txt > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          robots=$(curl -fsS http://127.0.0.1:3101/robots.txt || true)
+          echo "$robots"
+          docker rm -f portal-url-ci
+          case "$robots" in
+            *"https://portal.teste/sitemap.xml"*) echo 'endereço veio do ambiente' ;;
+            *) echo 'FALHA: robots.txt não usou PORTAL_BASE_URL'; exit 1 ;;
+          esac
