@@ -1,5 +1,5 @@
 import { DomainError } from '../errors.js';
-import { assertAmountWithinCeiling, mulBpsFloor, splitAmount } from '../finance/money.js';
+import { assertSaleAmountWithinCeiling, mulBpsFloor, splitAmount } from '../finance/money.js';
 
 /**
  * Negociação de venda (Onda 5): da proposta ao fechamento.
@@ -41,10 +41,7 @@ export function isSaleNegotiationStage(value: string): value is SaleNegotiationS
   return (SALE_NEGOTIATION_STAGES as readonly string[]).includes(value);
 }
 
-export function canMoveNegotiation(
-  from: SaleNegotiationStage,
-  to: SaleNegotiationStage,
-): boolean {
+export function canMoveNegotiation(from: SaleNegotiationStage, to: SaleNegotiationStage): boolean {
   return TRANSICOES[from].includes(to);
 }
 
@@ -95,7 +92,8 @@ export function assertCommissionBps(bps: number): void {
  * sistema: quem recebe nunca sai com um centavo que não existe.
  */
 export function commissionCents(amountCents: number, bps: number): number {
-  assertAmountWithinCeiling(amountCents, 'valor da negociação');
+  // Escala de venda, não de aluguel: R$ 1,4 milhão é valor comum aqui.
+  assertSaleAmountWithinCeiling(amountCents, 'valor da negociação');
   assertCommissionBps(bps);
   return mulBpsFloor(amountCents, bps);
 }
@@ -112,10 +110,7 @@ export function assertSharesTotal100(shares: readonly CommissionShare[]): void {
   }
   const total = shares.reduce((acc, share) => acc + share.percentBps, 0);
   if (total !== 10_000) {
-    throw new DomainError(
-      'INVALID_INPUT',
-      'As participações da comissão têm de somar 100%',
-    );
+    throw new DomainError('INVALID_INPUT', 'As participações da comissão têm de somar 100%');
   }
 }
 

@@ -23,16 +23,16 @@ describe('período', () => {
   });
 
   it('recusa fim antes do início e fim igual ao início', () => {
-    expect(() =>
-      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-01' }),
-    ).toThrow(/depois do início/);
-    expect(() =>
-      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-22' }),
-    ).toThrow();
+    expect(() => {
+      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-01' });
+    }).toThrow(/depois do início/);
+    expect(() => {
+      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-22' });
+    }).toThrow();
     // Um dia é curto, mas é legítimo.
-    expect(() =>
-      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-23' }),
-    ).not.toThrow();
+    expect(() => {
+      assertValidExclusivityPeriod({ startsOn: '2026-09-22', endsOn: '2026-09-23' });
+    }).not.toThrow();
   });
 });
 

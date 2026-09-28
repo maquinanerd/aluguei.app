@@ -146,6 +146,9 @@ export const AUDIT_ACTIONS = {
   PLATFORM_ADMIN_BOOTSTRAPPED: 'platform.admin.bootstrapped',
   SALE_EXCLUSIVITY_CREATED: 'property.sale_exclusivity.created',
   SALE_EXCLUSIVITY_CANCELED: 'property.sale_exclusivity.canceled',
+  SALE_NEGOTIATION_CREATED: 'sale.negotiation.created',
+  SALE_NEGOTIATION_MOVED: 'sale.negotiation.moved',
+  SALE_NEGOTIATION_CLOSED: 'sale.negotiation.closed',
   PLATFORM_ADMIN_PASSWORD_RESET: 'platform.admin.password_reset',
 } as const;
 

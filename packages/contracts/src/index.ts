@@ -18,6 +18,7 @@ export * from './public-portal.js';
 export * from './public-plans.js';
 export * from './capabilities.js';
 export * from './sale-exclusivity.js';
+export * from './sale-negotiation.js';
 export * from './channels.js';
 export * from './conversations.js';
 export * from './inspections.js';
