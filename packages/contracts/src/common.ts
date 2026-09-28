@@ -10,6 +10,13 @@ export const uuidSchema = z.uuid();
 export const MAX_AMOUNT_CENTS = 100_000_000;
 
 /**
+ * Teto dos valores de **venda** (Onda 5), o mesmo `MAX_SALE_AMOUNT_CENTS` do
+ * domínio. O teto de aluguel foi calibrado para outra escala: preço de imóvel
+ * de R$ 1,4 milhão é comum, e recusá-lo tornaria a frente de venda inutilizável.
+ */
+export const MAX_SALE_AMOUNT_CENTS = 2_000_000_000;
+
+/**
  * Módulos que um plano pode incluir; a lista canônica é `PLAN_MODULES`
  * (`packages/domain`) e o CHECK `plans_modules_valid` no banco.
  */
@@ -25,6 +32,7 @@ export const planModuleSchema = z.enum([
 export const INT4_MAX = 2_147_483_647;
 
 const ceilingMessage = 'O valor máximo é R$ 1.000.000,00';
+const saleCeilingMessage = 'O valor máximo de venda é R$ 20.000.000,00';
 
 /** Centavos informados (zero aceito), até o teto. */
 export const amountCentsSchema = z
@@ -38,6 +46,13 @@ export const positiveAmountCentsSchema = z
   .int()
   .positive()
   .max(MAX_AMOUNT_CENTS, ceilingMessage);
+
+/** Centavos de um valor de **venda** (preço do imóvel, proposta, fechamento). */
+export const saleAmountCentsSchema = z
+  .number()
+  .int()
+  .positive()
+  .max(MAX_SALE_AMOUNT_CENTS, saleCeilingMessage);
 
 export const roleSchema = z.enum(['owner', 'admin', 'agent', 'inspector', 'finance', 'viewer']);
 

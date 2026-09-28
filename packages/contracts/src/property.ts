@@ -4,6 +4,7 @@ import {
   idListQuerySchema,
   paginationQuerySchema,
   positiveAmountCentsSchema,
+  saleAmountCentsSchema,
   searchTextQuerySchema,
   uuidSchema,
 } from './common.js';
@@ -183,7 +184,9 @@ export const upsertFinancialTermsRequestSchema = z.object({
   /** Obrigatório para alugar; ausente no imóvel só à venda (o domínio confere). */
   monthlyRentCents: positiveAmountCentsSchema.optional(),
   /** Obrigatório à venda; ausente no imóvel só para alugar. */
-  salePriceCents: positiveAmountCentsSchema.optional(),
+  // Venda tem escala própria (ADR-094 revisado na Onda 5): R$ 1,4 milhão é
+  // preço comum de apartamento, e o teto de aluguel recusaria.
+  salePriceCents: saleAmountCentsSchema.optional(),
   condoFeeCents: amountCentsSchema.optional(),
   iptuCents: amountCentsSchema.optional(),
   securityDepositCents: amountCentsSchema.optional(),

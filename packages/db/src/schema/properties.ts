@@ -2,8 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   date,
   doublePrecision,
+  foreignKey,
   index,
   integer,
   pgTable,
@@ -233,5 +235,46 @@ export const listings = pgTable(
       'PAUSED',
       'ARCHIVED',
     ]),
+  ],
+);
+
+/**
+ * Exclusividade de venda (Onda 5): o período em que a imobiliária tem
+ * autorização do proprietário para vender o imóvel.
+ *
+ * É registro de acordo comercial, não estado do anúncio — acabar a
+ * exclusividade não tira nada do ar. A sobreposição de períodos do mesmo imóvel
+ * é recusada na escrita (duas autorizações válidas ao mesmo tempo é
+ * contradição, não renovação); aqui ficam as garantias que o banco consegue dar
+ * sozinho.
+ */
+export const propertySaleExclusivities = pgTable(
+  'property_sale_exclusivities',
+  {
+    id: uuid('id').primaryKey().$defaultFn(randomUUID),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    propertyId: uuid('property_id').notNull(),
+    /** Dia, não instante: exclusividade vale por data, em qualquer fuso. */
+    startsOn: date('starts_on').notNull(),
+    endsOn: date('ends_on').notNull(),
+    /** Autorização assinada do proprietário, entre as mídias do imóvel. */
+    documentMediaId: uuid('document_media_id'),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    canceledReason: text('canceled_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('property_sale_exclusivities_property_idx').on(t.propertyId, t.endsOn),
+    // Exclusividade de uma imobiliária não aponta para imóvel de outra, mesmo
+    // que uma rota futura esqueça a checagem (mesma regra do P0-05).
+    foreignKey({
+      name: 'property_sale_exclusivities_property_org_fk',
+      columns: [t.orgId, t.propertyId],
+      foreignColumns: [properties.orgId, properties.id],
+    }).onDelete('cascade'),
+    check('property_sale_exclusivities_period_valid', sql`${t.endsOn} > ${t.startsOn}`),
   ],
 );

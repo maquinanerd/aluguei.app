@@ -55,6 +55,12 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'leads.status': { values: d.FUNNEL_STATUSES },
   // Onda 4: o CRM passa a ter dois funis, aluguel e venda.
   'leads.purpose': { values: c.leadPurposeSchema.options },
+  // Onda 5: negociação de venda.
+  'sale_negotiations.stage': { values: d.SALE_NEGOTIATION_STAGES },
+  'sale_negotiation_events.kind': { values: d.SALE_EVENT_KINDS },
+  'sale_negotiation_events.outcome': { values: d.SALE_EVENT_OUTCOMES },
+  'sale_negotiation_documents.side': { values: d.SALE_DOCUMENT_SIDES },
+  'sale_commission_shares.role': { values: d.SALE_COMMISSION_ROLES },
   'tasks.status': { values: c.taskStatusSchema.options },
   'properties.status': { values: c.propertyStatusSchema.options },
   'properties.property_type': { values: c.propertyTypeSchema.options },

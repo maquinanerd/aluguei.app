@@ -9,12 +9,34 @@ import { DomainError } from '../errors.js';
  */
 export const MAX_AMOUNT_CENTS = 100_000_000;
 
+/**
+ * Teto dos valores de **venda** (ADR-094 revisado na Onda 5): R$ 20.000.000,00.
+ *
+ * O teto de R$ 1.000.000,00 foi calibrado para aluguel, encargo e cobrança,
+ * onde um valor maior é quase sempre dígito a mais. Preço de imóvel é outra
+ * escala: um apartamento de R$ 1,4 milhão é comum, e recusá-lo tornaria a
+ * frente de venda inutilizável. Continua havendo teto — acima dele é erro de
+ * digitação, e a coluna `integer` do banco estoura em R$ 21.474.836,47, o que
+ * viraria 500 em vez de 400.
+ */
+export const MAX_SALE_AMOUNT_CENTS = 2_000_000_000;
+
 /** Valor dentro do teto, ou erro de entrada (400) com o campo e o teto. */
 export function assertAmountWithinCeiling(cents: number, field: string): void {
   if (!Number.isSafeInteger(cents) || cents > MAX_AMOUNT_CENTS) {
     throw new DomainError('INVALID_INPUT', 'Valor acima do máximo de R$ 1.000.000,00', {
       field,
       maxCents: MAX_AMOUNT_CENTS,
+    });
+  }
+}
+
+/** Mesma regra, na escala de venda. */
+export function assertSaleAmountWithinCeiling(cents: number, field: string): void {
+  if (!Number.isSafeInteger(cents) || cents > MAX_SALE_AMOUNT_CENTS) {
+    throw new DomainError('INVALID_INPUT', 'Valor acima do máximo de R$ 20.000.000,00', {
+      field,
+      maxCents: MAX_SALE_AMOUNT_CENTS,
     });
   }
 }

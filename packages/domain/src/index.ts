@@ -86,6 +86,8 @@ export {
 } from './property/listing.js';
 export type { ListingStatus } from './property/listing.js';
 export * from './property/purpose.js';
+export * from './property/sale-exclusivity.js';
+export * from './sale/negotiation.js';
 
 export {
   CHANNEL_TYPES,
