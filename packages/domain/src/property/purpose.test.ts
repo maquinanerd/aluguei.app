@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../errors.js';
+import { MAX_SALE_AMOUNT_CENTS } from '../finance/money.js';
 import {
   PROPERTY_PURPOSES,
   assertTermsMatchPurpose,
@@ -56,13 +57,32 @@ describe('finalidade do imóvel', () => {
     }).toThrow(/não tem valor de aluguel/);
   });
 
-  it('teto de centavos vale para o preço de venda', () => {
+  /**
+   * Aluguel e venda têm tetos diferentes de propósito (ADR-094 revisado na
+   * Onda 5): R$ 1,4 milhão é aluguel absurdo e preço de apartamento comum.
+   */
+  it('o preço de venda usa o teto de venda, não o de aluguel', () => {
     expect(() => {
-      assertTermsMatchPurpose('SALE', { monthlyRentCents: null, salePriceCents: 100_000_001 });
-    }).toThrow(/teto/);
-    expect(() => {
-      assertTermsMatchPurpose('SALE', { monthlyRentCents: null, salePriceCents: 100_000_000 });
+      assertTermsMatchPurpose('SALE', { monthlyRentCents: null, salePriceCents: 139_000_000 });
     }).not.toThrow();
+    expect(() => {
+      assertTermsMatchPurpose('SALE', {
+        monthlyRentCents: null,
+        salePriceCents: MAX_SALE_AMOUNT_CENTS,
+      });
+    }).not.toThrow();
+    expect(() => {
+      assertTermsMatchPurpose('SALE', {
+        monthlyRentCents: null,
+        salePriceCents: MAX_SALE_AMOUNT_CENTS + 1,
+      });
+    }).toThrow(/teto/);
+  });
+
+  it('o aluguel continua no teto de aluguel', () => {
+    expect(() => {
+      assertTermsMatchPurpose('RENT', { monthlyRentCents: 100_000_001, salePriceCents: null });
+    }).toThrow(/teto/);
   });
 
   it('preço por m² só existe com área', () => {

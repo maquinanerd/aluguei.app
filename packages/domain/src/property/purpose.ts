@@ -1,5 +1,5 @@
 import { DomainError } from '../errors.js';
-import { MAX_AMOUNT_CENTS } from '../finance/money.js';
+import { MAX_AMOUNT_CENTS, MAX_SALE_AMOUNT_CENTS } from '../finance/money.js';
 
 /**
  * Finalidade do imóvel (entrega de design do AchouImóvel): o mesmo imóvel pode
@@ -60,14 +60,16 @@ export function assertTermsMatchPurpose(purpose: PropertyPurpose, terms: Propert
       purpose,
     });
   }
-  for (const [campo, valor] of [
-    ['monthlyRentCents', terms.monthlyRentCents],
-    ['salePriceCents', terms.salePriceCents],
+  // Aluguel e venda têm tetos diferentes de propósito (ADR-094 revisado na
+  // Onda 5): R$ 1,4 milhão é aluguel absurdo e preço de apartamento comum.
+  for (const [campo, valor, teto] of [
+    ['monthlyRentCents', terms.monthlyRentCents, MAX_AMOUNT_CENTS],
+    ['salePriceCents', terms.salePriceCents, MAX_SALE_AMOUNT_CENTS],
   ] as const) {
-    if (valor !== null && (valor < 0 || valor > MAX_AMOUNT_CENTS)) {
+    if (valor !== null && (valor < 0 || valor > teto)) {
       throw new DomainError('INVALID_INPUT', 'Valor fora do teto aceito pelo sistema', {
         field: campo,
-        max: MAX_AMOUNT_CENTS,
+        max: teto,
       });
     }
   }
