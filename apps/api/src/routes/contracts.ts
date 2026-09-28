@@ -12,6 +12,7 @@ import {
   propertyOwners,
   properties,
   rentalApplications,
+  saleNegotiations,
   signatureEnvelopes,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
@@ -20,6 +21,7 @@ import {
   DomainError,
   assertContractContentWritable,
   buildContractVariables,
+  buildSaleContractVariables,
   isContractStatus,
   renderTemplate,
   sha256Hex,
@@ -56,7 +58,9 @@ function toContractDto(row: ContractRow): unknown {
     id: row.id,
     orgId: row.orgId,
     templateId: row.templateId,
+    kind: row.kind,
     applicationId: row.applicationId,
+    negotiationId: row.negotiationId,
     status: row.status,
     content: row.content,
     contentHash: row.contentHash,
@@ -206,6 +210,167 @@ async function buildTemplateVariables(
   });
 }
 
+/**
+ * Variáveis do contrato de compra e venda. Fonte é a negociação: as partes são
+ * o comprador dela e o proprietário do imóvel, e o valor é o que fechou — ou o
+ * que está em jogo, enquanto não fechou.
+ */
+async function buildSaleTemplateVariables(
+  db: AppDb,
+  orgId: string,
+  negotiationId: string,
+): Promise<Record<string, string>> {
+  const [negociacao] = await db
+    .select()
+    .from(saleNegotiations)
+    .where(and(eq(saleNegotiations.id, negotiationId), eq(saleNegotiations.orgId, orgId)))
+    .limit(1);
+  if (!negociacao) {
+    return buildSaleContractVariables({
+      buyerName: null,
+      sellerName: null,
+      propertyTitle: null,
+      saleAmountCents: null,
+    });
+  }
+  const [imovel] = await db
+    .select()
+    .from(properties)
+    .where(and(eq(properties.id, negociacao.propertyId), eq(properties.orgId, orgId)))
+    .limit(1);
+  const [comprador] = await db
+    .select()
+    .from(parties)
+    .where(and(eq(parties.id, negociacao.buyerPartyId), eq(parties.orgId, orgId)))
+    .limit(1);
+  const [dono] = await db
+    .select()
+    .from(propertyOwners)
+    .where(
+      and(eq(propertyOwners.propertyId, negociacao.propertyId), eq(propertyOwners.orgId, orgId)),
+    )
+    .limit(1);
+  const [vendedor] = dono
+    ? await db
+        .select()
+        .from(parties)
+        .where(and(eq(parties.id, dono.partyId), eq(parties.orgId, orgId)))
+        .limit(1)
+    : [undefined];
+
+  return buildSaleContractVariables({
+    buyerName: comprador?.name ?? null,
+    sellerName: vendedor?.name ?? null,
+    propertyTitle: imovel?.title ?? null,
+    saleAmountCents: negociacao.closedAmountCents ?? negociacao.currentAmountCents,
+  });
+}
+
+/**
+ * Cria o contrato de compra e venda a partir da negociação.
+ *
+ * Partes: o proprietário assina como `SELLER` e o comprador da negociação como
+ * `BUYER`. A negociação precisa estar em `CONTRACT` — gerar contrato antes da
+ * documentação estar fechada é o tipo de atalho que depois vira retrabalho.
+ */
+async function criarContratoDeVenda(
+  db: AppDb,
+  auth: { orgId: string; userId: string },
+  negotiationId: string,
+  templateId: string,
+): Promise<unknown> {
+  const [negociacao] = await db
+    .select()
+    .from(saleNegotiations)
+    .where(and(eq(saleNegotiations.id, negotiationId), eq(saleNegotiations.orgId, auth.orgId)))
+    .limit(1);
+  if (!negociacao) {
+    throw new DomainError('NOT_FOUND', 'Negociação não encontrada');
+  }
+  if (negociacao.stage !== 'CONTRACT') {
+    throw new DomainError(
+      'INVALID_TRANSITION',
+      'O contrato de compra e venda é gerado quando a negociação chega em Contrato',
+    );
+  }
+
+  const [template] = await db
+    .select()
+    .from(contractTemplates)
+    .where(
+      and(
+        eq(contractTemplates.id, templateId),
+        eq(contractTemplates.orgId, auth.orgId),
+        eq(contractTemplates.status, 'APPROVED'),
+      ),
+    )
+    .limit(1);
+  if (!template) {
+    throw new DomainError('INVALID_INPUT', 'Template aprovado não encontrado');
+  }
+  if (template.kind !== 'SALE') {
+    throw new DomainError(
+      'INVALID_INPUT',
+      'Este modelo é de locação; escolha um modelo de compra e venda',
+    );
+  }
+
+  const criado = await db.transaction(async (tx) => {
+    const contrato = first(
+      await tx
+        .insert(contracts)
+        .values({
+          orgId: auth.orgId,
+          templateId: template.id,
+          kind: 'SALE',
+          negotiationId: negociacao.id,
+          createdBy: auth.userId,
+        })
+        .returning(),
+    );
+
+    const donos = await tx
+      .select()
+      .from(propertyOwners)
+      .where(
+        and(
+          eq(propertyOwners.propertyId, negociacao.propertyId),
+          eq(propertyOwners.orgId, auth.orgId),
+        ),
+      );
+    if (donos.length > 0) {
+      await tx.insert(contractParties).values(
+        donos.map((dono, indice) => ({
+          orgId: auth.orgId,
+          contractId: contrato.id,
+          partyId: dono.partyId,
+          role: 'SELLER',
+          signOrder: indice + 1,
+        })),
+      );
+    }
+    await tx.insert(contractParties).values({
+      orgId: auth.orgId,
+      contractId: contrato.id,
+      partyId: negociacao.buyerPartyId,
+      role: 'BUYER',
+      signOrder: donos.length + 1,
+    });
+
+    await writeAudit(tx, {
+      orgId: auth.orgId,
+      actorUserId: auth.userId,
+      action: AUDIT_ACTIONS.CONTRACT_CREATED,
+      entityType: 'CONTRACT',
+      entityId: contrato.id,
+      payload: { kind: 'SALE', negotiationId: negociacao.id },
+    });
+    return contrato;
+  });
+
+  return loadContractAggregate(db, auth.orgId, criado.id);
+}
+
 export const contractRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
@@ -215,6 +380,18 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createContractRequestSchema.parse(request.body);
+
+      // Contrato de compra e venda (Onda 5): nasce da negociação, não da
+      // candidatura, e por isso segue por outro caminho até o mesmo envelope.
+      if (input.negotiationId !== undefined) {
+        return reply
+          .status(201)
+          .send(await criarContratoDeVenda(db, auth, input.negotiationId, input.templateId));
+      }
+      if (input.applicationId === undefined) {
+        throw new DomainError('INVALID_INPUT', 'Informe a candidatura ou a negociação');
+      }
+
       const [application] = await db
         .select()
         .from(rentalApplications)
@@ -434,9 +611,15 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
       if (!template || template.status !== 'APPROVED') {
         throw new DomainError('INVALID_INPUT', 'Template aprovado não encontrado');
       }
-      const variables = contract.applicationId
-        ? await buildTemplateVariables(db, auth.orgId, contract.applicationId)
-        : {};
+      // Cada espécie lê a sua origem: locação da candidatura, venda da
+      // negociação. Um contrato de venda com variáveis de locação renderizaria
+      // travessões no lugar do preço.
+      const variables =
+        contract.negotiationId !== null
+          ? await buildSaleTemplateVariables(db, auth.orgId, contract.negotiationId)
+          : contract.applicationId
+            ? await buildTemplateVariables(db, auth.orgId, contract.applicationId)
+            : {};
       const content = renderTemplate(template.body, variables);
       const contentHash = sha256Hex(content);
       transitionContract(status, 'GENERATED', {
