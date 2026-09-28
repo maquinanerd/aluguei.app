@@ -53,6 +53,8 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   // Trilha G — CRM e imóveis.
   'party_roles.role': { values: c.partyRoleSchema.options },
   'leads.status': { values: d.FUNNEL_STATUSES },
+  // Onda 4: o CRM passa a ter dois funis, aluguel e venda.
+  'leads.purpose': { values: c.leadPurposeSchema.options },
   'tasks.status': { values: c.taskStatusSchema.options },
   'properties.status': { values: c.propertyStatusSchema.options },
   'properties.property_type': { values: c.propertyTypeSchema.options },
