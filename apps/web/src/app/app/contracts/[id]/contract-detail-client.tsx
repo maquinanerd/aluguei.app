@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
+  AvisoModoTeste,
   Badge,
   Breadcrumb,
   Button,
@@ -19,6 +20,7 @@ import {
 import { formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
 import { useLookup } from '@/lib/lookup';
 import { contractActions } from '@/lib/contract-rules';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
@@ -100,6 +102,7 @@ function ContractBody() {
   const [showContent, setShowContent] = useState(false);
 
   const aggQ = useQuery<Aggregate>(`/contracts/${id}`, [id]);
+  const { data: capacidades } = useCapacidades();
   const versionsQ = useQuery<{ versions: ContractVersion[] }>(`/contracts/${id}/versions`, [id]);
 
   const contract = aggQ.data?.contract ?? null;
@@ -295,6 +298,14 @@ function ContractBody() {
 
         <Card title="Assinatura" padless>
           <Stack gap={3} style={{ padding: 20 }}>
+            {/* Envelope sem provedor real não tem validade jurídica; a tela diz
+                isso em vez de deixar a pessoa concluir que o contrato foi assinado. */}
+            {emTeste(capacidades?.providers.signature) ? (
+              <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
+                Assinatura com validade jurídica chega em breve. Hoje o envelope simula os eventos
+                para você testar o fluxo — nada é enviado ao provedor.
+              </AvisoModoTeste>
+            ) : null}
             {envelope ? (
               <>
                 <Group gap={2}>

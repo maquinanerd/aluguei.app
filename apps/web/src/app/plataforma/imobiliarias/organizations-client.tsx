@@ -75,6 +75,28 @@ export const organizationColumns: Column<PlatformOrganization>[] = [
     ),
   },
   {
+    // O que a imobiliária pediu no cadastro (Onda 3) não é o que ela tem: é a
+    // intenção, e serve para quem aprova não precisar adivinhar.
+    key: 'requestedPlan',
+    header: 'Plano pedido',
+    render: (org) =>
+      org.requestedPlanCode === null ? (
+        <span className="peg-text-tertiary">—</span>
+      ) : (
+        <Badge tone="neutral">{org.requestedPlanCode}</Badge>
+      ),
+  },
+  {
+    key: 'creci',
+    header: 'CRECI',
+    render: (org) =>
+      org.creci === null || org.creci === '' ? (
+        <span className="peg-text-tertiary">—</span>
+      ) : (
+        <span style={{ fontSize: 13 }}>{org.creci}</span>
+      ),
+  },
+  {
     key: 'usage',
     header: 'Imóveis · anúncios · usuários',
     render: (org) => (

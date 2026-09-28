@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
+  AvisoModoTeste,
   Badge,
   Breadcrumb,
   Button,
@@ -21,6 +22,7 @@ import {
 import { formatBRL, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
 import { useLookup } from '@/lib/lookup';
 import { buildDecisionPayload, creditActions, decisionSourceLabel } from '@/lib/credit-decision';
 import type { CreditDecision } from '@/lib/credit-decision';
@@ -95,6 +97,7 @@ function ScreeningBody() {
   const [reasonError, setReasonError] = useState<string | null>(null);
 
   const appQ = useQuery<Aggregate>(`/rental-applications/${id}`, [id]);
+  const { data: capacidades } = useCapacidades();
   const proposalsQ = useQuery<{ proposals: Proposal[] }>('/proposals?limit=100', [id]);
 
   const application = appQ.data?.application ?? null;
@@ -255,6 +258,14 @@ function ScreeningBody() {
       <div className="peg-grid cols-2">
         <Card title="Resultado do screening" padless>
           <Stack gap={3} style={{ padding: 20 }}>
+            {/* Sem consulta real, a decisão usa só o que a pessoa declarou na
+                candidatura — quem aprova precisa saber disso antes de aprovar. */}
+            {emTeste(capacidades?.providers.screening) ? (
+              <AvisoModoTeste provedor={PROVIDER_REAL.screening}>
+                Consulta a birô de crédito chega em breve. As regras abaixo usam só os dados
+                informados na candidatura.
+              </AvisoModoTeste>
+            ) : null}
             {screening ? (
               <>
                 <Group gap={2}>
