@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { createHash } from 'node:crypto';
 import { searchAlerts } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import { hashOpaqueToken } from '../../../apps/api/src/email-outbox.js';
 import { buildTestApp } from './helpers.js';
 import { approveAgency, call, registerAgency } from './platform-fixtures.js';
 
@@ -46,9 +46,11 @@ describe('Onda 4 — demanda por bairro', () => {
       contactValue: CONTATO,
       consentText: 'Aceito receber avisos de novos imóveis desta busca.',
       status,
-      tokenHash: hashOpaqueToken(
-        `token-${citySlug}-${neighborhoodSlug}-${status}-${Math.random()}`,
-      ),
+      // Mesmo formato do token de uso único da API (sha256 hex); aqui só
+      // precisa ser único, porque o teste não usa o link de confirmação.
+      tokenHash: createHash('sha256')
+        .update(`token-${citySlug}-${neighborhoodSlug}-${status}-${String(Math.random())}`)
+        .digest('hex'),
       ...(status === 'ACTIVE' ? { confirmedAt: new Date() } : {}),
     });
   }
