@@ -62,7 +62,14 @@ interface Property {
   } | null;
   owners: Array<{ partyId: string; name: string; ownershipSharePct: number | null }>;
   features: string[];
-  media: Array<{ id: string; kind: string; isPublic: boolean }>;
+  media: Array<{
+    id: string;
+    kind: string;
+    isPublic: boolean;
+    caption: string | null;
+    sortOrder: number;
+    isCover: boolean;
+  }>;
   createdAt: string;
 }
 
@@ -118,6 +125,23 @@ function PropertyBody() {
   }
 
   const address = property.addresses.find((a) => !a.isPublic) ?? property.addresses[0] ?? null;
+
+  /**
+   * Legenda e capa da foto (Onda 4). A capa é única por imóvel: a API tira a
+   * anterior na mesma transação, então a tela só precisa recarregar.
+   */
+  async function salvarMidia(
+    mediaId: string,
+    patch: { caption?: string | null; isCover?: boolean },
+  ): Promise<void> {
+    try {
+      await apiClient(`/properties/${id}/media/${mediaId}`, { method: 'PATCH', body: patch });
+      toast.success(patch.isCover === true ? 'Capa definida' : 'Legenda salva');
+      propQ.reload();
+    } catch (err) {
+      toast.error('Falha ao salvar', err instanceof Error ? err.message : undefined);
+    }
+  }
 
   async function addFeature() {
     const f = featureInput.trim();
@@ -389,41 +413,82 @@ function PropertyBody() {
           ) : null}
 
           {tab === 'midia' ? (
-            <Card title="Mídia" padless>
+            <Card title="Fotos e legendas" padless>
               <div className="peg-grid cols-4" style={{ padding: 20 }}>
-                {property.media.map((m) => (
-                  <div
-                    key={m.id}
-                    className="peg-card"
-                    style={{
-                      padding: 12,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 6,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Icon
-                      name={
-                        m.kind === 'PHOTO' ? 'image' : m.kind === 'FLOORPLAN' ? 'grid' : 'fileText'
-                      }
-                      size={24}
-                    />
-                    <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                      {m.kind}
-                    </span>
-                    {m.isPublic ? (
-                      <Badge tone="success">Público</Badge>
-                    ) : (
-                      <Badge tone="neutral">Privado</Badge>
-                    )}
-                  </div>
-                ))}
+                {[...property.media]
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((m) => (
+                    <div
+                      key={m.id}
+                      className="peg-card"
+                      style={{
+                        padding: 12,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 6,
+                      }}
+                    >
+                      <Group between>
+                        <Icon
+                          name={
+                            m.kind === 'PHOTO'
+                              ? 'image'
+                              : m.kind === 'FLOORPLAN'
+                                ? 'grid'
+                                : 'fileText'
+                          }
+                          size={24}
+                        />
+                        {m.isCover ? <Badge tone="brand">Capa</Badge> : null}
+                      </Group>
+                      <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                        {m.kind}
+                      </span>
+                      {m.kind === 'PHOTO' ? (
+                        <Input
+                          size="sm"
+                          aria-label="Legenda da foto"
+                          placeholder="Legenda (ex.: Sala com varanda)"
+                          defaultValue={m.caption ?? ''}
+                          onBlur={(evento) => {
+                            const valor = evento.target.value.trim();
+                            if (valor === (m.caption ?? '')) {
+                              return;
+                            }
+                            void salvarMidia(m.id, { caption: valor === '' ? null : valor });
+                          }}
+                        />
+                      ) : null}
+                      <Group between>
+                        {m.isPublic ? (
+                          <Badge tone="success">Público</Badge>
+                        ) : (
+                          <Badge tone="neutral">Privado</Badge>
+                        )}
+                        {m.kind === 'PHOTO' && !m.isCover ? (
+                          <Button
+                            size="xs"
+                            variant="tertiary"
+                            onClick={() => {
+                              void salvarMidia(m.id, { isCover: true });
+                            }}
+                          >
+                            Usar como capa
+                          </Button>
+                        ) : null}
+                      </Group>
+                    </div>
+                  ))}
                 {property.media.length === 0 ? (
                   <div className="peg-empty" style={{ gridColumn: '1 / -1', padding: 32 }}>
                     <span className="peg-empty__body">Nenhuma mídia enviada ainda.</span>
                   </div>
                 ) : null}
+              </div>
+              <div style={{ padding: '0 20px 16px' }}>
+                <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                  A legenda aparece na galeria do portal. A capa é a primeira foto do anúncio.
+                </span>
               </div>
             </Card>
           ) : null}

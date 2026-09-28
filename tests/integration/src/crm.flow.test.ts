@@ -33,6 +33,57 @@ describe('fluxo CRM: funil de leads', () => {
     return { cookie, leadId: (res.json() as LeadBody).lead.id };
   }
 
+  /**
+   * Dois funis (Onda 4). O lead nunca é adivinhado a partir do imóvel de
+   * interesse: lead sem imóvel existe, e imóvel `BOTH` não decide nada. Sem
+   * finalidade declarada, vale aluguel — o funil histórico do produto.
+   */
+  it('separa os funis de aluguel e venda, e o antigo continua sendo aluguel', async () => {
+    const { cookie } = await registerUser(app);
+
+    const semFinalidade = await app.inject({
+      method: 'POST',
+      url: '/leads',
+      headers: { cookie },
+      payload: { channel: 'WHATSAPP' },
+    });
+    expect(semFinalidade.statusCode).toBe(201);
+    expect((semFinalidade.json() as { lead: { purpose: string } }).lead.purpose).toBe('RENT');
+
+    const venda = await app.inject({
+      method: 'POST',
+      url: '/leads',
+      headers: { cookie },
+      payload: { purpose: 'SALE', channel: 'PORTAL' },
+    });
+    expect(venda.statusCode).toBe(201);
+    const vendaId = (venda.json() as LeadBody).lead.id;
+
+    const soVenda = await app.inject({
+      method: 'GET',
+      url: '/leads?purpose=SALE',
+      headers: { cookie },
+    });
+    expect(soVenda.statusCode).toBe(200);
+    const idsVenda = (soVenda.json() as ListLeadsBody).leads.map((lead) => lead.id);
+    expect(idsVenda).toEqual([vendaId]);
+
+    const soAluguel = await app.inject({
+      method: 'GET',
+      url: '/leads?purpose=RENT',
+      headers: { cookie },
+    });
+    expect((soAluguel.json() as ListLeadsBody).leads.map((lead) => lead.id)).not.toContain(vendaId);
+
+    // Origem é filtro do quadro: "de onde veio" é o que a equipe pergunta primeiro.
+    const porOrigem = await app.inject({
+      method: 'GET',
+      url: '/leads?channel=PORTAL',
+      headers: { cookie },
+    });
+    expect((porOrigem.json() as ListLeadsBody).leads.map((lead) => lead.id)).toEqual([vendaId]);
+  });
+
   it('percorre o funil até WON e timeline registra eventos', async () => {
     const { cookie, leadId } = await createLead();
 

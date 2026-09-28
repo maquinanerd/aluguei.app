@@ -19,6 +19,7 @@ import {
   importLeadsRequestSchema,
   listAvailableChannelsResponseSchema,
   listChannelsResponseSchema,
+  publishReadinessResponseSchema,
   publishRequestSchema,
   reconcileRequestSchema,
   removeRequestSchema,
@@ -28,6 +29,7 @@ import {
 import { getChannelAdapter } from '@aluguei/integrations';
 import type { FakeChannel, IListingChannelAdapter } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
+import { publishBlockers } from './listings.js';
 import { writeAudit } from '../plugins/audit.js';
 import { buildChannelListingInput, enqueueChannelJob } from './channel-jobs.js';
 import { first } from './helpers.js';
@@ -393,6 +395,48 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       });
 
       return reply.status(201).send({ job: toJobDto(job), imported: 0 });
+    },
+  );
+
+  /**
+   * Prontidão para publicar (Onda 4): o que falta e quais canais recebem.
+   *
+   * Os bloqueios saem da mesma função do portão de publicação — a tela não tem
+   * uma régua própria. Canal sem adapter configurado aparece como indisponível
+   * em vez de sumir: a imobiliária precisa saber que ele existe e ainda não
+   * está conectado.
+   */
+  app.get(
+    '/listings/:id/publish-readiness',
+    { onRequest: [requirePermission('listing:read')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const { id } = z.object({ id: uuidSchema }).parse(request.params);
+      const [listing] = await db
+        .select()
+        .from(listings)
+        .where(and(eq(listings.id, id), eq(listings.orgId, auth.orgId)))
+        .limit(1);
+      if (!listing) {
+        throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
+      }
+
+      const bloqueios = await publishBlockers(db, auth.orgId, listing.propertyId);
+      const publicacoes = await db
+        .select()
+        .from(listingChannelPublications)
+        .where(eq(listingChannelPublications.listingId, listing.id));
+      const porCanal = new Map(publicacoes.map((linha) => [linha.channel, linha.status]));
+
+      return publishReadinessResponseSchema.parse({
+        canPublish: bloqueios.length === 0,
+        blockers: bloqueios,
+        channels: CHANNEL_TYPES.map((channel) => ({
+          channel,
+          available: getChannelAdapter(channel, app.channels) !== null,
+          status: porCanal.get(channel) ?? null,
+        })),
+      });
     },
   );
 

@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { and, asc, desc, eq, gte, lte } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, isNotNull, lte } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import {
   charges,
@@ -8,19 +8,26 @@ import {
   leads,
   ledgerAccounts,
   ledgerEntries,
+  listings,
   metaCampaignLinks,
   metaInsightSnapshots,
   payments,
   payouts,
+  properties,
+  propertyAddresses,
+  searchAlerts,
 } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   aggregateFunnelByPeriod,
   aggregateMetaSpend,
   aggregateRevenueByMonth,
+  lugarLegivel,
   sanitizeExportColumns,
 } from '@aluguei/domain';
 import {
+  demandByNeighborhoodQuerySchema,
+  demandByNeighborhoodResponseSchema,
   exportQuerySchema,
   funnelReportQuerySchema,
   funnelReportResponseSchema,
@@ -205,6 +212,130 @@ async function fetchRowsForExport(
 
 export const reportingRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  /**
+   * Demanda por bairro (Onda 4): quantos alertas de imóvel estão ativos no
+   * portal nos bairros onde esta imobiliária publica.
+   *
+   * É o único dado que atravessa a fronteira portal → painel, e por isso ele
+   * atravessa **agregado**. A consulta seleciona `count(*)` e nada mais: o
+   * contato, o nome e o token de quem criou o alerta não saem da tabela nem por
+   * engano numa edição futura. O alerta também não pertence a imobiliária
+   * nenhuma (a tabela não tem `org_id`, ADR-099) — o recorte aqui é a carteira
+   * publicada de quem pergunta, não uma lista de pessoas.
+   */
+  app.get(
+    '/reporting/demand-by-neighborhood',
+    { onRequest: [requirePermission('report:read')] },
+    async (request) => {
+      const auth = requireAuth(request);
+      const query = demandByNeighborhoodQuerySchema.parse(request.query);
+
+      // Cidades onde a imobiliária tem anúncio publicado. Sem nenhuma, não há
+      // recorte — e a tela mostra o estado vazio em vez de inventar uma cidade.
+      const cidades = await db
+        .select({
+          citySlug: propertyAddresses.citySlug,
+          city: propertyAddresses.city,
+          publicados: count(),
+        })
+        .from(listings)
+        .innerJoin(properties, eq(listings.propertyId, properties.id))
+        .innerJoin(propertyAddresses, eq(propertyAddresses.propertyId, properties.id))
+        .where(
+          and(
+            eq(listings.orgId, auth.orgId),
+            eq(listings.status, 'PUBLISHED'),
+            isNotNull(propertyAddresses.citySlug),
+          ),
+        )
+        .groupBy(propertyAddresses.citySlug, propertyAddresses.city)
+        .orderBy(desc(count()));
+
+      const escolhida =
+        query.city === undefined
+          ? cidades[0]
+          : cidades.find((linha) => linha.citySlug === query.city);
+      if (!escolhida?.citySlug) {
+        return demandByNeighborhoodResponseSchema.parse({
+          city: null,
+          cityLabel: null,
+          totalActiveAlerts: 0,
+          rows: [],
+        });
+      }
+      const citySlug = escolhida.citySlug;
+
+      const [total] = await db
+        .select({ n: count() })
+        .from(searchAlerts)
+        .where(and(eq(searchAlerts.citySlug, citySlug), eq(searchAlerts.status, 'ACTIVE')));
+
+      const demanda = await db
+        .select({
+          neighborhoodSlug: searchAlerts.neighborhoodSlug,
+          purpose: searchAlerts.purpose,
+          n: count(),
+        })
+        .from(searchAlerts)
+        .where(
+          and(
+            eq(searchAlerts.citySlug, citySlug),
+            eq(searchAlerts.status, 'ACTIVE'),
+            isNotNull(searchAlerts.neighborhoodSlug),
+          ),
+        )
+        .groupBy(searchAlerts.neighborhoodSlug, searchAlerts.purpose)
+        .orderBy(desc(count()))
+        .limit(query.limit);
+
+      // Quanto a imobiliária já publica em cada bairro: sem isso a contagem de
+      // demanda não diz nada acionável — 12 alertas onde ela tem 12 anúncios é
+      // um recado diferente de 12 alertas onde ela não tem nenhum.
+      const publicados = await db
+        .select({
+          neighborhoodSlug: propertyAddresses.neighborhoodSlug,
+          neighborhood: propertyAddresses.neighborhood,
+          n: count(),
+        })
+        .from(listings)
+        .innerJoin(properties, eq(listings.propertyId, properties.id))
+        .innerJoin(propertyAddresses, eq(propertyAddresses.propertyId, properties.id))
+        .where(
+          and(
+            eq(listings.orgId, auth.orgId),
+            eq(listings.status, 'PUBLISHED'),
+            eq(propertyAddresses.citySlug, citySlug),
+          ),
+        )
+        .groupBy(propertyAddresses.neighborhoodSlug, propertyAddresses.neighborhood);
+      const porBairro = new Map(publicados.map((linha) => [linha.neighborhoodSlug, linha.n]));
+      // Nome como a pessoa digitou no cadastro; o slug perdeu acento e caixa.
+      const nomeDoBairro = new Map(
+        publicados
+          .filter((linha) => linha.neighborhood !== null)
+          .map((linha) => [linha.neighborhoodSlug, linha.neighborhood as string]),
+      );
+
+      return demandByNeighborhoodResponseSchema.parse({
+        city: citySlug,
+        cityLabel: escolhida.city ?? citySlug,
+        totalActiveAlerts: total?.n ?? 0,
+        rows: demanda
+          .filter((linha) => linha.neighborhoodSlug !== null)
+          .map((linha) => {
+            const slug = linha.neighborhoodSlug as string;
+            return {
+              neighborhoodSlug: slug,
+              neighborhood: nomeDoBairro.get(slug) ?? lugarLegivel(slug),
+              purpose: linha.purpose === 'SALE' ? 'SALE' : 'RENT',
+              count: linha.n,
+              published: porBairro.get(slug) ?? 0,
+            };
+          }),
+      });
+    },
+  );
 
   app.get(
     '/reporting/leads-funnel',
