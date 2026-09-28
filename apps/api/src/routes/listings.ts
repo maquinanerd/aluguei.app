@@ -39,7 +39,26 @@ import { enqueueChannelJob } from './channel-jobs.js';
 import { first } from './helpers.js';
 
 /** Guarda de prontidão: READY exige termos financeiros + endereço público. */
-async function assertReadyToPublish(db: AppDb, orgId: string, propertyId: string): Promise<void> {
+/**
+ * O que falta para o anúncio poder ser publicado.
+ *
+ * A mesma função alimenta o portão (`assertReadyToPublish`) e o diálogo de
+ * publicação da tela (Onda 4). São o mesmo código de propósito: um diálogo que
+ * lista bloqueios diferentes do que o servidor recusa é pior do que não ter
+ * diálogo — a pessoa resolve o que a tela pediu e leva o erro assim mesmo.
+ */
+export interface PublishBlocker {
+  code: 'FINANCIAL_TERMS' | 'PUBLIC_ADDRESS';
+  label: string;
+  /** Onde resolver, relativo ao imóvel. */
+  action: string;
+}
+
+async function publishBlockers(
+  db: AppDb,
+  orgId: string,
+  propertyId: string,
+): Promise<PublishBlocker[]> {
   const [terms] = await db
     .select()
     .from(propertyFinancialTerms)
@@ -55,14 +74,30 @@ async function assertReadyToPublish(db: AppDb, orgId: string, propertyId: string
     .from(propertyAddresses)
     .where(and(eq(propertyAddresses.propertyId, propertyId), eq(propertyAddresses.isPublic, true)))
     .limit(1);
+
+  const bloqueios: PublishBlocker[] = [];
   if (!terms) {
-    throw new DomainError(
-      'INVALID_INPUT',
-      'Defina os termos financeiros (aluguel mensal) antes de publicar',
-    );
+    bloqueios.push({
+      code: 'FINANCIAL_TERMS',
+      label: 'Defina os termos financeiros (aluguel mensal) antes de publicar',
+      action: 'valores',
+    });
   }
   if (!publicAddress) {
-    throw new DomainError('INVALID_INPUT', 'Defina um endereço público antes de publicar');
+    bloqueios.push({
+      code: 'PUBLIC_ADDRESS',
+      label: 'Defina um endereço público antes de publicar',
+      action: 'endereco',
+    });
+  }
+  return bloqueios;
+}
+
+async function assertReadyToPublish(db: AppDb, orgId: string, propertyId: string): Promise<void> {
+  const bloqueios = await publishBlockers(db, orgId, propertyId);
+  const primeiro = bloqueios[0];
+  if (primeiro) {
+    throw new DomainError('INVALID_INPUT', primeiro.label);
   }
 }
 
@@ -496,4 +531,4 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
   return Promise.resolve();
 };
 
-export { assertReadyToPublish, loadListingDetail };
+export { assertReadyToPublish, loadListingDetail, publishBlockers };

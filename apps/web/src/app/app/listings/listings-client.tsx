@@ -23,6 +23,7 @@ import { useQuery } from '@/lib/use-query';
 import { searchProperties, useLookup } from '@/lib/lookup';
 import { label, LISTING_STATUS_LABELS, LISTING_STATUS_TONES } from '@/lib/labels';
 import { PageToolbar } from '@/components/page-toolbar';
+import { DialogoPublicacao } from './dialogo-publicacao';
 import { PermissionDenied, ErrorState } from '@aluguei/ui';
 
 interface Listing {
@@ -50,6 +51,8 @@ function ListingsBody() {
   const [page, setPage] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  const [publicando, setPublicando] = useState<Listing | null>(null);
+  const [preparando, setPreparando] = useState<Listing | null>(null);
 
   const queryPath = useMemo(() => {
     const params = new URLSearchParams({ limit: '50', offset: String(page * 50) });
@@ -98,6 +101,31 @@ function ListingsBody() {
     }
   }
 
+  const alvoDoDialogo = publicando ?? preparando;
+  const dialogo =
+    alvoDoDialogo === null ? null : (
+      <DialogoPublicacao
+        listingId={alvoDoDialogo.id}
+        titulo={alvoDoDialogo.title}
+        ocupado={busy === alvoDoDialogo.id}
+        etapa={publicando === null ? 'pronto' : 'publicar'}
+        aoFechar={() => {
+          setPublicando(null);
+          setPreparando(null);
+        }}
+        aoPublicar={() => {
+          const alvo = alvoDoDialogo;
+          const proximo = publicando === null ? 'READY' : 'PUBLISHED';
+          setPublicando(null);
+          setPreparando(null);
+          void changeStatus(alvo, proximo);
+        }}
+        aoResolver={(secao) => {
+          router.push(`/app/properties/${alvoDoDialogo.propertyId}?secao=${secao}`);
+        }}
+      />
+    );
+
   const columns: Column<Listing>[] = [
     {
       key: 'title',
@@ -144,7 +172,9 @@ function ListingsBody() {
               variant="secondary"
               loading={busy === l.id}
               onClick={() => {
-                void changeStatus(l, 'READY');
+                // O portão de conteúdo (valores e endereço público) está na
+                // passagem para "Pronto": é aqui que os bloqueios aparecem.
+                setPreparando(l);
               }}
             >
               Pronto
@@ -156,7 +186,9 @@ function ListingsBody() {
               variant="brand"
               loading={busy === l.id}
               onClick={() => {
-                void changeStatus(l, 'PUBLISHED');
+                // Publicar deixa de ser um clique direto: sai em vários canais
+                // de uma vez, então a pessoa confirma sabendo onde vai sair.
+                setPublicando(l);
               }}
             >
               Publicar
@@ -190,6 +222,7 @@ function ListingsBody() {
 
   return (
     <div className="app-page">
+      {dialogo}
       <PageToolbar
         title="Listings"
         description="Anúncios por imóvel e distribuição para canais."

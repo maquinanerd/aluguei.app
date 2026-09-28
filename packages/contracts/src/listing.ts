@@ -80,3 +80,33 @@ export const updateListingStatusRequestSchema = z.object({
 });
 
 export const updateListingStatusResponseSchema = z.object({ listing: listingDetailSchema });
+
+/**
+ * Prontidão para publicar (Onda 4): o que o diálogo de publicação mostra.
+ *
+ * Os bloqueios vêm da **mesma função** que o portão do servidor usa. Diálogo
+ * que lista bloqueio diferente do que a API recusa é pior do que diálogo
+ * nenhum: a pessoa resolve o que a tela pediu e leva o erro assim mesmo.
+ */
+export const publishBlockerSchema = z.object({
+  code: z.enum(['FINANCIAL_TERMS', 'PUBLIC_ADDRESS']),
+  label: z.string(),
+  /** Seção do cadastro do imóvel onde se resolve. */
+  action: z.string(),
+});
+
+export const publishReadinessResponseSchema = z.object({
+  canPublish: z.boolean(),
+  blockers: z.array(publishBlockerSchema),
+  channels: z.array(
+    z.object({
+      channel: z.string(),
+      /** Tem adapter configurado; sem isso o canal nem é oferecido (P1-17). */
+      available: z.boolean(),
+      /** Estado da publicação neste canal, quando já existe. */
+      status: z.string().nullable(),
+    }),
+  ),
+});
+
+export type PublishReadinessResponse = z.infer<typeof publishReadinessResponseSchema>;
