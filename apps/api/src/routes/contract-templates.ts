@@ -24,6 +24,7 @@ function toTemplateDto(row: TemplateRow): unknown {
     id: row.id,
     orgId: row.orgId,
     name: row.name,
+    kind: row.kind,
     version: row.version,
     status: row.status,
     approvedAt: row.approvedAt?.toISOString() ?? null,
@@ -44,7 +45,14 @@ export const contractTemplateRoutes: FastifyPluginAsync = (app) => {
       const template = first(
         await db
           .insert(contractTemplates)
-          .values({ orgId: auth.orgId, name: input.name, version: 1, body: input.body })
+          .values({
+            orgId: auth.orgId,
+            name: input.name,
+            // Ausente vale como locação: é a espécie histórica do produto.
+            kind: input.kind ?? 'LEASE',
+            version: 1,
+            body: input.body,
+          })
           .returning(),
       );
       await writeAudit(db, {
@@ -68,6 +76,9 @@ export const contractTemplateRoutes: FastifyPluginAsync = (app) => {
         eq(contractTemplates.orgId, auth.orgId),
         query.status ? eq(contractTemplates.status, query.status) : undefined,
         query.name ? eq(contractTemplates.name, query.name) : undefined,
+        // A tela de venda pede só modelos de venda: oferecer os de locação ali
+        // é convidar a gerar o contrato errado.
+        query.kind ? eq(contractTemplates.kind, query.kind) : undefined,
       );
       const rows = await db
         .select()

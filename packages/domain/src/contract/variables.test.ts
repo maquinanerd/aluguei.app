@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../errors.js';
 import { renderTemplate } from './template.js';
-import { buildContractVariables, formatCentsBRL } from './variables.js';
+import {
+  SALE_CONTRACT_TEMPLATE_VARIABLES,
+  buildContractVariables,
+  buildSaleContractVariables,
+  formatCentsBRL,
+} from './variables.js';
 
 describe('formatCentsBRL (P2-08: valores em R$ no corpo do contrato)', () => {
   it('formata centavos inteiros sem ponto flutuante', () => {
@@ -59,5 +64,44 @@ describe('buildContractVariables', () => {
       'LOCATÁRIO Ana · ALUGUEL R$ 2.500,00',
     );
     expect(() => renderTemplate('LOCATÁRIO {{tenantNome}}', variables)).toThrow(DomainError);
+  });
+});
+
+/**
+ * Contrato de compra e venda (Onda 5). A lista de variáveis é separada da de
+ * locação de propósito: as duas espécies falam de partes diferentes, e um
+ * template de locação oferecendo `salePrice` nunca teria valor para preencher.
+ */
+describe('variáveis do contrato de compra e venda', () => {
+  it('formata o preço em R$ e usa travessão para dado ausente', () => {
+    expect(
+      buildSaleContractVariables({
+        buyerName: 'Otavio Prado',
+        sellerName: 'Imobiliária Exemplo',
+        propertyTitle: 'Cobertura 210 m2',
+        saleAmountCents: 139_000_000,
+      }),
+    ).toEqual({
+      buyerName: 'Otavio Prado',
+      sellerName: 'Imobiliária Exemplo',
+      propertyTitle: 'Cobertura 210 m2',
+      salePrice: 'R$ 1.390.000,00',
+    });
+  });
+
+  it('preço ausente vira travessão, nunca R$ 0,00', () => {
+    const variaveis = buildSaleContractVariables({
+      buyerName: null,
+      sellerName: null,
+      propertyTitle: null,
+      saleAmountCents: null,
+    });
+    expect(variaveis.salePrice).toBe('—');
+    expect(Object.values(variaveis).every((valor) => valor === '—')).toBe(true);
+  });
+
+  it('não oferece variável de locação no contrato de venda', () => {
+    expect(SALE_CONTRACT_TEMPLATE_VARIABLES).not.toContain('monthlyRent');
+    expect(SALE_CONTRACT_TEMPLATE_VARIABLES).not.toContain('tenantName');
   });
 });
