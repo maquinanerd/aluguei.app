@@ -67,3 +67,38 @@ export const exportQuerySchema = z
     maxRows: z.coerce.number().int().min(1).max(10_000).default(1_000),
   })
   .strict();
+
+/**
+ * Demanda por bairro (Onda 4): quantos alertas de imóvel estão ativos no portal
+ * nos bairros onde a imobiliária tem anúncio publicado.
+ *
+ * É o único dado que atravessa a fronteira portal → painel, então a forma do
+ * contrato é a garantia: **só contagem**. Não existe campo para contato, nome,
+ * e-mail nem telefone de quem criou o alerta, e nenhum identificador de alerta
+ * individual — nem por engano numa versão futura.
+ */
+export const demandByNeighborhoodQuerySchema = z.object({
+  /** Cidade da carteira; ausente, a de maior estoque publicado. */
+  city: z.string().trim().max(90).optional(),
+  limit: z.coerce.number().int().min(1).max(20).default(8),
+});
+
+export const demandByNeighborhoodResponseSchema = z.object({
+  /** Cidade considerada; nula quando a imobiliária não tem anúncio publicado. */
+  city: z.string().nullable(),
+  cityLabel: z.string().nullable(),
+  /** Alertas ativos na cidade inteira. */
+  totalActiveAlerts: z.number().int().nonnegative(),
+  rows: z.array(
+    z.object({
+      neighborhoodSlug: z.string(),
+      neighborhood: z.string(),
+      purpose: z.enum(['RENT', 'SALE']),
+      count: z.number().int().nonnegative(),
+      /** Anúncios publicados da imobiliária no mesmo recorte. */
+      published: z.number().int().nonnegative(),
+    }),
+  ),
+});
+
+export type DemandByNeighborhoodResponse = z.infer<typeof demandByNeighborhoodResponseSchema>;

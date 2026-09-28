@@ -50,3 +50,19 @@ export function parseCitySlug(slug: string): CityFromSlug | null {
   }
   return { city, state: uf };
 }
+
+/**
+ * Slug de lugar de volta em rótulo: `setor-bueno` → "Setor Bueno".
+ *
+ * É aproximação, não o nome original: o slug perdeu o acento e o caixa. Use o
+ * texto do endereço quando ele existir (o cadastro guarda "Setor Bueno" como a
+ * pessoa digitou) e esta função só quando o slug é tudo o que se tem — como no
+ * alerta de imóvel, que nasce da URL e não de um cadastro.
+ */
+export function lugarLegivel(slug: string): string {
+  return slug
+    .split('-')
+    .filter((parte) => parte !== '')
+    .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+    .join(' ');
+}

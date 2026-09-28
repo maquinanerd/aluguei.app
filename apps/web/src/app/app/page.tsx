@@ -19,6 +19,19 @@ interface MeDto {
   user: { id: string; name: string; email: string };
 }
 
+interface DemandaPorBairro {
+  city: string | null;
+  cityLabel: string | null;
+  totalActiveAlerts: number;
+  rows: {
+    neighborhoodSlug: string;
+    neighborhood: string;
+    purpose: 'RENT' | 'SALE';
+    count: number;
+    published: number;
+  }[];
+}
+
 interface TaskItemDto {
   id: string;
   title: string;
@@ -99,6 +112,12 @@ export default async function OverviewPage() {
   } catch {
     summary = null;
   }
+
+  // Demanda por bairro (Onda 4). Falha aqui não derruba a Visão Geral: o card
+  // some e o resto da página continua — é informação de apoio, não operação.
+  const demanda = await apiFetch<DemandaPorBairro>('/reporting/demand-by-neighborhood').catch(
+    () => null,
+  );
 
   const crm = summary?.crm ?? null;
   const tasks = summary?.tasks ?? null;
@@ -415,6 +434,48 @@ export default async function OverviewPage() {
             </div>
           </section>
 
+          {/* Demanda por bairro (Onda 4): o que as pessoas procuram no portal
+              e a imobiliária ainda não tem. Só contagem — o contato de quem
+              criou o alerta nunca sai do portal. */}
+          {demanda !== null && demanda.city !== null ? (
+            <section className="peg-card dash-card">
+              <header className="peg-card__header">
+                <div className="peg-stack" style={{ gap: 0 }}>
+                  <h3 className="peg-card__title">Demanda por bairro</h3>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    {demanda.totalActiveAlerts}{' '}
+                    {demanda.totalActiveAlerts === 1 ? 'alerta ativo' : 'alertas ativos'} no portal
+                    · {demanda.cityLabel}
+                  </span>
+                </div>
+              </header>
+              <div className="peg-stack" style={{ gap: 0, padding: '6px 16px 12px' }}>
+                {demanda.rows.length === 0 ? (
+                  <span className="peg-text-tertiary" style={{ fontSize: 13, padding: '8px 0' }}>
+                    Ninguém criou alerta nos seus bairros ainda.
+                  </span>
+                ) : (
+                  demanda.rows.map((linha) => (
+                    <MetricRow
+                      key={`${linha.neighborhoodSlug}-${linha.purpose}`}
+                      label={`${linha.neighborhood} · ${linha.purpose === 'SALE' ? 'venda' : 'aluguel'}`}
+                      value={linha.count}
+                      tone={linha.published === 0 ? 'warning' : 'neutral'}
+                      hint={
+                        linha.published === 0
+                          ? 'sem anúncio seu'
+                          : `${String(linha.published)} anúncio${linha.published === 1 ? '' : 's'} seu${linha.published === 1 ? '' : 's'}`
+                      }
+                    />
+                  ))
+                )}
+                <span className="peg-text-tertiary" style={{ fontSize: 11, paddingTop: 8 }}>
+                  Só contagens. O contato de quem criou o alerta nunca aparece.
+                </span>
+              </div>
+            </section>
+          ) : null}
+
           {/* Atendimento */}
           <section className="peg-card dash-card">
             <header className="peg-card__header">
@@ -506,10 +567,13 @@ function MetricRow({
   label: l,
   value,
   tone,
+  hint,
 }: {
   label: string;
   value: number | null;
   tone: 'neutral' | 'danger' | 'warning' | 'brand';
+  /** Contexto curto ao lado do rótulo (ex.: quantos anúncios seus há no bairro). */
+  hint?: string;
 }) {
   const dot =
     tone === 'danger'
@@ -522,7 +586,14 @@ function MetricRow({
   return (
     <div className="dash-metric-row">
       <span className="dash-metric-row__dot" style={{ background: dot }} />
-      <span className="dash-metric-row__label">{l}</span>
+      <span className="dash-metric-row__label">
+        {l}
+        {hint === undefined ? null : (
+          <span className="peg-text-tertiary" style={{ fontSize: 11, marginLeft: 6 }}>
+            {hint}
+          </span>
+        )}
+      </span>
       <span className="dash-metric-row__value">{displayCount(value)}</span>
     </div>
   );
