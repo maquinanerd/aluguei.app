@@ -21,6 +21,8 @@ export interface PlatformOrganization {
   document: string | null;
   phone: string | null;
   creci: string | null;
+  /** Plano pedido no cadastro (Onda 3); não é o plano vigente. */
+  requestedPlanCode: string | null;
   createdAt: string;
   plan: PlanLimitsDto & { id: string; code: string; name: string; isActive: boolean };
   owner: { name: string; email: string } | null;

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  AvisoModoTeste,
   Badge,
   Button,
   Card,
@@ -17,6 +18,7 @@ import type { BadgeTone, IconName } from '@aluguei/ui';
 import { formatDate, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied } from '@aluguei/ui';
 import {
@@ -119,6 +121,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 function IntegrationsBody() {
   const toast = useToast();
   const metaQ = useQuery<{ connections: Connection[] }>('/meta/connections', []);
+  const { data: capacidades } = useCapacidades();
   const waQ = useQuery<{ connections: WaConnection[]; verifier: WaVerifier }>(
     '/whatsapp/connections',
     [],
@@ -161,6 +164,29 @@ function IntegrationsBody() {
   return (
     <div className="app-page">
       <PageToolbar title="Integrações" description="Status das conexões externas da operação." />
+
+      {/* Uma faixa por provedor em teste, e não uma frase genérica: o que está
+          em teste hoje pode não estar amanhã, e a tela lê a configuração. */}
+      {emTeste(capacidades?.providers.payments) ? (
+        <AvisoModoTeste provedor={PROVIDER_REAL.payments}>
+          Cobrança e split rodam em modo de teste: nenhum valor é cobrado ou transferido.
+        </AvisoModoTeste>
+      ) : null}
+      {emTeste(capacidades?.providers.signature) ? (
+        <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
+          O envelope de assinatura simula os eventos; nada é enviado ao provedor.
+        </AvisoModoTeste>
+      ) : null}
+      {emTeste(capacidades?.providers.screening) ? (
+        <AvisoModoTeste provedor={PROVIDER_REAL.screening}>
+          A análise cadastral usa só os dados da candidatura; nenhuma consulta é feita.
+        </AvisoModoTeste>
+      ) : null}
+      {emTeste(capacidades?.providers.meta) ? (
+        <AvisoModoTeste provedor={PROVIDER_REAL.meta}>
+          Anúncio pago em ensaio: nada é publicado nem cobrado na Meta.
+        </AvisoModoTeste>
+      ) : null}
 
       <div className="peg-grid cols-2">
         {INTEGRATIONS.map((def) => {

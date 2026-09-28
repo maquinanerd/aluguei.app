@@ -101,7 +101,14 @@ function DetailBody({ id }: { id: string }) {
 
   function open(next: Exclude<Dialog, null>) {
     setReason('');
-    setPlanId(org.plan.id);
+    // Na aprovação, começa pelo plano que a imobiliária pediu no cadastro (Onda 3)
+    // quando ele ainda existe e está ativo. É sugestão, não decisão: quem aprova
+    // continua escolhendo, e um pedido de plano que saiu do ar não força a mão.
+    const pedido =
+      next === 'approve' && org.requestedPlanCode !== null
+        ? activePlans.find((p) => p.code === org.requestedPlanCode)
+        : undefined;
+    setPlanId(pedido?.id ?? org.plan.id);
     setDialog(next);
   }
 
@@ -321,6 +328,11 @@ function DetailBody({ id }: { id: string }) {
             }}
             options={planOptions}
           />
+          {dialog === 'approve' && org.requestedPlanCode !== null ? (
+            <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+              Pré-selecionado com o plano pedido no cadastro: {org.requestedPlanCode}.
+            </span>
+          ) : null}
           {(() => {
             const chosen = activePlans.find((p) => p.id === planId);
             return chosen ? (

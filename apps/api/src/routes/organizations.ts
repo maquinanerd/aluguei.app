@@ -6,6 +6,7 @@ import {
   memberInvites,
   memberships,
   organizations,
+  plans,
   userSessions,
   users,
 } from '@aluguei/db';
@@ -19,6 +20,7 @@ import {
   hasPermission,
   hashPassword,
   normalizeEmail,
+  normalizePlanModules,
   tokenUsable,
   type OneTimeToken,
   type Role,
@@ -35,6 +37,7 @@ import {
   listEmailOutboxResponseSchema,
   listMemberInvitesResponseSchema,
   listMembersResponseSchema,
+  planUsageResponseSchema,
   removeMemberResponseSchema,
   revokeMemberInviteResponseSchema,
   updateMemberRoleRequestSchema,
@@ -44,7 +47,7 @@ import { generateOpaqueToken, hashOpaqueToken, queueEmail } from '../email-outbo
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { generateSessionToken, hashSessionToken } from '../plugins/session.js';
 import { auditDiff, writeAudit } from '../plugins/audit.js';
-import { assertPlanAllowsOneMore } from '../platform/usage.js';
+import { assertPlanAllowsOneMore, loadPlanUsage } from '../platform/usage.js';
 import { first, setAuthCookie, toMembershipDto } from './helpers.js';
 
 /** Convite inexistente, vencido, revogado ou já aceito: sempre a mesma resposta. */
@@ -153,6 +156,51 @@ async function countOwners(db: AppDb, orgId: string): Promise<number> {
 
 export const organizationRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  /**
+   * Plano e uso da própria imobiliária (Onda 4). O uso sai do mesmo
+   * `loadPlanUsage` que decide se um cadastro cabe no plano: a tela mostra o
+   * número que o sistema vai usar para recusar, não uma contagem paralela.
+   */
+  app.get('/organizations/:orgId/plan-usage', async (request) => {
+    const auth = requireAuth(request);
+    const { orgId } = z.object({ orgId: uuidSchema }).parse(request.params);
+    await assertOrgMemberPermission(db, orgId, auth.userId, 'member:read');
+
+    const [org] = await db
+      .select({
+        planId: organizations.planId,
+        updatedAt: organizations.updatedAt,
+        createdAt: organizations.createdAt,
+      })
+      .from(organizations)
+      .where(eq(organizations.id, orgId))
+      .limit(1);
+    if (!org) {
+      throw new DomainError('NOT_FOUND', 'Imobiliária não encontrada');
+    }
+    const [plan] = await db.select().from(plans).where(eq(plans.id, org.planId)).limit(1);
+    if (!plan) {
+      throw new DomainError('NOT_FOUND', 'Plano não encontrado');
+    }
+
+    return planUsageResponseSchema.parse({
+      plan: {
+        code: plan.code,
+        name: plan.name,
+        modules: normalizePlanModules(plan.modules),
+        monthlyPriceCents: plan.monthlyPriceCents,
+        limits: {
+          maxUsers: plan.maxUsers,
+          maxProperties: plan.maxProperties,
+          maxPublishedListings: plan.maxPublishedListings,
+          maxActiveLeases: plan.maxActiveLeases,
+        },
+      },
+      usage: await loadPlanUsage(db, orgId),
+      since: org.createdAt.toISOString(),
+    });
+  });
 
   app.get('/organizations/:orgId/members', async (request) => {
     const auth = requireAuth(request);

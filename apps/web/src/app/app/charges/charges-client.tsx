@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
+  AvisoModoTeste,
   Badge,
   Button,
   ConfirmModal,
@@ -20,6 +21,7 @@ import type { Column } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
+import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
 import { useLookup } from '@/lib/lookup';
 import { saoPauloToday } from '@/lib/lease-rules';
 import { chargeActions } from '@/lib/charge-rules';
@@ -52,6 +54,7 @@ interface Lease {
 
 function ChargesBody() {
   const toast = useToast();
+  const { data: capacidades } = useCapacidades();
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(0);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -184,6 +187,14 @@ function ChargesBody() {
 
   return (
     <div className="app-page">
+      {/* A faixa sai da configuração real (`GET /capabilities`), não de texto
+          fixo: quando o Asaas entrar, ela some sozinha. */}
+      {emTeste(capacidades?.providers.payments) ? (
+        <AvisoModoTeste provedor={PROVIDER_REAL.payments}>
+          Cobrança real e split chegam em breve. Nenhum valor é cobrado ou transferido por este
+          painel ainda; o que você vê aqui é o fluxo, com os valores calculados de verdade.
+        </AvisoModoTeste>
+      ) : null}
       <PageToolbar
         title="Cobranças"
         description="Cobranças de aluguel por locação."

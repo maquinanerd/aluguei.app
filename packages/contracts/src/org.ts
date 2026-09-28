@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { userSchema } from './auth.js';
 import { membershipSchema } from './auth.js';
-import { roleSchema, uuidSchema } from './common.js';
+import { planModuleSchema, roleSchema, uuidSchema } from './common.js';
 
 export const createMemberRequestSchema = z.object({
   userId: uuidSchema,
@@ -115,3 +115,35 @@ export type CreateMemberRequest = z.infer<typeof createMemberRequestSchema>;
 export type ListMembersResponse = z.infer<typeof listMembersResponseSchema>;
 export type UserLike = z.infer<typeof userSchema>;
 export type MemberInvite = z.infer<typeof memberInviteSchema>;
+
+/**
+ * Plano e uso da própria imobiliária (Onda 4, tela "Plano e uso").
+ *
+ * O uso vem do mesmo `loadPlanUsage` que decide se um cadastro cabe no plano —
+ * a tela mostra o número que o sistema vai usar para recusar, não uma contagem
+ * paralela que pode divergir.
+ */
+export const planUsageResponseSchema = z.object({
+  plan: z.object({
+    code: z.string(),
+    name: z.string(),
+    modules: z.array(planModuleSchema),
+    monthlyPriceCents: z.number().int().nullable(),
+    limits: z.object({
+      maxUsers: z.number().int().nullable(),
+      maxProperties: z.number().int().nullable(),
+      maxPublishedListings: z.number().int().nullable(),
+      maxActiveLeases: z.number().int().nullable(),
+    }),
+  }),
+  usage: z.object({
+    users: z.number().int().nonnegative(),
+    properties: z.number().int().nonnegative(),
+    publishedListings: z.number().int().nonnegative(),
+    activeLeases: z.number().int().nonnegative(),
+  }),
+  /** Quando a imobiliária entrou no plano atual (para "Desde ..."). */
+  since: z.string(),
+});
+
+export type PlanUsageResponse = z.infer<typeof planUsageResponseSchema>;
