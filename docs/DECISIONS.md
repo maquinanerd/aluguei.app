@@ -1717,3 +1717,41 @@ Decisão:
 
 Consequência: o portal não tem número de plano no código, e o painel sabe o que cada imobiliária
 pediu antes mesmo de existir cobrança. Trocar o domínio passa a exigir rebuild, o que a CI cobre.
+
+## ADR-102 — Modo de teste pela configuração, demanda agregada e uma régua só para publicar (Onda 4, 2026-09-28)
+
+Status: Aceito.
+
+Contexto: a Onda 4 ajusta telas que já estão no ar. Três delas tocam em coisas que, mal feitas,
+mentem para quem opera: o aviso de que um provider ainda não é real, o dado de demanda que vem do
+portal e a lista do que falta para publicar.
+
+Decisão:
+
+- **"Modo de teste" sai da configuração, não do texto.** `GET /capabilities` diz qual adapter está
+  no ar (pagamento, assinatura, análise, Meta) e a faixa da tela é calculada a partir disso. Texto
+  fixo falha dos dois lados: ou sobrevive à entrada do provider real e **esconde um efeito externo
+  de verdade**, ou alguém o remove cedo e a tela **sugere que o dinheiro se moveu**. Enquanto a
+  resposta não chega, a tela trata como em teste — é o lado seguro do erro. A rota exige sessão e
+  devolve só o nome do adapter: nunca credencial, endpoint ou conta.
+- **Uso do plano é lido de onde o limite é decidido.** A tela "Plano e uso" chama o mesmo
+  `loadPlanUsage` que recusa um cadastro acima do limite. Uma contagem paralela divergiria do que o
+  sistema faz, e a pessoa descobriria a diferença ao ser recusada.
+- **A demanda atravessa o portal agregada.** Quem cria alerta de imóvel deixou contato para ser
+  avisado, não para virar lista de imobiliária. A consulta seleciona `count(*)`, o contrato não tem
+  campo para contato e o teste varre a resposta atrás do e-mail da fixture. Só alerta **confirmado**
+  conta, e o recorte é a carteira publicada de quem pergunta — pedir outra cidade não abre o portal
+  inteiro.
+- **Funil do lead é declarado, não deduzido.** `leads.purpose` não sai do imóvel de interesse: lead
+  sem imóvel existe e imóvel `BOTH` não decide nada. Default `RENT`, que é o que toda linha
+  existente de fato é.
+- **Diálogo de publicação e portão são o mesmo código** (`publishBlockers`). Diálogo com régua
+  própria é pior do que diálogo nenhum: a pessoa resolve o que a tela pediu e leva o erro assim
+  mesmo. O teste compara a mensagem que a API recusa com a lista que o diálogo mostrou.
+- **O que a tela de referência promete e o sistema não faz, não entra.** O aviso de que EXIF e GPS
+  são removidos das fotos ficou de fora: o upload vai direto ao storage por URL assinada e a API não
+  vê os bytes, então nada é removido hoje. Escrever isso seria afirmar o que não acontece, numa
+  frase sobre privacidade. Entra quando houver reencode no navegador ou job no worker.
+
+Consequência: o painel para de precisar de manutenção manual de avisos, e o dado de demanda é útil
+sem ser uma lista de pessoas. O custo é uma chamada a mais por tela que mostra aviso.
