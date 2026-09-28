@@ -6,10 +6,14 @@ import {
   uuidSchema,
 } from './common.js';
 
+/** Funil do lead (Onda 4): a imobiliária trabalha aluguel e venda em quadros separados. */
+export const leadPurposeSchema = z.enum(['RENT', 'SALE']);
+
 export const leadSchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
   status: funnelStatusSchema,
+  purpose: leadPurposeSchema,
   source: z.string().nullable(),
   channel: z.string().nullable(),
   partyId: uuidSchema.nullable(),
@@ -23,6 +27,8 @@ export const leadSchema = z.object({
 
 export const createLeadRequestSchema = z.object({
   partyId: uuidSchema.optional(),
+  /** Ausente vale como aluguel, que é o funil histórico do produto. */
+  purpose: leadPurposeSchema.optional(),
   source: z.string().optional(),
   channel: z.string().optional(),
   interestedPropertyIds: z.array(uuidSchema).optional(),
@@ -38,6 +44,9 @@ export const createLeadResponseSchema = z.object({
 
 export const listLeadsQuerySchema = paginationQuerySchema.extend({
   status: funnelStatusSchema.optional(),
+  purpose: leadPurposeSchema.optional(),
+  /** Origem do lead (`channel`), como aparece no quadro. */
+  channel: z.string().trim().max(40).optional(),
 });
 
 export const listLeadsResponseSchema = z.object({

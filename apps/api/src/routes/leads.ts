@@ -54,6 +54,7 @@ function toLeadDto(row: typeof leads.$inferSelect): unknown {
     id: row.id,
     orgId: row.orgId,
     status: row.status,
+    purpose: row.purpose,
     source: row.source,
     channel: row.channel,
     partyId: row.partyId,
@@ -89,6 +90,8 @@ export const leadRoutes: FastifyPluginAsync = (app) => {
         .values({
           orgId: auth.orgId,
           partyId: input.partyId ?? null,
+          // Ausente vale como aluguel: é o funil histórico do produto.
+          purpose: input.purpose ?? 'RENT',
           source: input.source ?? null,
           channel: input.channel ?? null,
           ownerUserId: auth.userId,
@@ -146,6 +149,8 @@ export const leadRoutes: FastifyPluginAsync = (app) => {
     const where = and(
       eq(leads.orgId, auth.orgId),
       query.status ? eq(leads.status, query.status) : undefined,
+      query.purpose ? eq(leads.purpose, query.purpose) : undefined,
+      query.channel ? eq(leads.channel, query.channel) : undefined,
     );
     const rows = await db
       .select()

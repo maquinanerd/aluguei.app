@@ -191,6 +191,11 @@ export const leads = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     status: text('status').notNull().default('NEW'), // funil validado no domínio
+    /**
+     * Funil do lead (Onda 4): RENT ou SALE. Não é deduzido do imóvel de
+     * interesse — lead sem imóvel existe, e imóvel `BOTH` não decide nada.
+     */
+    purpose: text('purpose').notNull().default('RENT'),
     source: text('source'),
     channel: text('channel'), // PORTAL | WHATSAPP | INDICACAO | META | MANUAL ...
     partyId: uuid('party_id'), // FK composta (org_id, party_id) — ver abaixo
@@ -203,6 +208,8 @@ export const leads = pgTable(
   },
   (t) => [
     index('leads_org_status_idx').on(t.orgId, t.status),
+    index('leads_org_purpose_status_idx').on(t.orgId, t.purpose, t.status),
+    domainCheck('leads_purpose_valid', t.purpose, ['RENT', 'SALE']),
     index('leads_org_created_idx').on(t.orgId, t.createdAt),
     unique('leads_org_id_unique').on(t.orgId, t.id),
     domainCheck('leads_status_valid', t.status, [

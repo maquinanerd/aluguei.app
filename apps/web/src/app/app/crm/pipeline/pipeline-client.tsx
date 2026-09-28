@@ -9,6 +9,7 @@ import {
   Group,
   Icon,
   SegmentedControl,
+  Select,
   Stack,
   ToastProvider,
   useToast,
@@ -25,6 +26,7 @@ import { PermissionDenied, EmptyState } from '@aluguei/ui';
 interface Lead {
   id: string;
   status: string;
+  purpose: 'RENT' | 'SALE';
   source: string | null;
   channel: string | null;
   partyId: string | null;
@@ -32,6 +34,13 @@ interface Lead {
   budgetMaxCents: number | null;
   createdAt: string;
 }
+
+/**
+ * Origens que o sistema grava hoje em `channel`. É lista fixa de propósito: o
+ * filtro não pode oferecer uma origem que nunca vai casar com nada, e origem
+ * nova entra aqui junto com quem passa a gravá-la.
+ */
+const ORIGENS = ['PORTAL', 'WHATSAPP', 'META', 'INDICACAO', 'MANUAL'] as const;
 
 interface Party {
   id: string;
@@ -62,11 +71,23 @@ function PipelineBody() {
   const router = useRouter();
   const toast = useToast();
   const [view, setView] = useState('board');
+  // Funil e origem são filtros do servidor: o quadro de venda não carrega os
+  // leads de aluguel para escondê-los no navegador.
+  const [funil, setFunil] = useState<'RENT' | 'SALE'>('RENT');
+  const [origem, setOrigem] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
 
+  const caminho = useMemo(() => {
+    const params = new URLSearchParams({ limit: '100', purpose: funil });
+    if (origem !== '') {
+      params.set('channel', origem);
+    }
+    return `/leads?${params.toString()}`;
+  }, [funil, origem]);
+
   const { data, loading, permissionDenied, reload } = useQuery<{ leads: Lead[]; total: number }>(
-    '/leads?limit=100',
-    [],
+    caminho,
+    [caminho],
   );
   // Contatos dos leads carregados, por `ids` (antes limit=200 → 400 — P1-01).
   const partyLookup = useLookup<Party>(
@@ -105,6 +126,30 @@ function PipelineBody() {
         <PageToolbar
           title="Pipeline"
           description="Kanban operacional do funil de leads."
+          filters={
+            <Group gap={2}>
+              <SegmentedControl
+                value={funil}
+                onChange={(valor) => {
+                  setFunil(valor === 'SALE' ? 'SALE' : 'RENT');
+                }}
+                options={[
+                  { value: 'RENT', label: 'Aluguel' },
+                  { value: 'SALE', label: 'Venda' },
+                ]}
+              />
+              <Select
+                size="sm"
+                value={origem}
+                onChange={(evento) => {
+                  setOrigem(evento.target.value);
+                }}
+                aria-label="Filtrar por origem"
+                placeholder="Origem: todas"
+                options={ORIGENS.map((valor) => ({ value: valor, label: valor }))}
+              />
+            </Group>
+          }
           actions={
             <SegmentedControl
               value={view}
@@ -271,6 +316,30 @@ function PipelineBody() {
       <PageToolbar
         title="Pipeline"
         description="Visão tabular do funil."
+        filters={
+          <Group gap={2}>
+            <SegmentedControl
+              value={funil}
+              onChange={(valor) => {
+                setFunil(valor === 'SALE' ? 'SALE' : 'RENT');
+              }}
+              options={[
+                { value: 'RENT', label: 'Aluguel' },
+                { value: 'SALE', label: 'Venda' },
+              ]}
+            />
+            <Select
+              size="sm"
+              value={origem}
+              onChange={(evento) => {
+                setOrigem(evento.target.value);
+              }}
+              aria-label="Filtrar por origem"
+              placeholder="Origem: todas"
+              options={ORIGENS.map((valor) => ({ value: valor, label: valor }))}
+            />
+          </Group>
+        }
         actions={
           <SegmentedControl
             value={view}
