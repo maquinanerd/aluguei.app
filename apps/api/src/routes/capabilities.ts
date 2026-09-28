@@ -19,7 +19,8 @@ import { requireSession } from '../plugins/authz.js';
  * endpoint nem nome de conta: só qual adapter está no ar.
  */
 export const capabilitiesRoutes: FastifyPluginAsync = (app) => {
-  app.get('/capabilities', async (request) => {
+  // Handler síncrono: tudo aqui sai de configuração já carregada, sem I/O.
+  app.get('/capabilities', (request) => {
     requireSession(request);
 
     // O screening roda no worker; o que vale aqui é a mesma regra de resolução
