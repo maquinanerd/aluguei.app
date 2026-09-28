@@ -122,15 +122,26 @@ describe('Onda 2A — finalidade, venda e fotos do imóvel', () => {
     expect((mudou.body.property as Json).purpose).toBe('SALE');
   });
 
-  it('teto de centavos vale para o preço de venda', async () => {
+  /**
+   * O teto do preço de venda é o de venda, não o de aluguel (ADR-094 revisado
+   * na Onda 5): R$ 1,4 milhão é preço comum de imóvel, e recusá-lo tornaria a
+   * frente de venda inutilizável. Continua havendo teto.
+   */
+  it('teto de centavos do preço de venda é o de venda', async () => {
     const { id } = await criarImovel({
       title: 'Mansão cara demais',
       propertyType: 'HOUSE',
       purpose: 'SALE',
     });
+    const acimaDoTetoDeAluguel = await call(app, 'PUT', `/properties/${id}/financial-terms`, {
+      cookie: agencia.cookie,
+      payload: { salePriceCents: 139_000_000 },
+    });
+    expect(acimaDoTetoDeAluguel.status, JSON.stringify(acimaDoTetoDeAluguel.body)).toBe(200);
+
     const acimaDoTeto = await call(app, 'PUT', `/properties/${id}/financial-terms`, {
       cookie: agencia.cookie,
-      payload: { salePriceCents: 100_000_001 },
+      payload: { salePriceCents: 2_000_000_001 },
     });
     expect(acimaDoTeto.status).toBe(400);
   });
