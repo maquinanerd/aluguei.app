@@ -52,6 +52,12 @@ export const portalSessionResponseSchema = z.object({
   kind: portalKindSchema,
   orgId: uuidSchema,
   orgName: z.string(),
+  /**
+   * Provider de pagamento em uso (Onda 6). O cliente precisa saber que o Pix
+   * ainda é simulação antes de tentar pagar por ele — e o painel já sabe disso
+   * por `GET /capabilities`, que exige sessão de operador.
+   */
+  paymentsProvider: z.enum(['FAKE', 'ASAAS']).nullable(),
 });
 
 // ---- Locatário ----

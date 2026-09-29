@@ -328,6 +328,7 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
           kind: access.kind,
           orgId: access.orgId,
           orgName: org?.name ?? '',
+          paymentsProvider: app.payments?.name ?? null,
         }),
       );
     },
@@ -367,6 +368,9 @@ export const portalRoutes: FastifyPluginAsync = (app) => {
       kind: portal.kind,
       orgId: portal.orgId,
       orgName: org?.name ?? '',
+      // Sem isto, a tela ofereceria "Pagar com Pix" sem dizer que o pagamento
+      // ainda é simulação — e quem pagaria duas vezes é o cliente.
+      paymentsProvider: app.payments?.name ?? null,
     });
   });
 

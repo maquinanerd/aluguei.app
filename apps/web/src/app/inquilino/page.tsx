@@ -4,6 +4,7 @@ import { Badge, Card, Group, Stack } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
 import { PortalLogoutButton } from '@/components/portal/portal-logout-button';
+import { PagarPix } from './pagar-pix';
 
 export const metadata: Metadata = { title: 'Portal do Locatário' };
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,23 @@ interface PortalMe {
   kind: 'LANDLORD' | 'TENANT';
   orgId: string;
   orgName: string;
+  paymentsProvider: 'FAKE' | 'ASAAS' | null;
+}
+
+interface PortalContrato {
+  id: string;
+  status: string;
+  signedAt: string | null;
+  envelopeStatus: string | null;
+}
+
+interface PortalVistoria {
+  id: string;
+  type: string;
+  status: string;
+  observations: unknown[];
+  mediaCounts: { photos: number; audios: number; videos: number };
+  inspectedAt: string | null;
 }
 
 interface PortalCharge {
@@ -52,6 +70,22 @@ export default async function InquilinoPage() {
     // sem cobranças
   }
 
+  let contratos: PortalContrato[] = [];
+  try {
+    const data = await apiFetch<{ contracts: PortalContrato[] }>('/portal/tenant/contracts');
+    contratos = data.contracts;
+  } catch {
+    // sem contrato
+  }
+
+  let vistorias: PortalVistoria[] = [];
+  try {
+    const data = await apiFetch<{ inspections: PortalVistoria[] }>('/portal/tenant/inspections');
+    vistorias = data.inspections;
+  } catch {
+    // sem vistoria
+  }
+
   let totals: { billedCents: number; paidCents: number; openCents: number } | null = null;
   try {
     const statement = await apiFetch<{
@@ -61,6 +95,11 @@ export default async function InquilinoPage() {
   } catch {
     // sem extrato
   }
+
+  // A cobrança que a pessoa veio ver: a mais próxima ainda não paga.
+  const proxima = [...charges]
+    .filter((cobranca) => cobranca.status === 'OPEN' || cobranca.status === 'OVERDUE')
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0];
 
   return (
     <div className="marketing-shell">
@@ -109,6 +148,76 @@ export default async function InquilinoPage() {
             </Card>
           </div>
         ) : null}
+
+        {proxima === undefined ? null : (
+          <Card title="Próxima cobrança" padless>
+            <Stack gap={3} style={{ padding: 20 }}>
+              <Group between>
+                <Stack gap={0}>
+                  <span style={{ fontSize: 24, fontWeight: 700 }}>
+                    {formatBRL(proxima.amountCents)}
+                  </span>
+                  <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                    Vence em {formatDate(proxima.dueDate)}
+                  </span>
+                </Stack>
+                <Badge tone={proxima.status === 'OVERDUE' ? 'danger' : 'warning'}>
+                  {CHARGE_STATUS_LABELS[proxima.status] ?? proxima.status}
+                </Badge>
+              </Group>
+              <PagarPix chargeId={proxima.id} emTeste={me.paymentsProvider !== 'ASAAS'} />
+            </Stack>
+          </Card>
+        )}
+
+        <Card title="Documentos" padless>
+          <Stack gap={0}>
+            {contratos.length === 0 && vistorias.length === 0 ? (
+              <div className="peg-empty" style={{ padding: 24 }}>
+                <span className="peg-empty__body">Nenhum documento disponível ainda.</span>
+              </div>
+            ) : null}
+            {contratos.map((contrato) => (
+              <Group
+                key={contrato.id}
+                between
+                style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}
+              >
+                <Stack gap={0}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>Contrato de locação</span>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    {contrato.signedAt === null
+                      ? 'Aguardando assinatura'
+                      : `Assinado em ${formatDate(contrato.signedAt)}`}
+                  </span>
+                </Stack>
+                <Badge tone={contrato.signedAt === null ? 'warning' : 'success'}>
+                  {contrato.signedAt === null ? 'em andamento' : 'assinado'}
+                </Badge>
+              </Group>
+            ))}
+            {vistorias.map((vistoria) => (
+              <Group
+                key={vistoria.id}
+                between
+                style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}
+              >
+                <Stack gap={0}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>
+                    Vistoria {vistoria.type === 'ENTRY' ? 'de entrada' : 'de saída'}
+                  </span>
+                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                    {vistoria.mediaCounts.photos} fotos · {vistoria.observations.length} observações
+                    {vistoria.inspectedAt === null ? '' : ` · ${formatDate(vistoria.inspectedAt)}`}
+                  </span>
+                </Stack>
+                <Badge tone={vistoria.status === 'COMPLETED' ? 'success' : 'neutral'}>
+                  {vistoria.status === 'COMPLETED' ? 'concluída' : 'em andamento'}
+                </Badge>
+              </Group>
+            ))}
+          </Stack>
+        </Card>
 
         <Card title="Cobranças" padless>
           {charges.length === 0 ? (
