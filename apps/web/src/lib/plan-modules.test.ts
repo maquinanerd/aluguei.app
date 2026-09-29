@@ -53,15 +53,17 @@ describe('módulos do plano na navegação', () => {
     expect(hasModule(sessao, 'FINANCEIRO')).toBe(false);
   });
 
-  it('o menu tem o grupo Vendas com Negociações marcado como Novo', () => {
+  it('o menu tem o grupo Vendas, com as telas da Onda 5 e o cadeado por módulo', () => {
     const vendas = NAV_GROUPS.find((grupo) => grupo.title === 'Vendas');
     expect(vendas).toBeDefined();
-    const negociacoes = vendas?.items[0];
-    expect(negociacoes?.href).toBe('/app/vendas/negociacoes');
-    expect(negociacoes?.module).toBe('VENDAS');
-    expect(negociacoes?.novo).toBe(true);
-    // A tela ainda não existe (fase de Vendas): o item explica em vez de dar 404.
-    expect(negociacoes?.emPreparacao).toBe(true);
+    const rotas = (vendas?.items ?? []).map((item) => item.href);
+    expect(rotas).toEqual(['/app/vendas', '/app/vendas/negociacoes']);
+    for (const item of vendas?.items ?? []) {
+      expect(item.module).toBe('VENDAS');
+      expect(item.novo).toBe(true);
+      // As telas existem desde a Onda 5: nenhuma continua "em preparação".
+      expect(item.emPreparacao ?? false).toBe(false);
+    }
   });
 
   it('itens de módulo carregam o módulo certo e a base segue sem módulo', () => {

@@ -109,10 +109,18 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     ],
   },
   {
-    // Vendas (entrega de design): o módulo existe no plano, as telas chegam na
-    // fase de Vendas (ADR-097). Até lá o item explica em vez de levar a um 404.
+    // Vendas (Onda 5): as telas existem; o cadeado por plano continua valendo.
     title: 'Vendas',
     items: [
+      {
+        href: '/app/vendas',
+        label: 'Painel de vendas',
+        icon: 'trendingUp',
+        permission: 'report:read',
+        section: 'primary',
+        module: 'VENDAS',
+        novo: true,
+      },
       {
         href: '/app/vendas/negociacoes',
         label: 'Negociações',
@@ -121,8 +129,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         section: 'primary',
         module: 'VENDAS',
         novo: true,
-        emPreparacao: true,
-        activePrefixes: ['/app/vendas'],
+        activePrefixes: ['/app/vendas/negociacoes'],
       },
     ],
   },

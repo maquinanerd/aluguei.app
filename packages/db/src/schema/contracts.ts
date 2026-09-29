@@ -150,6 +150,13 @@ export const contractTemplates = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
+    /**
+     * Espécie do contrato (Onda 5). Template de locação e de compra e venda
+     * falam de partes diferentes e oferecem variáveis diferentes; sem isto, a
+     * lista de modelos misturaria os dois e alguém geraria um contrato de venda
+     * com cláusula de aluguel.
+     */
+    kind: text('kind').notNull().default('LEASE'),
     version: integer('version').notNull(),
     body: text('body').notNull(), // placeholders {{var}}
     status: text('status').notNull().default('DRAFT'), // DRAFT | APPROVED | ARCHIVED
@@ -162,6 +169,7 @@ export const contractTemplates = pgTable(
     uniqueIndex('contract_templates_org_name_version_unique').on(t.orgId, t.name, t.version),
     index('contract_templates_org_status_idx').on(t.orgId, t.status),
     domainCheck('contract_templates_status_valid', t.status, ['DRAFT', 'APPROVED', 'ARCHIVED']),
+    domainCheck('contract_templates_kind_valid', t.kind, ['LEASE', 'SALE']),
   ],
 );
 
@@ -178,6 +186,15 @@ export const contracts = pgTable(
     applicationId: uuid('application_id').references(() => rentalApplications.id, {
       onDelete: 'set null',
     }),
+    /** Espécie: locação (padrão histórico) ou compra e venda (Onda 5). */
+    kind: text('kind').notNull().default('LEASE'),
+    /**
+     * Origem do contrato de venda. Locação nasce de uma candidatura
+     * (`applicationId`); venda nasce de uma negociação — são caminhos
+     * diferentes, e por isso são colunas diferentes em vez de um id genérico
+     * que ninguém sabe para onde aponta.
+     */
+    negotiationId: uuid('negotiation_id'),
     status: text('status').notNull().default('DRAFT'), // DRAFT|GENERATED|SENT_FOR_SIGNATURE|PARTIALLY_SIGNED|SIGNED|VOID
     // Cópia da versão vigente (contract_versions): conteúdo e hash só mudam em
     // DRAFT/GENERATED; a partir do envio o banco recusa a escrita (P0-04).
@@ -193,6 +210,7 @@ export const contracts = pgTable(
     index('contracts_org_status_idx').on(t.orgId, t.status),
     index('contracts_org_application_idx').on(t.orgId, t.applicationId),
     unique('contracts_org_id_unique').on(t.orgId, t.id),
+    domainCheck('contracts_kind_valid', t.kind, ['LEASE', 'SALE']),
     domainCheck('contracts_status_valid', t.status, [
       'DRAFT',
       'GENERATED',
@@ -250,14 +268,22 @@ export const contractParties = pgTable(
       .notNull()
       .references(() => contracts.id, { onDelete: 'cascade' }),
     partyId: uuid('party_id').references(() => parties.id, { onDelete: 'set null' }),
-    role: text('role').notNull(), // LANDLORD | TENANT | GUARANTOR
+    role: text('role').notNull(), // LANDLORD | TENANT | GUARANTOR | SELLER | BUYER
     signOrder: integer('sign_order').notNull(),
     signedAt: timestamp('signed_at', { withTimezone: true }),
   },
   (t) => [
     uniqueIndex('contract_parties_contract_party_unique').on(t.contractId, t.partyId),
     index('contract_parties_org_idx').on(t.orgId),
-    domainCheck('contract_parties_role_valid', t.role, ['LANDLORD', 'TENANT', 'GUARANTOR']),
+    // Venda tem partes próprias (Onda 5): comprador e vendedor não são
+    // inquilino e locador, e chamá-los assim mentiria no corpo do contrato.
+    domainCheck('contract_parties_role_valid', t.role, [
+      'LANDLORD',
+      'TENANT',
+      'GUARANTOR',
+      'SELLER',
+      'BUYER',
+    ]),
   ],
 );
 

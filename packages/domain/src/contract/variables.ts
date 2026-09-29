@@ -16,12 +16,34 @@ export const CONTRACT_TEMPLATE_VARIABLES = [
 ] as const;
 export type ContractTemplateVariable = (typeof CONTRACT_TEMPLATE_VARIABLES)[number];
 
+/**
+ * Variáveis do contrato de **compra e venda** (Onda 5). Lista separada de
+ * propósito: as duas espécies de contrato falam de partes diferentes (comprador
+ * e vendedor, não inquilino e locador), e misturá-las deixaria um template de
+ * locação oferecendo `salePrice` — que nunca teria valor.
+ */
+export const SALE_CONTRACT_TEMPLATE_VARIABLES = [
+  'buyerName',
+  'sellerName',
+  'propertyTitle',
+  'salePrice',
+] as const;
+export type SaleContractTemplateVariable = (typeof SALE_CONTRACT_TEMPLATE_VARIABLES)[number];
+
 /** Dados estruturados de origem (sem cláusulas de IA). `null` = dado ausente. */
 export interface ContractVariableSource {
   tenantName: string | null;
   landlordName: string | null;
   propertyTitle: string | null;
   monthlyRentCents: number | null;
+}
+
+export interface SaleContractVariableSource {
+  buyerName: string | null;
+  sellerName: string | null;
+  propertyTitle: string | null;
+  /** Valor que fechou, ou o em jogo enquanto não fechou. */
+  saleAmountCents: number | null;
 }
 
 /** Dado ausente aparece como travessão — nunca como R$ 0,00. */
@@ -51,5 +73,21 @@ export function buildContractVariables(
     propertyTitle: source.propertyTitle ?? MISSING,
     monthlyRent: rent,
     monthlyRentCents: rent,
+  };
+}
+
+/**
+ * Variáveis do contrato de compra e venda. Mesma regra do de locação: valor sai
+ * formatado em R$, e dado ausente vira travessão — nunca R$ 0,00, que num
+ * contrato de venda seria uma afirmação falsa sobre preço.
+ */
+export function buildSaleContractVariables(
+  source: SaleContractVariableSource,
+): Record<SaleContractTemplateVariable, string> {
+  return {
+    buyerName: source.buyerName ?? MISSING,
+    sellerName: source.sellerName ?? MISSING,
+    propertyTitle: source.propertyTitle ?? MISSING,
+    salePrice: source.saleAmountCents === null ? MISSING : formatCentsBRL(source.saleAmountCents),
   };
 }

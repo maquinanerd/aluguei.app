@@ -24,6 +24,7 @@ import {
 } from '@aluguei/ui';
 import { formatArea, formatBRL, formatDate } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
+import { ExclusividadeVenda } from './exclusividade-venda';
 import { useQuery } from '@/lib/use-query';
 import { label, PROPERTY_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/lib/labels';
 import { PermissionDenied, EmptyState, ErrorState } from '@aluguei/ui';
@@ -52,8 +53,11 @@ interface Property {
     state: string | null;
     isPublic: boolean;
   }>;
+  purpose: 'RENT' | 'SALE' | 'BOTH';
   financialTerms: {
-    monthlyRentCents: number;
+    monthlyRentCents: number | null;
+    salePriceCents: number | null;
+    pricePerSqmCents: number | null;
     condoFeeCents: number | null;
     iptuCents: number | null;
     securityDepositCents: number | null;
@@ -506,10 +510,26 @@ function PropertyBody() {
               <Stack gap={3} style={{ padding: 20 }}>
                 {property.financialTerms ? (
                   <div className="peg-grid cols-2">
-                    <InfoRow
-                      label="Aluguel mensal"
-                      value={formatBRL(property.financialTerms.monthlyRentCents)}
-                    />
+                    {/* Aluguel e venda aparecem conforme a finalidade: imóvel só
+                        à venda não tem aluguel, e vice-versa (Onda 2A). */}
+                    {property.purpose === 'SALE' ? null : (
+                      <InfoRow
+                        label="Aluguel mensal"
+                        value={formatBRL(property.financialTerms.monthlyRentCents)}
+                      />
+                    )}
+                    {property.purpose === 'RENT' ? null : (
+                      <>
+                        <InfoRow
+                          label="Preço de venda"
+                          value={formatBRL(property.financialTerms.salePriceCents)}
+                        />
+                        <InfoRow
+                          label="Preço por m²"
+                          value={formatBRL(property.financialTerms.pricePerSqmCents)}
+                        />
+                      </>
+                    )}
                     <InfoRow
                       label="Condomínio"
                       value={formatBRL(property.financialTerms.condoFeeCents)}
@@ -550,6 +570,10 @@ function PropertyBody() {
                 </Group>
               </Stack>
             </Card>
+          ) : null}
+
+          {tab === 'financeiro' && property.purpose !== 'RENT' ? (
+            <ExclusividadeVenda propertyId={property.id} />
           ) : null}
 
           {tab === 'historico' ? (

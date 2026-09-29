@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { paginationQuerySchema, uuidSchema } from './common.js';
 
+/**
+ * Espécie do contrato (Onda 5). Locação e compra e venda falam de partes
+ * diferentes e oferecem variáveis diferentes ao modelo — misturá-las deixaria
+ * um template de locação sendo usado numa venda.
+ */
+export const contractKindSchema = z.enum(['LEASE', 'SALE']);
+
 export const contractStatusSchema = z.enum([
   'DRAFT',
   'GENERATED',
@@ -14,6 +21,7 @@ export const contractTemplateSchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
   name: z.string(),
+  kind: contractKindSchema,
   version: z.number().int(),
   status: z.enum(['DRAFT', 'APPROVED', 'ARCHIVED']),
   approvedAt: z.string().nullable(),
@@ -24,6 +32,8 @@ export const contractTemplateSchema = z.object({
 export const createContractTemplateRequestSchema = z.object({
   name: z.string().min(1).max(100),
   body: z.string().min(1),
+  /** Ausente vale como locação, que é a espécie histórica do produto. */
+  kind: contractKindSchema.optional(),
 });
 
 export const createContractTemplateResponseSchema = z.object({ template: contractTemplateSchema });
@@ -35,6 +45,7 @@ export const approveContractTemplateResponseSchema = z.object({ template: contra
 export const listContractTemplatesQuerySchema = paginationQuerySchema.extend({
   status: z.enum(['DRAFT', 'APPROVED', 'ARCHIVED']).optional(),
   name: z.string().optional(),
+  kind: contractKindSchema.optional(),
 });
 
 export const listContractTemplatesResponseSchema = z.object({
@@ -46,7 +57,11 @@ export const contractSchema = z.object({
   id: uuidSchema,
   orgId: uuidSchema,
   templateId: uuidSchema.nullable(),
+  kind: contractKindSchema,
+  /** Origem na locação; nulo no contrato de venda. */
   applicationId: uuidSchema.nullable(),
+  /** Origem na venda; nulo no contrato de locação. */
+  negotiationId: uuidSchema.nullable(),
   status: contractStatusSchema,
   content: z.string().nullable(),
   contentHash: z.string().nullable(),
@@ -78,7 +93,7 @@ export const contractPartySchema = z.object({
   id: uuidSchema,
   contractId: uuidSchema,
   partyId: uuidSchema.nullable(),
-  role: z.enum(['LANDLORD', 'TENANT', 'GUARANTOR']),
+  role: z.enum(['LANDLORD', 'TENANT', 'GUARANTOR', 'SELLER', 'BUYER']),
   signOrder: z.number().int(),
   signedAt: z.string().nullable(),
 });
@@ -103,10 +118,21 @@ export const contractAggregateSchema = z.object({
   envelope: signatureEnvelopeSchema.nullable(),
 });
 
-export const createContractRequestSchema = z.object({
-  applicationId: uuidSchema,
-  templateId: uuidSchema,
-});
+/**
+ * Cria o contrato a partir da sua origem: candidatura (locação) ou negociação
+ * (venda). Exatamente uma das duas — um contrato com as duas origens não tem
+ * significado, e sem nenhuma não há de onde tirar as partes nem o valor.
+ */
+export const createContractRequestSchema = z
+  .object({
+    applicationId: uuidSchema.optional(),
+    negotiationId: uuidSchema.optional(),
+    templateId: uuidSchema,
+  })
+  .refine(
+    (entrada) => (entrada.applicationId === undefined) !== (entrada.negotiationId === undefined),
+    { message: 'Informe a candidatura (locação) ou a negociação (venda), e apenas uma' },
+  );
 
 export const createContractResponseSchema = z.object({ contract: contractAggregateSchema });
 

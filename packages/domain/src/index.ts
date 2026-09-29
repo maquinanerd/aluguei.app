@@ -200,8 +200,15 @@ export {
   CONTRACT_TEMPLATE_VARIABLES,
   buildContractVariables,
   formatCentsBRL,
+  SALE_CONTRACT_TEMPLATE_VARIABLES,
+  buildSaleContractVariables,
 } from './contract/variables.js';
-export type { ContractTemplateVariable, ContractVariableSource } from './contract/variables.js';
+export type {
+  ContractTemplateVariable,
+  ContractVariableSource,
+  SaleContractTemplateVariable,
+  SaleContractVariableSource,
+} from './contract/variables.js';
 
 export {
   add,
