@@ -48,11 +48,14 @@ test.describe('P1-16: portal alcançável pela interface', () => {
     const secondContext = await browser.newContext();
     const second = await secondContext.newPage();
     await second.goto(link, { timeout: 240_000 });
+    // O link usado deixou de ser beco sem saída (Onda 6): a tela explica a regra
+    // de uso único e oferece pedir outro ali mesmo.
     await expect(
-      second.getByText('Este link de acesso é inválido, expirou ou já foi usado'),
+      second.getByText('Por segurança, cada link funciona uma vez só. Peça um novo abaixo.'),
     ).toBeVisible({
       timeout: 60_000,
     });
+    await expect(second.getByRole('button', { name: 'Receber link de acesso' })).toBeVisible();
     await secondContext.close();
 
     await tenant.getByRole('button', { name: 'Sair' }).click();

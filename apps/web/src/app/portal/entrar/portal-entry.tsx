@@ -59,7 +59,7 @@ export function PortalEntry() {
         </p>
         {/* Beco sem saída é o pior desfecho aqui: quem perdeu o link pede outro
             na mesma tela, sem precisar ligar para a imobiliária. */}
-        <PedirLink />
+        <PedirLink aninhado />
       </div>
     );
   }

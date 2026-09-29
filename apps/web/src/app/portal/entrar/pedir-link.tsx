@@ -19,7 +19,10 @@ import { Button, Input } from '@aluguei/ui';
 
 const ESPERA_SEGUNDOS = 45;
 
-export function PedirLink() {
+export function PedirLink({ aninhado = false }: { aninhado?: boolean } = {}) {
+  // Dentro da tela de link vencido já existe um h1; um segundo quebraria a
+  // hierarquia de títulos para quem navega por leitor de tela.
+  const Titulo = aninhado ? 'h2' : 'h1';
   const [contato, setContato] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [pedido, setPedido] = useState(false);
@@ -67,7 +70,7 @@ export function PedirLink() {
   if (pedido) {
     return (
       <div className="peg-stack" style={{ gap: 12 }}>
-        <h1 style={{ fontSize: 20 }}>Pedido registrado</h1>
+        <Titulo style={{ fontSize: 20 }}>Pedido registrado</Titulo>
         <p style={{ fontSize: 14, color: 'var(--peg-text-secondary)' }} role="status">
           Se existir uma locação com este contato, a imobiliária envia o seu link de acesso. Ele
           vale por 15 minutos e só pode ser usado uma vez.
@@ -100,7 +103,7 @@ export function PedirLink() {
         void pedir();
       }}
     >
-      <h1 style={{ fontSize: 20 }}>Acesse sua locação</h1>
+      <Titulo style={{ fontSize: 20 }}>Acesse sua locação</Titulo>
       <p style={{ fontSize: 14, color: 'var(--peg-text-secondary)' }}>
         Informe o e-mail ou o celular cadastrado na imobiliária. O link vale por 15 minutos e só
         pode ser usado uma vez.
