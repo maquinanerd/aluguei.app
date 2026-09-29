@@ -239,6 +239,40 @@ describe('Onda 5 — negociação de venda', () => {
     expect(detalhe.documents).toEqual({ provided: 1, total: 2 });
   });
 
+  it('o quadro lista com etapa vazia contando zero', async () => {
+    // Regressão: a contagem só trazia as etapas povoadas e o contrato exige as
+    // seis. Quadro recém-começado — o caso comum — derrubava a lista inteira,
+    // e a tela mostrava erro de validação no lugar das negociações.
+    const nova = await registerAgency(app);
+    await approveAgency(app, nova.org.id, 'ILIMITADO');
+
+    const vazio = await call(app, 'GET', '/sale-negotiations', { cookie: nova.cookie });
+    expect(vazio.status, JSON.stringify(vazio.body)).toBe(200);
+    expect(vazio.body.byStage).toEqual({
+      PROPOSAL: 0,
+      COUNTER: 0,
+      DOCUMENTATION: 0,
+      CONTRACT: 0,
+      CLOSED: 0,
+      LOST: 0,
+    });
+
+    const res = await call(app, 'GET', '/sale-negotiations', { cookie: agencia.cookie });
+    expect(res.status, JSON.stringify(res.body)).toBe(200);
+    const byStage = res.body.byStage as Record<string, number>;
+    expect(Object.keys(byStage).sort()).toEqual([
+      'CLOSED',
+      'CONTRACT',
+      'COUNTER',
+      'DOCUMENTATION',
+      'LOST',
+      'PROPOSAL',
+    ]);
+    // A soma das colunas é o total de negociações da imobiliária.
+    const soma = Object.values(byStage).reduce((acc, n) => acc + n, 0);
+    expect(soma).toBe(res.body.total);
+  });
+
   it('plano sem o módulo Vendas recebe 403', async () => {
     const semVendas = await registerAgency(app);
     await approveAgency(app, semVendas.org.id, 'ESSENCIAL');

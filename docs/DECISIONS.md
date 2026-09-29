@@ -1796,3 +1796,40 @@ Pendência declarada: o **cadastro por áudio e fotos** não foi implementado. E
 decisão do dono sobre o que pode sair para o provedor de IA — o áudio do corretor cita nome de
 proprietário, endereço e valores, e a foto pode ter GPS. O `AGENTS.md` proíbe enviar PII
 desnecessária, e essa fronteira é do produto, não da engenharia.
+
+## ADR-104 — O que pode sair para o provedor de IA no cadastro por áudio e fotos (2026-09-29)
+
+Status: Aceito. Define a fronteira declarada como pendente no ADR-103 e vale para qualquer uso de
+IA sobre conteúdo enviado pelo corretor, não só o cadastro por áudio.
+
+Contexto: o cadastro por áudio pede que o corretor fale o imóvel e a IA preencha a ficha. O ditado
+não é um formulário: além do imóvel, sai nome de proprietário, telefone de contato, às vezes um
+valor de dívida. Não dá para pedir ao corretor que fale só o permitido — e não dá para filtrar
+áudio antes de transcrever, porque filtrar exige entender, que é justamente o que a transcrição
+faz. O dono do produto delegou a decisão à engenharia; ela está registrada aqui porque muda o que
+sai da empresa, não como o código é escrito.
+
+Decisão:
+
+- **O áudio bruto sai apenas para transcrever, e só para provedor declarado sem retenção e sem
+  treinamento.** A declaração é configuração explícita do provedor; sem ela o recurso fica
+  desligado e a tela diz isso. Falha fechada de propósito: um provedor que guarda áudio guarda a
+  voz do corretor e o que ele disser por perto, e isso não se desfaz depois.
+- **A extração de campos roda sobre a transcrição, não sobre o áudio**, e a transcrição vai para a
+  extração com CPF, telefone e e-mail substituídos por marcador. Nenhum deles é campo de ficha de
+  imóvel: mandá-los seria enviar PII que a tarefa não usa, contra o `AGENTS.md`.
+- **O endereço do imóvel pode acompanhar.** É o objeto do cadastro, é dado comercial da imobiliária
+  e o bairro já é público na vitrine. Cortá-lo tornaria o recurso inútil — o corretor teria de
+  redigitar justamente o campo mais longo — sem proteger pessoa nenhuma.
+- **A base da imobiliária nunca vai junto.** A IA recebe o que o corretor acabou de enviar e nada
+  mais: sem cadastro de clientes, sem contratos, sem financeiro. Contexto extra melhora palpite e
+  amplia vazamento.
+- **Fotos seguem a mesma regra do áudio** e servem para descrever o imóvel. O sistema **não afirma**
+  que remove rosto, placa ou metadado de GPS: não implementamos isso, e prometer o que não fazemos
+  é pior do que não fazer.
+- **Nada é salvo sem confirmação.** A IA sugere e o corretor confirma campo a campo — regra de
+  produto do prompt, repetida aqui porque é ela que mantém a responsabilidade com quem cadastra.
+
+Consequência: enquanto não houver provedor com retenção zero configurado, o cadastro por áudio
+nasce `IMPLEMENTED_NOT_LIVE_VERIFIED` — o caminho existe, o adapter mock roda em teste, e a tela
+recusa gravar em vez de mandar áudio para um provedor que a gente não sabe o que faz com ele.

@@ -43,7 +43,8 @@ import type { EtapaNegociacao, Negociacao, NegociacaoDetalhe } from '@/lib/venda
 interface ListaResposta {
   negotiations: Negociacao[];
   total: number;
-  byStage: Partial<Record<EtapaNegociacao, number>>;
+  /** Todas as etapas, inclusive as vazias contando zero (a API preenche). */
+  byStage: Record<EtapaNegociacao, number>;
 }
 
 function NegociacoesBody() {
@@ -114,24 +115,16 @@ function NegociacoesBody() {
           icon="columns"
         />
       ) : (
-        <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
+        <div className="sale-board">
           {COLUNAS_DO_QUADRO.map((etapa) => {
             const itens = negociacoes.filter((negociacao) => negociacao.stage === etapa);
             return (
-              <section
-                key={etapa}
-                style={{
-                  flex: '0 0 240px',
-                  minWidth: 240,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <Group between style={{ padding: '8px 4px' }}>
+              <section key={etapa} className="sale-board__col">
+                <Group between className="sale-board__head">
                   <Group gap={2}>
                     <Badge tone={ETAPA_TOM[etapa]}>{ETAPA_ROTULO[etapa]}</Badge>
                     <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                      {lista.data?.byStage[etapa] ?? itens.length}
+                      {lista.data?.byStage[etapa] ?? 0}
                     </span>
                   </Group>
                 </Group>
@@ -140,8 +133,7 @@ function NegociacoesBody() {
                     <button
                       key={negociacao.id}
                       type="button"
-                      className="peg-card"
-                      style={{ padding: 12, textAlign: 'left', cursor: 'pointer' }}
+                      className="peg-card sale-board__card"
                       onClick={() => {
                         setAbertaId(negociacao.id);
                       }}
@@ -266,6 +258,7 @@ function HistoricoNegociacao({
         <Group
           key={evento.id}
           between
+          wrap
           style={{
             padding: '10px 12px',
             border: '1px solid var(--peg-border)',
@@ -318,7 +311,7 @@ function HistoricoNegociacao({
               </Button>
             </Group>
           )}
-          <Group gap={2}>
+          <Group gap={2} wrap className="sale-drawer__propor">
             <Input
               size="sm"
               inputMode="numeric"
