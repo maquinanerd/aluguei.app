@@ -64,6 +64,10 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'sale_negotiation_events.outcome': { values: d.SALE_EVENT_OUTCOMES },
   'sale_negotiation_documents.side': { values: d.SALE_DOCUMENT_SIDES },
   'sale_commission_shares.role': { values: d.SALE_COMMISSION_ROLES },
+  // Cadastro por áudio (ADR-104): situação do rascunho e de cada campo sugerido.
+  'property_drafts.status': { values: c.propertyDraftStatusSchema.options },
+  'property_draft_fields.field_key': { values: c.propertyDraftFieldKeySchema.options },
+  'property_draft_fields.state': { values: c.propertyDraftFieldStateSchema.options },
   'tasks.status': { values: c.taskStatusSchema.options },
   'properties.status': { values: c.propertyStatusSchema.options },
   'properties.property_type': { values: c.propertyTypeSchema.options },

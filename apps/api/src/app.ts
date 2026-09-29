@@ -22,6 +22,7 @@ import type {
   WhatsAppMessenger,
   WhatsAppNumberVerifier,
   AiProvider,
+  AudioAiProvider,
   ISignatureProvider,
   IPaymentProvider,
   IMetaAdsProvider,
@@ -64,6 +65,7 @@ import { capabilitiesRoutes } from './routes/capabilities.js';
 import { saleExclusivityRoutes } from './routes/sale-exclusivity.js';
 import { saleNegotiationRoutes } from './routes/sale-negotiations.js';
 import { portalRequestLinkRoutes } from './routes/portal-request-link.js';
+import { propertyDraftRoutes } from './routes/property-drafts.js';
 import { channelRoutes } from './routes/channels.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
@@ -108,6 +110,8 @@ export interface BuildAppOptions extends FastifyServerOptions {
   /** Verificador da posse do número (P1-18); padrão pelo modo da Meta (FAKE em dry_run). */
   whatsappVerifier?: WhatsAppNumberVerifier;
   ai?: AiProvider;
+  /** Transcritor injetado (teste/dev); a trava de retenção do ADR-104 continua valendo. */
+  audioAi?: AudioAiProvider;
   signature?: ISignatureProvider;
   payments?: IPaymentProvider;
   meta?: IMetaAdsProvider;
@@ -327,6 +331,15 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.GEMINI_API_KEY) {
     aiOptions.geminiKey = env.GEMINI_API_KEY;
   }
+  if (opts.audioAi) {
+    aiOptions.audio = opts.audioAi;
+  }
+  if (env.AI_AUDIO_RETENTION) {
+    aiOptions.audioRetention = env.AI_AUDIO_RETENTION;
+  }
+  if (env.AI_AUDIO_PROVIDER) {
+    aiOptions.audioProvider = env.AI_AUDIO_PROVIDER;
+  }
   await app.register(aiPlugin, aiOptions);
 
   app.decorate('channels', opts.channels ?? {});
@@ -404,6 +417,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(saleExclusivityRoutes);
   await registerBehindModule(app, 'VENDAS', [saleNegotiationRoutes]);
   await app.register(portalRequestLinkRoutes);
+  await app.register(propertyDraftRoutes);
   await app.register(channelRoutes);
   await app.register(webhookRoutes);
   // Grupos atrás do módulo do plano: fora do plano a API responde 403 com

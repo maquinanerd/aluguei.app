@@ -22,8 +22,13 @@ export interface Capacidades {
     signature: ModoAssinatura;
     screening: ModoAnalise;
     meta: ModoMeta;
+    /** Transcrição do cadastro por áudio; `null` = recurso desligado. */
+    audio: ModoAudio;
   };
 }
+
+/** `null` = sem provedor com retenção zero declarada (ADR-104): o recurso nem é oferecido. */
+export type ModoAudio = 'MOCK' | null;
 
 export function useCapacidades() {
   return useQuery<Capacidades>('/capabilities');

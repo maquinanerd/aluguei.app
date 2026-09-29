@@ -11,6 +11,7 @@ import {
   FakeWhatsAppMessenger,
   MockAiProvider,
 } from '@aluguei/integrations';
+import type { AudioAiProvider } from '@aluguei/integrations';
 import { FakeStorageService } from './fakes.js';
 import { approveAgency } from './platform-fixtures.js';
 
@@ -44,15 +45,29 @@ export const testEnv: AppEnv = {
 
 let appCache: FastifyInstance | null = null;
 
-/** Cria app Fastify com PGlite (Postgres in-process) + migrations aplicadas. */
-export async function buildTestApp(): Promise<FastifyInstance> {
-  if (appCache) {
+export interface TestAppOptions {
+  /** Transcritor de áudio; exige `env.AI_AUDIO_RETENTION = 'ZERO'` (ADR-104). */
+  audioAi?: AudioAiProvider;
+  /** Sobrescreve chaves do env de teste. */
+  env?: Partial<AppEnv>;
+}
+
+/**
+ * Cria app Fastify com PGlite (Postgres in-process) + migrations aplicadas.
+ *
+ * Sem opções, devolve a instância compartilhada — subir uma por arquivo custaria
+ * minutos na suíte. Com opções, constrói uma instância própria: quem precisa de
+ * configuração diferente precisa dela isolada, e quem a pede fecha no `afterAll`.
+ */
+export async function buildTestApp(opts: TestAppOptions = {}): Promise<FastifyInstance> {
+  const proprio = opts.audioAi !== undefined || opts.env !== undefined;
+  if (appCache && !proprio) {
     return appCache;
   }
   const db = await createTestDb();
   const app = await buildApp({
     db,
-    env: testEnv,
+    env: opts.env ? { ...testEnv, ...opts.env } : testEnv,
     config: { cookieSecure: false },
     storage: fakeStorage,
     channels: { fake: fakeChannel },
@@ -61,8 +76,11 @@ export async function buildTestApp(): Promise<FastifyInstance> {
     signature: fakeSignature,
     payments: fakePayments,
     meta: fakeMetaAds,
+    ...(opts.audioAi ? { audioAi: opts.audioAi } : {}),
   });
-  appCache = app;
+  if (!proprio) {
+    appCache = app;
+  }
   return app;
 }
 

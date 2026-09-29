@@ -340,6 +340,11 @@ function stackEnv(databaseUrl) {
     // Cifra dos tokens por conexão (Meta Ads e WhatsApp, ADR-028): chave descartável por stack.
     META_TOKEN_ENCRYPTION_KEY: env.META_TOKEN_ENCRYPTION_KEY ?? randomBytes(32).toString('hex'),
     AI_PROVIDER: 'mock',
+    // Cadastro por áudio (ADR-104): a stack de E2E declara retenção zero para o
+    // transcritor de mentira, que não manda nada para lugar nenhum. Em produção
+    // essa declaração é sobre um provedor real, e sem ela o recurso fica desligado.
+    AI_AUDIO_RETENTION: 'ZERO',
+    AI_AUDIO_PROVIDER: 'mock',
     PAYMENT_PROVIDER: 'FAKE',
     SIGNATURE_PROVIDER: 'FAKE',
     SCREENING_PROVIDER: 'FAKE',

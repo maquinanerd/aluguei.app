@@ -30,6 +30,14 @@ export type { AiProviderErrorKind, AiProviderErrorOptions } from './ai/errors.js
 export type { OpenAiAiProviderOptions } from './ai/openai.js';
 export type { GeminiAiProviderOptions } from './ai/gemini.js';
 export { getAiProvider } from './ai/registry.js';
+export { MockAudioAiProvider, getAudioAiProvider } from './ai/audio.js';
+export type {
+  AudioAiProvider,
+  AudioAiRegistryOptions,
+  AudioAiResolution,
+  AudioAiUnavailable,
+  AudioTranscription,
+} from './ai/audio.js';
 export type { AiRegistryOptions } from './ai/registry.js';
 export type { AiProvider, IntentExtraction, IntentKind } from './ai/types.js';
 

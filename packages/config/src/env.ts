@@ -47,6 +47,10 @@ export const envSchema = z.object({
   STORAGE_FORCE_PATH_STYLE: opcaoOpcional(['true', 'false']),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
   AI_PROVIDER: z.string().optional(),
+  // Cadastro por áudio (ADR-104): só `ZERO` liga o recurso. Qualquer outro
+  // valor — inclusive vazio — mantém desligado, que é a falha fechada.
+  AI_AUDIO_RETENTION: z.string().optional(),
+  AI_AUDIO_PROVIDER: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   META_MODE: opcaoOpcional(['dry_run', 'live']),

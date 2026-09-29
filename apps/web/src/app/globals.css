@@ -1352,3 +1352,25 @@ body {
   flex: 1 1 140px;
   min-width: 0;
 }
+
+/* ============ Cadastro por áudio (ADR-104) ============ */
+.audio-capture {
+  text-align: center;
+}
+.audio-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--peg-space-2);
+  padding: var(--peg-space-3);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-sm);
+}
+/* O trecho do áudio é citação do que foi dito, não texto da interface. */
+.audio-field__evidence {
+  margin: 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--peg-text-tertiary);
+  border-left: 2px solid var(--peg-border);
+  padding-left: var(--peg-space-2);
+}

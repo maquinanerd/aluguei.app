@@ -189,6 +189,16 @@ function PropertiesBody() {
             ]}
           />
           <Button
+            variant="secondary"
+            size="sm"
+            icon={<Icon name="mic" size={14} />}
+            onClick={() => {
+              router.push('/app/properties/new-by-audio');
+            }}
+          >
+            Por áudio
+          </Button>
+          <Button
             variant="brand"
             size="sm"
             icon={<Icon name="plus" size={14} />}
