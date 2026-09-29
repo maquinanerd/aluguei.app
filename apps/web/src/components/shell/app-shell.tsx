@@ -288,7 +288,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
             >
               <Icon name="menu" size={18} />
             </button>
-            <nav aria-label="Trilha de navegação" className="peg-breadcrumb">
+            <nav aria-label="Trilha de navegação" className="peg-breadcrumb app-topbar__crumbs">
               {crumbs.map((c, i) => {
                 const last = i === crumbs.length - 1;
                 return (
@@ -314,15 +314,19 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 );
               })}
             </nav>
-            <span className="peg-breadcrumb__separator" aria-hidden="true">
-              ·
-            </span>
-            {activeOrg ? (
-              <span className="peg-text-secondary" style={{ fontSize: 13 }}>
-                {activeOrg.name}
+            {/* Contexto de desktop: no celular a barra guarda só menu, busca e
+                conta — a própria tela já diz onde a pessoa está. */}
+            <div className="peg-group app-topbar__context">
+              <span className="peg-breadcrumb__separator" aria-hidden="true">
+                ·
               </span>
-            ) : null}
-            <TopbarClock />
+              {activeOrg ? (
+                <span className="peg-text-secondary" style={{ fontSize: 13 }}>
+                  {activeOrg.name}
+                </span>
+              ) : null}
+              <TopbarClock />
+            </div>
             <div className="peg-spacer" />
             <GlobalSearch session={session} />
             {can(session, 'conversation:read') ? (

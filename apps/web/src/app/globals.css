@@ -1271,3 +1271,82 @@ body {
   font-size: 13px;
   color: var(--peg-text-tertiary);
 }
+
+/* ============ Quadro de negociações (Onda 5; celular na Onda 6) ============
+ *
+ * No desktop são colunas lado a lado numa faixa que rola de lado. No celular
+ * essa faixa é o problema: cinco colunas de 240px em 390px de tela obrigam a
+ * arrastar a faixa inteira — inclusive as etapas vazias, que ocupam o mesmo
+ * espaço das cheias — para descobrir onde está cada negociação.
+ *
+ * Abaixo de 768px as colunas viram seções empilhadas, na largura toda. A
+ * rolagem passa a ser vertical, que é o gesto do celular, e a etapa vazia
+ * encolhe para a linha do cabeçalho, que já informa o zero.
+ */
+.sale-board {
+  display: flex;
+  gap: var(--peg-space-3);
+  overflow-x: auto;
+  padding-bottom: var(--peg-space-2);
+}
+.sale-board__col {
+  flex: 0 0 240px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+}
+.sale-board__head {
+  padding: var(--peg-space-2) 4px;
+}
+.sale-board__card {
+  padding: var(--peg-space-3);
+  text-align: left;
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .sale-board {
+    display: block;
+    overflow-x: visible;
+  }
+  .sale-board__col {
+    min-width: 0;
+    width: 100%;
+  }
+  .sale-board__col + .sale-board__col {
+    margin-top: var(--peg-space-4);
+  }
+  /* Alvo de toque confortável: o cartão é o que se toca para abrir a gaveta. */
+  .sale-board__card {
+    min-height: 56px;
+  }
+}
+
+/* ============ Barra superior no celular (Onda 6) ============
+ *
+ * Em 390px a barra tentava caber trilha, imobiliária, relógio, busca de 340px,
+ * sino e conta na mesma linha: tudo espremido, a busca sumindo e o nome da
+ * conta cortado na borda. No celular ela guarda o que é ação — menu, busca e
+ * conta — e larga o contexto, que a própria tela repete no título.
+ */
+@media (max-width: 767px) {
+  .app-topbar {
+    height: 56px;
+    padding: 0 var(--peg-space-3);
+  }
+  .app-topbar__crumbs,
+  .app-topbar__context {
+    display: none;
+  }
+  .app-topbar__search {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
+  /* Alvo de toque de 44px (critério 3): o dedo não acerta 32px com folga. */
+  .app-topbar .peg-icon-btn {
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
+}

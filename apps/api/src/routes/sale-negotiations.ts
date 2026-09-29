@@ -13,6 +13,7 @@ import type { AppDb } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  SALE_NEGOTIATION_STAGES,
   assertNegotiationTransition,
   assertSharesTotal100,
   commissionCents,
@@ -272,7 +273,13 @@ export const saleNegotiationRoutes: FastifyPluginAsync = (app) => {
         .from(saleNegotiations)
         .where(eq(saleNegotiations.orgId, auth.orgId))
         .groupBy(saleNegotiations.stage);
-      const byStage: Record<string, number> = {};
+      // Etapa sem nenhuma negociação conta zero — e precisa **aparecer** contando
+      // zero. Devolver só as etapas povoadas quebrava a lista inteira (o contrato
+      // exige as seis chaves) justamente no caso comum: quadro recém-começado,
+      // com uma ou duas etapas em uso.
+      const byStage: Record<string, number> = Object.fromEntries(
+        SALE_NEGOTIATION_STAGES.map((etapa) => [etapa, 0]),
+      );
       for (const linha of contagens) {
         byStage[linha.stage] = linha.n;
       }
