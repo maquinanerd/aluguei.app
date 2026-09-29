@@ -109,3 +109,23 @@ O agente deve registrar aqui apenas depend�ncias externas reais: credenciais, 
 - Webhook /webhooks/meta: formato entry[].changes[] + X-Hub-Signature-256 ja implementado na
   API (META_APP_SECRET obrigatorio em producao); conteudo dos eventos de ads a validar na
   homologacao.
+
+## Cadastro de imovel por audio (ADR-104) — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+Caminho completo implementado e testado: rascunho separado do imovel (migration 0035),
+URL assinada para o audio, transcricao, redacao de CPF/telefone/e-mail antes de guardar,
+extracao de campos por regra em pt-BR, revisao campo a campo e confirmacao que cria o imovel.
+Cobertura: 13 testes de integracao, 15 de dominio, 6 do registro de transcricao, 2 de E2E.
+
+**Nao verificado ao vivo**: nenhuma transcricao real foi executada. O unico transcritor
+implementado e o de mentira (`MOCK`), que devolve texto fixo — ele existe para o caminho poder
+ser testado, e `/capabilities` expoe isso para a tela avisar que e simulacao.
+
+Depende do usuario: contratar um provedor de transcricao **com retencao zero e sem treinamento**
+e declarar `AI_AUDIO_RETENTION=ZERO` no ambiente. Sem essa declaracao o recurso fica desligado,
+que e a falha fechada exigida pelo ADR-104 — a tela explica e manda para o cadastro comum.
+Quando houver contrato, falta escrever o adapter do provedor (a interface `AudioAiProvider` ja
+existe) e apontar `AI_AUDIO_PROVIDER` para ele.
+
+Nao implementado de proposito, e **nao prometido em tela**: analise de foto (legenda sugerida,
+deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada disso.

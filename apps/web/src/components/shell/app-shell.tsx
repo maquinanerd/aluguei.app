@@ -21,8 +21,12 @@ import { hasModule } from '@/lib/session';
 
 const COLLAPSE_KEY = 'aluguei.sidebar.collapsed';
 
-/** Rotas Focus Mode (mockup): fluxo com navegação reduzida, sem shell normal. */
-const FOCUS_PREFIXES = ['/app/properties/new'];
+/**
+ * Rotas Focus Mode (mockup): fluxo com navegação reduzida, sem shell normal.
+ * Comparação exata, não prefixo: `/app/properties/new-by-audio` é outra tela e
+ * precisa do shell — inclusive do menu, porque é usada no celular.
+ */
+const FOCUS_ROUTES = ['/app/properties/new'];
 
 export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
   const pathname = usePathname();
@@ -33,7 +37,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
   const activeOrg = session.activeOrg;
   const role = activeRole(session);
 
-  const isFocus = FOCUS_PREFIXES.some((p) => pathname.startsWith(p));
+  const isFocus = FOCUS_ROUTES.includes(pathname);
 
   useEffect(() => {
     try {
