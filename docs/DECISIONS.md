@@ -1755,3 +1755,44 @@ Decisão:
 
 Consequência: o painel para de precisar de manutenção manual de avisos, e o dado de demanda é útil
 sem ser uma lista de pessoas. O custo é uma chamada a mais por tela que mostra aviso.
+
+## ADR-103 — Frente de venda: escala própria, histórico imutável e contrato com espécie (Onda 5, 2026-09-29)
+
+Status: Aceito. Revisa o teto do ADR-094 para os valores de venda.
+
+Contexto: até a Onda 4 o produto era de locação. Vender um imóvel não é alugar com outro nome: a
+escala do dinheiro é outra, a conversa tem várias rodadas antes de fechar, e o contrato fala de
+partes diferentes. Tratar venda como um caso particular de locação teria sido mais rápido e teria
+mentido em três lugares ao mesmo tempo.
+
+Decisão:
+
+- **Venda tem escala própria.** `MAX_SALE_AMOUNT_CENTS` = R$ 20.000.000,00, separado do teto de
+  aluguel (R$ 1.000.000,00, ADR-094). O teto único recusava um apartamento de R$ 1,4 milhão — preço
+  comum — e tornaria a frente inutilizável; mantê-lo era escolher uma régua que não descreve o que
+  ela mede. Continua havendo teto porque a coluna `integer` estoura em R$ 21.474.836,47, e sem ele
+  um dígito a mais viraria 500 em vez de 400. O mesmo teste que provou isso pegou o erro sendo
+  repetido no cálculo da comissão: o teto único vinha escondendo casos.
+- **O histórico é a negociação.** Proposta, contraproposta e resposta são eventos; o valor corrente
+  é consequência do último. Nenhuma escrita sobrescreve valor anterior — voltar atrás é registrar um
+  evento novo. Só o último valor não diz se o comprador está subindo ou o proprietário cedendo, que
+  é a informação com que se negocia. Responder duas vezes a mesma proposta é recusado.
+- **A comissão fecha.** Usa o `splitAmount` do próprio sistema (método do maior resto): a soma das
+  partes é exatamente a comissão. Depois de fechada, a comissão sai do valor que **fechou**, não do
+  último em jogo — são números diferentes, e o segundo já não descreve o negócio.
+- **Etapa não pula o meio nem ressuscita.** Voltar é permitido de propósito (documentação que não
+  vem faz voltar para contraproposta); fechada e perdida são terminais, e perder exige motivo.
+- **Exclusividade é acordo comercial, não estado do anúncio.** Acabar não tira nada do ar. O período
+  é guardado em dia, a situação vem calculada do servidor (duas contas de prazo divergem no dia do
+  vencimento), e duas autorizações válidas ao mesmo tempo são recusadas dentro da transação que
+  trava o imóvel — isso é contradição, não renovação.
+- **O contrato de venda declara a espécie.** `kind` em contratos e modelos, origem em coluna própria
+  (candidatura para locação, negociação para venda) e partes `BUYER`/`SELLER`. Reaproveitar
+  `TENANT`/`LANDLORD` mentiria no corpo do documento e na ordem de assinatura; um id de origem
+  genérico seria economia que ninguém consegue ler depois. Preço ausente vira travessão, nunca
+  R$ 0,00 — que num contrato de venda é afirmação falsa sobre preço.
+
+Pendência declarada: o **cadastro por áudio e fotos** não foi implementado. Ele depende de uma
+decisão do dono sobre o que pode sair para o provedor de IA — o áudio do corretor cita nome de
+proprietário, endereço e valores, e a foto pode ter GPS. O `AGENTS.md` proíbe enviar PII
+desnecessária, e essa fronteira é do produto, não da engenharia.
