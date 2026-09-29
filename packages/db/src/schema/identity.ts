@@ -196,7 +196,7 @@ export const emailOutbox = pgTable(
     index('email_outbox_to_created_idx').on(t.toEmail, t.createdAt),
     check(
       'email_outbox_kind_valid',
-      sql`${t.kind} in ('PASSWORD_RESET', 'MEMBER_INVITE', 'SEARCH_ALERT_CONFIRM')`,
+      sql`${t.kind} in ('PASSWORD_RESET', 'MEMBER_INVITE', 'SEARCH_ALERT_CONFIRM', 'PORTAL_ACCESS_LINK')`,
     ),
     check('email_outbox_status_valid', sql`${t.status} in ('QUEUED', 'SENT', 'FAILED')`),
   ],

@@ -63,6 +63,7 @@ import { publicPlansRoutes } from './routes/public-plans.js';
 import { capabilitiesRoutes } from './routes/capabilities.js';
 import { saleExclusivityRoutes } from './routes/sale-exclusivity.js';
 import { saleNegotiationRoutes } from './routes/sale-negotiations.js';
+import { portalRequestLinkRoutes } from './routes/portal-request-link.js';
 import { channelRoutes } from './routes/channels.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
@@ -402,6 +403,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(capabilitiesRoutes);
   await app.register(saleExclusivityRoutes);
   await registerBehindModule(app, 'VENDAS', [saleNegotiationRoutes]);
+  await app.register(portalRequestLinkRoutes);
   await app.register(channelRoutes);
   await app.register(webhookRoutes);
   // Grupos atrás do módulo do plano: fora do plano a API responde 403 com

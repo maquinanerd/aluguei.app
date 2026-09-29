@@ -43,7 +43,9 @@ describe('acesso ao portal pela interface', () => {
   });
 
   it('mensagens do consumo do token por status', () => {
-    expect(consumeErrorMessage(401)).toContain('inválido, expirou ou já foi usado');
+    // Onda 6: o link vencido deixou de mandar a pessoa ligar para a
+    // imobiliária, porque ela pede outro na própria tela.
+    expect(consumeErrorMessage(401)).toContain('funciona uma vez só');
     expect(consumeErrorMessage(403)).toContain('suspenso');
     expect(consumeErrorMessage(429)).toContain('Aguarde um minuto');
     expect(consumeErrorMessage(500)).toContain('Não foi possível abrir o portal');

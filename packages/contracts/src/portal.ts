@@ -150,3 +150,17 @@ export const portalPropertySchema = z.object({
 });
 
 export const portalPaymentInitiationResponseSchema = paymentInitiationResponseSchema;
+
+/**
+ * Pedido de link de acesso pelo próprio cliente (Onda 6).
+ *
+ * A resposta é sempre a mesma, com contato cadastrado ou não: diferenciar
+ * transformaria a rota num verificador de "esta pessoa é cliente desta
+ * imobiliária", que é informação de terceiro.
+ */
+export const requestPortalLinkRequestSchema = z.object({
+  /** E-mail ou celular como a pessoa digitou; o servidor normaliza. */
+  contact: z.string().trim().min(3).max(120),
+});
+
+export const requestPortalLinkResponseSchema = z.object({ ok: z.literal(true) });

@@ -232,6 +232,13 @@
       "when": 1790622214435,
       "tag": "0033_sale_contract_parties",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1790688192154,
+      "tag": "0034_portal_access_link_outbox",
+      "breakpoints": true
     }
   ]
 }
