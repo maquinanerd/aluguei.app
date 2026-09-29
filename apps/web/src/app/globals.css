@@ -1324,10 +1324,10 @@ body {
 
 /* ============ Barra superior no celular (Onda 6) ============
  *
- * Em 390px a barra tentava caber trilha, imobiliária, relógio, busca de 340px,
- * sino e conta na mesma linha: tudo espremido, a busca sumindo e o nome da
- * conta cortado na borda. No celular ela guarda o que é ação — menu, busca e
- * conta — e larga o contexto, que a própria tela repete no título.
+ * Em 390px a barra tentava caber trilha, imobiliária e relógio na mesma linha
+ * dos botões: tudo espremido e o menu da conta cortado na borda. No celular ela
+ * guarda o que é ação — menu, avisos e conta — e larga o contexto, que a
+ * própria tela repete no título. (A busca já saía abaixo de 1024px.)
  */
 @media (max-width: 767px) {
   .app-topbar {
@@ -1338,15 +1338,17 @@ body {
   .app-topbar__context {
     display: none;
   }
-  .app-topbar__search {
-    flex: 1 1 auto;
-    width: auto;
-    min-width: 0;
-  }
   /* Alvo de toque de 44px (critério 3): o dedo não acerta 32px com folga. */
   .app-topbar .peg-icon-btn {
     width: 44px;
     height: 44px;
     flex: none;
   }
+}
+
+/* A gaveta da negociação em 92vw: linha de valor e botão que não cabem lado a
+ * lado quebram em duas, em vez de cortar o botão na borda. */
+.sale-drawer__propor .peg-input {
+  flex: 1 1 140px;
+  min-width: 0;
 }

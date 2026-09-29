@@ -104,10 +104,14 @@ async function semear(): Promise<Semeado> {
     expect(negociacao.status, `negociação ${item.titulo}`).toBe(201);
 
     if (item.etapa !== undefined) {
-      const movida = await api('POST', `/sale-negotiations/${negociacao.body.negotiation.id}/stage`, {
-        cookie,
-        json: { stage: item.etapa },
-      });
+      const movida = await api(
+        'POST',
+        `/sale-negotiations/${negociacao.body.negotiation.id}/stage`,
+        {
+          cookie,
+          json: { stage: item.etapa },
+        },
+      );
       expect(movida.status, `etapa ${item.etapa}`).toBe(200);
     }
   }
@@ -115,11 +119,23 @@ async function semear(): Promise<Semeado> {
   return { cookie };
 }
 
-/** Largura do documento além da janela = a página rola de lado. */
+/**
+ * Largura do documento além da janela = a página rola de lado. O tsconfig do
+ * E2E não carrega a lib DOM (ela conflita com os tipos de `fetch` do Node, que
+ * os outros specs usam), então o corpo que roda no navegador declara o pouco
+ * que usa.
+ */
+interface ElementoComRolagem {
+  scrollWidth: number;
+  clientWidth: number;
+}
+
 async function sobraHorizontal(page: Page): Promise<number> {
-  return page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
+  return page.evaluate(() => {
+    const raiz = (globalThis as unknown as { document: { documentElement: ElementoComRolagem } })
+      .document.documentElement;
+    return raiz.scrollWidth - raiz.clientWidth;
+  });
 }
 
 test.describe('Onda 6 — gestão no celular', () => {
@@ -139,16 +155,18 @@ test.describe('Onda 6 — gestão no celular', () => {
       await page.goto('/app');
       await expect(page.getByRole('heading', { name: /bom (dia|tarde|noite)/i })).toBeVisible();
       await page.screenshot({ path: `${EVIDENCIA}/visao-geral-${nome}.png`, fullPage: true });
-      expect(await sobraHorizontal(page), `Visão Geral rola de lado em ${nome}`).toBeLessThanOrEqual(
-        1,
-      );
+      expect(
+        await sobraHorizontal(page),
+        `Visão Geral rola de lado em ${nome}`,
+      ).toBeLessThanOrEqual(1);
 
       await page.goto('/app/vendas/negociacoes');
       await expect(page.getByText('Cobertura · Marista').first()).toBeVisible();
       await page.screenshot({ path: `${EVIDENCIA}/negociacoes-${nome}.png`, fullPage: true });
-      expect(await sobraHorizontal(page), `Negociações rola de lado em ${nome}`).toBeLessThanOrEqual(
-        1,
-      );
+      expect(
+        await sobraHorizontal(page),
+        `Negociações rola de lado em ${nome}`,
+      ).toBeLessThanOrEqual(1);
     }
 
     await page.setViewportSize(CELULAR);
@@ -157,14 +175,22 @@ test.describe('Onda 6 — gestão no celular', () => {
 
     // O quadro empilha: coluna estreita em faixa que rola de lado obriga a
     // arrastar cinco etapas — inclusive as vazias — para achar uma negociação.
+    // Coluna na largura do quadro é a prova de que não sobrou faixa para arrastar.
     const quadro = page.locator('.sale-board');
-    const rolagemDoQuadro = await quadro.evaluate((el) => el.scrollWidth - el.clientWidth);
-    expect(rolagemDoQuadro, 'o quadro rola de lado no celular').toBeLessThanOrEqual(1);
     const larguraDoQuadro = (await quadro.boundingBox())?.width ?? 0;
-    const larguraDaColuna = (await page.locator('.sale-board__col').first().boundingBox())?.width ?? 0;
+    const larguraDaColuna =
+      (await page.locator('.sale-board__col').first().boundingBox())?.width ?? 0;
     expect(larguraDaColuna, 'coluna ocupa a largura toda no celular').toBeGreaterThan(
       larguraDoQuadro - 2,
     );
+
+    // A barra superior cabe: o menu da conta vinha cortado na borda direita,
+    // porque trilha, imobiliária e relógio disputavam a mesma linha.
+    const conta = await page.getByRole('button', { name: 'Menu da conta' }).boundingBox();
+    expect(
+      (conta?.x ?? 0) + (conta?.width ?? 0),
+      'menu da conta dentro da tela',
+    ).toBeLessThanOrEqual(CELULAR.width);
 
     // Alvo de toque de 44px nos botões da barra superior (critério 3).
     const menu = await page.getByRole('button', { name: 'Abrir menu' }).boundingBox();

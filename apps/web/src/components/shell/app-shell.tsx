@@ -316,7 +316,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
             </nav>
             {/* Contexto de desktop: no celular a barra guarda só menu, busca e
                 conta — a própria tela já diz onde a pessoa está. */}
-            <div className="peg-group app-topbar__context">
+            <div className="peg-group gap-2 app-topbar__context">
               <span className="peg-breadcrumb__separator" aria-hidden="true">
                 ·
               </span>

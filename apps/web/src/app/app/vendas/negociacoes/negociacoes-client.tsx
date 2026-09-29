@@ -258,6 +258,7 @@ function HistoricoNegociacao({
         <Group
           key={evento.id}
           between
+          wrap
           style={{
             padding: '10px 12px',
             border: '1px solid var(--peg-border)',
@@ -310,7 +311,7 @@ function HistoricoNegociacao({
               </Button>
             </Group>
           )}
-          <Group gap={2}>
+          <Group gap={2} wrap className="sale-drawer__propor">
             <Input
               size="sm"
               inputMode="numeric"
