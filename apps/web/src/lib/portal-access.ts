@@ -55,7 +55,7 @@ export function consumeErrorMessage(status: number): string {
   switch (status) {
     case 400:
     case 401:
-      return 'Este link de acesso é inválido, expirou ou já foi usado. Peça um novo link à imobiliária.';
+      return 'Por segurança, cada link funciona uma vez só. Peça um novo abaixo.';
     case 403:
       return 'O acesso ao portal desta imobiliária está suspenso.';
     case 429:

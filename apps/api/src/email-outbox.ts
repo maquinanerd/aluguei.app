@@ -13,7 +13,12 @@ import { writeAudit } from './plugins/audit.js';
  * contato de quem procura imóvel não pertence a nenhuma imobiliária.
  */
 
-export type OutboxKind = 'PASSWORD_RESET' | 'MEMBER_INVITE' | 'SEARCH_ALERT_CONFIRM';
+export type OutboxKind =
+  | 'PASSWORD_RESET'
+  | 'MEMBER_INVITE'
+  | 'SEARCH_ALERT_CONFIRM'
+  /** Onda 6: link de acesso pedido pelo proprio cliente. */
+  | 'PORTAL_ACCESS_LINK';
 
 export interface QueueEmailInput {
   /** Nulo para mensagem de conta (recuperação de senha): não pertence a nenhuma imobiliária. */

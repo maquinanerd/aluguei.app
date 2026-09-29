@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Badge, Card, Group, Stack } from '@aluguei/ui';
-import { formatBRL } from '@aluguei/ui';
+import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
 import { PortalLogoutButton } from '@/components/portal/portal-logout-button';
 
@@ -24,6 +24,12 @@ interface PortalProperty {
 
 interface LandlordStatement {
   totals: { allocatedCents: number; paidOutCents: number; pendingCents: number };
+  allocations: {
+    id: string;
+    amountCents: number;
+    chargePeriodStart: string | null;
+    payoutStatus: string | null;
+  }[];
 }
 
 export default async function ProprietarioPage() {
@@ -103,6 +109,36 @@ export default async function ProprietarioPage() {
             </Card>
           </div>
         ) : null}
+
+        {statement === null || statement.allocations.length === 0 ? null : (
+          <Card title="Histórico de repasses" padless>
+            <Stack gap={0}>
+              {statement.allocations.map((repasse) => (
+                <Group
+                  key={repasse.id}
+                  between
+                  style={{ padding: '12px 16px', borderBottom: '1px solid var(--peg-border)' }}
+                >
+                  <Stack gap={0}>
+                    <span style={{ fontSize: 14, fontWeight: 500 }}>
+                      {formatBRL(repasse.amountCents)}
+                    </span>
+                    <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
+                      {repasse.chargePeriodStart === null
+                        ? 'Período não informado'
+                        : `Competência ${formatDate(repasse.chargePeriodStart)}`}
+                    </span>
+                  </Stack>
+                  {/* Sem status de repasse, a linha diz "previsto" em vez de
+                      sugerir que o dinheiro já saiu. */}
+                  <Badge tone={repasse.payoutStatus === 'PAID' ? 'success' : 'neutral'}>
+                    {repasse.payoutStatus === 'PAID' ? 'repassado' : 'previsto'}
+                  </Badge>
+                </Group>
+              ))}
+            </Stack>
+          </Card>
+        )}
 
         <Card title="Imóveis" padless>
           {properties.length === 0 ? (

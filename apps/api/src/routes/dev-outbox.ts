@@ -19,7 +19,12 @@ export const devOutboxRoutes: FastifyPluginAsync = (app) => {
     { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
     async (request) => {
       const query = z
-        .object({ to: z.email(), kind: z.enum(['PASSWORD_RESET', 'MEMBER_INVITE']).optional() })
+        .object({
+          to: z.email(),
+          kind: z
+            .enum(['PASSWORD_RESET', 'MEMBER_INVITE', 'SEARCH_ALERT_CONFIRM', 'PORTAL_ACCESS_LINK'])
+            .optional(),
+        })
         .strict()
         .parse(request.query);
       const rows = await app.db
