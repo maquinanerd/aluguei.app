@@ -17,6 +17,12 @@ export const paymentProviderModeSchema = z.enum(['FAKE', 'ASAAS']).nullable();
 export const signatureProviderModeSchema = z.enum(['FAKE', 'CLICKSIGN', 'D4SIGN']).nullable();
 export const screeningProviderModeSchema = z.enum(['FAKE', 'SERASA', 'SPC']).nullable();
 export const metaModeSchema = z.enum(['dry_run', 'live']).nullable();
+/**
+ * Transcrição de áudio (ADR-104). `null` significa **desligado**, e desligado é
+ * o padrão: sem provedor com retenção zero declarada, o cadastro por áudio nem
+ * é oferecido — a tela explica em vez de deixar o corretor gravar à toa.
+ */
+export const audioTranscriptionModeSchema = z.enum(['MOCK']).nullable();
 
 export const capabilitiesResponseSchema = z.object({
   providers: z.object({
@@ -28,6 +34,8 @@ export const capabilitiesResponseSchema = z.object({
     screening: screeningProviderModeSchema,
     /** Anúncio pago. `dry_run` = nada é publicado na Meta. */
     meta: metaModeSchema,
+    /** Transcrição do cadastro por áudio. `MOCK` = texto de exemplo, não é o que foi dito. */
+    audio: audioTranscriptionModeSchema,
   }),
 });
 
@@ -35,3 +43,4 @@ export type CapabilitiesResponse = z.infer<typeof capabilitiesResponseSchema>;
 export type PaymentProviderMode = z.infer<typeof paymentProviderModeSchema>;
 export type SignatureProviderMode = z.infer<typeof signatureProviderModeSchema>;
 export type ScreeningProviderMode = z.infer<typeof screeningProviderModeSchema>;
+export type AudioTranscriptionMode = z.infer<typeof audioTranscriptionModeSchema>;

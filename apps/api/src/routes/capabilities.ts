@@ -42,6 +42,9 @@ export const capabilitiesRoutes: FastifyPluginAsync = (app) => {
         signature,
         screening,
         meta: resolveMetaMode(app.env) ?? null,
+        // `null` quando a retenção zero não foi declarada: o cadastro por áudio
+        // nasce desligado, e a tela precisa poder dizer isso.
+        audio: app.audioAi === null ? null : 'MOCK',
       },
     });
   });
