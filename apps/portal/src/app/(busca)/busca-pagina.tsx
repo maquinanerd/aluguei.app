@@ -17,6 +17,7 @@ import {
   ResumoPreco,
 } from '@/components/busca';
 import { buscarImoveis } from '@/lib/api';
+import { EscolhaDeCidade, metadataDaEscolha } from './escolha-de-cidade';
 import {
   PURPOSE_DE,
   TIPO_NO_DOMINIO,
@@ -85,6 +86,9 @@ export async function metadataDaBusca(
   pagina: string | undefined,
 ): Promise<Metadata> {
   const entrada = lerEntrada(finalidade, segmentos, pagina);
+  if (entrada.segmentos.length === 0) {
+    return metadataDaEscolha(finalidade);
+  }
   const { recorte, resposta } = await carregar(entrada);
   const caminho = caminhoDoRecorte(recorte);
   const base = metadataDaPagina({
@@ -146,6 +150,9 @@ export async function PaginaDeBusca({
   pagina: string | undefined;
 }) {
   const entrada = lerEntrada(finalidade, segmentos, pagina);
+  if (entrada.segmentos.length === 0) {
+    return EscolhaDeCidade({ finalidade });
+  }
   const { recorte, resposta } = await carregar(entrada);
   const caminho = caminhoDoRecorte(recorte);
 

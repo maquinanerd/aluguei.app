@@ -13,13 +13,14 @@ export interface SiteHeaderProps {
   cor?: CorLogotipo;
 }
 
-const LINKS_CONSUMIDOR = [
+// "Cidades" leva ao mapa do site, que é o índice de cidades com imóvel; `/cidades` não existe.
+export const LINKS_CONSUMIDOR = [
   { href: '/alugar', rotulo: 'Alugar' },
   { href: '/comprar', rotulo: 'Comprar' },
-  { href: '/cidades', rotulo: 'Cidades' },
+  { href: '/mapa-do-site', rotulo: 'Cidades' },
 ];
 
-const LINKS_B2B = [
+export const LINKS_B2B = [
   { href: '/para-imobiliarias', rotulo: 'Para imobiliárias' },
   { href: '/anunciar', rotulo: 'Anunciar' },
   { href: '/gestao', rotulo: 'Gestão' },
