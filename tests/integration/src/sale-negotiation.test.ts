@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { eq } from 'drizzle-orm';
+import { saleNegotiations } from '@aluguei/db';
 import { buildTestApp } from './helpers.js';
 import { approveAgency, call, registerAgency } from './platform-fixtures.js';
 import type { Json, RegisteredAgency } from './platform-fixtures.js';
@@ -220,6 +222,35 @@ describe('Onda 5 — negociação de venda', () => {
     };
     expect(corpo.closed.count).toBeGreaterThanOrEqual(1);
     expect(corpo.closed.volumeCents).toBeGreaterThanOrEqual(125_000_000);
+  });
+
+  it('o mês do painel é o civil de São Paulo: 23h30 do último dia ainda é o mesmo mês', async () => {
+    // Onda 0 da rodada de fidelidade, defeito 12: o recorte era em UTC, e o fechamento entre 21h
+    // e meia-noite do último dia caía no mês seguinte.
+    const criada = await criar({ offerAmountCents: 77_700_000 });
+    for (const stage of ['DOCUMENTATION', 'CONTRACT', 'CLOSED']) {
+      const passo = await call(app, 'POST', `/sale-negotiations/${criada.id}/stage`, {
+        cookie: agencia.cookie,
+        payload: stage === 'CLOSED' ? { stage, closedAmountCents: 77_700_000 } : { stage },
+      });
+      expect(passo.status, `${stage}: ${JSON.stringify(passo.body)}`).toBe(200);
+    }
+    // 31/03/2025 às 23h30 em São Paulo = 01/04/2025 às 02h30 em UTC. Mês fixo e no passado:
+    // nenhum outro teste fecha negócio em março ou abril de 2025, então os volumes são exatos.
+    await app.db
+      .update(saleNegotiations)
+      .set({ closedAt: new Date('2025-04-01T02:30:00.000Z') })
+      .where(eq(saleNegotiations.id, criada.id));
+
+    const volumeDo = async (mes: string): Promise<number> => {
+      const res = await call(app, 'GET', `/sale-negotiations/summary?month=${mes}`, {
+        cookie: agencia.cookie,
+      });
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      return (res.body as { closed: { volumeCents: number } }).closed.volumeCents;
+    };
+    expect(await volumeDo('2025-03')).toBe(77_700_000);
+    expect(await volumeDo('2025-04')).toBe(0);
   });
 
   it('documentos contam "N de M" sem duplicar o mesmo item', async () => {

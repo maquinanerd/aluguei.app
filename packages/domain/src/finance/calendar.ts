@@ -96,6 +96,34 @@ export function saoPauloDate(instant: Date): string {
   return saoPauloFormatter.format(instant);
 }
 
+const saoPauloOffsetFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Sao_Paulo',
+  timeZoneName: 'longOffset',
+});
+
+/** Minutos de São Paulo em relação a UTC no instante (−180 em UTC−3), lidos do fuso. */
+function saoPauloOffsetMinutes(instant: Date): number {
+  const nome =
+    saoPauloOffsetFormatter.formatToParts(instant).find((parte) => parte.type === 'timeZoneName')
+      ?.value ?? 'GMT';
+  const partes = /GMT([+-])(\d{2}):(\d{2})/.exec(nome);
+  if (partes === null) {
+    return 0;
+  }
+  const minutos = Number(partes[2]) * 60 + Number(partes[3]);
+  return partes[1] === '-' ? -minutos : minutos;
+}
+
+/**
+ * Instante em que começa a data civil (00h) em São Paulo. É o inverso de `saoPauloDate`: recorte
+ * de mês ou de dia feito pela data do Brasil, não pela UTC — senão o que acontece entre 21h e 0h
+ * do último dia cai no período seguinte.
+ */
+export function saoPauloDayStart(isoDate: string): Date {
+  const meiaNoiteUtc = new Date(`${isoDate}T00:00:00.000Z`);
+  return new Date(meiaNoiteUtc.getTime() - saoPauloOffsetMinutes(meiaNoiteUtc) * 60_000);
+}
+
 /** Primeiro dia do mês seguinte ao da data. */
 export function nextMonthStart(isoDate: string): string {
   const year = Number(isoDate.slice(0, 4));

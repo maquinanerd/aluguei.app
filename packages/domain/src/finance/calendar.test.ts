@@ -8,6 +8,7 @@ import {
   nextBusinessDay,
   nextMonthStart,
   saoPauloDate,
+  saoPauloDayStart,
 } from './calendar.js';
 
 /**
@@ -67,6 +68,15 @@ describe('datas no fuso de São Paulo', () => {
   it('23h30 em São Paulo ainda é o mesmo dia, embora em UTC já seja o seguinte', () => {
     expect(saoPauloDate(new Date('2026-10-01T02:30:00.000Z'))).toBe('2026-09-30');
     expect(saoPauloDate(new Date('2026-10-01T03:00:00.000Z'))).toBe('2026-10-01');
+  });
+
+  it('o dia civil de São Paulo começa às 3h UTC, e o recorte do mês segue o dia civil', () => {
+    // Onda 0 da rodada de fidelidade, defeito 12: o painel de vendas cortava o mês em UTC, e um
+    // fechamento às 23h30 do dia 30 caía no mês seguinte.
+    expect(saoPauloDayStart('2026-09-01').toISOString()).toBe('2026-09-01T03:00:00.000Z');
+    const fechamento = new Date('2026-10-01T02:30:00.000Z'); // 30/09, 23h30 em São Paulo
+    expect(fechamento < saoPauloDayStart(nextMonthStart('2026-09-01'))).toBe(true);
+    expect(fechamento >= saoPauloDayStart('2026-09-01')).toBe(true);
   });
 
   it('soma e diferença de dias de calendário', () => {

@@ -19,6 +19,8 @@ import {
   commissionCents,
   documentProgress,
   isSaleNegotiationStage,
+  nextMonthStart,
+  saoPauloDayStart,
   splitCommission,
 } from '@aluguei/domain';
 import type { SaleCommissionRole, SaleNegotiationStage } from '@aluguei/domain';
@@ -551,9 +553,10 @@ export const saleNegotiationRoutes: FastifyPluginAsync = (app) => {
       const mes =
         query.month ??
         new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }).slice(0, 7);
-      const inicio = new Date(`${mes}-01T00:00:00.000Z`);
-      const fim = new Date(inicio);
-      fim.setUTCMonth(fim.getUTCMonth() + 1);
+      // O mês é o civil de São Paulo, como o `mes` padrão: cortado em UTC, o fechamento das 21h
+      // em diante do último dia caía no mês seguinte (Onda 0 da rodada de fidelidade, defeito 12).
+      const inicio = saoPauloDayStart(`${mes}-01`);
+      const fim = saoPauloDayStart(nextMonthStart(`${mes}-01`));
 
       const fechadas = await db
         .select()
