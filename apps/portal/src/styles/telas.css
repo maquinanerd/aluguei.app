@@ -1020,3 +1020,11 @@
     white-space: normal;
   }
 }
+
+/* Cancelar alerta: "Cancelar alerta" e "Manter" lado a lado (Onda 0 da rodada de fidelidade). */
+.alerta-cancelar__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}

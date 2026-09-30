@@ -44,6 +44,7 @@ import {
   updateMemberRoleResponseSchema,
 } from '@aluguei/contracts';
 import { generateOpaqueToken, hashOpaqueToken, queueEmail } from '../email-outbox.js';
+import { NOME_DO_PAINEL } from '../marca.js';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { generateSessionToken, hashSessionToken } from '../plugins/session.js';
 import { auditDiff, writeAudit } from '../plugins/audit.js';
@@ -331,7 +332,7 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
         orgId,
         kind: 'MEMBER_INVITE',
         toEmail: email,
-        subject: `Convite para a equipe de ${org.name} no Aluguei.app`,
+        subject: `Convite para a equipe de ${org.name} no ${NOME_DO_PAINEL}`,
         body: [
           input.name ? `Olá, ${input.name}.` : 'Olá.',
           '',

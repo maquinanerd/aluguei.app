@@ -38,6 +38,7 @@ const MODULOS: ModuloNaPagina[] = [
     nome: 'Atendimento',
     texto: 'WhatsApp da imobiliária, com resposta automática e passagem para a equipe.',
     itens: ['Número próprio conectado', 'Atendimento automático', 'Caixa de entrada por conversa'],
+    emBreve: 'WhatsApp em breve',
   },
   {
     nome: 'Locação',
@@ -62,8 +63,9 @@ const MODULOS: ModuloNaPagina[] = [
   },
   {
     nome: 'Marketing',
-    texto: 'Publicação nos portais parceiros e acompanhamento por canal.',
-    itens: ['Canal Pro, OLX e Imovelweb', 'Status por canal', 'Retirada automática'],
+    texto: 'Campanhas de anúncio no Meta Ads a partir do imóvel, com o investimento no painel.',
+    itens: ['Campanha nasce pausada', 'Você decide quando publicar', 'Investimento por campanha'],
+    emBreve: 'Meta Ads em breve',
   },
 ];
 

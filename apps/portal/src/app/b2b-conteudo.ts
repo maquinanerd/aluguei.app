@@ -6,7 +6,9 @@ import type { CanalParceiro, PassoDoFluxo, PerguntaFrequente } from '@/component
  * Fica separado das páginas por dois motivos: é o conteúdo que o dono do produto
  * revisa, e é o que precisa bater com o que o sistema faz de verdade. Nada aqui
  * promete recurso desligado sem dizer "em breve" — assinatura e cobrança real
- * estão implementadas e não ligadas (`docs/BLOCKERS.md`).
+ * estão implementadas e não ligadas (`docs/BLOCKERS.md`). Canal Pro, OLX e
+ * Imovelweb não têm adapter: aparecem "Em preparação" (ADR-097, ADR-105), e
+ * WhatsApp segue sem verificação ao vivo, com o selo.
  */
 
 export const CANAIS: CanalParceiro[] = [
@@ -17,26 +19,26 @@ export const CANAIS: CanalParceiro[] = [
   },
   {
     nome: 'Canal Pro',
-    status: 'Integrado',
-    descricao: 'Publica no ZAP Imóveis e no VivaReal pela conta da sua imobiliária.',
+    status: 'Em preparação',
+    descricao: 'Publicação no ZAP Imóveis e no VivaReal pela conta da sua imobiliária.',
   },
   {
     nome: 'OLX',
-    status: 'Integrado',
-    descricao: 'Anúncios de aluguel e venda na OLX, com fotos e valores sincronizados.',
+    status: 'Em preparação',
+    descricao: 'Anúncios de aluguel e venda na OLX.',
   },
   {
     nome: 'Imovelweb',
-    status: 'Integrado',
-    descricao: 'Publicação e retirada automáticas, com os leads voltando para o CRM.',
+    status: 'Em preparação',
+    descricao: 'Publicação e retirada no Imovelweb.',
   },
 ];
 
 export const BENEFICIOS_CANAIS = [
-  'Publicação e atualização automáticas em todos os canais',
-  'Retirada de todos os portais quando o imóvel sai',
-  'Leads de todos os portais no mesmo CRM, com a origem',
-  'Status de cada publicação por canal no painel',
+  'Publicação no AchouImóvel depois que você confirma',
+  'O anúncio sai do portal quando você o arquiva',
+  'Contato do portal no CRM, com o imóvel e a origem',
+  'Situação de cada publicação no painel',
 ];
 
 export const FLUXO: PassoDoFluxo[] = [
@@ -47,18 +49,20 @@ export const FLUXO: PassoDoFluxo[] = [
   },
   {
     numero: '02',
-    titulo: 'Publique em todos os portais',
-    texto: 'AchouImóvel, Canal Pro, OLX e Imovelweb num só envio. Você confirma antes de publicar.',
+    titulo: 'Publique no portal',
+    texto: 'O anúncio vai para o AchouImóvel depois que você confirma.',
+    emBreve: 'parceiros em preparação',
   },
   {
     numero: '03',
     titulo: 'Receba o lead',
-    texto: 'O contato de qualquer portal chega no CRM com o imóvel, a origem e o responsável.',
+    texto: 'O contato que chega pelo portal cai no CRM com o imóvel, a origem e o responsável.',
   },
   {
     numero: '04',
     titulo: 'Atenda no WhatsApp',
     texto: 'O atendimento automático responde primeiro e passa a conversa para a equipe.',
+    emBreve: 'WhatsApp em breve',
   },
   {
     numero: '05',
@@ -83,7 +87,7 @@ export const FAQ_PLANOS: PerguntaFrequente[] = [
   {
     pergunta: 'O que está incluído no plano Anunciante?',
     resposta:
-      'Publicação dos seus imóveis no portal AchouImóvel e nos portais parceiros, e a caixa de leads com o contato de quem se interessou, o imóvel e a origem. O sistema de gestão (CRM, locação, financeiro) não entra nesse plano: ele aparece com cadeado e você pode contratar quando quiser.',
+      'Publicação dos seus imóveis no portal AchouImóvel e a caixa de leads com o contato de quem se interessou, o imóvel e a origem. A publicação no Canal Pro, na OLX e no Imovelweb está em preparação. O sistema de gestão (CRM, locação, financeiro) não entra nesse plano: ele aparece com cadeado e você pode contratar quando quiser.',
   },
   {
     pergunta: 'Posso anunciar sem usar o sistema?',
@@ -98,7 +102,7 @@ export const FAQ_PLANOS: PerguntaFrequente[] = [
   {
     pergunta: 'Quanto tempo leva para começar a usar?',
     resposta:
-      'O cadastro é imediato e a conta nasce em análise: a gente confere os dados da imobiliária e o CRECI antes de liberar a publicação. Enquanto isso você já pode cadastrar imóveis e preparar a carteira.',
+      'O cadastro é imediato e a conta nasce em análise: a gente confere os dados da imobiliária e o CRECI antes de liberar o painel. Enquanto a conta está em análise, o painel fica fechado; ele abre assim que a conta é aprovada.',
   },
   {
     pergunta: 'Quanto custa um sistema para imobiliária de locação?',

@@ -18,6 +18,22 @@ export const CHANNEL_TYPE_FEATURES: Record<
   imovelweb: { supportsImportLeads: false, adapter: null },
 };
 
+/**
+ * Canal que pode receber publicação agora. O `fake` só existe onde a configuração o libera
+ * (`ALLOW_FAKE_CHANNEL=true`: desenvolvimento, testes e E2E) — em produção ele aparecia para
+ * qualquer imobiliária como canal disponível (Onda 0 da rodada de fidelidade, defeito 16).
+ * Portal parceiro sem adapter segue indisponível (ADR-097).
+ */
+export function isChannelAvailable(
+  channel: ChannelType,
+  options: { allowFake: boolean; overrides?: { fake?: FakeChannel } },
+): boolean {
+  if (channel === 'fake' && !options.allowFake) {
+    return false;
+  }
+  return getChannelAdapter(channel, options.overrides) !== null;
+}
+
 export function getChannelAdapter(
   channel: ChannelType,
   overrides?: { fake?: FakeChannel },

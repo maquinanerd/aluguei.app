@@ -29,6 +29,13 @@ export const envSchema = z.object({
    * Só o valor exato `true` vale; sem ela, a API e o worker recusam a subida.
    */
   ALLOW_FAKE_PROVIDERS: opcaoOpcional(['true', 'false']),
+  /**
+   * Oferece o "Canal de teste" (`fake`) como canal de publicação. Separado de
+   * `ALLOW_FAKE_PROVIDERS` de propósito: a homologação precisa de pagamento e assinatura em
+   * modo de teste, mas a imobiliária não deve ver um canal que não publica em lugar nenhum.
+   * Só o valor exato `true` vale — desenvolvimento, testes e E2E.
+   */
+  ALLOW_FAKE_CHANNEL: opcaoOpcional(['true', 'false']),
   LOG_LEVEL: z.string().default('info'),
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().default(4000),

@@ -207,6 +207,13 @@ export const INSPECTION_STATUS_TONES: Record<string, BadgeTone> = {
   SIGNED: 'brand',
 };
 
+/** Nome da vistoria como o cliente lê, pelo tipo do contrato (`inspectionTypeSchema`). */
+export const INSPECTION_TITLE_LABELS: Record<string, string> = {
+  CHECKIN: 'Vistoria de entrada',
+  CHECKOUT: 'Vistoria de saída',
+  INTERMEDIATE: 'Vistoria intermediária',
+};
+
 export const LEASE_STATUS_LABELS: Record<string, string> = {
   PENDING: 'Pendente',
   ACTIVE: 'Ativa',

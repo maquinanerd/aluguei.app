@@ -54,9 +54,9 @@ export default async function ProprietarioPage() {
   let statement: LandlordStatement | null = null;
   if (properties.length > 0) {
     try {
-      statement = await apiFetch<LandlordStatement>(
-        `/portal/landlord/statement?propertyId=${properties[0]?.id ?? ''}`,
-      );
+      // Sem filtro de imóvel: a API soma todos os imóveis do proprietário. Filtrar pelo primeiro
+      // mostrava metade do extrato a quem tem dois (Onda 0 da rodada de fidelidade, defeito 5).
+      statement = await apiFetch<LandlordStatement>('/portal/landlord/statement');
     } catch {
       // sem extrato
     }

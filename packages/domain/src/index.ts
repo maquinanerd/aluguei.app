@@ -241,6 +241,7 @@ export {
   nextBusinessDay,
   nextMonthStart,
   saoPauloDate,
+  saoPauloDayStart,
 } from './finance/calendar.js';
 export {
   assertOwnershipTotal,

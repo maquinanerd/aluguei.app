@@ -1,11 +1,10 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { criarAlertaAction } from '@/app/actions';
 import type { EstadoDoFormulario } from '@/app/actions';
 import { Botao } from './Botao';
 import { Campo, CheckboxLgpd } from './Campo';
-import { Segmentado } from './Segmentado';
 
 export interface AlertaImovelProps {
   purpose: 'RENT' | 'SALE';
@@ -24,7 +23,6 @@ const INICIAL: EstadoDoFormulario = { estado: 'inicial' };
  * único. Ninguém entra numa lista de aviso sem confirmar (ADR-099).
  */
 export function AlertaImovel(props: AlertaImovelProps) {
-  const [canal, setCanal] = useState<'EMAIL' | 'WHATSAPP'>('EMAIL');
   const [estado, acao, enviando] = useActionState(criarAlertaAction, INICIAL);
 
   if (estado.estado === 'enviado') {
@@ -52,26 +50,15 @@ export function AlertaImovel(props: AlertaImovelProps) {
       {props.bedrooms === undefined ? null : (
         <input type="hidden" name="bedrooms" value={String(props.bedrooms)} />
       )}
-      <input type="hidden" name="canal" value={canal} />
-
-      <Segmentado
-        rotulo="Como quer ser avisado"
-        valor={canal}
-        aoEscolher={(valor) => {
-          setCanal(valor === 'WHATSAPP' ? 'WHATSAPP' : 'EMAIL');
-        }}
-        opcoes={[
-          { valor: 'EMAIL', rotulo: 'E-mail' },
-          { valor: 'WHATSAPP', rotulo: 'WhatsApp' },
-        ]}
-      />
+      {/* Só e-mail: não há envio por WhatsApp (Onda 0 da rodada de fidelidade, defeito 9). */}
+      <input type="hidden" name="canal" value="EMAIL" />
 
       <Campo
         id="alerta-contato"
         name="contato"
-        rotulo={canal === 'EMAIL' ? 'Seu e-mail' : 'Seu WhatsApp'}
-        type={canal === 'EMAIL' ? 'email' : 'tel'}
-        inputMode={canal === 'EMAIL' ? 'email' : 'tel'}
+        rotulo="Seu e-mail"
+        type="email"
+        inputMode="email"
         required
         {...(estado.estado === 'erro' && estado.campo === 'contato'
           ? { erro: estado.mensagem }

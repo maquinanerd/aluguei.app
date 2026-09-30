@@ -15,7 +15,7 @@ import { FAQ_PLANOS } from '../b2b-conteudo';
 export const metadata: Metadata = metadataDaPagina({
   titulo: 'Planos do AchouImóvel Gestão',
   descricao:
-    'Todos os planos publicam no AchouImóvel, no Canal Pro, na OLX e no Imovelweb. Gestão Locação é contratado pelo número de contratos de locação ativos; Gestão Vendas, pelo número de corretores.',
+    'Todos os planos publicam no AchouImóvel. Gestão Locação é contratado pelo número de contratos de locação ativos; Gestão Vendas, pelo número de corretores.',
   caminho: '/planos',
   robots: 'index, follow',
 });
@@ -33,9 +33,9 @@ export default async function PlanosPage() {
         <header className="cabecalho-pagina">
           <h1 className="cabecalho-pagina__titulo">Planos</h1>
           <p className="cabecalho-pagina__texto">
-            Todos os planos publicam no AchouImóvel, no Canal Pro, na OLX e no Imovelweb. Gestão
-            Locação é contratado pelo número de contratos de locação ativos; Gestão Vendas, pelo
-            número de corretores.
+            Todos os planos publicam no AchouImóvel; a publicação no Canal Pro, na OLX e no
+            Imovelweb está em preparação. Gestão Locação é contratado pelo número de contratos de
+            locação ativos; Gestão Vendas, pelo número de corretores.
           </p>
         </header>
 
