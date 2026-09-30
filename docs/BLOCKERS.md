@@ -129,3 +129,18 @@ existe) e apontar `AI_AUDIO_PROVIDER` para ele.
 
 Nao implementado de proposito, e **nao prometido em tela**: analise de foto (legenda sugerida,
 deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada disso.
+
+## Rodada de fidelidade as telas (ADR-105) — depende do dono
+
+- **Politica de privacidade e Termos de uso**: o portal coleta nome, telefone e e-mail (contato e
+  alerta de imovel) com consentimento e nao tem as duas paginas no ar. O texto e juridico e cabe ao
+  dono. Enquanto nao chegar, o rodape nao aponta para paginas que nao existem.
+- **Provedor de e-mail (D6)**: nenhum e-mail sai; convite, senha e confirmacao de alerta ficam na
+  caixa de saida local. Consequencia no ar: nenhum alerta e confirmado e a "Demanda por bairro" fica
+  vazia. Falta contratar o provedor; o adapter entra como `IMPLEMENTED_NOT_LIVE_VERIFIED`.
+- **Portais parceiros (D1)**: Canal Pro, OLX e Imovelweb seguem sem adapter, e a interface mostra
+  "Em preparacao". Adapters de feed so como fase propria, se o dono pedir.
+- **Cidade por IP (D4)**: a camada no cliente entra sem fonte real ate a escolha entre o proxy do
+  Cloudflare (com desafio DNS-01) e uma base local de geolocalizacao.
+- Continuam com o dono: licenca da fonte Guton, CNPJ e razao social do rodape, logos dos portais
+  parceiros, perfis das redes sociais e o canal de suporte da conta suspensa.

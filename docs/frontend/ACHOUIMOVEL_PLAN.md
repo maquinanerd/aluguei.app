@@ -1,14 +1,21 @@
 # AchouImóvel · plano de fidelidade às telas (Onda 0 · diagnóstico)
 
 Entrega da Onda 0 do prompt orquestrado de 29/09/2026, a versão que trouxe `SCREENS.md` e os prints.
-**Somente leitura: nenhuma linha de código de produto foi alterada.** Este documento existe para ser
-aprovado antes da Onda 1. O estado de cada tela fica em `docs/frontend/ACHOUIMOVEL_CHECKLIST.md`.
+**Somente leitura: nenhuma linha de código de produto foi alterada.** O estado de cada tela fica em
+`docs/frontend/ACHOUIMOVEL_CHECKLIST.md`.
+
+> **Aprovado em 30/09/2026.** O dono aprovou o plano com as recomendações de §4 ("sim, pode seguir
+> com as recomendações"). As decisões D1 a D7 e as técnicas T1 a T10 estão no **ADR-105**. O pacote
+> de design foi versionado em `design-source/achouimovel/` (D5), com `SCREENS.md` e os 59 prints.
+> Correção feita na aprovação: o texto original do D3 dizia que nenhum ADR autorizava enviar foto a
+> provedor; o ADR-104 autoriza, com a mesma regra do áudio. A decisão (D3 = a) não muda; o motivo
+> foi corrigido abaixo.
 
 - Data: 30/09/2026 · base: `main` em `190f650` (PR #51).
-- Pacote lido: `design-source/` do checkout principal, que ainda não está no git — README, PROMPT,
-  `SCREENS.md` (59 linhas), `docs/HANDOFF.md`, `docs/CONTEXTO_CLAUDE_DESIGN_AchouImovel.md`, tokens,
-  13 arquivos `.dc.html` e 59 prints. `Design.zip` ignorado por instrução. Neste documento,
-  `prints/…` e `telas/…` são relativos à raiz do pacote.
+- Pacote lido: README, PROMPT, `SCREENS.md` (59 linhas), `docs/HANDOFF.md`,
+  `docs/CONTEXTO_CLAUDE_DESIGN_AchouImovel.md`, tokens, 13 arquivos `.dc.html` e 59 prints, hoje em
+  `design-source/achouimovel/`. `Design.zip` ignorado por instrução. Neste documento, `prints/…` e
+  `telas/…` são relativos a essa pasta.
 - Não lido, por instrução: `docs/audits/**`. `PROMPT_apps-portal.md` continua fora do repositório; o
   papel dele é de `docs/frontend/PORTAL_SEO.md` (ADR-097, ADR-099).
 - A versão anterior deste arquivo, da primeira rodada, está no git:
@@ -168,14 +175,16 @@ de propósito (ADR-102).
 
 ### D3 · IA sobre fotos: legenda sugerida (47), "Das fotos", placa de rua e descrição (50–52)
 
-O ADR-104 trata de áudio e transcrição, não de imagem, e o sistema declara que não analisa foto
-(`packages/contracts/src/property-draft.ts:61-62`).
+O ADR-104 permite enviar foto a provedor sem retenção para descrever o imóvel, com a mesma regra do
+áudio, mas não há provedor de imagem contratado, o próprio áudio está desligado em produção e o
+rascunho exclui de propósito o estado "das fotos" (`packages/contracts/src/property-draft.ts:61-62`).
+A placa de rua sinalizada do print exige detectar placa, o que o sistema declara não fazer.
 
 - **(a)** Omitir esses elementos nesta rodada (diferença aceita).
 - **(b)** Interface com provedor de mentira, desligada em produção até contratar provedor de imagem
-  com retenção zero — o mesmo padrão do áudio —, com ADR para rosto, placa e documento na foto.
+  com retenção zero — o mesmo padrão do áudio.
 
-**Recomendação:** (a). Foto de imóvel traz rosto e placa, e nenhum ADR autoriza enviá-la a provedor.
+**Recomendação:** (a), até existir provedor de imagem contratado. **Aprovada (ADR-105).**
 
 ### D4 · Cidade aproximada por IP na Home (telas 02 e 03)
 
@@ -205,6 +214,7 @@ versão anterior, sem `SCREENS.md` e sem prints.
   checkout apagou.
 
 **Recomendação:** (a), sem `Design.zip`. É pré-requisito do lado a lado nos PRs (F1, F6).
+**Aprovada e feita:** o pacote está em `design-source/achouimovel/` (ADR-105).
 
 ### D6 · Provedor de e-mail
 
@@ -474,9 +484,9 @@ vem depois da 4.
   `plano-bloqueado.test.tsx`.
 - **R6 · Guton no `apps/web`.** Licença para produção pendente; a fonte precisa ser servida pelo
   próprio web; colisão de tokens resolvida por escopo (T10).
-- **R7 · Decisões em aberto.** Sem D1, 7 telas não fecham; sem D6, a "Demanda por bairro" segue vazia
-  no ar.
-- **R8 · Pacote fora do git.** Se o checkout principal for limpo, o pacote novo se perde (D5).
+- **R7 · Provedor de e-mail.** As decisões foram aprovadas (ADR-105), mas enquanto o provedor não for
+  contratado (D6) a "Demanda por bairro" segue vazia no ar.
+- **R8 · Pacote fora do git.** Resolvido: o pacote está em `design-source/achouimovel/` (D5).
 
 ---
 
@@ -484,7 +494,8 @@ vem depois da 4.
 
 1. Textos de Termos de uso e Política de privacidade (defeito 4) — o portal coleta dados pessoais sem
    eles no ar.
-2. Decisões D1 a D7.
+2. Decisões D1 a D7: aprovadas em 30/09/2026 (ADR-105). Continuam com o dono contratar o provedor de
+   e-mail (D6) e, se quiser os portais parceiros de verdade, abrir a fase dos adapters (D1 b).
 3. CNPJ e razão social do rodapé; logos dos portais parceiros; perfis das redes sociais.
 4. Licença da fonte Guton para produção, agora também nas telas de conta.
 5. Canal de suporte para a conta suspensa (tela 30).
