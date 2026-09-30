@@ -19,6 +19,7 @@
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "security:scan": "node scripts/security-scan.mjs",
+    "design:comparacao": "node scripts/design/comparacao.mjs",
     "security:audit": "pnpm audit --prod"
   },
   "devDependencies": {
