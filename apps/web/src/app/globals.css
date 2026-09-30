@@ -541,8 +541,18 @@ body {
 
 .upgrade__lista li {
   font-size: 12.5px;
+  line-height: normal;
   display: flex;
   gap: 6px;
+}
+
+/* No desenho cada item cabe numa linha. No Linux o Inter sai ~3% mais largo e "Reajuste,
+   renovação e encerramento" passaria 1px da coluna; no desktop o item não quebra (sobra o vão de
+   16px entre as colunas). */
+@media (min-width: 640px) {
+  .upgrade__lista li {
+    white-space: nowrap;
+  }
 }
 
 .upgrade__marca {
@@ -604,6 +614,7 @@ body {
 .upgrade__nota {
   margin: 0;
   font-size: 12px;
+  line-height: normal;
   color: var(--peg-text-tertiary);
 }
 
