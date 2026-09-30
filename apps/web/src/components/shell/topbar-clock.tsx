@@ -16,7 +16,7 @@ export function TopbarClock() {
     };
   }, []);
 
-  if (!now) return <span className="peg-text-tertiary">hoje</span>;
+  if (!now) return <span>hoje</span>;
 
   const today = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
@@ -24,5 +24,5 @@ export function TopbarClock() {
     minute: '2-digit',
   }).format(now);
 
-  return <span className="peg-text-tertiary">{today.replace(/^./, (c) => c.toUpperCase())}</span>;
+  return <span>{today.replace(/^./, (c) => c.toUpperCase())}</span>;
 }

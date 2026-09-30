@@ -421,6 +421,31 @@ body {
   flex: none;
 }
 
+/* A trilha é um texto só, de 13px em #555A52, com a página atual em destaque e separadores da
+   mesma cor: "Painel / Visão Geral · Imobiliária Exemplo · Segunda-feira, 09:12"
+   (01-painel.dc.html:35). */
+.app-topbar__crumbs {
+  gap: 4px;
+  color: var(--peg-text-secondary);
+  flex-wrap: nowrap;
+}
+
+.app-topbar__crumbs .peg-breadcrumb__separator,
+.app-topbar__context .peg-breadcrumb__separator {
+  color: inherit;
+}
+
+.app-topbar__context {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* O vão da barra é de 8px; o "·" do desenho fica a um espaço da trilha. */
+  margin-left: -4px;
+  font-size: 13px;
+  color: var(--peg-text-secondary);
+  white-space: nowrap;
+}
+
 .app-main {
   flex: 1;
   min-width: 0;
