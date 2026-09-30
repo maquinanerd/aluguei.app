@@ -4,7 +4,6 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ImovelCard } from '@/components/ImovelCard';
 import { imovelDaApi } from '@/lib/adaptar';
-import { Breadcrumb } from '@/components/Breadcrumb';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { AlertaImovel } from '@/components/AlertaImovel';
 import {
@@ -25,7 +24,6 @@ import {
   cidadeLegivel,
   lerRecorte,
   lugarLegivel,
-  temModificador,
 } from '@/lib/rotas';
 import type { Finalidade, RecorteDeBusca } from '@/lib/rotas';
 import { TIPO_IMOVEL } from '@/lib/tipos';
@@ -62,6 +60,20 @@ function lerEntrada(
     segmentos: segmentos ?? [],
     pagina: Number.isInteger(numero) && numero >= 1 && numero <= 200 ? numero : 1,
   };
+}
+
+/** "Receba os novos apartamentos de 2 quartos no Setor Bueno." — o recorte dito como no bloco de alerta das telas. */
+function tituloDoAlerta(recorte: RecorteDeBusca): string {
+  const oQue = recorte.tipo === null ? 'imóveis' : TIPO_IMOVEL[recorte.tipo].plural;
+  const comQuartos =
+    recorte.quartos === null
+      ? ''
+      : ` de ${String(recorte.quartos)} quarto${recorte.quartos > 1 ? 's' : ''}`;
+  const onde =
+    recorte.bairro === null
+      ? `em ${cidadeLegivel(recorte.cidade)}`
+      : `no ${lugarLegivel(recorte.bairro)}`;
+  return `Receba os novos ${oQue}${comQuartos} ${onde}.`;
 }
 
 async function carregar(entrada: Entrada) {
@@ -180,7 +192,16 @@ export async function PaginaDeBusca({
     });
   }
 
-  const resumoDoAlerta = `${tituloDoRecorte(recorte)}${temModificador(recorte) ? '' : ''}`;
+  // Na faixa a trilha começa pela finalidade, como nas telas ("Aluguel › Goiânia › …"); a lista
+  // completa, com o Início, continua no JSON-LD.
+  const trilhosDaFaixa = [
+    {
+      rotulo: recorte.finalidade === 'alugar' ? 'Aluguel' : 'Venda',
+      href: `/${recorte.finalidade}`,
+    },
+    ...trilhos.slice(2, -1),
+    { rotulo: trilhos.at(-1)?.rotulo ?? '' },
+  ];
 
   return (
     <>
@@ -201,15 +222,13 @@ export async function PaginaDeBusca({
         />
       ) : null}
 
-      <FaixaTipo tipo={recorte.tipo} titulo={tituloComContagem(recorte, resposta.total)} />
+      <FaixaTipo
+        tipo={recorte.tipo}
+        trilhos={trilhosDaFaixa}
+        titulo={tituloComContagem(recorte, resposta.total)}
+      />
 
       <main className="pagina">
-        <Breadcrumb
-          trilhos={[
-            ...trilhos.slice(0, -1).map((t) => ({ rotulo: t.rotulo, href: t.href })),
-            { rotulo: trilhos.at(-1)?.rotulo ?? '' },
-          ]}
-        />
         <ChipsFiltro recorte={recorte} />
 
         {resposta.total === 0 ? (
@@ -242,7 +261,8 @@ export async function PaginaDeBusca({
           neighborhood={recorte.bairro ?? undefined}
           propertyType={recorte.tipo === null ? undefined : TIPO_NO_DOMINIO[recorte.tipo]}
           bedrooms={recorte.quartos ?? undefined}
-          resumo={resumoDoAlerta}
+          sobretitulo="Alerta de imóvel"
+          titulo={tituloDoAlerta(recorte)}
         />
       </main>
       <SiteFooter />

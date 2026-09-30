@@ -66,6 +66,7 @@ Todos reconferidos pelo orquestrador no código; os marcados com **(produção)*
 | 15  | P2   | "Demanda por bairro" fica vazia em produção: só conta alerta confirmado, e nenhum e-mail de confirmação sai.                                                                            | `apps/api/src/routes/reporting.ts:271,283` (`status = 'ACTIVE'`); `apps/api/src/email-outbox.ts:8-9` ("Nada é enviado").                                                                                                                                      | Depende de D6.                                                                               |
 | 16  | P3   | O "Canal de teste" (`fake`) é oferecido como canal disponível a qualquer imobiliária, inclusive em produção.                                                                            | `packages/integrations/src/channels/registry.ts:13,26`; `GET /channels` (`apps/api/src/routes/channels.ts:132-139`) sem condição de ambiente.                                                                                                                 | Só com `ALLOW_FAKE_PROVIDERS=true`, como os outros FAKE.                                     |
 | 17  | P3   | O assunto dos e-mails de senha e de convite ainda diz "Aluguei.app".                                                                                                                    | `apps/api/src/routes/auth.ts:394`; `apps/api/src/routes/organizations.ts:334`.                                                                                                                                                                                | Nome da marca num lugar só, como no painel (ADR-098).                                        |
+| 18  | P2   | Depois de criar um alerta, o portal diz "confirme pelo link que enviamos para o seu e-mail", e nenhum e-mail sai: não há provedor. Achado na Onda 1B2.                                  | `apps/portal/src/app/actions.ts:147`; `apps/api/src/email-outbox.ts:8` ("Nada é enviado").                                                                                                                                                                    | Texto corrigido na Onda 1B2 ("Registramos o alerta…"); o envio é a Onda 1D (D6).             |
 
 Proposta: corrigir 1, 2, 3, 5 a 12, 16 e 17 num PR pequeno **antes** da Onda 1, cada um com teste que
 falha antes da correção; 13 e 14 entram na Onda 1; 4 depende do texto do dono; 15 depende de D6.
@@ -78,6 +79,13 @@ Como é mudança de código, esse PR também espera a aprovação deste plano.
 > "Integrado", `/alugar` e `/comprar` abrem, todo link interno da home responde 200, o cancelamento
 > do alerta pergunta antes e o alerta não oferece WhatsApp. Continuam abertos: 4 (texto do dono),
 > 13 e 14 (Onda 1) e 15 (D6).
+>
+> **Onda 1A e 1B implantadas em 30/09/2026** (PRs #54 e #55, deployment `kn5atopz2kowec1y1hsi0w0a`,
+> commit `c34bb11`). O defeito 14 acabou: medido no Chromium em produção, o H1 da home sai com 52px e
+> os das outras páginas com 46px em 1440 (30 e 28px em 390), o H2 com 26px, e o miolo tem 1312px a
+> partir de x=64. Smoke só com GET: 27 de 27 da regressão e 11 de 11 novos (CSS novo no ar e HTML sem
+> dado privado); 6 dos 7 novos de CSS falharam antes do deploy. Todo deploy derruba o portal por 2 a 3
+> minutos (503 na troca de contêineres) — tarefa à parte.
 
 ---
 
