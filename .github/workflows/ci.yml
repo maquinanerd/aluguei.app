@@ -149,6 +149,16 @@ jobs:
           name: e2e-stack-logs
           path: ${{ runner.temp }}/e2e-runs
 
+      # Capturas das telas do AchouImóvel para a comparação com os prints (ADR-105). A CI é onde
+      # o E2E roda de ponta a ponta; as imagens vêm daqui para `docs/frontend/achouimovel-evidence/`.
+      - name: Capturas das telas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: achouimovel-evidence
+          path: docs/frontend/achouimovel-evidence
+          if-no-files-found: ignore
+
   image:
     # As imagens da homologação (Dockerfile → server e web), construídas como o Coolify faz. Sem este
     # job, um Dockerfile quebrado só aparecia no deploy (G3, trilha F2).
