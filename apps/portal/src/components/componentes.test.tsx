@@ -9,6 +9,7 @@ import { ImovelCard } from './ImovelCard';
 import type { ImovelResumo } from './ImovelCard';
 import { Logotipo } from './Logotipo';
 import { formatarValor } from '@/lib/formato';
+import { TIPO_IMOVEL } from '@/lib/tipos';
 
 /**
  * Componentes base do portal (Onda 1B). As regras conferidas aqui são as da
@@ -55,36 +56,102 @@ describe('Logotipo', () => {
 });
 
 describe('ImovelCard', () => {
-  it('aluguel destaca o total do mês e detalha os valores separados', () => {
+  it('aluguel destaca o total do mês ("total/mês") e detalha aluguel, "Cond." e IPTU', () => {
     const html = renderToStaticMarkup(<ImovelCard imovel={BASE} />);
-    expect(html).toContain('/mês');
-    expect(html).toContain(formatarValor(291_000));
-    expect(html).toContain(`Aluguel ${formatarValor(240_000)}`);
-    expect(html).toContain('IPTU');
+    expect(html).toContain(`${formatarValor(291_000)} total/mês`);
+    expect(html).toContain(
+      `Aluguel ${formatarValor(240_000)} · Cond. ${formatarValor(42_000)} · IPTU ${formatarValor(9_000)}`,
+    );
   });
 
-  it('venda destaca o preço, sem "/mês"', () => {
+  it('venda destaca o preço, com R$/m² e os encargos na linha de apoio, sem "/mês"', () => {
     const html = renderToStaticMarkup(
       <ImovelCard
         imovel={{
           ...BASE,
           finalidade: 'venda',
-          precoVendaCents: 74_000_000,
+          precoVendaCents: 89_000_000,
           totalMensalCents: null,
           aluguelCents: null,
+          condominioCents: 62_000,
+          iptuCents: 21_000,
+          areaM2: 170,
         }}
       />,
     );
-    expect(html).toContain(formatarValor(74_000_000));
+    expect(html).toContain(formatarValor(89_000_000));
+    expect(html).toContain(
+      `${formatarValor(89_000_000 / 170)}/m² · Cond. ${formatarValor(62_000)} · IPTU ${formatarValor(21_000)}`,
+    );
     expect(html).not.toContain('/mês');
   });
 
-  it('nas duas finalidades mostra aluguel e venda na mesma linha', () => {
+  it('nas duas finalidades mostra o total do mês e "ou … à venda", sem repetir os encargos', () => {
     const html = renderToStaticMarkup(
-      <ImovelCard imovel={{ ...BASE, finalidade: 'ambos', precoVendaCents: 98_000_000 }} />,
+      <ImovelCard imovel={{ ...BASE, finalidade: 'ambos', precoVendaCents: 21_000_000 }} />,
     );
-    expect(html).toContain('/mês');
-    expect(html).toContain(`ou ${formatarValor(98_000_000)} à venda`);
+    expect(html).toContain('total/mês');
+    expect(html).toContain(`ou ${formatarValor(21_000_000)} à venda`);
+    expect(html).not.toContain('Cond.');
+  });
+
+  it('atributos na ordem área · quartos · suítes · vagas, depois mobiliado e pet', () => {
+    const html = renderToStaticMarkup(
+      <ImovelCard
+        imovel={{
+          ...BASE,
+          areaM2: 72,
+          quartos: 2,
+          suites: 1,
+          vagas: 1,
+          mobiliado: true,
+          aceitaPet: true,
+        }}
+      />,
+    );
+    expect(html).toContain('72 m² · 2 quartos · 1 suíte · 1 vaga · mobiliado · aceita pet');
+    expect(html).not.toContain('banheiro');
+  });
+
+  it('amostra da identidade: selo da finalidade, lista de atributos e imobiliária com CRECI', () => {
+    const html = renderToStaticMarkup(<ImovelCard imovel={BASE} variante="amostra" />);
+    expect(html).toContain('imovel-card__selo">Alugar<');
+    expect(html).toContain('Imobiliária Exemplo · CRECI GO-00000');
+    expect(html).toContain('Apartamento · Setor Bueno, Goiânia<');
+    expect(
+      renderToStaticMarkup(
+        <ImovelCard
+          imovel={{ ...BASE, finalidade: 'venda', precoVendaCents: 1 }}
+          variante="amostra"
+        />,
+      ),
+    ).toContain('>Comprar<');
+    expect(
+      renderToStaticMarkup(
+        <ImovelCard
+          imovel={{ ...BASE, finalidade: 'ambos', precoVendaCents: 1 }}
+          variante="amostra"
+        />,
+      ),
+    ).toContain('>Alugar ou comprar<');
+  });
+
+  it('na lista da busca e da home não há selo nem imobiliária, e o local leva a UF', () => {
+    const html = renderToStaticMarkup(<ImovelCard imovel={BASE} />);
+    expect(html).not.toContain('imovel-card__selo');
+    expect(html).not.toContain('CRECI');
+    expect(html).toContain('Apartamento · Setor Bueno, Goiânia · GO');
+  });
+
+  it('parecido e poucos: sem contador nem linha de apoio; parecido mostra só o bairro', () => {
+    const parecido = renderToStaticMarkup(<ImovelCard imovel={BASE} variante="parecido" />);
+    expect(parecido).toContain('Apartamento · Setor Bueno<');
+    expect(parecido).not.toContain('imovel-card__contador');
+    expect(parecido).not.toContain('imovel-card__detalhe');
+    const poucos = renderToStaticMarkup(<ImovelCard imovel={BASE} variante="poucos" />);
+    expect(poucos).toContain('Apartamento · Setor Bueno, Goiânia · GO');
+    expect(poucos).not.toContain('imovel-card__contador');
+    expect(poucos).not.toContain('imovel-card__detalhe');
   });
 
   it('o card inteiro é o link do anúncio', () => {
@@ -93,9 +160,9 @@ describe('ImovelCard', () => {
     expect(html).not.toContain('<button');
   });
 
-  it('sem foto não inventa contador', () => {
+  it('sem foto mostra o marcador "Foto do imóvel" e não inventa contador', () => {
     const html = renderToStaticMarkup(<ImovelCard imovel={{ ...BASE, fotos: 0, fotoUrl: null }} />);
-    expect(html).toContain('Sem foto');
+    expect(html).toContain('Foto do imóvel');
     expect(html).not.toContain('imovel-card__contador');
   });
 
@@ -112,21 +179,41 @@ describe('ImovelCard', () => {
     }
   });
 
-  it('atributo ausente some, em vez de virar zero', () => {
+  it('atributo ausente ou zerado some, em vez de virar zero', () => {
     const html = renderToStaticMarkup(
-      <ImovelCard imovel={{ ...BASE, vagas: null, areaM2: null }} />,
+      <ImovelCard imovel={{ ...BASE, vagas: 0, suites: null, areaM2: null }} />,
     );
     expect(html).toContain('2 quartos');
     expect(html).not.toContain('vaga');
+    expect(html).not.toContain('suíte');
     expect(html).not.toContain('m²');
   });
 });
 
+describe('tipos de imóvel', () => {
+  it('nomes como nas telas: "Kitnet e studio" e "Sala e loja"', () => {
+    expect(TIPO_IMOVEL['kitnet-studio'].nome).toBe('Kitnet e studio');
+    expect(TIPO_IMOVEL['sala-loja'].nome).toBe('Sala e loja');
+  });
+});
+
 describe('Botao', () => {
-  it('carregando desabilita e anuncia', () => {
+  it('carregando desabilita, anuncia e mostra o anel girando', () => {
     const html = renderToStaticMarkup(<Botao carregando>Enviar</Botao>);
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain('disabled');
+    expect(html).toContain('botao__anel');
+  });
+
+  it('altura e largura das telas viram classe', () => {
+    const html = renderToStaticMarkup(
+      <Botao altura={52} larguraTotal variante="escuro">
+        Cancelar alerta
+      </Botao>,
+    );
+    expect(html).toContain('botao--escuro');
+    expect(html).toContain('botao--52');
+    expect(html).toContain('botao--total');
   });
 
   it('variante muda só a classe', () => {

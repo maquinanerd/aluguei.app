@@ -76,4 +76,38 @@ describe('criarAlertaAction', () => {
     expect(api.criarAlerta).not.toHaveBeenCalled();
     expect(estado.estado).toBe('erro');
   });
+
+  it('sem a autorização não chama a API e diz o que falta, como no modal da tela', async () => {
+    const estado = await criarAlertaAction(
+      { estado: 'inicial' },
+      formulario({
+        purpose: 'RENT',
+        city: 'goiania-go',
+        contato: 'ana@exemplo.test',
+        canal: 'EMAIL',
+      }),
+    );
+    expect(api.criarAlerta).not.toHaveBeenCalled();
+    expect(estado).toMatchObject({
+      estado: 'erro',
+      mensagem: 'Erro: marque a autorização para criar o alerta.',
+    });
+  });
+
+  it('criado, não diz que enviou e-mail: nada sai por e-mail ainda (defeito 18)', async () => {
+    api.criarAlerta.mockResolvedValue(undefined);
+    const estado = await criarAlertaAction(
+      { estado: 'inicial' },
+      formulario({
+        purpose: 'RENT',
+        city: 'goiania-go',
+        contato: 'ana@exemplo.test',
+        canal: 'EMAIL',
+        consentimento: 'on',
+      }),
+    );
+    expect(estado.estado).toBe('enviado');
+    expect(estado.mensagem).toContain('Registramos o alerta');
+    expect(estado.mensagem).not.toMatch(/enviamos|mandamos|você recebe/i);
+  });
 });
