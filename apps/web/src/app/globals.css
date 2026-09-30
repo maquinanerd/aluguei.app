@@ -941,89 +941,85 @@ body {
   white-space: nowrap;
 }
 
-/* ============ Dashboard operacional (mockup) ============ */
+/* ============ Visão Geral (tela 32 · 01-painel.dc.html#visao, ADR-105) ============ */
 
-.dashboard-page {
-  gap: var(--peg-space-4);
+.dash-page {
+  gap: 16px;
 }
 
-.dash-header {
+/* Cabeçalho: saudação à esquerda, ações à direita, alinhados pela base (:39-41). */
+.dash-cabecalho {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--peg-space-4);
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-.dash-header .app-page__title {
-  font-size: 22px;
-}
-
-/* Alert strip operacional */
-.dash-alert {
+.dash-cabecalho__texto {
   display: flex;
-  align-items: center;
-  gap: var(--peg-space-3);
-  padding: var(--peg-space-2) var(--peg-space-3);
-  border: 1px solid var(--peg-border);
-  border-left-width: 3px;
-  border-radius: var(--peg-radius-md);
-  background: var(--peg-surface);
-  font-size: 13px;
-  line-height: 18px;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.dash-alert--warning {
-  border-left-color: var(--peg-warning);
-}
-
-.dash-alert--danger {
-  border-left-color: var(--peg-danger);
-}
-
-.dash-alert__icon {
-  display: inline-flex;
-  flex: none;
-}
-
-.dash-alert--warning .dash-alert__icon {
-  color: var(--peg-warning);
-}
-
-.dash-alert--danger .dash-alert__icon {
-  color: var(--peg-danger);
-}
-
-.dash-alert__title {
-  font-size: 13px;
+.dash-titulo {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.01em;
   color: var(--peg-text-primary);
 }
 
-.dash-alert__body {
-  font-size: 12px;
+.dash-sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: normal;
   color: var(--peg-text-secondary);
 }
 
-.dash-alert__action {
-  flex: none;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--peg-text-primary);
-  white-space: nowrap;
-  min-height: 24px;
-  display: inline-flex;
+.dash-cabecalho__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.dash-botao {
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
   align-items: center;
+  border: 1px solid var(--peg-border-strong);
+  border-radius: var(--peg-radius-sm);
+  background: var(--peg-surface);
+  color: var(--peg-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.dash-alert__action:hover {
-  text-decoration: underline;
+.dash-botao:hover {
+  background: var(--peg-surface-subtle);
+  color: var(--peg-text-primary);
 }
 
-/* Summary cards operacionais (2x2) */
+.dash-botao--primario {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-on);
+}
+
+.dash-botao--primario:hover {
+  border-color: var(--brand-strong);
+  background: var(--brand-strong);
+  color: var(--brand-on);
+}
+
+/* Quatro cartões de resumo (:43-47). */
 .dash-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--peg-space-4);
+  gap: 16px;
 }
 
 @media (max-width: 1279px) {
@@ -1038,58 +1034,79 @@ body {
   }
 }
 
-.dash-summary {
-  display: block;
-  color: inherit;
-  transition:
-    border-color var(--peg-duration-fast) var(--peg-ease),
-    box-shadow var(--peg-duration-fast) var(--peg-ease);
-}
-
-.dash-summary:hover {
-  border-color: var(--peg-border-strong);
-  box-shadow: var(--peg-shadow-app);
-  color: inherit;
+.dash-summary,
+.dash-card {
+  background: var(--peg-surface);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-md);
 }
 
 .dash-summary__header {
+  height: 42px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
-  gap: var(--peg-space-2);
-  padding: var(--peg-space-3) var(--peg-space-4);
+  justify-content: space-between;
   border-bottom: 1px solid var(--peg-border);
+  color: var(--peg-text-primary);
+  text-decoration: none;
 }
 
-.dash-summary__icon {
-  display: inline-flex;
-  color: var(--peg-text-secondary);
+.dash-summary__header:hover {
+  color: var(--peg-text-primary);
+  background: var(--brand-faint);
+}
+
+.dash-summary__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.dash-seta {
+  color: var(--peg-text-tertiary);
+}
+
+.dash-summary__body {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .dash-summary__row {
   display: flex;
-  align-items: baseline;
   justify-content: space-between;
-  gap: var(--peg-space-2);
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: normal;
 }
 
 .dash-summary__label {
-  font-size: 12px;
   color: var(--peg-text-secondary);
 }
 
 .dash-summary__value {
-  font-size: 13px;
   font-weight: 600;
   color: var(--peg-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
-/* Layout principal: fila + coluna lateral */
+.dash-summary__value--aviso {
+  color: var(--peg-warning-text);
+}
+
+.dash-summary__value--perigo {
+  color: var(--peg-danger-text);
+}
+
+/* Fila à esquerda (1,6) e a coluna do ciclo e da demanda à direita (1) (:51). */
 .dash-main {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: var(--peg-space-4);
-  align-items: start;
+  gap: 16px;
+  min-height: 0;
 }
 
 @media (max-width: 1023px) {
@@ -1098,161 +1115,258 @@ body {
   }
 }
 
-.dash-card {
-  overflow: hidden;
+.dash-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Fila vazia: mantém geometria operacional (V3) — sem colapsar o módulo */
-.dash-queue .peg-empty {
-  min-height: 240px;
-  justify-content: center;
+.dash-card__titulo {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--peg-text-primary);
 }
 
-.dash-queue-row {
+.dash-card__nota {
+  margin: 0;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--peg-text-tertiary);
+}
+
+.dash-card__cabecalho {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--peg-border);
+}
+
+.dash-link {
+  font-size: 12px;
+  color: var(--brand-strong);
+  text-decoration: none;
+}
+
+.dash-link:hover {
+  text-decoration: underline;
+}
+
+/* Próximas ações · minha fila (:52-54). */
+.dash-fila {
+  align-self: start;
+}
+
+.dash-fila__cabecalho {
   display: flex;
   align-items: center;
-  gap: var(--peg-space-2);
-  padding: var(--peg-space-2) var(--peg-space-4);
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--peg-border);
+}
+
+.dash-fila__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-fila__linha {
+  display: grid;
+  grid-template-columns: 8px 90px minmax(0, 1fr) 120px 90px 12px;
+  gap: 12px;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--peg-surface-subtle);
+  font-size: 12.5px;
+  line-height: normal;
   color: var(--peg-text-primary);
-  font-size: 13px;
-  min-height: 36px;
+  text-decoration: none;
 }
 
-.dash-queue-row:hover {
-  background: var(--peg-surface-subtle);
+.dash-fila__linha:hover {
+  background: var(--brand-faint);
   color: var(--peg-text-primary);
 }
 
-.dash-queue-row:last-child {
-  border-bottom: none;
+.dash-fila__ponto {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--peg-border-strong);
 }
 
-.dash-queue-row__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  flex: none;
+.dash-fila__ponto--danger {
+  background: var(--peg-danger);
 }
 
-.dash-queue-row__type {
-  flex: none;
+.dash-fila__ponto--warning {
+  background: var(--peg-warning);
+}
+
+.dash-fila__tipo {
   font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--peg-text-tertiary);
-  width: 72px;
+  letter-spacing: 0.04em;
+  color: var(--peg-text-secondary);
 }
 
-.dash-queue-row__title {
-  flex: 1;
-  min-width: 0;
+.dash-fila__titulo {
+  font-weight: 500;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.dash-fila__meta,
+.dash-fila__prazo {
+  color: var(--peg-text-secondary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-fila__prazo {
+  text-align: right;
+}
+
+.dash-fila__vazia {
+  margin: 0;
+  padding: 20px 16px;
+  font-size: 12.5px;
+  color: var(--peg-text-tertiary);
+}
+
+/* No celular a linha guarda tipo, título e prazo; o detalhe está no item. */
+@media (max-width: 639px) {
+  .dash-fila__linha {
+    grid-template-columns: 8px 64px minmax(0, 1fr) auto 12px;
+    gap: 8px;
+    height: auto;
+    min-height: 44px;
+  }
+
+  .dash-fila__meta {
+    display: none;
+  }
+}
+
+/* Barras do ciclo (:59) e da demanda (:64): trilho de 6px, número à direita. */
+.dash-barras {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-barras--ciclo {
+  padding: 12px 16px;
+  gap: 9px;
+}
+
+.dash-barras--demanda {
+  padding: 10px 16px 12px;
+  gap: 8px;
+}
+
+.dash-barra {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+  line-height: normal;
+}
+
+.dash-barra--ciclo {
+  grid-template-columns: 70px minmax(0, 1fr) 24px;
+}
+
+.dash-barra--demanda {
+  grid-template-columns: minmax(0, 1fr) 90px 28px;
+}
+
+.dash-barra__rotulo,
+.dash-barra__tipo {
+  color: var(--peg-text-secondary);
+}
+
+.dash-barra__texto {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-barra__bairro {
   font-weight: 500;
 }
 
-.dash-queue-row__meta {
-  flex: none;
-  font-size: 12px;
-  color: var(--peg-text-tertiary);
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-queue-row__due {
-  flex: none;
-  font-size: 12px;
-  color: var(--peg-text-secondary);
-  font-variant-numeric: tabular-nums;
-  width: 96px;
-  text-align: right;
-}
-
-.dash-queue-row__chevron {
-  color: var(--peg-text-tertiary);
-  flex: none;
-}
-
-/* Ciclo de locação */
-.dash-cycle-row {
+.dash-barra__trilho {
   display: flex;
-  align-items: center;
-  gap: var(--peg-space-2);
-  color: inherit;
-  font-size: 12px;
-}
-
-.dash-cycle-row:hover {
-  color: inherit;
-}
-
-.dash-cycle-row__label {
-  flex: none;
-  width: 64px;
-  color: var(--peg-text-secondary);
-}
-
-.dash-cycle-row__bar-track {
-  flex: 1;
-  height: 8px;
-  border-radius: 999px;
+  height: 6px;
+  border-radius: 3px;
   background: var(--peg-surface-subtle);
-  overflow: hidden;
 }
 
-.dash-cycle-row__bar {
+.dash-barra__preenchido {
   display: block;
-  height: 100%;
-  border-radius: 999px;
+  border-radius: 3px;
   background: var(--brand);
-  opacity: 0.85;
-  min-width: 2px;
 }
 
-.dash-cycle-row__value {
-  flex: none;
-  width: 24px;
-  text-align: right;
+.dash-barra__preenchido--neutro {
+  background: var(--peg-text-tertiary);
+}
+
+.dash-barra__numero {
   font-weight: 600;
-  color: var(--peg-text-primary);
+  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-/* Métricas do atendimento */
-.dash-metric-row {
+/* Demanda por bairro: o único cartão com anel, e o selo "Novo" (:61-65). */
+.dash-demanda {
+  box-shadow: 0 0 0 2px var(--brand-subtle);
+}
+
+.dash-demanda__cabecalho {
   display: flex;
   align-items: center;
-  gap: var(--peg-space-2);
-  padding: var(--peg-space-2) 0;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--peg-border);
-  font-size: 13px;
 }
 
-.dash-metric-row:last-child {
-  border-bottom: none;
+.dash-demanda__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.dash-metric-row__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  flex: none;
+.dash-selo {
+  height: 18px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--peg-radius-xs);
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+  font-size: 10px;
+  font-weight: 600;
 }
 
-.dash-metric-row__label {
-  flex: 1;
+.dash-demanda__vazia {
+  margin: 0;
+  font-size: 12.5px;
   color: var(--peg-text-secondary);
 }
 
-.dash-metric-row__value {
-  font-weight: 600;
-  color: var(--peg-text-primary);
-  font-variant-numeric: tabular-nums;
+.dash-demanda__nota {
+  margin: 0;
+  padding-top: 2px;
+  font-size: 11.5px;
+  line-height: normal;
+  color: var(--peg-text-tertiary);
 }
 
 /* ============ Inbox (3 panes) ============ */

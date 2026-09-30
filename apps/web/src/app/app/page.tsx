@@ -2,15 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { apiFetch } from '@/lib/api-server';
-import { Icon } from '@aluguei/ui';
-import type { IconName } from '@aluguei/ui';
-import { formatBRLShort, formatDate } from '@aluguei/ui';
 import {
-  label,
-  CHANNEL_TYPE_LABELS,
-  CHARGE_STATUS_LABELS,
-  VISIT_STATUS_LABELS,
-} from '@/lib/labels';
+  fraseDasPendencias,
+  larguras,
+  linhaDaFila,
+  saudacao,
+  tipoDaDemanda,
+} from '@/lib/visao-geral';
+import type { CicloDaSemana, FilaDaVisao } from '@/lib/visao-geral';
+import { Saudacao } from './saudacao';
 
 export const metadata: Metadata = { title: 'Visão Geral' };
 export const dynamic = 'force-dynamic';
@@ -19,6 +19,7 @@ interface MeDto {
   user: { id: string; name: string; email: string };
 }
 
+/** GET /reporting/demand-by-neighborhood?groupBy=type — só contagens (ADR-099, B14). */
 interface DemandaPorBairro {
   city: string | null;
   cityLabel: string | null;
@@ -27,16 +28,11 @@ interface DemandaPorBairro {
     neighborhoodSlug: string;
     neighborhood: string;
     purpose: 'RENT' | 'SALE';
+    propertyType: string | null;
+    bedrooms: number | null;
     count: number;
     published: number;
   }[];
-}
-
-interface TaskItemDto {
-  id: string;
-  title: string;
-  dueAt: string | null;
-  relatedEntityType: string | null;
 }
 
 /**
@@ -52,49 +48,37 @@ interface DashboardSummaryDto {
     awaitingResponse: number;
     qualified: number;
   } | null;
-  tasks: {
-    overdue: number;
-    dueToday: number;
-    overdueItems: TaskItemDto[];
-    dueTodayItems: TaskItemDto[];
-  } | null;
-  visits: {
-    active: number;
-    upcomingItems: Array<{ id: string; scheduledAt: string; status: string }>;
-  } | null;
-  proposals: { nonDraft: number } | null;
-  properties: { available: number; archived: number } | null;
-  listings: {
-    publishedPublications: number;
-    failedPublications: number;
-    failedByChannel: Array<{ channel: string; failed: number }>;
-  } | null;
+  tasks: { overdue: number; dueToday: number } | null;
+  properties: { available: number; archived: number; reserved: number } | null;
+  listings: { publishedPublications: number; failedPublications: number } | null;
   screening: { total: number; pending: number } | null;
   contracts: { nonVoid: number; pending: number; awaitingSignature: number } | null;
   inspections: { open: number } | null;
   finance: {
     activeLeases: number;
-    nonEndedLeases: number;
     scheduledCharges: number;
     openCharges: number;
     overdueCharges: number;
-    overdueAmountCents: number;
     pendingPayouts: number;
-    overdueItems: Array<{ id: string; amountCents: number; status: string; dueDate: string }>;
   } | null;
-  conversations: { open: number; needsHuman: number } | null;
+  queue: FilaDaVisao;
+  week: CicloDaSemana;
 }
 
-type Tone = 'info' | 'warning' | 'danger' | 'neutral';
+/** Cor do número quando ele pede atenção (01-painel.dc.html:225): âmbar ou vermelho. */
+type Destaque = 'aviso' | 'perigo';
 
-function sumKnown(values: ReadonlyArray<number | undefined>): number {
-  return values.reduce<number>((acc, value) => acc + (value ?? 0), 0);
+interface LinhaDoResumo {
+  rotulo: string;
+  valor: number | null;
+  destaque?: Destaque;
 }
 
-function plural(count: number, one: string, many: string): string {
-  return `${String(count)} ${count === 1 ? one : many}`;
-}
-
+/**
+ * Visão Geral (tela 32, `telas/gestao/01-painel.dc.html#visao`; ADR-105, B14): quatro cartões de
+ * resumo, a fila "Próximas ações", o ciclo de locação da semana e a demanda por bairro. Números
+ * agregados no banco pela API (auditoria 2026-09-10, P1-01).
+ */
 export default async function OverviewPage() {
   let me: MeDto;
   try {
@@ -103,9 +87,6 @@ export default async function OverviewPage() {
     redirect('/login');
   }
 
-  // Números agregados no banco pela API (auditoria 2026-09-10, P1-01): antes a
-  // página buscava 12 listagens com limit=200, recusadas pela API, e mostrava
-  // tudo zerado com dados existentes.
   let summary: DashboardSummaryDto | null;
   try {
     summary = await apiFetch<DashboardSummaryDto>('/dashboard/summary');
@@ -113,406 +94,235 @@ export default async function OverviewPage() {
     summary = null;
   }
 
-  // Demanda por bairro (Onda 4). Falha aqui não derruba a Visão Geral: o card
-  // some e o resto da página continua — é informação de apoio, não operação.
-  const demanda = await apiFetch<DemandaPorBairro>('/reporting/demand-by-neighborhood').catch(
-    () => null,
-  );
+  // Demanda por bairro (Onda 4). Falha aqui (ou falta de permissão de relatório) não derruba a
+  // Visão Geral: o cartão some e o resto continua — é apoio, não operação.
+  const demanda = await apiFetch<DemandaPorBairro>(
+    '/reporting/demand-by-neighborhood?groupBy=type&limit=4',
+  ).catch(() => null);
 
+  const agora = summary === null ? new Date() : new Date(summary.generatedAt);
   const crm = summary?.crm ?? null;
   const tasks = summary?.tasks ?? null;
-  const visits = summary?.visits ?? null;
-  const listings = summary?.listings ?? null;
-  const screening = summary?.screening ?? null;
-  const contracts = summary?.contracts ?? null;
-  const inspections = summary?.inspections ?? null;
   const finance = summary?.finance ?? null;
-  const conversations = summary?.conversations ?? null;
+  const fila = summary?.queue ?? null;
+  const semana = summary?.week ?? null;
+  const primeiroNome = me.user.name.split(' ')[0] ?? me.user.name;
 
-  const actionCount = sumKnown([
-    tasks?.overdue,
-    tasks?.dueToday,
-    crm?.leadsWithoutOwner,
-    finance?.overdueCharges,
-    contracts?.awaitingSignature,
-    listings?.failedPublications,
-  ]);
-  const failedChannels = (listings?.failedByChannel ?? []).filter((c) => c.failed > 0);
-
-  let headline: string;
-  if (summary === null) {
-    headline = 'Não foi possível carregar os indicadores agora.';
-  } else if (actionCount === 0) {
-    headline = 'Nenhuma pendência operacional no momento.';
-  } else {
-    const parts = [`${plural(actionCount, 'item exige', 'itens exigem')} ação hoje`];
-    if (finance) {
-      parts.push(
-        plural(finance.overdueCharges, 'vencimento financeiro', 'vencimentos financeiros'),
-      );
-    }
-    if (listings) {
-      parts.push(plural(failedChannels.length, 'integração com erro', 'integrações com erro'));
-    }
-    headline = parts.join(' · ');
-  }
-
-  // ---- Ciclo de locação ----
-  const cycle: Array<{ key: string; value: number | null; href: string }> = [
-    { key: 'Leads', value: crm?.openLeads ?? null, href: '/app/crm/leads' },
-    { key: 'Qualif.', value: crm?.qualified ?? null, href: '/app/crm/pipeline' },
-    { key: 'Visitas', value: visits?.active ?? null, href: '/app/visits' },
+  const cartoes: Array<{ titulo: string; href: string; linhas: LinhaDoResumo[] }> = [
     {
-      key: 'Propostas',
-      value: summary?.proposals?.nonDraft ?? null,
-      href: '/app/proposals',
+      titulo: 'CRM',
+      href: '/app/crm/leads',
+      linhas: [
+        { rotulo: 'Novos leads hoje', valor: crm?.newLeadsToday ?? null },
+        { rotulo: 'Sem atendimento', valor: crm?.leadsWithoutOwner ?? null, destaque: 'aviso' },
+        { rotulo: 'Aguardando resposta', valor: crm?.awaitingResponse ?? null },
+        { rotulo: 'Atividades atrasadas', valor: tasks?.overdue ?? null, destaque: 'perigo' },
+      ],
     },
-    { key: 'Crédito', value: screening?.total ?? null, href: '/app/screening' },
-    { key: 'Contrato', value: contracts?.nonVoid ?? null, href: '/app/contracts' },
-    { key: 'Locação', value: finance?.nonEndedLeases ?? null, href: '/app/leases' },
+    {
+      titulo: 'Imóveis',
+      href: '/app/properties',
+      linhas: [
+        { rotulo: 'Disponíveis', valor: summary?.properties?.available ?? null },
+        { rotulo: 'Publicações ativas', valor: summary?.listings?.publishedPublications ?? null },
+        { rotulo: 'Arquivados', valor: summary?.properties?.archived ?? null },
+        { rotulo: 'Reservados', valor: summary?.properties?.reserved ?? null },
+      ],
+    },
+    {
+      titulo: 'Operação',
+      href: '/app/leases',
+      linhas: [
+        { rotulo: 'Crédito pendente', valor: summary?.screening?.pending ?? null },
+        { rotulo: 'Contratos aguardando', valor: summary?.contracts?.pending ?? null },
+        { rotulo: 'Vistorias em aberto', valor: summary?.inspections?.open ?? null },
+        { rotulo: 'Locações ativas', valor: finance?.activeLeases ?? null },
+      ],
+    },
+    {
+      titulo: 'Financeiro',
+      href: '/app/finance',
+      linhas: [
+        { rotulo: 'Cobranças agendadas', valor: finance?.scheduledCharges ?? null },
+        { rotulo: 'Em aberto', valor: finance?.openCharges ?? null },
+        { rotulo: 'Vencidas', valor: finance?.overdueCharges ?? null, destaque: 'perigo' },
+        { rotulo: 'Repasses pendentes', valor: finance?.pendingPayouts ?? null },
+      ],
+    },
   ];
-  const cycleMax = Math.max(1, ...cycle.map((c) => c.value ?? 0));
 
-  // ---- Alertas reais ----
-  const alerts: Array<{
-    tone: 'warning' | 'danger';
-    icon: IconName;
-    title: string;
-    body: string;
-    href: string;
-    action: string;
-  }> = [];
-  if (summary === null) {
-    alerts.push({
-      tone: 'warning',
-      icon: 'alertTriangle',
-      title: 'Indicadores indisponíveis',
-      body: 'A API não respondeu. Os números abaixo aparecem como "—" até a próxima carga.',
-      href: '/app',
-      action: 'Recarregar',
-    });
-  }
-  if (failedChannels.length > 0) {
-    const names = failedChannels.map((c) => label(CHANNEL_TYPE_LABELS, c.channel)).join(', ');
-    alerts.push({
-      tone: 'danger',
-      icon: 'alertTriangle',
-      title: `Falha de sincronização: ${names}`,
-      body: `${String(listings?.failedPublications ?? 0)} publicações falharam. Revise a integração e reprocesse.`,
-      href: '/app/channels',
-      action: 'Ver integração',
-    });
-  }
-  if (finance && finance.overdueCharges > 0) {
-    alerts.push({
-      tone: 'warning',
-      icon: 'alertTriangle',
-      title: `${String(finance.overdueCharges)} cobrança(s) vencida(s)`,
-      body: `${formatBRLShort(finance.overdueAmountCents)} em valores em aberto aguardam ação.`,
-      href: '/app/charges',
-      action: 'Ver cobranças',
-    });
-  }
-
-  // ---- Fila de ações (minha fila) ----
-  const queueRows: Array<{
-    id: string;
-    type: string;
-    title: string;
-    meta: string;
-    tone: Tone;
-    sortKey: string;
-    due: string;
-    href: string;
-  }> = [];
-  for (const t of tasks?.overdueItems ?? []) {
-    queueRows.push({
-      id: t.id,
-      type: 'Tarefa',
-      title: t.title,
-      meta: t.relatedEntityType ?? 'Atrasada',
-      tone: 'danger',
-      sortKey: t.dueAt ?? '',
-      due: formatDate(t.dueAt),
-      href: '/app/crm/tasks',
-    });
-  }
-  for (const t of tasks?.dueTodayItems ?? []) {
-    queueRows.push({
-      id: t.id,
-      type: 'Tarefa',
-      title: t.title,
-      meta: t.relatedEntityType ?? 'Hoje',
-      tone: 'info',
-      sortKey: t.dueAt ?? '',
-      due: formatDate(t.dueAt),
-      href: '/app/crm/tasks',
-    });
-  }
-  for (const c of finance?.overdueItems ?? []) {
-    queueRows.push({
-      id: c.id,
-      type: 'Cobrança',
-      title: formatBRLShort(c.amountCents),
-      meta: label(CHARGE_STATUS_LABELS, c.status),
-      tone: 'danger',
-      sortKey: c.dueDate,
-      due: formatDate(c.dueDate),
-      href: '/app/charges',
-    });
-  }
-  for (const v of visits?.upcomingItems ?? []) {
-    queueRows.push({
-      id: v.id,
-      type: 'Visita',
-      title: formatDate(v.scheduledAt),
-      meta: label(VISIT_STATUS_LABELS, v.status),
-      tone: 'info',
-      sortKey: v.scheduledAt,
-      due: formatDate(v.scheduledAt),
-      href: '/app/visits',
-    });
-  }
-  queueRows.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  const queueTotal = sumKnown([
-    tasks?.overdue,
-    tasks?.dueToday,
-    finance?.overdueCharges,
-    visits?.upcomingItems.length,
-  ]);
-
-  const firstName = me.user.name.split(' ')[0];
+  const ciclo: Array<{ rotulo: string; valor: number | null }> = [
+    { rotulo: 'Leads', valor: semana?.leads ?? null },
+    { rotulo: 'Qualif.', valor: semana?.qualified ?? null },
+    { rotulo: 'Visitas', valor: semana?.visits ?? null },
+    { rotulo: 'Propostas', valor: semana?.proposals ?? null },
+    { rotulo: 'Crédito', valor: semana?.screening ?? null },
+    { rotulo: 'Contrato', valor: semana?.contracts ?? null },
+    { rotulo: 'Locação', valor: semana?.leases ?? null },
+  ];
+  const larguraDoCiclo = larguras(ciclo.map((etapa) => etapa.valor));
+  const linhasDaDemanda = demanda?.rows ?? [];
+  const larguraDaDemanda = larguras(linhasDaDemanda.map((linha) => linha.count));
 
   return (
-    <div className="app-page dashboard-page">
-      {/* Header operacional */}
-      <div className="dash-header">
-        <div className="peg-stack" style={{ gap: 2 }}>
-          <h1 className="app-page__title">Bom dia, {firstName}</h1>
-          <p className="app-page__desc">{headline}</p>
+    <div className="app-page dash-page">
+      <div className="dash-cabecalho">
+        <div className="dash-cabecalho__texto">
+          <Saudacao nome={primeiroNome} inicial={saudacao(agora)} />
+          <p className="dash-sub">
+            {fila === null
+              ? 'Não foi possível carregar os indicadores agora.'
+              : fraseDasPendencias(fila.attention)}
+          </p>
         </div>
-        <div className="peg-group" style={{ gap: 8 }}>
-          <Link href="/app/crm/calendar" className="peg-btn peg-btn--secondary peg-btn--sm">
-            <Icon name="calendar" size={14} />
-            <span className="peg-btn__label">Minha agenda</span>
+        <div className="dash-cabecalho__acoes">
+          <Link href="/app/crm/calendar" className="dash-botao">
+            Minha agenda
           </Link>
-          <Link href="/app/properties/new" className="peg-btn peg-btn--brand peg-btn--sm">
-            <Icon name="plus" size={14} />
-            <span className="peg-btn__label">Novo imóvel</span>
+          <Link href="/app/properties/new" className="dash-botao dash-botao--primario">
+            + Novo imóvel
           </Link>
         </div>
       </div>
 
-      {/* Alert strip — apenas quando há problema real */}
-      {alerts.map((a) => (
-        <div
-          key={a.title}
-          className={`dash-alert dash-alert--${a.tone}`}
-          role={a.tone === 'danger' ? 'alert' : 'status'}
-        >
-          <span className="dash-alert__icon">
-            <Icon name={a.icon} size={16} />
-          </span>
-          <div className="peg-stack" style={{ gap: 1, minWidth: 0, flex: 1 }}>
-            <strong className="dash-alert__title">{a.title}</strong>
-            <span className="dash-alert__body">{a.body}</span>
-          </div>
-          <Link href={a.href} className="dash-alert__action">
-            {a.action}
-          </Link>
-        </div>
-      ))}
-
-      {/* Summary cards operacionais */}
       <div className="dash-grid">
-        <SummaryCard
-          title="CRM"
-          href="/app/crm/leads"
-          icon="users"
-          rows={[
-            { label: 'Novos leads hoje', value: crm?.newLeadsToday ?? null },
-            { label: 'Sem atendimento', value: crm?.leadsWithoutOwner ?? null },
-            { label: 'Aguardando resposta', value: crm?.awaitingResponse ?? null },
-            { label: 'Atividades atrasadas', value: tasks?.overdue ?? null },
-          ]}
-        />
-        <SummaryCard
-          title="Imóveis"
-          href="/app/properties"
-          icon="home"
-          rows={[
-            { label: 'Disponíveis', value: summary?.properties?.available ?? null },
-            { label: 'Publicações ativas', value: listings?.publishedPublications ?? null },
-            { label: 'Arquivados', value: summary?.properties?.archived ?? null },
-            { label: 'Reservados', value: finance?.activeLeases ?? null },
-          ]}
-        />
-        <SummaryCard
-          title="Operação"
-          href="/app/leases"
-          icon="key"
-          rows={[
-            { label: 'Crédito pendente', value: screening?.pending ?? null },
-            { label: 'Contratos aguardando', value: contracts?.pending ?? null },
-            { label: 'Vistorias em aberto', value: inspections?.open ?? null },
-            { label: 'Locações ativas', value: finance?.activeLeases ?? null },
-          ]}
-        />
-        <SummaryCard
-          title="Financeiro"
-          href="/app/finance"
-          icon="receipt"
-          rows={[
-            { label: 'Cobranças agendadas', value: finance?.scheduledCharges ?? null },
-            { label: 'Em aberto', value: finance?.openCharges ?? null },
-            { label: 'Vencidas', value: finance?.overdueCharges ?? null },
-            { label: 'Repasses pendentes', value: finance?.pendingPayouts ?? null },
-          ]}
-        />
+        {cartoes.map((cartao) => (
+          <section key={cartao.titulo} className="dash-summary">
+            <Link href={cartao.href} className="dash-summary__header">
+              <h2 className="dash-summary__title">{cartao.titulo}</h2>
+              <span className="dash-seta" aria-hidden="true">
+                ›
+              </span>
+            </Link>
+            <div className="dash-summary__body">
+              {cartao.linhas.map((linha) => (
+                <div key={linha.rotulo} className="dash-summary__row">
+                  <span className="dash-summary__label">{linha.rotulo}</span>
+                  <span
+                    className={
+                      linha.destaque !== undefined && (linha.valor ?? 0) > 0
+                        ? `dash-summary__value dash-summary__value--${linha.destaque}`
+                        : 'dash-summary__value'
+                    }
+                  >
+                    {contagem(linha.valor)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
 
-      {/* Fila + coluna lateral */}
       <div className="dash-main">
-        <section className="peg-card dash-card dash-queue">
-          <header className="peg-card__header">
-            <div className="peg-stack" style={{ gap: 0 }}>
-              <h3 className="peg-card__title">Próximas ações · minha fila</h3>
-              <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                {queueTotal} item(ns) exigem atenção
-              </span>
+        <section className="dash-card dash-fila">
+          <header className="dash-fila__cabecalho">
+            <div>
+              <h2 className="dash-card__titulo">Próximas ações · minha fila</h2>
+              <p className="dash-card__nota">
+                {fila === null ? '—' : String(fila.total)} item(ns) exigem atenção
+              </p>
             </div>
-            <Link
-              href="/app/crm/tasks"
-              style={{ fontSize: 12, minHeight: 24, display: 'inline-flex', alignItems: 'center' }}
-            >
+            <Link href="/app/crm/tasks" className="dash-link">
               Ver tarefas
             </Link>
           </header>
-          <div className="peg-stack" style={{ gap: 0 }}>
-            {queueRows.length === 0 ? (
-              <div className="peg-empty" style={{ padding: '20px 24px' }}>
-                <span className="peg-empty__body">
-                  {summary === null ? 'Fila indisponível no momento.' : 'Nada pendente agora.'}
-                </span>
-              </div>
-            ) : (
-              queueRows.slice(0, 8).map((r) => (
-                <Link key={`${r.type}-${r.id}`} href={r.href} className="dash-queue-row">
-                  <span className="dash-queue-row__dot" style={{ background: toneDot(r.tone) }} />
-                  <span className="dash-queue-row__type">{r.type}</span>
-                  <span className="dash-queue-row__title">{r.title}</span>
-                  <span className="dash-queue-row__meta">{r.meta}</span>
-                  <span className="dash-queue-row__due">{r.due}</span>
-                  <Icon name="chevronRight" size={14} className="dash-queue-row__chevron" />
-                </Link>
-              ))
-            )}
-          </div>
+          {fila === null || fila.items.length === 0 ? (
+            <p className="dash-fila__vazia">
+              {fila === null ? 'Fila indisponível no momento.' : 'Nada pendente agora.'}
+            </p>
+          ) : (
+            <ul className="dash-fila__lista">
+              {fila.items.map((item) => {
+                const linha = linhaDaFila(item, agora);
+                return (
+                  <li key={linha.chave}>
+                    <Link href={linha.href} className="dash-fila__linha">
+                      <span
+                        className={`dash-fila__ponto dash-fila__ponto--${linha.tom}`}
+                        aria-hidden="true"
+                      />
+                      <span className="dash-fila__tipo">{linha.tipo}</span>
+                      <span className="dash-fila__titulo">{linha.titulo}</span>
+                      <span className="dash-fila__meta">{linha.meta}</span>
+                      <span className="dash-fila__prazo">{linha.prazo}</span>
+                      <span className="dash-seta" aria-hidden="true">
+                        ›
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
 
-        <div className="peg-stack" style={{ gap: 16 }}>
-          {/* Ciclo de locação */}
-          <section className="peg-card dash-card">
-            <header className="peg-card__header">
-              <h3 className="peg-card__title">Ciclo de locação</h3>
-            </header>
-            <div className="peg-stack" style={{ gap: 10, padding: '14px 16px' }}>
-              {cycle.map((s) => (
-                <Link key={s.key} href={s.href} className="dash-cycle-row">
-                  <span className="dash-cycle-row__label">{s.key}</span>
-                  <span className="dash-cycle-row__bar-track">
+        <div className="dash-coluna">
+          <section className="dash-card">
+            <h2 className="dash-card__cabecalho dash-card__titulo">
+              Ciclo de locação · esta semana
+            </h2>
+            <div className="dash-barras dash-barras--ciclo">
+              {ciclo.map((etapa, indice) => (
+                <div key={etapa.rotulo} className="dash-barra dash-barra--ciclo">
+                  <span className="dash-barra__rotulo">{etapa.rotulo}</span>
+                  <span className="dash-barra__trilho" aria-hidden="true">
                     <span
-                      className="dash-cycle-row__bar"
-                      style={{
-                        width: `${String(Math.round(((s.value ?? 0) / cycleMax) * 100))}%`,
-                      }}
+                      className="dash-barra__preenchido"
+                      style={{ width: larguraDoCiclo[indice] }}
                     />
                   </span>
-                  <span className="dash-cycle-row__value">{displayCount(s.value)}</span>
-                </Link>
+                  <span className="dash-barra__numero">{contagem(etapa.valor)}</span>
+                </div>
               ))}
             </div>
           </section>
 
-          {/* Demanda por bairro (Onda 4): o que as pessoas procuram no portal
-              e a imobiliária ainda não tem. Só contagem — o contato de quem
-              criou o alerta nunca sai do portal. */}
-          {demanda !== null && demanda.city !== null ? (
-            <section className="peg-card dash-card">
-              <header className="peg-card__header">
-                <div className="peg-stack" style={{ gap: 0 }}>
-                  <h3 className="peg-card__title">Demanda por bairro</h3>
-                  <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-                    {demanda.totalActiveAlerts}{' '}
-                    {demanda.totalActiveAlerts === 1 ? 'alerta ativo' : 'alertas ativos'} no portal
-                    · {demanda.cityLabel}
-                  </span>
-                </div>
+          {/* Demanda por bairro (Onda 4): o que as pessoas procuram no portal. Só contagem — o
+              contato de quem criou o alerta nunca sai do portal. */}
+          {demanda === null ? null : (
+            <section className="dash-card dash-demanda">
+              <header className="dash-demanda__cabecalho">
+                <h2 className="dash-card__titulo dash-demanda__titulo">
+                  Demanda por bairro <span className="dash-selo">Novo</span>
+                </h2>
+                <span className="dash-card__nota">alertas ativos no portal</span>
               </header>
-              <div className="peg-stack" style={{ gap: 0, padding: '6px 16px 12px' }}>
-                {demanda.rows.length === 0 ? (
-                  <span className="peg-text-tertiary" style={{ fontSize: 13, padding: '8px 0' }}>
+              <div className="dash-barras dash-barras--demanda">
+                {demanda.city === null ? (
+                  <p className="dash-demanda__vazia">
+                    Publique um anúncio para ver o que procuram nos seus bairros.
+                  </p>
+                ) : linhasDaDemanda.length === 0 ? (
+                  <p className="dash-demanda__vazia">
                     Ninguém criou alerta nos seus bairros ainda.
-                  </span>
+                  </p>
                 ) : (
-                  demanda.rows.map((linha) => (
-                    <MetricRow
-                      key={`${linha.neighborhoodSlug}-${linha.purpose}`}
-                      label={`${linha.neighborhood} · ${linha.purpose === 'SALE' ? 'venda' : 'aluguel'}`}
-                      value={linha.count}
-                      tone={linha.published === 0 ? 'warning' : 'neutral'}
-                      hint={
-                        linha.published === 0
-                          ? 'sem anúncio seu'
-                          : `${String(linha.published)} anúncio${linha.published === 1 ? '' : 's'} seu${linha.published === 1 ? '' : 's'}`
-                      }
-                    />
+                  linhasDaDemanda.map((linha, indice) => (
+                    <div
+                      key={`${linha.neighborhoodSlug}-${linha.purpose}-${linha.propertyType ?? ''}-${String(linha.bedrooms)}`}
+                      className="dash-barra dash-barra--demanda"
+                    >
+                      <span className="dash-barra__texto">
+                        <span className="dash-barra__bairro">{linha.neighborhood}</span>{' '}
+                        <span className="dash-barra__tipo">· {tipoDaDemanda(linha)}</span>
+                      </span>
+                      <span className="dash-barra__trilho" aria-hidden="true">
+                        <span
+                          className="dash-barra__preenchido dash-barra__preenchido--neutro"
+                          style={{ width: larguraDaDemanda[indice] }}
+                        />
+                      </span>
+                      <span className="dash-barra__numero">{linha.count}</span>
+                    </div>
                   ))
                 )}
-                <span className="peg-text-tertiary" style={{ fontSize: 11, paddingTop: 8 }}>
+                <p className="dash-demanda__nota">
                   Só contagens. O contato de quem criou o alerta nunca aparece.
-                </span>
+                </p>
               </div>
             </section>
-          ) : null}
-
-          {/* Atendimento */}
-          <section className="peg-card dash-card">
-            <header className="peg-card__header">
-              <div className="peg-stack" style={{ gap: 0 }}>
-                <h3 className="peg-card__title">Atendimento</h3>
-              </div>
-              <Link
-                href="/app/inbox"
-                style={{
-                  fontSize: 12,
-                  minHeight: 24,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                }}
-              >
-                Inbox
-              </Link>
-            </header>
-            <div className="peg-stack" style={{ gap: 0, padding: '6px 16px 12px' }}>
-              <MetricRow
-                label="Conversas aguardando"
-                value={conversations?.open ?? null}
-                tone="neutral"
-              />
-              <MetricRow
-                label="Precisam de humano"
-                value={conversations?.needsHuman ?? null}
-                tone={(conversations?.needsHuman ?? 0) > 0 ? 'danger' : 'neutral'}
-              />
-              <MetricRow
-                label="Leads sem atendimento"
-                value={crm?.leadsWithoutOwner ?? null}
-                tone={(crm?.leadsWithoutOwner ?? 0) > 0 ? 'warning' : 'neutral'}
-              />
-              <MetricRow label="Leads qualificados" value={crm?.qualified ?? null} tone="brand" />
-            </div>
-          </section>
+          )}
         </div>
       </div>
     </div>
@@ -520,81 +330,6 @@ export default async function OverviewPage() {
 }
 
 /** Contagem conhecida ou "—" (sem permissão ou API indisponível): nunca um zero inventado. */
-function displayCount(value: number | null): string {
-  return value === null ? '—' : String(value);
-}
-
-function toneDot(tone: Tone): string {
-  if (tone === 'danger') return 'var(--peg-danger)';
-  if (tone === 'warning') return 'var(--peg-warning)';
-  return 'var(--peg-border-strong)';
-}
-
-function SummaryCard({
-  title,
-  href,
-  icon,
-  rows,
-}: {
-  title: string;
-  href: string;
-  icon: IconName;
-  rows: Array<{ label: string; value: number | null }>;
-}) {
-  return (
-    <Link href={href} className="peg-card dash-summary" style={{ textDecoration: 'none' }}>
-      <header className="dash-summary__header">
-        <span className="dash-summary__icon">
-          <Icon name={icon} size={15} />
-        </span>
-        <h3 className="peg-card__title">{title}</h3>
-        <span className="peg-spacer" />
-        <Icon name="chevronRight" size={14} className="peg-text-tertiary" />
-      </header>
-      <div className="peg-stack" style={{ gap: 6, padding: '10px 16px 14px' }}>
-        {rows.map((r) => (
-          <div key={r.label} className="dash-summary__row">
-            <span className="dash-summary__label">{r.label}</span>
-            <span className="dash-summary__value">{displayCount(r.value)}</span>
-          </div>
-        ))}
-      </div>
-    </Link>
-  );
-}
-
-function MetricRow({
-  label: l,
-  value,
-  tone,
-  hint,
-}: {
-  label: string;
-  value: number | null;
-  tone: 'neutral' | 'danger' | 'warning' | 'brand';
-  /** Contexto curto ao lado do rótulo (ex.: quantos anúncios seus há no bairro). */
-  hint?: string;
-}) {
-  const dot =
-    tone === 'danger'
-      ? 'var(--peg-danger)'
-      : tone === 'warning'
-        ? 'var(--peg-warning)'
-        : tone === 'brand'
-          ? 'var(--brand)'
-          : 'var(--peg-border-strong)';
-  return (
-    <div className="dash-metric-row">
-      <span className="dash-metric-row__dot" style={{ background: dot }} />
-      <span className="dash-metric-row__label">
-        {l}
-        {hint === undefined ? null : (
-          <span className="peg-text-tertiary" style={{ fontSize: 11, marginLeft: 6 }}>
-            {hint}
-          </span>
-        )}
-      </span>
-      <span className="dash-metric-row__value">{displayCount(value)}</span>
-    </div>
-  );
+function contagem(valor: number | null): string {
+  return valor === null ? '—' : String(valor);
 }

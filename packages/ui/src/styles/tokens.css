@@ -57,6 +57,9 @@
   --peg-warning-bg: #fdf3e3;
   --peg-danger: #dc2626;
   --peg-danger-bg: #fdecec;
+  /* Número ou texto que pede atenção sobre superfície clara (01-painel.dc.html:225). */
+  --peg-warning-text: #a05c06;
+  --peg-danger-text: #b91c1c;
   --peg-info: #2563eb;
   --peg-info-bg: #e9effd;
 
@@ -154,6 +157,8 @@
   --peg-success: #3fae63;
   --peg-warning: #e09b3f;
   --peg-danger: #e55353;
+  --peg-warning-text: #e09b3f;
+  --peg-danger-text: #e55353;
   --peg-info: #5b8beb;
 
   --peg-nav-bg: #19191b;
