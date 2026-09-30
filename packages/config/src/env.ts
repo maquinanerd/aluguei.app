@@ -52,6 +52,14 @@ export const envSchema = z.object({
   STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
   // MinIO e outros S3 atrás de domínio próprio: bucket no caminho, não no host.
   STORAGE_FORCE_PATH_STYLE: opcaoOpcional(['true', 'false']),
+  /**
+   * `disk`: objetos numa pasta local, com URLs assinadas pela própria API (`/dev/storage/object`).
+   * Só para a stack de testes (F3, ADR-105): fora de produção e com ALLOW_FAKE_PROVIDERS=true.
+   */
+  STORAGE_DRIVER: opcaoOpcional(['s3', 'disk']),
+  STORAGE_DISK_ROOT: z.preprocess(emptyAsUndefined, z.string().optional()),
+  /** Endereço da API visto pelo navegador, base das URLs assinadas do storage em disco. */
+  STORAGE_DISK_PUBLIC_URL: z.preprocess(emptyAsUndefined, z.url().optional()),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
   AI_PROVIDER: z.string().optional(),
   // Cadastro por áudio (ADR-104): só `ZERO` liga o recurso. Qualquer outro

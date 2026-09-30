@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import Fastify, {
   type FastifyInstance,
   type FastifyPluginAsync,
@@ -15,6 +17,7 @@ import { annotateHttpRoute } from '@aluguei/observability';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { PlanModule } from '@aluguei/domain';
 import { requireModule } from './plugins/authz.js';
+import { DiskStorageAdapter } from '@aluguei/storage';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
@@ -79,6 +82,7 @@ import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
 import { devPaymentRoutes } from './routes/dev-payments.js';
 import { devOutboxRoutes } from './routes/dev-outbox.js';
+import { devStorageRoutes } from './routes/dev-storage.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
@@ -274,6 +278,17 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.STORAGE_FORCE_PATH_STYLE === 'true') {
     storageOptions.forcePathStyle = true;
   }
+  // Storage em disco da stack de testes (F3); a configuração já recusou produção e a falta de
+  // ALLOW_FAKE_PROVIDERS=true (`storageProblems`).
+  if (!opts.storage && env.STORAGE_DRIVER === 'disk') {
+    storageOptions.disk = {
+      root: env.STORAGE_DISK_ROOT ?? join(tmpdir(), 'aluguei-storage'),
+      publicUrl:
+        env.STORAGE_DISK_PUBLIC_URL ??
+        env.API_BASE_URL ??
+        `http://127.0.0.1:${String(env.API_PORT)}`,
+    };
+  }
   await app.register(storagePlugin, storageOptions);
 
   const geocodingOptions: GeocodingPluginOptions = { nodeEnv: env.NODE_ENV };
@@ -437,6 +452,10 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     await app.register(devPaymentRoutes);
     // Leitura da caixa de saída local por destinatário (dev/E2E) — nunca em produção.
     await app.register(devOutboxRoutes);
+    // Upload e download das URLs assinadas do storage em disco (F3) — só com esse storage.
+    if (app.storage instanceof DiskStorageAdapter) {
+      await app.register(devStorageRoutes, { storage: app.storage });
+    }
   }
   await registerBehindModule(app, 'MARKETING', [metaRoutes]);
   await app.register(portalRoutes);

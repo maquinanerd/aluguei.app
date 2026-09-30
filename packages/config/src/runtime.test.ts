@@ -205,6 +205,52 @@ describe('loadRuntimeEnv: API em produção', () => {
   });
 });
 
+describe('loadRuntimeEnv: storage em disco (F3, stack de testes)', () => {
+  const DISCO = { STORAGE_DRIVER: 'disk', STORAGE_DISK_ROOT: '/tmp/aluguei-storage' };
+
+  it('sobe fora de produção com ALLOW_FAKE_PROVIDERS=true', () => {
+    const env = loadRuntimeEnv('api', {
+      NODE_ENV: 'development',
+      ALLOW_FAKE_PROVIDERS: 'true',
+      ...DISCO,
+    });
+    expect(env.STORAGE_DRIVER).toBe('disk');
+  });
+
+  it('fora de produção, sem a permissão, é recusado', () => {
+    expect(problemsOf(() => loadRuntimeEnv('api', { NODE_ENV: 'development', ...DISCO }))).toEqual([
+      'STORAGE_DRIVER=disk exige ALLOW_FAKE_PROVIDERS=true (storage de mentira, F3)',
+    ]);
+  });
+
+  it('em produção é recusado mesmo com ALLOW_FAKE_PROVIDERS=true, junto com o resto', () => {
+    const problems = problemsOf(() =>
+      loadRuntimeEnv('api', { ...HOMOLOGATION_API, ALLOW_FAKE_PROVIDERS: 'true', ...DISCO }),
+    );
+    expect(problems).toEqual([
+      'STORAGE_DRIVER=disk é só da stack de testes: em produção, use o S3/R2 (STORAGE_BUCKET e credenciais)',
+    ]);
+  });
+
+  it('variáveis do disco vazias (o orquestrador repassa assim) não derrubam a subida', () => {
+    const env = loadRuntimeEnv('api', {
+      NODE_ENV: 'development',
+      STORAGE_DRIVER: '',
+      STORAGE_DISK_ROOT: '',
+      STORAGE_DISK_PUBLIC_URL: '',
+    });
+    expect([env.STORAGE_DRIVER, env.STORAGE_DISK_ROOT, env.STORAGE_DISK_PUBLIC_URL]).toEqual([
+      undefined,
+      undefined,
+      undefined,
+    ]);
+  });
+
+  it('sem STORAGE_DRIVER, nada muda', () => {
+    expect(problemsOf(() => loadRuntimeEnv('api', { NODE_ENV: 'development' }))).toEqual([]);
+  });
+});
+
 describe('loadRuntimeEnv: worker em produção', () => {
   it('sem nada configurado lista o que o worker precisa (e só isso)', () => {
     const problems = problemsOf(() => loadRuntimeEnv('worker', { NODE_ENV: 'production' }));

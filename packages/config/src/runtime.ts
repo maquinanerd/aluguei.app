@@ -207,6 +207,26 @@ function productionProblems(
 }
 
 /**
+ * O storage em disco é da stack de testes (F3, ADR-105): nunca em produção, e fora dela só com os
+ * providers de mentira liberados. Um deploy com `STORAGE_DRIVER=disk` guardaria documentos numa
+ * pasta do contêiner, que some no próximo deploy.
+ */
+export function storageProblems(env: AppEnv): string[] {
+  if (env.STORAGE_DRIVER !== 'disk') {
+    return [];
+  }
+  if (env.NODE_ENV === 'production') {
+    return [
+      'STORAGE_DRIVER=disk é só da stack de testes: em produção, use o S3/R2 (STORAGE_BUCKET e credenciais)',
+    ];
+  }
+  if (env.ALLOW_FAKE_PROVIDERS !== 'true') {
+    return ['STORAGE_DRIVER=disk exige ALLOW_FAKE_PROVIDERS=true (storage de mentira, F3)'];
+  }
+  return [];
+}
+
+/**
  * Carrega a configuração de um processo (API ou worker) e recusa a subida com tudo o que falta.
  *
  * - NODE_ENV é obrigatório: não há ambiente padrão (um deploy sem NODE_ENV rodaria como
@@ -233,11 +253,12 @@ export function loadRuntimeEnv(
     );
   }
   const env = parsed.data;
-  if (env.NODE_ENV === 'production') {
-    const problems = productionProblems(env, source, service);
-    if (problems.length > 0) {
-      throw new ConfigError(service, env.NODE_ENV, problems);
-    }
+  const problems = [
+    ...(env.NODE_ENV === 'production' ? productionProblems(env, source, service) : []),
+    ...storageProblems(env),
+  ];
+  if (problems.length > 0) {
+    throw new ConfigError(service, env.NODE_ENV, problems);
   }
   return env;
 }
