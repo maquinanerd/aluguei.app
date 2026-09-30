@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cx } from '@aluguei/ui';
 import { Icon } from '@aluguei/ui';
+import type { PlanModule } from '@aluguei/domain';
 import type { Session } from '@/lib/session';
-import { NAV_GROUPS, NAV_ROOT, breadcrumbFor } from '@/lib/navigation';
+import { NAV_GROUPS, NAV_ROOT, breadcrumbFor, findNavItem } from '@/lib/navigation';
 import type { NavItem } from '@/lib/navigation';
 import { can, activeRole } from '@/lib/session';
 import { ROLE_LABELS } from '@/lib/labels';
@@ -18,6 +19,10 @@ import { GlobalSearch } from './global-search';
 import { TopbarClock } from './topbar-clock';
 import { BRAND } from '@/lib/brand';
 import { hasModule } from '@/lib/session';
+import { apiClient } from '@/lib/api-client';
+import { AvisarForaDoPlanoContext } from './fora-do-plano';
+import { CadeadoDoPlano, NavIcon } from './nav-icon';
+import { PlanoBloqueado } from './plano-bloqueado';
 
 const COLLAPSE_KEY = 'aluguei.sidebar.collapsed';
 
@@ -28,14 +33,88 @@ const COLLAPSE_KEY = 'aluguei.sidebar.collapsed';
  */
 const FOCUS_ROUTES = ['/app/properties/new'];
 
-export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
+/** Contadores do menu (`GET /dashboard/counters`, B14); nulo sem a permissão. */
+interface ContadoresDoMenu {
+  leads: number | null;
+  tasks: number | null;
+  inbox: number | null;
+}
+
+/** Número de cada item do menu, como no `Painel Sidebar.dc.html`: Leads, Tarefas e Inbox (perigo). */
+function contadorDo(
+  href: string,
+  contadores: ContadoresDoMenu | null,
+): { valor: number; perigo: boolean } | null {
+  if (contadores === null) return null;
+  const valor =
+    href === '/app/crm/leads'
+      ? contadores.leads
+      : href === '/app/crm/tasks'
+        ? contadores.tasks
+        : href === '/app/inbox'
+          ? contadores.inbox
+          : null;
+  if (valor === null || valor <= 0) return null;
+  return { valor, perigo: href === '/app/inbox' };
+}
+
+/** Rodapé do menu: "Gestor · Gestão Locação" ou "Gestor · plano Anunciante", como no desenho. */
+function papelDoRodape(session: Session): string {
+  const role = activeRole(session);
+  const papel = role === 'owner' || role === 'admin' ? 'Gestor' : (ROLE_LABELS[role] ?? role);
+  const plano = session.plan?.name;
+  if (!plano) return papel;
+  return `${papel} · ${plano.startsWith('Gestão') ? plano : `plano ${plano}`}`;
+}
+
+export function AppShell({
+  session,
+  portalUrl = null,
+  children,
+}: {
+  session: Session;
+  /** Endereço do portal, para "Comparar planos" na tela de upgrade. */
+  portalUrl?: string | null;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const drawerRef = useRef<HTMLElement | null>(null);
   const crumbs = breadcrumbFor(pathname);
   const activeOrg = session.activeOrg;
-  const role = activeRole(session);
+  const [contadores, setContadores] = useState<ContadoresDoMenu | null>(null);
+  const [moduloDoErro, setModuloDoErro] = useState<{ caminho: string; modulo: PlanModule } | null>(
+    null,
+  );
+
+  // Upgrade no lugar (tela 33): a rota de um módulo fora do plano mostra a tela de upgrade, e o
+  // 403 PLAN_MODULE_NOT_INCLUDED de uma consulta da página faz o mesmo (defeito 13).
+  const itemAtual = findNavItem(pathname);
+  const moduloDaRota =
+    itemAtual?.module && !hasModule(session, itemAtual.module) ? itemAtual.module : null;
+  const moduloBloqueado =
+    moduloDaRota ?? (moduloDoErro?.caminho === pathname ? moduloDoErro.modulo : null);
+  const avisarForaDoPlano = useCallback(
+    (modulo: PlanModule) => {
+      setModuloDoErro({ caminho: pathname, modulo });
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    let cancelado = false;
+    apiClient<ContadoresDoMenu>('/dashboard/counters')
+      .then((res) => {
+        if (!cancelado) setContadores(res);
+      })
+      .catch(() => {
+        /* sem contadores o menu só não mostra número */
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [pathname]);
 
   const isFocus = FOCUS_ROUTES.includes(pathname);
 
@@ -105,16 +184,20 @@ export function AppShell({ session, children }: { session: Session; children: Re
           title={BRAND.b2bName}
         >
           <span className="app-sidebar__logo">{BRAND.seal}</span>
-          {!collapsed ? <span className="app-sidebar__wordmark">{BRAND.b2bName}</span> : null}
+          {!collapsed ? (
+            <span className="app-sidebar__wordmark">
+              {BRAND.name} <span className="app-sidebar__wordmark-sub">Gestão</span>
+            </span>
+          ) : null}
         </Link>
         {!collapsed ? (
           <button
             type="button"
-            className="peg-icon-btn peg-icon-btn--sm app-sidebar__collapse"
+            className="app-sidebar__collapse"
             aria-label="Recolher menu lateral"
             onClick={toggleCollapse}
           >
-            <Icon name="panelLeft" size={16} />
+            <span className="app-sidebar__collapse-icon" aria-hidden="true" />
           </button>
         ) : null}
       </header>
@@ -138,7 +221,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
               .map((item) => (
                 <RailLink
                   key={item.href}
-                  href={bloqueioDoItem(item, session)?.href ?? item.href}
+                  href={item.href}
                   label={item.label}
                   icon={item.icon}
                   pathname={pathname}
@@ -164,9 +247,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
                     }}
                   >
                     <span className="app-sidebar__icon">
-                      <Icon name={item.icon} size={16} />
+                      <NavIcon name={item.icon} />
                     </span>
-                    {item.label}
+                    <span className="app-sidebar__label">{item.label}</span>
                   </Link>
                 );
               })}
@@ -182,10 +265,11 @@ export function AppShell({ session, children }: { session: Session; children: Re
                   {items.map((item) => {
                     const isActive = isItemActive(item, pathname);
                     const bloqueio = bloqueioDoItem(item, session);
+                    const contador = bloqueio ? null : contadorDo(item.href, contadores);
                     return (
                       <Link
                         key={item.href}
-                        href={bloqueio?.href ?? item.href}
+                        href={item.href}
                         className={cx(
                           'app-sidebar__link',
                           isActive && 'app-sidebar__link--active',
@@ -204,23 +288,25 @@ export function AppShell({ session, children }: { session: Session; children: Re
                         }}
                       >
                         <span className="app-sidebar__icon">
-                          <Icon name={item.icon} size={16} />
+                          <NavIcon name={item.icon} />
                         </span>
                         <span className="app-sidebar__label">{item.label}</span>
-                        {item.novo ? <span className="app-sidebar__tag">Novo</span> : null}
+                        {item.novo && !bloqueio ? (
+                          <span className="app-sidebar__tag">Novo</span>
+                        ) : null}
                         {bloqueio ? (
-                          <span className="app-sidebar__icon" aria-hidden="true">
-                            <Icon name="lock" size={14} />
+                          <span className="app-sidebar__cadeado" aria-hidden="true">
+                            <CadeadoDoPlano />
                           </span>
                         ) : null}
-                        {item.badge !== undefined ? (
+                        {contador ? (
                           <span
                             className={cx(
                               'app-sidebar__badge',
-                              item.badgeTone === 'danger' && 'app-sidebar__badge--danger',
+                              contador.perigo && 'app-sidebar__badge--danger',
                             )}
                           >
-                            {item.badge}
+                            {contador.valor}
                           </span>
                         ) : null}
                       </Link>
@@ -235,15 +321,8 @@ export function AppShell({ session, children }: { session: Session; children: Re
       <footer className="app-sidebar__footer">
         {!collapsed ? <OrgSwitcher session={session} /> : null}
         <div className="app-sidebar__profile">
-          <Avatar name={session.user.name} size="md" brand />
           {!collapsed ? (
-            <>
-              <div className="peg-stack app-sidebar__profile-text" style={{ gap: 0, minWidth: 0 }}>
-                <span className="app-sidebar__profile-name">{session.user.name}</span>
-                <span className="app-sidebar__profile-role">{ROLE_LABELS[role] ?? role}</span>
-              </div>
-              <ProfileMenu session={session} />
-            </>
+            <ProfileMenu session={session} papel={papelDoRodape(session)} />
           ) : (
             <button
               type="button"
@@ -340,13 +419,26 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 aria-label="Atendimento (Inbox)"
                 title="Atendimento"
               >
-                <Icon name="bell" size={17} />
+                <span className="app-topbar__sino" aria-hidden="true" />
               </Link>
             ) : null}
             <AccountMenu session={session} />
           </header>
           <main id="app-content" className="app-content" tabIndex={-1}>
-            {children}
+            <AvisarForaDoPlanoContext.Provider value={avisarForaDoPlano}>
+              {moduloBloqueado ? (
+                <PlanoBloqueado
+                  modulo={moduloBloqueado}
+                  plano={session.plan}
+                  item={itemAtual?.label ?? null}
+                  orgId={activeOrg?.id ?? null}
+                  podePedir={can(session, 'member:manage')}
+                  portalUrl={portalUrl}
+                />
+              ) : (
+                children
+              )}
+            </AvisarForaDoPlanoContext.Provider>
           </main>
         </div>
       </div>
@@ -382,18 +474,18 @@ export function AppShell({ session, children }: { session: Session; children: Re
 }
 
 /**
- * Item fora do plano (ADR-095) ou de tela ainda não construída: em vez de levar a
- * um 403 ou a um 404, leva à tela "Fora do seu plano", que explica o que falta.
+ * Item fora do plano (ADR-095) ou de tela ainda não construída. O item abre a própria rota, e a
+ * moldura mostra ali a tela de upgrade (tela 33, "upgrade no lugar"), com o item aceso.
  */
 function bloqueioDoItem(
   item: NavItem,
   session: Session,
-): { motivo: 'plano' | 'preparacao'; href: string } | null {
+): { motivo: 'plano' | 'preparacao' } | null {
   if (item.module && !hasModule(session, item.module)) {
-    return { motivo: 'plano', href: `/app/plano?modulo=${item.module}` };
+    return { motivo: 'plano' };
   }
   if (item.emPreparacao) {
-    return { motivo: 'preparacao', href: `/app/plano?modulo=${item.module ?? ''}` };
+    return { motivo: 'preparacao' };
   }
   return null;
 }
@@ -416,7 +508,7 @@ function RailLink({
 }: {
   href: string;
   label: string;
-  icon: Parameters<typeof Icon>[0]['name'];
+  icon: NavItem['icon'];
   pathname: string;
   onNavigate: () => void;
 }) {
@@ -430,7 +522,7 @@ function RailLink({
       title={label}
       onClick={onNavigate}
     >
-      <Icon name={icon} size={18} />
+      <NavIcon name={icon} size={18} />
     </Link>
   );
 }
@@ -471,7 +563,7 @@ function Avatar({ name, size, brand }: { name: string; size: 'sm' | 'md'; brand?
   );
 }
 
-function ProfileMenu({ session }: { session: Session }) {
+function ProfileMenu({ session, papel }: { session: Session; papel: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -531,10 +623,10 @@ function ProfileMenu({ session }: { session: Session }) {
   }
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative', flex: 1, minWidth: 0 }}>
       <button
         type="button"
-        className="peg-icon-btn peg-icon-btn--sm"
+        className="app-sidebar__profile-botao"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Menu da conta"
@@ -542,14 +634,18 @@ function ProfileMenu({ session }: { session: Session }) {
           setOpen((v) => !v);
         }}
       >
-        <Icon name="moreVertical" size={16} />
+        <Avatar name={session.user.name} size="md" brand />
+        <span className="app-sidebar__profile-text">
+          <span className="app-sidebar__profile-name">{session.user.name}</span>
+          <span className="app-sidebar__profile-role">{papel}</span>
+        </span>
       </button>
       {open ? (
         <div
           ref={menuRef}
           role="menu"
           className="peg-menu"
-          style={{ left: 'auto', right: 0, bottom: 'calc(100% + 6px)', width: 200 }}
+          style={{ left: 0, right: 'auto', bottom: 'calc(100% + 6px)', width: 200 }}
         >
           <div className="peg-stack" style={{ gap: 2, padding: '8px 12px' }}>
             <strong style={{ fontSize: 13 }}>{session.user.name}</strong>

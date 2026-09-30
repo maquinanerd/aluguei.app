@@ -2,9 +2,19 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { Avatar, Icon } from '@aluguei/ui';
+import { Icon } from '@aluguei/ui';
 import type { Session } from '@/lib/session';
 import { requestLogout } from '@/lib/logout';
+
+/** "Rafael Almeida" → "RA". */
+function iniciais(nome: string): string {
+  return nome
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0]?.toUpperCase() ?? '')
+    .join('');
+}
 
 export function AccountMenu({ session }: { session: Session }) {
   const [open, setOpen] = useState(false);
@@ -58,9 +68,11 @@ export function AccountMenu({ session }: { session: Session }) {
           setOpen((v) => !v);
         }}
       >
-        <Avatar name={session.user.name} size="sm" brand />
-        <span style={{ fontSize: 13, fontWeight: 500 }}>{session.user.name.split(' ')[0]}</span>
-        <Icon name="chevronDown" size={14} />
+        {/* Como no desenho (01-painel.dc.html:36): as iniciais e a seta, sem o círculo. */}
+        <span style={{ fontSize: 13, fontWeight: 600 }}>{iniciais(session.user.name)}</span>
+        <span aria-hidden="true" style={{ fontSize: 13, fontWeight: 600 }}>
+          ⌄
+        </span>
       </button>
       {open ? (
         <div

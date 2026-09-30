@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Icon } from '@aluguei/ui';
+import { NavIcon } from './nav-icon';
+import type { NavIconName } from './nav-icon';
 import type { Session } from '@/lib/session';
 import { can } from '@/lib/session';
 import { NAV_GROUPS, NAV_ROOT } from '@/lib/navigation';
@@ -51,7 +52,7 @@ export function GlobalSearch({ session }: { session: Session }) {
     const matches: Array<{
       href: string;
       label: string;
-      icon: Parameters<typeof Icon>[0]['name'];
+      icon: NavIconName;
       group: string;
     }> = [];
     for (const item of NAV_ROOT) {
@@ -105,9 +106,6 @@ export function GlobalSearch({ session }: { session: Session }) {
   return (
     <div ref={rootRef} style={{ position: 'relative' }} className="app-topbar__search">
       <div className="peg-input peg-input--sm">
-        <span className="peg-input__prefix">
-          <Icon name="search" size={15} />
-        </span>
         <input
           ref={inputRef}
           type="text"
@@ -160,7 +158,7 @@ export function GlobalSearch({ session }: { session: Session }) {
               }}
             >
               <span className="peg-menu__icon">
-                <Icon name={r.icon} size={14} />
+                <NavIcon name={r.icon} size={14} />
               </span>
               <span className="peg-grow" style={{ textAlign: 'left' }}>
                 {r.label}

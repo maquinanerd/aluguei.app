@@ -57,7 +57,8 @@ describe('módulos do plano na navegação', () => {
     const vendas = NAV_GROUPS.find((grupo) => grupo.title === 'Vendas');
     expect(vendas).toBeDefined();
     const rotas = (vendas?.items ?? []).map((item) => item.href);
-    expect(rotas).toEqual(['/app/vendas', '/app/vendas/negociacoes']);
+    // T9 (ADR-105): o design só tem Negociações; o painel de vendas é link no cabeçalho dela.
+    expect(rotas).toEqual(['/app/vendas/negociacoes']);
     for (const item of vendas?.items ?? []) {
       expect(item.module).toBe('VENDAS');
       expect(item.novo).toBe(true);

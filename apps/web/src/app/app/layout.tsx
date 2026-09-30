@@ -5,6 +5,7 @@ import { apiFetch, assertSecureApiBase } from '@/lib/api-server';
 import { AppShell } from '@/components/shell/app-shell';
 import type { Session, SessionPlan } from '@/lib/session';
 import { destinationFor } from '@/lib/account-status';
+import { portalBaseUrl } from '@/lib/portal-url';
 
 import { BRAND } from '@/lib/brand';
 
@@ -45,5 +46,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (session.activeOrg?.status !== 'ACTIVE') {
     redirect(destinationFor(session));
   }
-  return <AppShell session={session}>{children}</AppShell>;
+  return (
+    <AppShell session={session} portalUrl={portalBaseUrl()}>
+      {children}
+    </AppShell>
+  );
 }
