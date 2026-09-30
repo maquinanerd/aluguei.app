@@ -9,6 +9,8 @@ import type { Page } from '@playwright/test';
 
 export const API = `http://127.0.0.1:${process.env.API_PORT ?? '4000'}`;
 export const WEB = `http://localhost:${process.env.WEB_PORT ?? '3000'}`;
+/** Portal público (apps/portal), que a stack de E2E sobe junto. */
+export const PORTAL = `http://localhost:${process.env.PORTAL_PORT ?? '3100'}`;
 export const DAY_MS = 86_400_000;
 
 export interface ApiResult<T> {
