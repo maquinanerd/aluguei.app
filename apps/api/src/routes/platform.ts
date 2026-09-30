@@ -2,7 +2,14 @@ import { and, asc, count, desc, eq, getTableColumns, ilike, like, or, sql } from
 import type { SQL } from 'drizzle-orm';
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { auditEvents, memberships, organizations, plans, users } from '@aluguei/db';
+import {
+  auditEvents,
+  memberships,
+  organizations,
+  planChangeRequests,
+  plans,
+  users,
+} from '@aluguei/db';
 import type { AppDb, DbExecutor } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
@@ -22,10 +29,14 @@ import {
   listPlansResponseSchema,
   listPlatformOrganizationsQuerySchema,
   listPlatformOrganizationsResponseSchema,
+  listPlatformPlanChangeRequestsQuerySchema,
+  listPlatformPlanChangeRequestsResponseSchema,
   planResponseSchema,
   platformOrganizationDetailResponseSchema,
   platformOrganizationResponseSchema,
+  platformPlanChangeRequestResponseSchema,
   rejectOrganizationRequestSchema,
+  resolvePlanChangeRequestSchema,
   suspendOrganizationRequestSchema,
   updatePlanRequestSchema,
   uuidSchema,
@@ -226,6 +237,75 @@ async function assertAssignablePlan(db: DbExecutor, planId: string): Promise<voi
   }
 }
 
+/**
+ * A troca de plano atende o pedido em aberto da imobiliária (rodada de fidelidade, ADR-105, B15):
+ * o pedido vira `DONE` na mesma transação da troca, com auditoria.
+ */
+async function atenderPedidoAberto(
+  tx: DbExecutor,
+  orgId: string,
+  adminUserId: string,
+  quando: Date,
+): Promise<void> {
+  const atendidos = await tx
+    .update(planChangeRequests)
+    .set({ status: 'DONE', resolvedAt: quando, resolvedByUserId: adminUserId })
+    .where(and(eq(planChangeRequests.orgId, orgId), eq(planChangeRequests.status, 'PENDING')))
+    .returning({ id: planChangeRequests.id });
+  for (const pedido of atendidos) {
+    await writeAudit(tx, {
+      orgId,
+      actorUserId: adminUserId,
+      action: AUDIT_ACTIONS.PLATFORM_PLAN_CHANGE_REQUEST_RESOLVED,
+      entityType: 'PLAN_CHANGE_REQUEST',
+      entityId: pedido.id,
+      payload: { outcome: 'DONE', viaPlanChange: true },
+    });
+  }
+}
+
+const pedidoDaFilaColumns = {
+  pedido: planChangeRequests,
+  orgName: organizations.name,
+  planCode: plans.code,
+  planName: plans.name,
+  userId: users.id,
+  userName: users.name,
+  userEmail: users.email,
+};
+
+interface PedidoDaFila {
+  pedido: typeof planChangeRequests.$inferSelect;
+  orgName: string;
+  planCode: string;
+  planName: string;
+  userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
+}
+
+function toPlatformPlanChangeRequestDto(linha: PedidoDaFila) {
+  const { pedido } = linha;
+  return {
+    id: pedido.id,
+    requestedModule: pedido.requestedModule,
+    requestedPlanCode: pedido.requestedPlanCode,
+    status: pedido.status,
+    createdAt: pedido.createdAt.toISOString(),
+    resolvedAt: pedido.resolvedAt?.toISOString() ?? null,
+    organization: {
+      id: pedido.orgId,
+      name: linha.orgName,
+      planCode: linha.planCode,
+      planName: linha.planName,
+    },
+    requestedBy:
+      linha.userId === null
+        ? null
+        : { id: linha.userId, name: linha.userName ?? '', email: linha.userEmail ?? '' },
+  };
+}
+
 export const platformRoutes: FastifyPluginAsync = (app) => {
   const db: AppDb = app.db;
 
@@ -263,10 +343,13 @@ export const platformRoutes: FastifyPluginAsync = (app) => {
           statusReason: reason,
           statusChangedAt: now,
           statusChangedBy: admin.userId,
-          ...(planChanged ? { planId: input.planId } : {}),
+          ...(planChanged ? { planId: input.planId, planStartedAt: now } : {}),
           updatedAt: now,
         })
         .where(eq(organizations.id, id));
+      if (planChanged) {
+        await atenderPedidoAberto(tx, id, admin.userId, now);
+      }
       await writeAudit(tx, {
         orgId: id,
         actorUserId: admin.userId,
@@ -449,10 +532,12 @@ export const platformRoutes: FastifyPluginAsync = (app) => {
       }
       // Rebaixar abaixo do uso é permitido: nada é apagado, só novos cadastros param.
       await assertAssignablePlan(tx, input.planId);
+      const now = new Date();
       await tx
         .update(organizations)
-        .set({ planId: input.planId, updatedAt: new Date() })
+        .set({ planId: input.planId, planStartedAt: now, updatedAt: now })
         .where(eq(organizations.id, id));
+      await atenderPedidoAberto(tx, id, admin.userId, now);
       await writeAudit(tx, {
         orgId: id,
         actorUserId: admin.userId,
@@ -465,6 +550,74 @@ export const platformRoutes: FastifyPluginAsync = (app) => {
 
     return platformOrganizationResponseSchema.parse({
       organization: await loadPlatformOrganization(db, id),
+    });
+  });
+
+  /**
+   * Fila dos pedidos de troca de plano (B15), o mais antigo primeiro. A troca em si é pela rota
+   * do plano, que atende o pedido; aqui a equipe também pode descartar.
+   */
+  app.get('/platform/plan-change-requests', async (request) => {
+    requirePlatformAdmin(request);
+    const { status } = listPlatformPlanChangeRequestsQuerySchema.parse(request.query);
+    const rows = await db
+      .select(pedidoDaFilaColumns)
+      .from(planChangeRequests)
+      .innerJoin(organizations, eq(organizations.id, planChangeRequests.orgId))
+      .innerJoin(plans, eq(plans.id, organizations.planId))
+      .leftJoin(users, eq(users.id, planChangeRequests.requestedByUserId))
+      .where(eq(planChangeRequests.status, status))
+      .orderBy(asc(planChangeRequests.createdAt))
+      .limit(200);
+    return listPlatformPlanChangeRequestsResponseSchema.parse({
+      requests: rows.map(toPlatformPlanChangeRequestDto),
+    });
+  });
+
+  app.post('/platform/plan-change-requests/:id/resolve', async (request) => {
+    const admin = requirePlatformAdmin(request);
+    const { id } = z.object({ id: uuidSchema }).parse(request.params);
+    const { outcome } = resolvePlanChangeRequestSchema.parse(request.body ?? {});
+
+    await db.transaction(async (tx) => {
+      const [resolvido] = await tx
+        .update(planChangeRequests)
+        .set({ status: outcome, resolvedAt: new Date(), resolvedByUserId: admin.userId })
+        .where(and(eq(planChangeRequests.id, id), eq(planChangeRequests.status, 'PENDING')))
+        .returning();
+      if (!resolvido) {
+        const [existe] = await tx
+          .select({ id: planChangeRequests.id })
+          .from(planChangeRequests)
+          .where(eq(planChangeRequests.id, id))
+          .limit(1);
+        throw existe
+          ? new DomainError('CONFLICT', 'O pedido já foi resolvido')
+          : new DomainError('NOT_FOUND', 'Pedido não encontrado');
+      }
+      await writeAudit(tx, {
+        orgId: resolvido.orgId,
+        actorUserId: admin.userId,
+        action: AUDIT_ACTIONS.PLATFORM_PLAN_CHANGE_REQUEST_RESOLVED,
+        entityType: 'PLAN_CHANGE_REQUEST',
+        entityId: resolvido.id,
+        payload: { outcome },
+      });
+    });
+
+    const [linha] = await db
+      .select(pedidoDaFilaColumns)
+      .from(planChangeRequests)
+      .innerJoin(organizations, eq(organizations.id, planChangeRequests.orgId))
+      .innerJoin(plans, eq(plans.id, organizations.planId))
+      .leftJoin(users, eq(users.id, planChangeRequests.requestedByUserId))
+      .where(eq(planChangeRequests.id, id))
+      .limit(1);
+    if (!linha) {
+      throw new DomainError('NOT_FOUND', 'Pedido não encontrado');
+    }
+    return platformPlanChangeRequestResponseSchema.parse({
+      request: toPlatformPlanChangeRequestDto(linha),
     });
   });
 
