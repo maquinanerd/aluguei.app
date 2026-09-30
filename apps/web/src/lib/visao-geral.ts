@@ -249,10 +249,10 @@ export function tipoDaDemanda(linha: {
   return linha.purpose === 'SALE' ? `${texto} à venda` : texto;
 }
 
-/** Largura de cada barra em relação à maior, como o `renderVals()` (31 → 100%, 14 → 45%). */
-export function larguras(valores: ReadonlyArray<number | null>): string[] {
+/** Largura de cada barra, em %, em relação à maior, como o `renderVals()` (31 → 100, 14 → 45). */
+export function larguras(valores: ReadonlyArray<number | null>): number[] {
   const maior = Math.max(1, ...valores.map((valor) => valor ?? 0));
-  return valores.map((valor) => `${String(Math.round(((valor ?? 0) / maior) * 100))}%`);
+  return valores.map((valor) => Math.round(((valor ?? 0) / maior) * 100));
 }
 
 /** "Bom dia" das 5h ao meio-dia, "Boa tarde" até as 18h, "Boa noite" no resto, em São Paulo. */

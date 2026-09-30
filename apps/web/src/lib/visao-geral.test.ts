@@ -154,18 +154,10 @@ describe('Visão Geral: a fila "Próximas ações" (tela 32)', () => {
 
 describe('Visão Geral: ciclo, demanda e cabeçalho (tela 32)', () => {
   it('as barras seguem o renderVals() do desenho', () => {
-    expect(larguras([31, 14, 9, 4, 2, 3, 2])).toEqual([
-      '100%',
-      '45%',
-      '29%',
-      '13%',
-      '6%',
-      '10%',
-      '6%',
-    ]);
-    expect(larguras([38, 24, 21, 14])).toEqual(['100%', '63%', '55%', '37%']);
+    expect(larguras([31, 14, 9, 4, 2, 3, 2])).toEqual([100, 45, 29, 13, 6, 10, 6]);
+    expect(larguras([38, 24, 21, 14])).toEqual([100, 63, 55, 37]);
     // Sem dado (ou sem permissão), barra vazia — nunca divisão por zero.
-    expect(larguras([null, 0])).toEqual(['0%', '0%']);
+    expect(larguras([null, 0])).toEqual([0, 0]);
   });
 
   it('o tipo da demanda como no cartão', () => {

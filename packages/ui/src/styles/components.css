@@ -480,10 +480,11 @@
 }
 
 /* ============ Switch ============ */
+/* 30 × 18 com rótulo de 13px (01-painel.dc.html:151); 26 × 16 em 11,5px cinza (03-ajustes.dc.html:87). */
 .peg-switch {
   display: inline-flex;
   align-items: center;
-  gap: var(--peg-space-2);
+  gap: 10px;
   cursor: pointer;
 }
 .peg-switch input {
@@ -494,8 +495,8 @@
 }
 .peg-switch__track {
   position: relative;
-  width: 34px;
-  height: 20px;
+  width: 30px;
+  height: 18px;
   border-radius: 999px;
   background: var(--peg-border-strong);
   transition: background var(--peg-duration-base) var(--peg-ease);
@@ -505,18 +506,17 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
   background: #fff;
-  box-shadow: var(--peg-shadow-1);
   transition: transform var(--peg-duration-base) var(--peg-ease);
 }
 .peg-switch input:checked + .peg-switch__track {
   background: var(--brand);
 }
 .peg-switch input:checked + .peg-switch__track .peg-switch__thumb {
-  transform: translateX(14px);
+  transform: translateX(12px);
 }
 .peg-switch input:focus-visible + .peg-switch__track {
   outline: 2px solid var(--brand-focus);
@@ -526,8 +526,60 @@
   opacity: 0.5;
 }
 .peg-switch__label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--peg-text-primary);
+}
+.peg-switch--sm {
+  gap: 6px;
+}
+.peg-switch--sm .peg-switch__track {
+  width: 26px;
+  height: 16px;
+}
+.peg-switch--sm .peg-switch__thumb {
+  width: 12px;
+  height: 12px;
+}
+.peg-switch--sm input:checked + .peg-switch__track .peg-switch__thumb {
+  transform: translateX(10px);
+}
+.peg-switch--sm .peg-switch__label {
+  font-size: 11.5px;
+  color: var(--peg-text-secondary);
+}
+
+/* ============ Barra de progresso (spec 1C, §7.1) ============ */
+.peg-progress {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--peg-surface-subtle);
+  overflow: hidden;
+}
+.peg-progress--sm {
+  height: 4px;
+  border-radius: 2px;
+}
+.peg-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+}
+.peg-progress--neutral .peg-progress__fill {
+  background: var(--peg-text-tertiary);
+}
+.peg-progress--warning .peg-progress__fill {
+  background: var(--peg-warning);
+}
+.peg-progress--danger {
+  background: var(--peg-danger-bg);
+}
+.peg-progress--danger .peg-progress__fill {
+  background: var(--peg-danger);
+}
+.peg-progress--muted .peg-progress__fill {
+  background: var(--peg-border);
 }
 
 /* ============ Badge / Status / Tag ============ */
@@ -1135,6 +1187,72 @@
   padding: var(--peg-space-4) var(--peg-space-5);
   border-top: 1px solid var(--peg-border);
 }
+.peg-modal__description {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--peg-text-secondary);
+}
+
+/* Diálogo de publicação, 520 (01-painel.dc.html:100-129). */
+.peg-modal--list {
+  max-width: 520px;
+}
+.peg-modal--list .peg-modal__header {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 18px 20px 12px;
+  border-bottom: none;
+}
+.peg-modal--list .peg-modal__body {
+  padding: 0 20px;
+}
+.peg-modal--list .peg-modal__footer {
+  gap: 8px;
+  padding: 14px 20px 18px;
+  border-top: none;
+}
+.peg-modal-list__row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 54px;
+  border-top: 1px solid var(--peg-surface-subtle);
+}
+.peg-modal-list__note {
+  margin: 0;
+  padding-top: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--peg-text-secondary);
+}
+
+/* Aviso de limite, 460 (03-ajustes.dc.html:49-53). */
+.peg-modal--notice {
+  max-width: 460px;
+  gap: 12px;
+  padding: 20px;
+}
+.peg-modal--notice .peg-modal__header {
+  padding: 0;
+  border-bottom: none;
+}
+.peg-modal--notice .peg-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--peg-text-secondary);
+}
+.peg-modal--notice .peg-modal__footer {
+  gap: 8px;
+  padding: 4px 0 0;
+  border-top: none;
+}
 
 /* ============ Drawer ============ */
 .peg-drawer-overlay {
@@ -1391,4 +1509,79 @@
   flex: none;
   margin-top: 1px;
   color: var(--peg-warning);
+}
+
+/* Selo "Modo de teste" (03-ajustes.dc.html:60); branco dentro da faixa (:31). */
+.peg-aviso-selo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--peg-radius-xs);
+  background: var(--peg-warning-bg);
+  color: var(--peg-warning-text);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.peg-aviso-selo--branco {
+  background: var(--peg-surface);
+}
+
+/* Faixa com selo (03-ajustes.dc.html:31). */
+.peg-aviso-faixa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--peg-warning-border);
+  border-radius: var(--peg-radius-md);
+  background: var(--peg-warning-bg);
+  color: var(--peg-warning-ink);
+  font-size: 13px;
+}
+.peg-aviso-faixa__texto {
+  flex: 1;
+}
+.peg-aviso-faixa__acao {
+  font-weight: 500;
+  color: var(--peg-warning-text);
+}
+.peg-aviso-faixa__acao a {
+  color: inherit;
+}
+
+/* Caixa sem borda com "!" (02-complementos.dc.html:87; larga: 05-area-do-cliente.dc.html:94). */
+.peg-aviso-caixa {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--peg-radius-sm);
+  background: var(--peg-warning-bg);
+  color: var(--peg-warning-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.peg-aviso-caixa--larga {
+  width: 100%;
+  font-size: 12.5px;
+}
+
+/* Faixa com borda e "!", sem o selo (03-ajustes.dc.html:69). */
+.peg-aviso-alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--peg-warning-border);
+  border-radius: var(--peg-radius-md);
+  background: var(--peg-warning-bg);
+  color: var(--peg-warning-ink);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.peg-aviso__marca {
+  font-weight: 700;
 }

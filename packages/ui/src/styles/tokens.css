@@ -60,6 +60,9 @@
   /* Número ou texto que pede atenção sobre superfície clara (01-painel.dc.html:225). */
   --peg-warning-text: #a05c06;
   --peg-danger-text: #b91c1c;
+  /* Faixa de aviso com borda (03-ajustes.dc.html:31, :69): borda e texto. */
+  --peg-warning-border: #f3ddb8;
+  --peg-warning-ink: #7a4605;
   --peg-info: #2563eb;
   --peg-info-bg: #e9effd;
 
