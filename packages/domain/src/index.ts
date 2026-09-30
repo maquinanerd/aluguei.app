@@ -74,6 +74,7 @@ export * from './portal/portal.js';
 export * from './portal/indexing.js';
 export * from './portal/place-slug.js';
 export * from './platform/organization-status.js';
+export * from './platform/plan-change-requests.js';
 export * from './platform/plan-limits.js';
 export * from './platform/plan-modules.js';
 export * from './platform/platform-admins.js';
