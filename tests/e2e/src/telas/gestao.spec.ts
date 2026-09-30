@@ -1,0 +1,45 @@
+import { expect, test } from '@playwright/test';
+import { useSession } from '../g2-b1-support';
+import { abrirJanela, capturarPagina } from './captura';
+import { SEGUNDA_0912, WEB, imobiliariaExemplo } from './fixture-gestao';
+
+/**
+ * Capturas das telas da gestão (rodada de fidelidade, ADR-105): 1440 × 940 em 1x, como os
+ * artboards de `telas/gestao/01-painel.dc.html`. Em série, porque as telas usam a mesma
+ * "Imobiliária Exemplo" em planos diferentes.
+ */
+
+test.describe.configure({ mode: 'serial' });
+test.setTimeout(240_000);
+
+const JANELA = { largura: 1440, altura: 940 } as const;
+
+test('@tela-33 upgrade no lugar: Locações no plano Anunciante', async ({ browser }) => {
+  const exemplo = await imobiliariaExemplo('ANUNCIANTE');
+  const contexto = await abrirJanela(browser, JANELA);
+  const page = await contexto.newPage();
+  await page.clock.setFixedTime(SEGUNDA_0912);
+  await useSession(page, exemplo.cookie);
+  await page.goto(`${WEB}/app/leases`, { timeout: 180_000 });
+
+  // O item abre a própria rota, fica aceso com o cadeado, e a tela é a de upgrade.
+  const menu = page.locator('aside.app-sidebar');
+  const locacoes = menu.getByRole('link', { name: /Locações/ });
+  await expect(locacoes).toHaveAttribute('aria-current', 'page');
+  await expect(locacoes).toHaveAttribute('href', '/app/leases');
+  await expect(page.getByText('Fora do seu plano').first()).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /Locações estão disponíveis no AchouImóvel Gestão Locação/ }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pedir o Gestão Locação' })).toBeVisible();
+  // O menu mostra "Painel de vendas" só pelo link em Negociações (T9).
+  await expect(menu.getByText('Painel de vendas')).toHaveCount(0);
+  await page.evaluate('document.fonts.ready.then(() => true)');
+
+  await capturarPagina(page, { area: 'gestao', tela: '02-upgrade-plano' }, JANELA);
+
+  // Pedir registra o pedido e a tela passa a mostrá-lo (B15).
+  await page.getByRole('button', { name: 'Pedir o Gestão Locação' }).click();
+  await expect(page.getByText(/Pedido registrado em/)).toBeVisible();
+  await contexto.close();
+});
