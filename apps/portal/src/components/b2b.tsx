@@ -50,11 +50,11 @@ export function HeroB2B({
         <h1 className="hero-b2b__titulo">{titulo}</h1>
         <p className="hero-b2b__descricao">{texto}</p>
         <div className="hero-b2b__acoes">
-          <BotaoLink href={acaoPrincipal.href} grande>
+          <BotaoLink href={acaoPrincipal.href} altura={52}>
             {acaoPrincipal.rotulo}
           </BotaoLink>
           {acaoSecundaria ? (
-            <BotaoLink href={acaoSecundaria.href} variante="contorno" grande>
+            <BotaoLink href={acaoSecundaria.href} variante="contorno" altura={52}>
               {acaoSecundaria.rotulo}
             </BotaoLink>
           ) : null}
@@ -191,7 +191,7 @@ export function TabelaPlanos({ planos }: { planos: PublicPlan[] }) {
                 {preco.porMes ? <span className="plano-cartao__mes">/mês</span> : null}
               </p>
               <p className="plano-cartao__limite">{limiteDoPlano(plano)}</p>
-              <BotaoLink href={urlCadastro(plano.code)} grande>
+              <BotaoLink href={urlCadastro(plano.code)} altura={48} larguraTotal>
                 Começar
               </BotaoLink>
             </article>

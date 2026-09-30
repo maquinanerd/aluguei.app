@@ -73,7 +73,7 @@ export default async function AnuncioPage({ params }: Props) {
               <h2 className="secao__titulo">Imóveis parecidos no bairro</h2>
               <div className="grade-cards">
                 {resultado.similar.map((imovel) => (
-                  <ImovelCard key={imovel.slug} imovel={imovelDaApi(imovel)} />
+                  <ImovelCard key={imovel.slug} imovel={imovelDaApi(imovel)} variante="parecido" />
                 ))}
               </div>
             </section>
