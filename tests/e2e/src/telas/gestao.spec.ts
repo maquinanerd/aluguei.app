@@ -15,37 +15,8 @@ test.setTimeout(240_000);
 
 const JANELA = { largura: 1440, altura: 940 } as const;
 
-test('@tela-33 upgrade no lugar: Locações no plano Anunciante', async ({ browser }) => {
-  const exemplo = await imobiliariaExemplo('ANUNCIANTE');
-  const contexto = await abrirJanela(browser, JANELA);
-  const page = await contexto.newPage();
-  await page.clock.setFixedTime(SEGUNDA_0912);
-  await useSession(page, exemplo.cookie);
-  await page.goto(`${WEB}/app/leases`, { timeout: 180_000 });
-
-  // O item abre a própria rota, fica aceso com o cadeado, e a tela é a de upgrade.
-  const menu = page.locator('aside.app-sidebar');
-  const locacoes = menu.getByRole('link', { name: /Locações/ });
-  await expect(locacoes).toHaveAttribute('aria-current', 'page');
-  await expect(locacoes).toHaveAttribute('href', '/app/leases');
-  await expect(page.getByText('Fora do seu plano').first()).toBeVisible();
-  await expect(
-    page.getByRole('heading', { name: /Locações estão disponíveis no AchouImóvel Gestão Locação/ }),
-  ).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Pedir o Gestão Locação' })).toBeVisible();
-  // O menu mostra "Painel de vendas" só pelo link em Negociações (T9).
-  await expect(menu.getByText('Painel de vendas')).toHaveCount(0);
-  await page.evaluate('document.fonts.ready.then(() => true)');
-
-  await capturarPagina(page, { area: 'gestao', tela: '02-upgrade-plano' }, JANELA);
-
-  // Pedir registra o pedido e a tela passa a mostrá-lo (B15).
-  await page.getByRole('button', { name: 'Pedir o Gestão Locação' }).click();
-  await expect(page.getByText(/Pedido registrado em/)).toBeVisible();
-  await contexto.close();
-});
-
-// Depois da tela 33: a semente põe leads e tarefas, que acenderiam os contadores daquele print.
+// Primeiro a Visão Geral: a semente dela dá ao menu os contadores dos dois prints (Leads 7 e
+// Tarefas 3), que a tela 33 também mostra.
 test('@tela-32 Visão Geral no plano Gestão Locação', async ({ browser }) => {
   test.setTimeout(420_000);
   const exemplo = await imobiliariaExemplo('GESTAO_LOCACAO');
@@ -84,5 +55,35 @@ test('@tela-32 Visão Geral no plano Gestão Locação', async ({ browser }) => 
   await page.evaluate('document.fonts.ready.then(() => true)');
 
   await capturarPagina(page, { area: 'gestao', tela: '01-visao-geral' }, JANELA);
+  await contexto.close();
+});
+
+test('@tela-33 upgrade no lugar: Locações no plano Anunciante', async ({ browser }) => {
+  const exemplo = await imobiliariaExemplo('ANUNCIANTE');
+  const contexto = await abrirJanela(browser, JANELA);
+  const page = await contexto.newPage();
+  await page.clock.setFixedTime(SEGUNDA_0912);
+  await useSession(page, exemplo.cookie);
+  await page.goto(`${WEB}/app/leases`, { timeout: 180_000 });
+
+  // O item abre a própria rota, fica aceso com o cadeado, e a tela é a de upgrade.
+  const menu = page.locator('aside.app-sidebar');
+  const locacoes = menu.getByRole('link', { name: /Locações/ });
+  await expect(locacoes).toHaveAttribute('aria-current', 'page');
+  await expect(locacoes).toHaveAttribute('href', '/app/leases');
+  await expect(page.getByText('Fora do seu plano').first()).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /Locações estão disponíveis no AchouImóvel Gestão Locação/ }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pedir o Gestão Locação' })).toBeVisible();
+  // O menu mostra "Painel de vendas" só pelo link em Negociações (T9).
+  await expect(menu.getByText('Painel de vendas')).toHaveCount(0);
+  await page.evaluate('document.fonts.ready.then(() => true)');
+
+  await capturarPagina(page, { area: 'gestao', tela: '02-upgrade-plano' }, JANELA);
+
+  // Pedir registra o pedido e a tela passa a mostrá-lo (B15).
+  await page.getByRole('button', { name: 'Pedir o Gestão Locação' }).click();
+  await expect(page.getByText(/Pedido registrado em/)).toBeVisible();
   await contexto.close();
 });
