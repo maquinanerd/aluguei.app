@@ -390,6 +390,13 @@ falha antes. Arquivos: rotas BFF em `apps/web/src/app/api/portal/**`, `apps/port
 - Backend: B14, B15, B29; B28 se D6 = (b).
 - Depende de: D5.
 
+> **Andamento (30/09/2026).** 1A (laço de fidelidade) e 1B (base visual do portal) implantadas;
+> 1B2 (componentes base do portal e tela 01) no PR #56; **1C-A** (backend do upgrade: B15 — pedido de
+> troca de plano, fila da plataforma e data de entrada no plano — e o defeito 13, `details` no
+> cliente do painel) no PR seguinte. Ficam para a **1C-B**, junto com as telas 32 e 33: B14 (campos da
+> Visão Geral), o menu (T8, T9) e o upgrade no lugar do "sem permissão". Depois, 1D (e-mail, D6) e
+> B29 (storage de teste).
+
 **Onda 2 · portal público — telas 02 a 16, 21 e 22.**
 
 - Backend: B1 a B10.
