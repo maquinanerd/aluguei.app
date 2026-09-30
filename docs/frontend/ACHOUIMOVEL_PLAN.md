@@ -71,6 +71,14 @@ Proposta: corrigir 1, 2, 3, 5 a 12, 16 e 17 num PR pequeno **antes** da Onda 1, 
 falha antes da correção; 13 e 14 entram na Onda 1; 4 depende do texto do dono; 15 depende de D6.
 Como é mudança de código, esse PR também espera a aprovação deste plano.
 
+> **Feito em 30/09/2026.** Os defeitos 1, 2, 3, 5 a 12, 16 e 17 foram corrigidos no PR #53, um commit
+> por defeito, cada um com teste que falha antes; implantado pelo deployment
+> `ad53kqzldsoabfqlujgdktlx` (commit `319328e`). Smoke em produção só com GET: 27 de 27 — as rotas de
+> pedir link e de Pix existem (405 em vez de 404), `/para-imobiliarias` diz "Em preparação" e não diz
+> "Integrado", `/alugar` e `/comprar` abrem, todo link interno da home responde 200, o cancelamento
+> do alerta pergunta antes e o alerta não oferece WhatsApp. Continuam abertos: 4 (texto do dono),
+> 13 e 14 (Onda 1) e 15 (D6).
+
 ---
 
 ## 3. Mapa das 59 telas
