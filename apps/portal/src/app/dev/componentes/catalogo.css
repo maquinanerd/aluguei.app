@@ -1,0 +1,655 @@
+/* Tela 01 · identidade do portal (telas/portal/00-identidade.dc.html), só em /dev/componentes.
+ * Medidas copiadas da tela; cores pelos tokens. A seção 6 (estados) não existe na tela. */
+
+.ident {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 36px) 120px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 8vw, 96px);
+}
+
+.ident__capa {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-bottom: 1px solid var(--portal-line);
+  padding-bottom: 40px;
+}
+
+.ident__sobretitulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--portal-muted-2);
+}
+
+.ident__titulo {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.ident__abertura {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--portal-ink-2);
+}
+
+.ident__indice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ident__secao {
+  display: flex;
+  flex-direction: column;
+}
+
+.ident__secao--20 {
+  gap: 20px;
+}
+
+.ident__secao--24 {
+  gap: 24px;
+}
+
+.ident__secao--28 {
+  gap: 28px;
+}
+
+.ident__h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--portal-ink);
+}
+
+.ident__h2--sem-filete {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.ident__texto {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--portal-ink-2);
+}
+
+.ident__texto--70 {
+  max-width: 70ch;
+}
+
+.ident__texto--72 {
+  max-width: 72ch;
+}
+
+.ident__rolagem {
+  overflow-x: auto;
+}
+
+.ident__rolagem--filete {
+  border-top: 1px solid var(--portal-line);
+}
+
+/* ---- 1. Referências ---- */
+
+.ident__referencias {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 0.8fr) minmax(220px, 1.3fr) minmax(200px, 1.1fr)
+    minmax(200px, 1.1fr);
+  min-width: 860px;
+}
+
+.ident__linha-ref {
+  display: contents;
+}
+
+.ident__th {
+  padding: 12px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--portal-muted-2);
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.ident__th--primeira {
+  padding: 12px 14px 12px 0;
+}
+
+.ident__td {
+  padding: 14px;
+  border-bottom: 1px solid var(--portal-line-soft);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--portal-ink-2);
+}
+
+.ident__td--primeira {
+  padding: 14px 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: normal;
+}
+
+.ident__td--motivo {
+  color: var(--portal-muted);
+}
+
+.ident__ref-nome {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--portal-ink);
+}
+
+.ident__ref-arquivo {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--portal-muted-2);
+}
+
+/* ---- 2. Logotipo e acento ---- */
+
+.ident__marcas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 1px;
+  background: var(--portal-line);
+  border: 1px solid var(--portal-line);
+}
+
+.ident__marca {
+  background: var(--portal-bg);
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.ident__logo-30 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ident__nota-marca {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--portal-muted);
+}
+
+.ident__nota-marca b {
+  color: var(--portal-ink);
+}
+
+.ident__assinatura {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ident__filete {
+  width: 1px;
+  height: 26px;
+  background: #c9c9c4;
+  display: block;
+}
+
+.ident__gestao {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--portal-ink-2);
+}
+
+.ident__logos-cores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.ident__acentos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+
+.ident__acento {
+  border: 1px solid var(--portal-line);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ident__acento--escolhido {
+  border: 2px solid var(--brand-accent);
+}
+
+.ident__acento-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.ident__acento-nome {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ident__recomendada {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--brand-accent);
+}
+
+.ident__amostra {
+  height: 64px;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ident__preco {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.ident__preco span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ident__acento-texto {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--portal-ink-2);
+}
+
+/* ---- 3. Tokens ---- */
+
+.ident__tokens-cor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+  gap: 32px;
+}
+
+.ident__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ident__lista--14 {
+  gap: 14px;
+}
+
+.ident__h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ident__linha-cor {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1.1fr) 76px minmax(0, 1.4fr);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--portal-line-soft);
+}
+
+.ident__swatch {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--portal-line);
+  display: block;
+}
+
+.ident__codigo {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+.ident__codigo--valor {
+  font-weight: 400;
+  color: var(--portal-muted);
+}
+
+.ident__uso {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--portal-ink-2);
+}
+
+.ident__tipografia {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.9fr) minmax(170px, 1fr) 60px 110px minmax(240px, 1.6fr);
+  min-width: 820px;
+}
+
+.ident__linha-tipo {
+  display: contents;
+}
+
+.ident__celula {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--portal-line-soft);
+  font-size: 12.5px;
+  color: var(--portal-ink-2);
+}
+
+.ident__celula--primeira {
+  padding: 10px 12px 10px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--portal-ink);
+}
+
+.ident__celula--uso {
+  color: var(--portal-muted);
+}
+
+.ident__tres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 32px;
+}
+
+.ident__par {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--portal-line-soft);
+  font-size: 12.5px;
+}
+
+.ident__par span {
+  color: var(--portal-muted);
+  text-align: right;
+}
+
+.ident__par--breakpoint {
+  grid-template-columns: 70px minmax(0, 1fr);
+}
+
+.ident__par--breakpoint span {
+  text-align: left;
+}
+
+.ident__nota-raio {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--portal-ink-2);
+}
+
+/* ---- 4. Tipos de imóvel ---- */
+
+.ident__tipos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--portal-line);
+  border: 1px solid var(--portal-line);
+}
+
+.ident__tipo {
+  background: var(--portal-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.bloco-grade.ident__bloco {
+  aspect-ratio: 1 / 1;
+  padding: 14px;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.ident__bloco-nome {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.ident__bloco-exemplo {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ident__tipo-legenda {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--portal-muted);
+}
+
+.ident__tipo-nome {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--portal-ink);
+}
+
+.ident__quadrado {
+  width: 10px;
+  height: 10px;
+  display: block;
+}
+
+.ident__mono {
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+.ident__rodape-secao {
+  margin: 0;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--portal-muted-2);
+}
+
+/* ---- 5. Componente de amostra ---- */
+
+.ident__cabecalho-amostra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+
+.ident__h3-amostra {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ident__nota-amostra {
+  font-size: 12px;
+  color: var(--portal-muted-2);
+}
+
+.ident__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 28px 20px;
+}
+
+.ident__anatomia {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--portal-muted);
+  max-width: 80ch;
+}
+
+/* ---- Decisões ---- */
+
+.ident__decisoes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--portal-ink);
+  padding-top: 24px;
+}
+
+.ident__decisoes-lista {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--portal-ink-2);
+  max-width: 78ch;
+}
+
+.ident__decisoes-lista b {
+  color: var(--portal-ink);
+}
+
+/* ---- 6. Estados dos componentes ---- */
+
+.ident__quadro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ident__rotulo-quadro {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--portal-muted);
+}
+
+.ident__moldura {
+  border: 1px solid var(--portal-line);
+  background: var(--portal-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.ident__moldura .rodape {
+  margin-top: 0;
+}
+
+.ident__moldura > .estado-vazio,
+.ident__moldura > .acordeao {
+  margin: 24px;
+}
+
+.ident__busca {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  padding: 40px;
+}
+
+.ident__resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ident__barra-resultados {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ident__grade-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 32px 24px;
+}
+
+.ident__grade-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.ident__linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  padding: 24px;
+}
+
+.ident__caixa-260 {
+  width: 260px;
+}
+
+.ident__caixa-340 {
+  width: 340px;
+}
+
+.ident__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 340px;
+  padding: 24px;
+}
+
+.ident__alertas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 24px;
+  padding: 24px;
+  align-items: start;
+}
+
+.ident__modal {
+  background: #ececea;
+  padding: 16px;
+}
+
+@media (max-width: 899px) {
+  .ident__busca {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .ident__grade-4,
+  .ident__linha,
+  .ident__formulario,
+  .ident__alertas {
+    padding: 18px;
+  }
+}
