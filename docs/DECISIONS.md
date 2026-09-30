@@ -1912,3 +1912,24 @@ produto não faz vira pendência visível no plano, e não texto na tela.
 3. **Erro com `details` no painel (defeito 13).** `ApiClientError` guarda o `details` da API;
    `moduloForaDoPlano(err)` devolve o módulo do 403 `PLAN_MODULE_NOT_INCLUDED`, e `useQuery` expõe
    `foraDoPlano`. A tela de upgrade no lugar do "sem permissão" é a Onda 1C-B.
+
+### Adendo ao ADR-105 — e-mail sobre a caixa de saída (Onda 1D, B28, D6 b, 2026-09-30)
+
+1. **Provedor: Resend, atrás de `IEmailSender`.** API HTTP simples, com chave de idempotência por
+   mensagem (o id da caixa de saída) e plano gratuito para começar. SMTP ficou de fora: muitos VPS
+   bloqueiam a saída de SMTP e o protocolo não tem idempotência — uma nova tentativa depois de um
+   tempo esgotado mandaria o e-mail duas vezes. Trocar de provedor é escrever outro adapter; a caixa
+   de saída e o worker não mudam.
+2. **Quem entrega é o worker.** A API continua só gravando em `email_outbox`. A cada ciclo o worker
+   manda o que está `QUEUED` e já pode ser tentado: deu certo, `SENT` com o id do provedor; limite,
+   instabilidade ou tempo esgotado voltam para a fila com espera de 1 min, 5 min, 15 min e 1 h, até 5
+   tentativas; chave errada ou mensagem recusada viram `FAILED` na hora. A migration 0039 guarda
+   tentativas, último erro, próxima tentativa e o id no provedor.
+3. **Privacidade.** O corpo tem link com token: não vai para log nem auditoria. O motivo guardado da
+   falha sai sem link e sem endereço. A auditoria (`email.sent`, `email.failed`) leva tipo,
+   provedor, tentativas e o código do erro.
+4. **Ligado só com chave.** Sem `EMAIL_PROVIDER`, nada sai — o comportamento de hoje. Em produção,
+   `RESEND` exige `RESEND_API_KEY` e `EMAIL_FROM`, e `FAKE` exige `ALLOW_FAKE_PROVIDERS=true`. Até a
+   chave existir, o status é `IMPLEMENTED_NOT_LIVE_VERIFIED` (`docs/BLOCKERS.md`), e as telas seguem
+   sem prometer e-mail (adendo 1C-A, item 1); cada tela volta a prometer quando a entrega estiver no
+   ar.
