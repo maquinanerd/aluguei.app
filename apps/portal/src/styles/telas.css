@@ -28,15 +28,6 @@
   border-bottom: 1px solid var(--portal-ink);
 }
 
-.visualmente-oculto {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
 /* ---- Home --------------------------------------------------------------- */
 
 .home-hero {
@@ -161,6 +152,12 @@
   font-size: 14.5px;
 }
 
+/* Nome de bairro e de cidade em verde, sem sublinhado, como as listas das telas. */
+.lista-filete a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .lista-filete__apoio {
   color: var(--portal-muted);
   font-size: 13px;
@@ -168,22 +165,6 @@
 }
 
 /* ---- Busca -------------------------------------------------------------- */
-
-.faixa-tipo {
-  padding: var(--space-6) var(--portal-gutter);
-}
-
-.faixa-tipo--neutra {
-  background: var(--portal-surface);
-}
-
-.faixa-tipo__titulo {
-  margin: 0 auto;
-  max-width: var(--portal-max);
-  width: 100%;
-  font: var(--type-h1);
-  letter-spacing: var(--tracking-title);
-}
 
 .resumo-preco {
   border: 1px solid var(--portal-line);
@@ -237,27 +218,6 @@
   margin: 0;
   font-size: 12.5px;
   color: var(--portal-muted);
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chips__item {
-  text-decoration: none;
-}
-
-.paginacao {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4) 0;
-  border-top: 1px solid var(--portal-line);
-  font-size: 14.5px;
-  font-weight: 600;
 }
 
 .faq__item {
@@ -559,22 +519,6 @@
 
 /* ---- Alerta, vitrine e mapa do site ------------------------------------- */
 
-.alerta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  border: 1px solid var(--portal-line);
-  border-radius: var(--radius);
-  padding: var(--space-5);
-  background: var(--portal-surface);
-}
-
-.alerta__resumo {
-  margin: 0;
-  font-size: 14px;
-  color: var(--portal-ink-2);
-}
-
 .vitrine__cabecalho {
   display: flex;
   flex-direction: column;
@@ -594,6 +538,12 @@
   font-weight: 600;
   border-bottom: 1px solid var(--portal-line);
   padding-bottom: 10px;
+}
+
+.vitrine__filtro a,
+.vitrine__filtro a:hover {
+  color: var(--portal-ink);
+  text-decoration: none;
 }
 
 .vitrine__filtro a[aria-current='page'] {
@@ -943,6 +893,7 @@
   color: var(--portal-muted);
   font-size: 13px;
   font-weight: 400;
+  line-height: 1.5;
 }
 
 .modulos {

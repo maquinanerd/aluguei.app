@@ -5,21 +5,44 @@ import type { TipoImovel } from '@/lib/tipos';
 import { formatarValor } from '@/lib/formato';
 import { caminhoDoRecorte, lugarLegivel } from '@/lib/rotas';
 import type { RecorteDeBusca } from '@/lib/rotas';
-import { Chip } from './Chip';
+import { Breadcrumb } from './Breadcrumb';
+import type { Trilho } from './Breadcrumb';
+import { ChipsDeFiltro } from './Filtros';
+import type { ChipDeFiltro } from './Filtros';
 import { BlocoGrade } from './BlocoGrade';
 
-/** Faixa cheia na cor do tipo, com o H1 e a contagem (telas · busca-desktop). */
-export function FaixaTipo({ tipo, titulo }: { tipo: TipoImovel | null; titulo: string }) {
+export interface FaixaTipoProps {
+  tipo: TipoImovel | null;
+  titulo: string;
+  /** Trilha dentro da faixa, branca (telas/portal/02-busca). */
+  trilhos?: readonly Trilho[];
+  /** Links de baixo ("Ver 31 à venda no Setor Bueno →"); somem no celular, como na tela. */
+  links?: readonly { rotulo: string; href: string }[];
+}
+
+/** Faixa cheia na cor do tipo, com a trilha, o H1 e a contagem (telas · busca-desktop). */
+export function FaixaTipo({ tipo, titulo, trilhos = [], links = [] }: FaixaTipoProps) {
+  const conteudo = (
+    <>
+      {trilhos.length > 0 ? <Breadcrumb trilhos={trilhos} variante="faixa" /> : null}
+      <h1 className="faixa-tipo__titulo">{titulo}</h1>
+      {links.length > 0 ? (
+        <div className="faixa-tipo__links">
+          {links.map((link) => (
+            <a key={link.href} href={link.href}>
+              {link.rotulo} →
+            </a>
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
   if (tipo === null) {
-    return (
-      <div className="faixa-tipo faixa-tipo--neutra">
-        <h1 className="faixa-tipo__titulo">{titulo}</h1>
-      </div>
-    );
+    return <div className="faixa-tipo faixa-tipo--neutra">{conteudo}</div>;
   }
   return (
     <BlocoGrade cor={tipo} grade="band" className="faixa-tipo">
-      <h1 className="faixa-tipo__titulo">{titulo}</h1>
+      {conteudo}
     </BlocoGrade>
   );
 }
@@ -152,41 +175,32 @@ export interface ChipsFiltroProps {
   recorte: RecorteDeBusca;
 }
 
-/** Filtros aplicados, cada um com o caminho que o remove. */
+/** Filtros aplicados, cada um com o caminho que o remove, e "Limpar tudo". */
 export function ChipsFiltro({ recorte }: ChipsFiltroProps) {
-  const chips: { rotulo: string; href: string }[] = [];
+  const chips: ChipDeFiltro[] = [];
   if (recorte.bairro !== null) {
     chips.push({
       rotulo: lugarLegivel(recorte.bairro),
-      href: caminhoDoRecorte({ ...recorte, bairro: null }),
+      hrefRemover: caminhoDoRecorte({ ...recorte, bairro: null }),
     });
   }
   if (recorte.tipo !== null) {
     chips.push({
       rotulo: TIPO_IMOVEL[recorte.tipo].nome,
-      href: caminhoDoRecorte({ ...recorte, tipo: null, quartos: null }),
+      hrefRemover: caminhoDoRecorte({ ...recorte, tipo: null, quartos: null }),
     });
   }
   if (recorte.quartos !== null) {
     chips.push({
       rotulo: `${String(recorte.quartos)} quartos`,
-      href: caminhoDoRecorte({ ...recorte, quartos: null }),
+      hrefRemover: caminhoDoRecorte({ ...recorte, quartos: null }),
     });
   }
-  if (chips.length === 0) {
-    return null;
-  }
   return (
-    <div className="chips" aria-label="Filtros aplicados">
-      {chips.map((chip) => (
-        <a key={chip.rotulo} className="chips__item" href={chip.href}>
-          <Chip>
-            {chip.rotulo} <span aria-hidden="true">×</span>
-            <span className="visualmente-oculto">tirar filtro</span>
-          </Chip>
-        </a>
-      ))}
-    </div>
+    <ChipsDeFiltro
+      chips={chips}
+      hrefLimpar={caminhoDoRecorte({ ...recorte, bairro: null, tipo: null, quartos: null })}
+    />
   );
 }
 
@@ -196,24 +210,41 @@ export interface PaginacaoProps {
   caminhoBase: string;
 }
 
-/** Paginação por query string: a página 2 em diante nunca indexa (ADR-099). */
+/**
+ * Paginação por query string: a página 2 em diante nunca indexa (ADR-099). Números de 40px com a
+ * página atual em preto e "Próxima →", como na tela; até cinco números em volta da atual.
+ */
 export function Paginacao({ pagina, totalPaginas, caminhoBase }: PaginacaoProps) {
   if (totalPaginas <= 1) {
     return null;
   }
   const link = (destino: number): string =>
     destino === 1 ? caminhoBase : `${caminhoBase}?pagina=${String(destino)}`;
+  const inicio = Math.max(1, Math.min(pagina - 2, totalPaginas - 4));
+  const fim = Math.min(totalPaginas, inicio + 4);
+  const numeros = Array.from({ length: fim - inicio + 1 }, (_, i) => inicio + i);
   return (
     <nav className="paginacao" aria-label="Paginação">
-      {pagina > 1 ? <a href={link(pagina - 1)}>← Anterior</a> : <span aria-hidden="true" />}
-      <span>
-        Página {String(pagina)} de {String(totalPaginas)}
-      </span>
-      {pagina < totalPaginas ? (
-        <a href={link(pagina + 1)}>Próxima →</a>
-      ) : (
-        <span aria-hidden="true" />
+      {numeros.map((numero) =>
+        numero === pagina ? (
+          <span
+            key={numero}
+            className="paginacao__numero paginacao__numero--atual"
+            aria-current="page"
+          >
+            {String(numero)}
+          </span>
+        ) : (
+          <a key={numero} className="paginacao__numero" href={link(numero)}>
+            {String(numero)}
+          </a>
+        ),
       )}
+      {pagina < totalPaginas ? (
+        <a className="paginacao__proxima" href={link(pagina + 1)}>
+          Próxima →
+        </a>
+      ) : null}
     </nav>
   );
 }
@@ -234,7 +265,7 @@ export function MosaicoTipos({ contagens }: MosaicoTiposProps) {
       <div className="mosaico__grade">
         {contagens.map((item) => (
           <a key={item.tipo} className="mosaico__item" href={item.href}>
-            <BlocoGrade cor={item.tipo} grade="tile">
+            <BlocoGrade cor={item.tipo} grade="tile" linha="forte">
               <span className="mosaico__contagem">
                 {String(item.total)} {item.total === 1 ? 'imóvel' : 'imóveis'}
               </span>
