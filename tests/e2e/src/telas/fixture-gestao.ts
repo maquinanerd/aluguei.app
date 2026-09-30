@@ -121,9 +121,15 @@ export async function imobiliariaExemplo(plano: PlanoDasTelas): Promise<Imobilia
   const me = await api<{ activeOrg: { id: string } }>('GET', '/auth/me', { cookie });
   expect(me.status).toBe(200);
   const orgId = me.body.activeOrg.id;
+  // Os três planos existem antes de qualquer tela: a de upgrade oferece o mais barato que inclui
+  // o módulo, e sem o Gestão Locação cadastrado a oferta cairia num plano semeado.
+  const ids = new Map<PlanoDasTelas, string>();
+  for (const codigo of Object.keys(PLANOS) as PlanoDasTelas[]) {
+    ids.set(codigo, await planoId(codigo));
+  }
   const troca = await api('PUT', `/platform/organizations/${orgId}/plan`, {
     cookie: await platformAdminSession(),
-    json: { planId: await planoId(plano) },
+    json: { planId: ids.get(plano) },
   });
   expect(troca.status, JSON.stringify(troca.body)).toBe(200);
   return { cookie, orgId };
