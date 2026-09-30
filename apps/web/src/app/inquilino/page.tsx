@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { Badge, Card, Group, Stack } from '@aluguei/ui';
 import { formatBRL, formatDate } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
+import { INSPECTION_TITLE_LABELS, label } from '@/lib/labels';
 import { PortalLogoutButton } from '@/components/portal/portal-logout-button';
 import { PagarPix } from './pagar-pix';
 
@@ -204,7 +205,7 @@ export default async function InquilinoPage() {
               >
                 <Stack gap={0}>
                   <span style={{ fontSize: 14, fontWeight: 500 }}>
-                    Vistoria {vistoria.type === 'ENTRY' ? 'de entrada' : 'de saída'}
+                    {label(INSPECTION_TITLE_LABELS, vistoria.type)}
                   </span>
                   <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
                     {vistoria.mediaCounts.photos} fotos · {vistoria.observations.length} observações

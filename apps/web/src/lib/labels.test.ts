@@ -22,6 +22,16 @@ describe('labels de domínio', () => {
   });
 });
 
+describe('vistoria: o nome que o cliente vê cobre todo tipo do contrato', () => {
+  it('cada tipo de vistoria tem nome, e nenhum nome é de tipo inexistente', () => {
+    // Onda 0 da rodada de fidelidade, defeito 7: a área do inquilino comparava com 'ENTRY'.
+    const tipos = [...contracts.inspectionTypeSchema.options].sort();
+    expect(Object.keys(labels.INSPECTION_TITLE_LABELS).sort()).toEqual(tipos);
+    expect(labels.INSPECTION_TITLE_LABELS.CHECKIN).toBe('Vistoria de entrada');
+    expect(labels.INSPECTION_TITLE_LABELS.CHECKOUT).toBe('Vistoria de saída');
+  });
+});
+
 describe('conciliação: a tela usa o vocabulário do contrato', () => {
   const sorted = (values: readonly string[]): string[] => [...values].sort();
 
