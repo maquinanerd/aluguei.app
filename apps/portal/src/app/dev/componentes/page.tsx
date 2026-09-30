@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Catalogo } from './catalogo-client';
+import './catalogo.css';
 
 export const metadata: Metadata = {
-  title: 'Componentes do portal · AchouImóvel',
+  title: 'Identidade e componentes do portal · AchouImóvel',
 };
 
 /**
- * Catálogo dos componentes base do portal com todos os estados (Onda 1B).
- * Fora do ar em produção, pelo mesmo precedente de `/dev/calibration` no painel
- * e das rotas `/dev` da API: página de desenvolvimento não fica pública.
+ * Tela 01 da rodada de fidelidade: a identidade do portal com os componentes base e todos os
+ * estados. Fora do ar em produção, pelo mesmo precedente de `/dev/calibration` no painel e das
+ * rotas `/dev` da API: página de desenvolvimento não fica pública.
  */
 export default function ComponentesPage() {
   if (process.env.NODE_ENV === 'production') {
