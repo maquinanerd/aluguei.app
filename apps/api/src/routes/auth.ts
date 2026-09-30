@@ -41,6 +41,7 @@ import {
   switchOrgResponseSchema,
 } from '@aluguei/contracts';
 import { generateOpaqueToken, hashOpaqueToken, queueEmail } from '../email-outbox.js';
+import { NOME_DO_PAINEL } from '../marca.js';
 import { generateSessionToken, hashSessionToken } from '../plugins/session.js';
 import { requireSession } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
@@ -391,7 +392,7 @@ export const authRoutes: FastifyPluginAsync = (app) => {
             orgId: null, // mensagem de conta: nenhuma imobiliária pode lê-la
             kind: 'PASSWORD_RESET',
             toEmail: user.email,
-            subject: 'Redefinir a senha do Aluguei.app',
+            subject: `Redefinir a senha do ${NOME_DO_PAINEL}`,
             body: [
               `Olá, ${user.name}.`,
               '',
