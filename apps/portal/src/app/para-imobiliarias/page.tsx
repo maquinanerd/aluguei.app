@@ -18,7 +18,7 @@ import { BENEFICIOS_CANAIS, CANAIS, FLUXO } from '../b2b-conteudo';
 export const metadata: Metadata = metadataDaPagina({
   titulo: 'Sistema para imobiliária: portal, CRM, locação e vendas',
   descricao:
-    'Publique no AchouImóvel, no Canal Pro, na OLX e no Imovelweb de uma vez, receba os leads no mesmo CRM e leve do atendimento ao contrato, à vistoria e ao repasse.',
+    'Publique no AchouImóvel, receba os leads no mesmo CRM e leve do atendimento ao contrato, à vistoria e ao repasse.',
   caminho: '/para-imobiliarias',
   robots: 'index, follow',
 });
@@ -47,8 +47,8 @@ export default async function ParaImobiliariasPage() {
         />
 
         <CanaisIntegrados
-          titulo="Cadastre uma vez. Publique em todos os portais."
-          texto="O imóvel sai do AchouImóvel Gestão direto para o Canal Pro, a OLX e o Imovelweb, além do portal AchouImóvel. Preço, fotos e descrição ficam sincronizados. Quando o imóvel é alugado ou vendido, sai de todos os canais de uma vez."
+          titulo="Cadastre uma vez. Publique no portal."
+          texto="O imóvel sai do AchouImóvel Gestão direto para o portal AchouImóvel, depois que você confirma, e sai do ar quando você o arquiva. A integração com o Canal Pro, a OLX e o Imovelweb está em preparação."
           beneficios={BENEFICIOS_CANAIS}
           canais={CANAIS}
         />

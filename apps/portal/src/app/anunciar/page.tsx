@@ -16,7 +16,7 @@ import { BENEFICIOS_CANAIS, CANAIS } from '../b2b-conteudo';
 export const metadata: Metadata = metadataDaPagina({
   titulo: 'Anunciar imóveis no AchouImóvel',
   descricao:
-    'Publique seus imóveis no AchouImóvel e nos portais parceiros e receba os contatos numa caixa de leads, sem trocar o sistema que você já usa.',
+    'Publique seus imóveis no AchouImóvel e receba os contatos numa caixa de leads, sem trocar o sistema que você já usa.',
   caminho: '/anunciar',
   robots: 'index, follow',
 });
@@ -36,7 +36,7 @@ export default async function AnunciarPage() {
         <HeroB2B
           sobretitulo="Plano Anunciante"
           titulo="Anuncie no AchouImóvel e receba os contatos onde você já trabalha."
-          texto="Seus imóveis aparecem no portal e nos portais parceiros, e todo contato chega numa caixa de leads com o imóvel e a origem. Você continua no sistema que já usa; quando quiser o resto, é só contratar."
+          texto="Seus imóveis aparecem no portal AchouImóvel, e todo contato chega numa caixa de leads com o imóvel e a origem. Você continua no sistema que já usa; quando quiser o resto, é só contratar."
           acaoPrincipal={{
             href: urlCadastro(anunciante?.code),
             rotulo: 'Começar a anunciar',
@@ -45,8 +45,8 @@ export default async function AnunciarPage() {
         />
 
         <CanaisIntegrados
-          titulo="Um cadastro, quatro vitrines"
-          texto="O mesmo imóvel vai para o AchouImóvel, o Canal Pro, a OLX e o Imovelweb. Quando ele é alugado ou vendido, sai de todos de uma vez — sem anúncio velho no ar."
+          titulo="Onde seus anúncios aparecem"
+          texto="O imóvel vai para o AchouImóvel depois que você confirma e sai do ar quando você o arquiva — sem anúncio velho no portal. A integração com o Canal Pro, a OLX e o Imovelweb está em preparação."
           beneficios={BENEFICIOS_CANAIS}
           canais={CANAIS}
         />

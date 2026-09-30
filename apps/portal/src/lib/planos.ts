@@ -38,11 +38,15 @@ export const RECURSOS: RecursoDoPlano[] = [
     nome: 'Atendimento no WhatsApp',
     descricao: 'Conexão, atendimento automático e caixa de entrada',
     modulo: 'ATENDIMENTO',
+    // Implementado e não verificado ao vivo (`docs/BLOCKERS.md`).
+    emBreve: true,
   },
   {
     nome: 'Portais parceiros',
     descricao: 'Canal Pro (ZAP e VivaReal), OLX e Imovelweb',
     modulo: null,
+    // Sem adapter: a interface mostra o estado real (ADR-097, ADR-105).
+    emBreve: true,
   },
   {
     nome: 'Análise cadastral',
