@@ -95,4 +95,21 @@ test.describe('P1-16: portal alcançável pela interface', () => {
     await expect(landlord.getByText(seed.landlordName).first()).toBeVisible();
     await landlordContext.close();
   });
+
+  test('o cliente pede o próprio link pela tela, e o pedido chega à API', async ({ browser }) => {
+    // Onda 0 da rodada de fidelidade, defeito 1: o botão chamava uma rota que o painel não tinha,
+    // e todo pedido virava "Não foi possível pedir o link agora" — nenhum teste clicava nele.
+    test.setTimeout(300_000);
+    const contexto = await browser.newContext();
+    const cliente = await contexto.newPage();
+    const watch = watchPage(cliente);
+    watch.route = 'pedir link do portal';
+    await cliente.goto(`${WEB}/portal/entrar`, { timeout: 240_000 });
+    await cliente.getByLabel('E-mail ou celular').fill('cliente-e2e@example.com');
+    await cliente.getByRole('button', { name: 'Receber link de acesso' }).click();
+    await expect(cliente.getByText('Pedido registrado')).toBeVisible({ timeout: 30_000 });
+    expect(watch.backendFailures).toEqual([]);
+    expect(watch.pageErrors).toEqual([]);
+    await contexto.close();
+  });
 });
