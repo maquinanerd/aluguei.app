@@ -16,15 +16,13 @@
 
 .pagina__titulo {
   margin: 0;
-  font-size: var(--type-h1);
-  font-weight: 700;
+  font: var(--type-h1);
   letter-spacing: var(--tracking-title);
 }
 
 .secao__titulo {
   margin: 0 0 var(--space-3);
-  font-size: var(--type-h2);
-  font-weight: 700;
+  font: var(--type-h2);
   letter-spacing: var(--tracking-h2);
   padding-bottom: 12px;
   border-bottom: 1px solid var(--portal-ink);
@@ -59,10 +57,8 @@
 
 .home-hero__titulo {
   margin: 0 0 var(--space-3);
-  font-size: var(--type-h1-home);
-  line-height: 1.08;
-  font-weight: 700;
-  letter-spacing: var(--tracking-title);
+  font: var(--type-h1-home);
+  letter-spacing: var(--tracking-h1-home);
   text-wrap: balance;
 }
 
@@ -122,8 +118,7 @@
 }
 
 .hero-busca__campo span {
-  font-size: var(--type-label);
-  font-weight: 600;
+  font: var(--type-label);
   color: var(--portal-muted-2);
 }
 
@@ -186,8 +181,7 @@
   margin: 0 auto;
   max-width: var(--portal-max);
   width: 100%;
-  font-size: var(--type-h1);
-  font-weight: 700;
+  font: var(--type-h1);
   letter-spacing: var(--tracking-title);
 }
 
@@ -214,10 +208,9 @@
 }
 
 .resumo-preco__valor {
-  font-size: var(--type-price-card);
-  font-weight: 800;
+  font: var(--type-price-card);
   color: var(--brand-accent);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-price-card);
 }
 
 .resumo-preco__tabela {
@@ -352,8 +345,7 @@
 
 .anuncio__titulo {
   margin: 0;
-  font-size: var(--type-h1);
-  font-weight: 700;
+  font: var(--type-h1);
   letter-spacing: var(--tracking-title);
 }
 
@@ -422,15 +414,13 @@
 }
 
 .bloco-valor__rotulo {
-  font-size: var(--type-label);
-  font-weight: 600;
+  font: var(--type-label);
   color: var(--portal-muted-2);
 }
 
 .bloco-valor__destaque {
-  font-size: var(--type-price-xl);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font: var(--type-price-xl);
+  letter-spacing: var(--tracking-title);
   color: var(--brand-accent);
 }
 
@@ -563,8 +553,8 @@
 
 .indisponivel__titulo {
   margin: 0 0 8px;
-  font-size: var(--type-h2);
-  font-weight: 700;
+  font: var(--type-h2);
+  letter-spacing: var(--tracking-h2);
 }
 
 /* ---- Alerta, vitrine e mapa do site ------------------------------------- */
@@ -647,9 +637,7 @@
   margin: 0 0 var(--space-3);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brand-accent);
+  color: var(--portal-muted);
 }
 
 .hero-b2b__titulo {
@@ -741,8 +729,6 @@
   margin: var(--space-1) 0 var(--space-3);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--brand-accent);
 }
 
@@ -823,8 +809,6 @@
   margin: 0;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--portal-muted-2);
 }
 
