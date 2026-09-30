@@ -5,8 +5,14 @@ import type { TipoImovel } from '@/lib/tipos';
 export interface BlocoGradeProps {
   /** Cor do bloco: o acento da marca ou a cor de um tipo de imóvel. */
   cor?: 'acento' | TipoImovel;
-  /** Tamanho da grade: `tile` no mosaico, `band` na faixa, `desktop` no rodapé. */
-  grade?: 'tile' | 'band' | 'desktop' | 'mobile';
+  /**
+   * Tamanho da grade, como nas telas: `tile` (34px) no mosaico e na identidade, `band` (56px) na
+   * faixa da busca, `desktop` (48px) no hero, `mobile` (40px) na faixa do celular e `rodape`
+   * (32px) no bloco da marca do rodapé.
+   */
+  grade?: 'tile' | 'band' | 'desktop' | 'mobile' | 'rodape';
+  /** Filete da grade: 14% nas faixas e no rodapé, 16% (`forte`) no mosaico e nos blocos de tipo. */
+  linha?: 'normal' | 'forte';
   children: ReactNode;
   className?: string;
 }
@@ -16,6 +22,7 @@ const GRADE = {
   band: 'var(--grid-size-band)',
   desktop: 'var(--grid-size-desktop)',
   mobile: 'var(--grid-size-mobile)',
+  rodape: 'var(--grid-size-footer)',
 };
 
 /**
@@ -25,6 +32,7 @@ const GRADE = {
 export function BlocoGrade({
   cor = 'acento',
   grade = 'desktop',
+  linha = 'normal',
   children,
   className,
 }: BlocoGradeProps) {
@@ -32,6 +40,7 @@ export function BlocoGrade({
     '--bloco-cor': cor === 'acento' ? 'var(--brand-accent)' : TIPO_IMOVEL[cor].cor,
     '--bloco-texto': cor === 'acento' ? 'var(--brand-on-accent)' : TIPO_IMOVEL[cor].corTexto,
     '--bloco-grade': GRADE[grade],
+    '--bloco-linha': linha === 'forte' ? 'var(--grid-line-strong)' : 'var(--grid-line)',
   } as CSSProperties;
 
   return (

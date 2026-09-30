@@ -4,11 +4,18 @@ Gerado por `scripts/design/comparacao.mjs` a partir do `SCREENS.md` e das captur
 (`tests/e2e/src/telas/`). Diferença aceita: só dado, ou item do §7 do plano
 (`docs/frontend/ACHOUIMOVEL_PLAN.md`); o estado de cada tela fica no checklist.
 
-Telas com captura: 0 de 59.
+Telas com captura: 1 de 59.
+
+## 01 · portal/00-identidade
+
+Referência de marca, tokens, cores por tipo, status, componentes base
+
+| Print                                                                        | Implementação                                    |
+| ---------------------------------------------------------------------------- | ------------------------------------------------ |
+| ![print](../../../design-source/achouimovel/prints/portal/00-identidade.png) | ![implementação](portal/00-identidade__impl.png) |
 
 ## Sem captura ainda
 
-- 01 · portal/00-identidade
 - 02 · portal/01-home__desktop
 - 03 · portal/01-home__mobile
 - 04 · portal/02-busca__desktop

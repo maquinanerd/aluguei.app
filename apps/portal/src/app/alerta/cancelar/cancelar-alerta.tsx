@@ -37,10 +37,10 @@ export function CancelarAlerta({ token }: { token: string }) {
         </p>
       ) : null}
       <div className="alerta-cancelar__acoes">
-        <Botao type="submit" carregando={enviando}>
+        <Botao type="submit" variante="escuro" altura={46} carregando={enviando}>
           {enviando ? 'Cancelando…' : 'Cancelar alerta'}
         </Botao>
-        <BotaoLink variante="contorno" href="/">
+        <BotaoLink variante="cinza" altura={46} href="/">
           Manter
         </BotaoLink>
       </div>

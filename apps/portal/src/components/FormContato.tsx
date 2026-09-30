@@ -81,7 +81,7 @@ export function FormContato({ slug, mensagemInicial }: FormContatoProps) {
       />
       <CheckboxLgpd id="contato-consentimento" name="consentimento" />
 
-      <Botao type="submit" grande carregando={enviando}>
+      <Botao type="submit" altura={52} larguraTotal carregando={enviando}>
         {enviando ? 'Enviando…' : 'Enviar contato'}
       </Botao>
     </form>
