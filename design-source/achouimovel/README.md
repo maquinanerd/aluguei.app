@@ -1,43 +1,35 @@
 # design-source/achouimovel
 
-Pacote de design do AchouImóvel (portal + gestão + área do cliente). Extraia na raiz do repositório.
+**Onde extrair:** dentro de `design-source\` do repositório. O resultado precisa ser `design-source\achouimovel\README.md`. Apague antes a pasta antiga `design-source\pacote\`.
 
 ```
 design-source/achouimovel/
-├── README.md                 este arquivo
+├── README.md
 ├── PROMPT_FRONTEND_ORQUESTRADO.md   prompt para o Claude Code
-├── docs/
-│   ├── HANDOFF.md            mapa tela → rota → componentes → dados; inventário de componentes
-│   └── CONTEXTO_CLAUDE_DESIGN_AchouImovel.md   contexto atualizado (portal nacional, portais integrados, blocos coloridos)
+├── SCREENS.md                       índice: 59 telas → print → rota → origem
+├── prints/                          PNG de cada tela (verdade visual)
+│   ├── portal/   22 imagens
+│   ├── conta/     9 imagens
+│   ├── gestao/   21 imagens
+│   └── cliente/   7 imagens
+├── telas/                           fonte das telas (.dc.html, abre no navegador)
+│   ├── portal/  conta/  gestao/
 ├── tokens/
-│   ├── achouimovel-portal.css   tokens do portal (--brand-*, --portal-*, --tipo-*)
+│   ├── achouimovel-portal.css       tokens do portal
 │   └── fonts/Guton-*.otf
-└── telas/                    referência visual; abre direto no navegador
-    ├── portal/   00-identidade · 01-home · 02-busca · 03-anuncio · 04-outras · 05-para-imobiliarias · 06-complementos
-    ├── conta/    01-conta
-    └── gestao/   01-painel · 02-complementos · 03-ajustes · 04-cadastro-por-voz · 05-area-do-cliente · Painel Sidebar
+└── docs/
+    ├── HANDOFF.md                   componentes, rotas, dados, regras
+    └── CONTEXTO_CLAUDE_DESIGN_AchouImovel.md
 ```
 
-## Nome dos arquivos no HANDOFF.md
-O HANDOFF cita os nomes originais. Equivalência:
-- AchouImovel Identidade → portal/00-identidade
-- AchouImovel Portal → portal/01-home
-- AchouImovel Portal - Busca → portal/02-busca
-- AchouImovel Portal - Anuncio → portal/03-anuncio
-- AchouImovel Portal - Outras → portal/04-outras
-- AchouImovel Portal - Para imobiliarias → portal/05-para-imobiliarias
-- AchouImovel Portal - Complementos → portal/06-complementos
-- AchouImovel Conta → conta/01-conta
-- AchouImovel Gestao → gestao/01-painel
-- AchouImovel Gestao - Complementos → gestao/02-complementos
-- AchouImovel Gestao - Ajustes → gestao/03-ajustes
-- AchouImovel Gestao - Cadastro por voz → gestao/04-cadastro-por-voz
-- AchouImovel Area do Cliente → gestao/05-area-do-cliente
+## Como usar
+1. `prints/*.png` é o alvo visual. A tela implementada tem que ficar igual à imagem.
+2. `telas/*.dc.html` tem os valores exatos. Dentro de cada arquivo, a parte entre `<x-dc>` e `</x-dc>` é HTML com estilos inline (px, cores, pesos, textos finais). Os dados de exemplo ficam na classe `Component` em `renderVals()`. Leia o trecho da âncora indicada no `SCREENS.md`.
+3. Para abrir uma tela no navegador: sirva a pasta (`npx serve design-source/achouimovel/telas`) e abra `portal/01-home.dc.html`. Não abra com `file://`.
+4. Os `.dc.html` são referência. Não importe no app.
 
-As âncoras (`#visao`, `#busca-desktop` etc.) continuam as mesmas.
+## Duas linguagens visuais
+- **Portal** (`apps/portal`): `tokens/achouimovel-portal.css`, fonte Guton, fundo branco, acento `#037A4B`, cores por tipo `--tipo-*`, blocos coloridos com grade.
+- **Gestão e área do cliente** (`apps/web`): o visual que já está no ar (`packages/ui/src/styles/tokens.css`, Inter, `#41945D`). As telas mostram só o que muda ou é novo.
 
-## Regras
-- `.dc.html` é referência, não código de produção. Não importe esses arquivos no app.
-- Números nas telas são fictícios. Textos de interface são finais.
-- Gestão e área do cliente mantêm os tokens de `packages/ui/src/styles/tokens.css`.
-- Portal usa `tokens/achouimovel-portal.css` e a fonte Guton.
+Números nas telas são fictícios. Textos de interface são finais.

@@ -1833,3 +1833,64 @@ Decisão:
 Consequência: enquanto não houver provedor com retenção zero configurado, o cadastro por áudio
 nasce `IMPLEMENTED_NOT_LIVE_VERIFIED` — o caminho existe, o adapter mock roda em teste, e a tela
 recusa gravar em vez de mandar áudio para um provedor que a gente não sabe o que faz com ele.
+
+## ADR-105 — Rodada de fidelidade às telas: fonte da verdade, rotas e decisões do dono (2026-09-30)
+
+Status: Aceito. As decisões do dono (D1 a D7) foram aprovadas por ele em 30/09/2026 ("sim, pode
+seguir com as recomendações") sobre o plano da Onda 0, `docs/frontend/ACHOUIMOVEL_PLAN.md`; as
+técnicas (T1 a T10) são reversíveis e seguem o `AGENTS.md`.
+
+Contexto: o prompt de 29/09/2026 manda implementar cada linha do `SCREENS.md` igual ao print e
+comparar por screenshot. O diagnóstico mostrou três coisas que exigem regra escrita: o pacote se
+contradiz (a coluna Rota do `SCREENS.md` diverge da legenda do próprio artboard em 8 telas; há três
+limiares diferentes para a busca com poucos anúncios; a tabela de tokens do `00-identidade` diverge
+do CSS entregue em 8 pontos); vários prints afirmam o que o produto não faz (integração com os
+portais parceiros, e-mail enviado, repasse creditado, EXIF removido, análise de foto); e o prompt
+lista como "decisão fixa" os portais parceiros integrados em todos os planos, sem adapter no código.
+
+Decisão:
+
+1. **Precedência quando o pacote se contradiz (T1):** regras do repositório (`AGENTS.md` e ADRs) →
+   valores e legenda do artboard no `.dc.html`, de que o print é a renderização → `docs/HANDOFF.md` →
+   coluna Rota do `SCREENS.md`. Onde o print afirma o que o produto não faz, a tela segue o produto e
+   a diferença é aceita na comparação (lista em §7 do plano).
+2. **Portais parceiros (D1):** vale o item 1 do ADR-097 — a interface mostra o estado real, hoje "Em
+   preparação" para Canal Pro, OLX e Imovelweb. O prompt não revoga o `AGENTS.md`. Adapters de feed,
+   se o dono quiser os parceiros de verdade, entram em fase própria com ADR, e só então "Conectado"
+   aparece, por imobiliária.
+3. **EXIF e GPS (D2):** removidos no worker depois do upload, reprocessando a imagem; o aviso do
+   print só aparece quando a remoção existir. Quando entrar, substitui para metadado a frase do
+   ADR-104 de que o sistema não remove GPS; rosto e placa continuam sem promessa.
+4. **IA sobre fotos (D3):** fora desta rodada. O ADR-104 já permite enviar foto a provedor sem
+   retenção para descrever o imóvel, mas não há provedor de imagem contratado, o próprio áudio está
+   desligado em produção e o rascunho exclui de propósito o estado "das fotos"
+   (`packages/contracts/src/property-draft.ts:61-62`). Legenda sugerida, "Das fotos", placa de rua e
+   descrição sugerida ficam como diferença aceita.
+5. **Cidade por IP (D4):** a Home ganha a camada no cliente, atrás de uma interface de provedor, sem
+   fonte real; o HTML em cache continua genérico. A fonte (proxy do Cloudflare com desafio DNS-01, ou
+   base local de geolocalização) é decisão à parte.
+6. **Pacote de design (D5):** versionado em `design-source/achouimovel/`, onde o README do pacote o
+   espera, sem o `Design.zip`.
+7. **E-mail (D6):** adapter de provedor sobre a caixa de saída que já existe, `IMPLEMENTED_NOT_LIVE_VERIFIED`
+   até o dono contratar o provedor e a chave existir.
+8. **Split e taxa (D7):** a regra do domínio continua (o proprietário recebe tudo menos a comissão).
+   A taxa de administração vira campo da locação, com 10% de padrão, e o IPTU passa a entrar na
+   cobrança.
+9. **Rotas (T2):** ficam `/imobiliaria/[slug]`, `/convite?token=`, `/situacao-da-conta`,
+   `/app/admin/integrations`, `/app/screening/[id]`, `/plataforma/imobiliarias` e
+   `/app/properties/new-by-audio`, porque a legenda do artboard ou o HANDOFF concordam com o código;
+   `/anunciar` e `/gestao` passam a `/para-imobiliarias/anunciar` e `/para-imobiliarias/gestao` com
+   301; nascem `/app/charges/[id]`, `/app/properties/[id]/fotos`, `/app/vendas/negociacoes/[id]`,
+   `/app/vendas/negociacoes/[id]/contrato`, `/inquilino/cobrancas/[id]` e `/inquilino/documentos`.
+   Nenhuma rota do `SCREENS.md` que não for adotada ganha apelido: nenhuma foi publicada ou enviada.
+10. **Demais regras técnicas:** limiares da busca do ADR-099 (T3); na divergência de tokens, vale a
+    tabela do `00-identidade` (T4); captura na largura e na escala do print, por elemento nos
+    artboards de recorte (T5); `page.route` do Playwright só para estados que o produto alcança,
+    nunca para mostrar dado que a API não entrega (T6); foto ausente com o marcador do print e
+    datas do servidor mascaradas (T7); ícones do menu desenhados como no `Painel Sidebar.dc.html`
+    (T8); menu igual ao design, com o painel de vendas acessível por Negociações (T9); telas de conta
+    em `apps/web` com Guton servida pelo próprio web e tokens do portal num escopo (T10).
+
+Consequências: a comparação com o print passa a ter régua escrita — uma tela só é "conferida" com a
+screenshot salva e a diferença anotada como dado ou como item desta lista. O que o print promete e o
+produto não faz vira pendência visível no plano, e não texto na tela.
