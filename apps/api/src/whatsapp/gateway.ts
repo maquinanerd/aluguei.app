@@ -144,7 +144,9 @@ async function createLeadForConversation(
 ): Promise<string> {
   const [lead] = await db
     .insert(leads)
-    .values({ orgId, partyId, source: 'WHATSAPP', channel: 'whatsapp', notes: null })
+    // Origem no vocabulário de `leads.channel` (PORTAL, WHATSAPP, ...), o mesmo do filtro do
+    // pipeline: gravada em minúsculas, nunca casava (Onda 0 da rodada de fidelidade, defeito 11).
+    .values({ orgId, partyId, source: 'WHATSAPP', channel: 'WHATSAPP', notes: null })
     .returning();
   if (!lead) {
     throw new Error('lead insert failed');

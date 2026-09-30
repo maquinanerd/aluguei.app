@@ -109,8 +109,19 @@ describe('Fase 05: WhatsApp + Lead Automation', () => {
       leads: Array<{ id: string; channel: string; source: string }>;
     };
     expect(leadList.leads.length).toBeGreaterThan(0);
-    const waLead = leadList.leads.find((lead) => lead.channel === 'whatsapp');
-    expect(waLead?.source).toBe('WHATSAPP');
+    const waLead = leadList.leads.find((lead) => lead.source === 'WHATSAPP');
+    // A origem sai no vocabulário que o filtro do pipeline usa: gravada como 'whatsapp', o filtro
+    // "WHATSAPP" nunca achava lead (Onda 0 da rodada de fidelidade, defeito 11).
+    expect(waLead?.channel).toBe('WHATSAPP');
+    const filtrados = await app.inject({
+      method: 'GET',
+      url: '/leads?channel=WHATSAPP',
+      headers: { cookie },
+    });
+    const idsFiltrados = (filtrados.json() as { leads: Array<{ id: string }> }).leads.map(
+      (lead) => lead.id,
+    );
+    expect(idsFiltrados).toContain(waLead?.id);
 
     // Bot respondeu via messenger fake
     expect(fakeWhatsApp.outbox.length).toBeGreaterThan(0);
