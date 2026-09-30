@@ -96,7 +96,7 @@ const alertaSchema = z
     // Só e-mail: não existe envio por WhatsApp, e o alerta pedido por lá nunca confirmava
     // (Onda 0 da rodada de fidelidade, defeito 9).
     canal: z.enum(['EMAIL'], { message: 'Por enquanto o aviso é só por e-mail' }),
-    consentimento: z.literal('on', { message: 'Precisa autorizar para criar o alerta' }),
+    consentimento: z.literal('on', { message: 'Erro: marque a autorização para criar o alerta.' }),
   })
   .refine((entrada) => z.email().safeParse(entrada.contato).success, {
     message: 'E-mail inválido',
@@ -144,7 +144,9 @@ export async function criarAlertaAction(
     });
     return {
       estado: 'enviado',
-      mensagem: 'Falta um passo: confirme pelo link que enviamos para o seu e-mail.',
+      // Nada sai por e-mail ainda (`apps/api/src/email-outbox.ts`, D6): a tela não diz que enviou.
+      mensagem:
+        'Registramos o alerta. Ele começa a funcionar quando você confirmar o e-mail pelo link de confirmação.',
     };
   } catch (erro) {
     if (erro instanceof PortalApiError && erro.status === 429) {

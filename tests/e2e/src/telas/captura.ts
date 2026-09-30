@@ -59,10 +59,19 @@ export interface Captura {
   mascaras?: Locator[];
 }
 
+/**
+ * A stack de E2E roda o portal e o painel com `next dev`, que desenha o indicador de
+ * desenvolvimento no canto da página. Ele não é da tela e sai da captura.
+ */
+async function semIndicadorDoNext(page: Page) {
+  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+}
+
 /** Página inteira, ou só a janela quando o artboard tem altura fixa. */
 export async function capturarPagina(page: Page, captura: Captura, janela: Janela) {
   const arquivo = caminhoDaEvidencia(captura.area, captura.tela);
   mkdirSync(dirname(arquivo), { recursive: true });
+  await semIndicadorDoNext(page);
   await page.screenshot({
     path: arquivo,
     fullPage: janela.altura === undefined,
@@ -76,6 +85,7 @@ export async function capturarPagina(page: Page, captura: Captura, janela: Janel
 export async function capturarElemento(elemento: Locator, captura: Captura) {
   const arquivo = caminhoDaEvidencia(captura.area, captura.tela);
   mkdirSync(dirname(arquivo), { recursive: true });
+  await semIndicadorDoNext(elemento.page());
   await elemento.screenshot({
     path: arquivo,
     animations: 'disabled',

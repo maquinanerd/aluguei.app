@@ -23,6 +23,11 @@
   --portal-error: #b42318;
   --portal-error-bg: #fdecea;
   --portal-focus: #037a4b;
+  /* Filetes que as telas usam fora da tabela: cabeçalho (#ECECEC), caixa de marcar (#B9B9B4) e
+   * acordeão do rodapé no celular (#DADAD6). */
+  --portal-header-line: #ececec;
+  --portal-check-line: #b9b9b4;
+  --portal-footer-line: #dadad6;
 
   /* Cor por tipo de imóvel (bloco cheio / quadrado marcador / "Imóvel" do logotipo) */
   --tipo-apartamento: #0b4a7e;
@@ -47,6 +52,8 @@
   --grid-size-band: 56px;
   --grid-size-mobile: 40px;
   --grid-size-tile: 34px;
+  /* Bloco da marca no rodapé (telas/portal/01-home, linhas 129 e 189). */
+  --grid-size-footer: 32px;
 
   /* Tipografia — a tabela da identidade (telas/portal/00-identidade), que prevalece sobre o CSS
    * entregue onde os dois divergem (ADR-105, T4). Cada `--type-*` é o atalho `font` completo:
@@ -83,6 +90,12 @@
   --portal-header-max: 1440px;
   --portal-gutter: 18px;
   --portal-section-gap: 48px;
+  /* Margem das faixas de ponta a ponta (cabeçalho, faixa da busca, rodapé): a margem do quadro, e
+   * acima de 1440 o que falta para o conteúdo alinhar com o miolo centrado. */
+  --portal-gutter-x: max(
+    var(--portal-gutter),
+    calc((100% - var(--portal-max)) / 2 + var(--portal-gutter))
+  );
   --header-h-desktop: 64px;
   --header-h-mobile: 56px;
   --tap-min: 44px;

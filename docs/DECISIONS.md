@@ -1894,3 +1894,35 @@ Decisão:
 Consequências: a comparação com o print passa a ter régua escrita — uma tela só é "conferida" com a
 screenshot salva e a diferença anotada como dado ou como item desta lista. O que o print promete e o
 produto não faz vira pendência visível no plano, e não texto na tela.
+
+### Adendo ao ADR-105 — componentes base do portal (Onda 1B2, 2026-09-30)
+
+Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componentes`):
+
+1. **Corpo como nos artboards.** `body` com Guton a 16px e altura de linha `normal`; parágrafo sem
+   classe fica com 1,7. Antes o corpo inteiro herdava 1,7 e cards, menu e trilha saíam mais altos que
+   nos prints.
+2. **Link de texto verde e sublinhado** (regra global das telas, `a{color:#037A4B}`); componente que é
+   link (card, menu, botão, chip, rodapé, trilha) declara a própria cor.
+3. **Tela × token.** Onde a medida desenhada numa tela diverge do token da identidade (título da faixa
+   44/36/25px × `--type-h1`, valor do card 20/19px × `--type-price-card`), o componente segue a tela;
+   o token continua valendo para o texto corrido. É o que a comparação com o print cobra.
+4. **Card em quatro formas** (`amostra`, `lista`, `poucos`, `parecido`), como as nove ocorrências das
+   telas. Atributos na ordem área · quartos · suítes · vagas, depois mobiliado e pet; zero ou ausente
+   some; banheiros saem do card. Suítes, mobiliado e pet entram no contrato público na Onda 2 (B1).
+5. **Marcador de foto** "Foto do imóvel" em todo lugar; os sufixos " · cover" e " · deslize" dos prints
+   são anotação do designer (T7).
+6. **Consentimento sem política inexistente.** Os textos das telas citam a "política de privacidade";
+   enquanto a página não existir (defeito 4), o texto sai sem esse trecho. `POLITICA_DE_PRIVACIDADE`
+   em `apps/portal/src/lib/legal.ts` devolve o texto das telas quando a página entrar.
+7. **Alerta só por e-mail** (defeito 9): sem o segmentado E-mail/WhatsApp, com "seu@email.com" no campo;
+   e a confirmação não diz que enviou e-mail (defeito 18), porque nada sai até a Onda 1D.
+8. **Filtros por URL.** Finalidade, tipo e quartos são links para o recorte (a busca é por caminho,
+   ADR-099); valor e características usam formulário GET. A ordenação é um `<select>` nativo com a cara
+   do botão das telas.
+9. **Rodapé só com links para páginas que existem** (defeito 6); no celular, bloco da marca primeiro e
+   colunas em `<details>`, sem JavaScript. Redes, legais, razão social e CNPJ somem enquanto o dono não
+   os entregar.
+10. **Tela 01 reproduz a identidade inteira** (referências, acentos e decisões, como no print) com os
+    componentes e os tokens de verdade, e ganha a seção 6 com os estados de cada componente. As tabelas
+    de quadro e respiro mostram o valor aplicado (T1), não o da tabela original.

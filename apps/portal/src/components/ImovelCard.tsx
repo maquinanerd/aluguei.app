@@ -20,9 +20,14 @@ export interface ImovelResumo {
   /** Venda, em centavos. */
   precoVendaCents?: number | null;
   quartos?: number | null;
+  /** O domínio ainda não guarda suítes (B1, Onda 2); sem o dado, o atributo some. */
+  suites?: number | null;
   banheiros?: number | null;
   vagas?: number | null;
   areaM2?: number | null;
+  /** Fora do contrato público até a Onda 2 (B1); sem o dado, o atributo some. */
+  mobiliado?: boolean | null;
+  aceitaPet?: boolean | null;
   fotos: number;
   /** URL já pronta para o navegador; nunca `storage_key` (teste de privacidade). */
   fotoUrl?: string | null;
@@ -30,81 +35,108 @@ export interface ImovelResumo {
   anunciante?: { nome: string; creci: string } | null;
 }
 
+/**
+ * Formas do card nas telas (`design-source/achouimovel/telas/portal`):
+ * - `amostra` — a anatomia completa da identidade (00): selo da finalidade, contador, atributos
+ *   em lista e a imobiliária com CRECI.
+ * - `lista` — Home e busca (01, 02): contador, local com UF, linha de apoio e atributos numa
+ *   linha com filete em cima; no celular o filete sai e o espaço cai para 10px.
+ * - `poucos` — busca com poucos anúncios (02): sem contador e sem linha de apoio.
+ * - `parecido` — "Outros imóveis" do anúncio, "Parecidos" do indisponível e a vitrine (03, 04):
+ *   só o bairro, valor em 19px, sem contador e sem linha de apoio.
+ */
+export type FormaDoCard = 'amostra' | 'lista' | 'poucos' | 'parecido';
+
 export interface ImovelCardProps {
   imovel: ImovelResumo;
-  variante?: 'listagem' | 'compacto' | 'parecido';
+  variante?: FormaDoCard;
 }
 
 const SELO: Record<Finalidade, string> = {
-  aluguel: 'Aluguel',
-  venda: 'Venda',
-  ambos: 'Aluguel ou venda',
+  aluguel: 'Alugar',
+  venda: 'Comprar',
+  ambos: 'Alugar ou comprar',
 };
 
 function valorPrincipal(imovel: ImovelResumo): string {
   if (imovel.finalidade === 'venda') {
     return formatarValor(imovel.precoVendaCents);
   }
-  const total = imovel.totalMensalCents ?? imovel.aluguelCents;
-  return `${formatarValor(total)}/mês`;
+  if (imovel.totalMensalCents != null) {
+    return `${formatarValor(imovel.totalMensalCents)} total/mês`;
+  }
+  return `${formatarValor(imovel.aluguelCents)}/mês`;
 }
 
 function linhaDeApoio(imovel: ImovelResumo): string {
+  const encargos = [
+    imovel.condominioCents == null ? null : `Cond. ${formatarValor(imovel.condominioCents)}`,
+    imovel.iptuCents == null ? null : `IPTU ${formatarValor(imovel.iptuCents)}`,
+  ];
   if (imovel.finalidade === 'venda') {
-    const partes: string[] = [];
-    if (imovel.condominioCents != null) {
-      partes.push(`Condomínio ${formatarValor(imovel.condominioCents)}`);
-    }
-    if (imovel.iptuCents != null) {
-      partes.push(`IPTU ${formatarValor(imovel.iptuCents)}`);
-    }
-    return partes.join(' · ');
+    const porMetro =
+      imovel.precoVendaCents != null && imovel.areaM2 != null && imovel.areaM2 > 0
+        ? `${formatarValor(imovel.precoVendaCents / imovel.areaM2)}/m²`
+        : null;
+    return [porMetro, ...encargos].filter(Boolean).join(' · ');
   }
-  const partes: string[] = [];
-  if (imovel.aluguelCents != null) {
-    partes.push(`Aluguel ${formatarValor(imovel.aluguelCents)}`);
+  if (imovel.finalidade === 'ambos') {
+    return imovel.precoVendaCents == null
+      ? ''
+      : `ou ${formatarValor(imovel.precoVendaCents)} à venda`;
   }
-  if (imovel.condominioCents != null) {
-    partes.push(`condomínio ${formatarValor(imovel.condominioCents)}`);
-  }
-  if (imovel.iptuCents != null) {
-    partes.push(`IPTU ${formatarValor(imovel.iptuCents)}`);
-  }
-  if (imovel.finalidade === 'ambos' && imovel.precoVendaCents != null) {
-    partes.push(`ou ${formatarValor(imovel.precoVendaCents)} à venda`);
-  }
-  return partes.join(' · ');
+  const aluguel =
+    imovel.aluguelCents == null ? null : `Aluguel ${formatarValor(imovel.aluguelCents)}`;
+  return [aluguel, ...encargos].filter(Boolean).join(' · ');
 }
 
+/** Área · quartos · suítes · vagas, e depois mobiliado e pet. Zero ou ausente some. */
 function atributos(imovel: ImovelResumo): string[] {
   const lista: string[] = [];
-  if (imovel.quartos != null) {
-    lista.push(plural(imovel.quartos, 'quarto', 'quartos'));
-  }
-  if (imovel.banheiros != null) {
-    lista.push(plural(imovel.banheiros, 'banheiro', 'banheiros'));
-  }
-  if (imovel.vagas != null) {
-    lista.push(plural(imovel.vagas, 'vaga', 'vagas'));
-  }
-  if (imovel.areaM2 != null) {
+  if (imovel.areaM2 != null && imovel.areaM2 > 0) {
     lista.push(`${String(imovel.areaM2)} m²`);
   }
+  if (imovel.quartos) {
+    lista.push(plural(imovel.quartos, 'quarto', 'quartos'));
+  }
+  if (imovel.suites) {
+    lista.push(plural(imovel.suites, 'suíte', 'suítes'));
+  }
+  if (imovel.vagas) {
+    lista.push(plural(imovel.vagas, 'vaga', 'vagas'));
+  }
+  if (imovel.mobiliado === true) {
+    lista.push('mobiliado');
+  }
+  if (imovel.aceitaPet === true) {
+    lista.push('aceita pet');
+  }
   return lista;
+}
+
+function local(imovel: ImovelResumo, variante: FormaDoCard): string {
+  if (variante === 'parecido') {
+    return imovel.bairro || imovel.cidade;
+  }
+  const lugar = [imovel.bairro, imovel.cidade].filter(Boolean).join(', ');
+  return variante === 'amostra' || !imovel.uf ? lugar : `${lugar} · ${imovel.uf}`;
 }
 
 /**
  * Card de imóvel do portal. O card inteiro é o link — sem botão "Contatar"
  * repetido. Nunca mostra rua, número, CEP nem coordenada: só bairro e cidade.
  */
-export function ImovelCard({ imovel, variante = 'listagem' }: ImovelCardProps) {
+export function ImovelCard({ imovel, variante = 'lista' }: ImovelCardProps) {
   const tipo = TIPO_IMOVEL[imovel.tipo];
-  const apoio = linhaDeApoio(imovel);
+  const comApoio = variante === 'amostra' || variante === 'lista';
+  const comContador = comApoio && imovel.fotos > 0;
+  const apoio = comApoio ? linhaDeApoio(imovel) : '';
+  const lista = atributos(imovel);
   const estilo = { '--tipo-cor': tipo.cor } as CSSProperties;
 
   return (
     <a
-      className={variante === 'compacto' ? 'imovel-card imovel-card--compacto' : 'imovel-card'}
+      className={`imovel-card imovel-card--${variante}`}
       href={`/imovel/${imovel.slug}`}
       style={estilo}
     >
@@ -114,34 +146,44 @@ export function ImovelCard({ imovel, variante = 'listagem' }: ImovelCardProps) {
           // entre URL assinada e CDN é da Onda 2A (R3 do plano).
           <img
             src={imovel.fotoUrl}
-            alt={imovel.fotoLegenda ?? `${tipo.nome} no ${imovel.bairro}`}
+            alt={imovel.fotoLegenda ?? `${tipo.nome} no ${imovel.bairro || imovel.cidade}`}
           />
         ) : (
-          <span>Sem foto</span>
+          <span className="imovel-card__marcador">Foto do imóvel</span>
         )}
-        <span className="imovel-card__selo">{SELO[imovel.finalidade]}</span>
-        {imovel.fotos > 0 ? (
+        {variante === 'amostra' ? (
+          <span className="imovel-card__selo">{SELO[imovel.finalidade]}</span>
+        ) : null}
+        {comContador ? (
           <span className="imovel-card__contador">1/{String(imovel.fotos)}</span>
         ) : null}
       </span>
 
       <span className="imovel-card__tipo">
         <span className="imovel-card__quadrado" aria-hidden="true" />
-        {tipo.nome} · {imovel.bairro}, {imovel.cidade} · {imovel.uf}
+        {tipo.nome} · {local(imovel, variante)}
       </span>
 
-      <span className="imovel-card__valores">
+      {comApoio ? (
+        <span className="imovel-card__valores">
+          <span className="imovel-card__valor">{valorPrincipal(imovel)}</span>
+          {apoio ? <span className="imovel-card__detalhe">{apoio}</span> : null}
+        </span>
+      ) : (
         <span className="imovel-card__valor">{valorPrincipal(imovel)}</span>
-        {apoio ? <span className="imovel-card__detalhe">{apoio}</span> : null}
-      </span>
+      )}
 
-      <span className="imovel-card__atributos">
-        {atributos(imovel).map((atributo) => (
-          <span key={atributo}>{atributo}</span>
-        ))}
-      </span>
+      {lista.length === 0 ? null : variante === 'amostra' ? (
+        <span className="imovel-card__atributos">
+          {lista.map((atributo) => (
+            <span key={atributo}>{atributo}</span>
+          ))}
+        </span>
+      ) : (
+        <span className="imovel-card__atributos">{lista.join(' · ')}</span>
+      )}
 
-      {imovel.anunciante ? (
+      {variante === 'amostra' && imovel.anunciante ? (
         <span className="imovel-card__anunciante">
           {imovel.anunciante.nome} · CRECI {imovel.anunciante.creci}
         </span>

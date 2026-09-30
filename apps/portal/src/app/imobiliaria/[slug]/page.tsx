@@ -100,7 +100,7 @@ export default async function VitrinePage({ params, searchParams }: Props) {
         ) : (
           <div className="grade-cards">
             {vitrine.itens.map((imovel) => (
-              <ImovelCard key={imovel.slug} imovel={imovelDaApi(imovel)} />
+              <ImovelCard key={imovel.slug} imovel={imovelDaApi(imovel)} variante="parecido" />
             ))}
           </div>
         )}
