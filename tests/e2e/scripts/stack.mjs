@@ -360,6 +360,8 @@ function stackEnv(databaseUrl, runDir) {
     STORAGE_DRIVER: 'disk',
     STORAGE_DISK_ROOT: join(runDir, 'storage'),
     STORAGE_DISK_PUBLIC_URL: `http://127.0.0.1:${PORTS.api}`,
+    // A CSP do painel só deixa o navegador enviar o arquivo para a origem do storage (B29).
+    STORAGE_PUBLIC_ORIGIN: `http://127.0.0.1:${PORTS.api}`,
     LOG_LEVEL: 'info',
     NEXT_TELEMETRY_DISABLED: '1',
     PLATFORM_ADMIN_EMAILS: E2E_PLATFORM_ADMIN.email,

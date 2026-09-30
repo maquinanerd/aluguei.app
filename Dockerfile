@@ -41,6 +41,10 @@ CMD ["node", "--import", "tsx", "apps/api/src/index.ts"]
 # Web (Next.js).
 FROM fetch AS web
 COPY . .
+# Origem do upload direto ao storage (R2), que entra no connect-src da CSP no build. Vazia, a CSP
+# fica só com a propria origem e o envio de arquivo nao sai do navegador.
+ARG STORAGE_PUBLIC_ORIGIN=
+ENV STORAGE_PUBLIC_ORIGIN=$STORAGE_PUBLIC_ORIGIN
 RUN pnpm install --offline --frozen-lockfile --filter aluguei-app --filter "@aluguei/web..." \
  && pnpm turbo run build --filter=@aluguei/web \
  && chown -R node:node apps/web/.next
