@@ -375,7 +375,7 @@ export function AppShell({
               {crumbs.map((c, i) => {
                 const last = i === crumbs.length - 1;
                 return (
-                  <span key={i} className="peg-group" style={{ gap: 8 }}>
+                  <span key={i} className="peg-group" style={{ gap: 4 }}>
                     {i > 0 ? (
                       <span className="peg-breadcrumb__separator" aria-hidden="true">
                         /
@@ -399,15 +399,18 @@ export function AppShell({
             </nav>
             {/* Contexto de desktop: no celular a barra guarda só menu, busca e
                 conta — a própria tela já diz onde a pessoa está. */}
-            <div className="peg-group gap-2 app-topbar__context">
+            <div className="app-topbar__context">
+              {activeOrg ? (
+                <>
+                  <span className="peg-breadcrumb__separator" aria-hidden="true">
+                    ·
+                  </span>
+                  <span>{activeOrg.name}</span>
+                </>
+              ) : null}
               <span className="peg-breadcrumb__separator" aria-hidden="true">
                 ·
               </span>
-              {activeOrg ? (
-                <span className="peg-text-secondary" style={{ fontSize: 13 }}>
-                  {activeOrg.name}
-                </span>
-              ) : null}
               <TopbarClock />
             </div>
             <div className="peg-spacer" />
