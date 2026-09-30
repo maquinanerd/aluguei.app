@@ -23,8 +23,9 @@ export interface DialogoPublicacaoProps {
 }
 
 /**
- * Diálogo de publicação (Onda 4): mostra em quais canais o anúncio vai sair, ou
- * o que falta para ele poder sair.
+ * Diálogo de publicação (Onda 4): mostra que confirmar põe o anúncio no
+ * AchouImóvel e em que situação estão os outros canais, ou o que falta para ele
+ * poder sair.
  *
  * Os bloqueios vêm de `GET /listings/:id/publish-readiness`, que usa a **mesma
  * função** do portão do servidor. Um diálogo com régua própria seria pior do
@@ -49,7 +50,6 @@ export function DialogoPublicacao({
   );
 
   const canais = data?.channels ?? [];
-  const disponiveis = canais.filter((canal) => canal.available);
   const podePublicar = data?.canPublish === true;
 
   return (
@@ -74,11 +74,7 @@ export function DialogoPublicacao({
             disabled={!podePublicar || loading}
             onClick={aoPublicar}
           >
-            {etapa === 'pronto'
-              ? 'Marcar como pronto'
-              : disponiveis.length > 0 && podePublicar
-                ? `Publicar em ${String(disponiveis.length)} ${disponiveis.length === 1 ? 'canal' : 'canais'}`
-                : 'Publicar'}
+            {etapa === 'pronto' ? 'Marcar como pronto' : 'Publicar no AchouImóvel'}
           </Button>
         </Group>
       }
@@ -122,21 +118,28 @@ export function DialogoPublicacao({
 
         {!loading && podePublicar ? (
           <Stack gap={2}>
+            {/* Confirmar põe o anúncio no ar, e "no ar" é o portal AchouImóvel. Os demais canais
+                são publicados um a um, na tela de Canais (Onda 0 da rodada de fidelidade,
+                defeito 10). */}
+            <Group between>
+              <span style={{ fontSize: 13 }}>AchouImóvel</span>
+              <Badge tone="brand">vai publicar</Badge>
+            </Group>
             {canais.map((canal) => (
               <Group key={canal.channel} between>
                 <span style={{ fontSize: 13 }}>{label(CHANNEL_TYPE_LABELS, canal.channel)}</span>
-                {canal.available ? (
-                  <Badge tone={canal.status === 'PUBLISHED' ? 'success' : 'neutral'}>
-                    {canal.status === 'PUBLISHED' ? 'já publicado' : 'vai publicar'}
-                  </Badge>
-                ) : (
+                {!canal.available ? (
                   <Badge tone="neutral">não conectado</Badge>
+                ) : canal.status === 'PUBLISHED' ? (
+                  <Badge tone="success">já publicado</Badge>
+                ) : (
+                  <Badge tone="neutral">pela tela de Canais</Badge>
                 )}
               </Group>
             ))}
             <span className="peg-text-tertiary" style={{ fontSize: 12 }}>
-              A publicação só acontece quando você confirmar. Preço, fotos e descrição ficam iguais
-              em todos os canais conectados.
+              A publicação só acontece quando você confirmar. Nos outros canais, você publica pela
+              tela de Canais.
             </span>
           </Stack>
         ) : null}
