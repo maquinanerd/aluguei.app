@@ -154,3 +154,17 @@ export type {
   VerifyWebhookParams,
   VerifyWebhookResult,
 } from './whatsapp/types.js';
+
+export { FakeEmailSender } from './email/fake.js';
+export { ResendEmailSender } from './email/resend.js';
+export type { ResendEmailSenderOptions } from './email/resend.js';
+export { getEmailSender } from './email/registry.js';
+export type { EmailRegistryOptions } from './email/registry.js';
+export { EmailProviderError } from './email/types.js';
+export type {
+  EmailMessage,
+  EmailProviderErrorCode,
+  EmailProviderName,
+  EmailSendResult,
+  IEmailSender,
+} from './email/types.js';
