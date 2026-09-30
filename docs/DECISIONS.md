@@ -1894,3 +1894,77 @@ Decisão:
 Consequências: a comparação com o print passa a ter régua escrita — uma tela só é "conferida" com a
 screenshot salva e a diferença anotada como dado ou como item desta lista. O que o print promete e o
 produto não faz vira pendência visível no plano, e não texto na tela.
+
+## ADR-106 — Portal sem `depends_on` na API: a janela de 503 no deploy de compose do Coolify (2026-09-30)
+
+Status: Aceito (decisão técnica reversível, pelo `AGENTS.md`). Não implantado: o deploy, e com ele a
+medição, depende de pedido do dono.
+
+Contexto: no deploy `kn5atopz2kowec1y1hsi0w0a` (commit `c34bb11`) o portal respondeu
+`503 no available server` de ~15:19:50 a 15:22:03 UTC (~133 s). A causa foi confirmada na
+documentação e no código do Coolify (HEAD de 30/09/2026), no código do Docker e do Traefik e num dado
+do próprio deploy:
+
+1. **Compose não tem rolling update no Coolify.** A documentação diz "Rolling updates are not
+   supported for Docker Compose applications". No código (`ApplicationDeploymentJob`,
+   `deploy_docker_compose_buildpack`), o deploy constrói as imagens com os contêineres antigos no ar
+   e, antes do `docker compose up -d`, chama `stop_running_container(force: true)`, que roda
+   `docker stop --time=30` (o `stop_grace_period` do recurso, padrão 30 s) e `docker rm` em **todos**
+   os contêineres do recurso, **um por vez**, na ordem de `docker ps -a`. Todo deploy recria todos os
+   serviços, API e painel inclusive.
+2. **O portal era dos primeiros a parar.** `docker ps` lista do contêiner mais novo para o mais antigo
+   (moby, `byCreatedDescending`), e o compose cria os contêineres na ordem do grafo de dependências.
+   Com `depends_on: api`, portal e painel ficam no último nível (`minio → storage-init → api`,
+   `migrate → api`), são os mais novos e param primeiro; o portal espera todos os demais pararem.
+3. **E dos últimos a voltar.** No `up -d`, o portal só inicia depois de `minio` saudável,
+   `storage-init` e `migrate` concluídos e a API saudável. O `uptimeMs` do `/health` da API, lido às
+   15:51:33Z, põe o início do processo dela às 15:21:39, 24 s antes de o portal voltar.
+4. **Por que 503, e não 404.** O Traefik descarta o contêiner com healthcheck que não está `healthy`
+   (`pkg/provider/docker/config.go`), e o Coolify grava um roteador pega-tudo (`PathPrefix(/)`,
+   prioridade -1000) para um serviço sem servidor (`default_redirect_503.yaml`). Sem portal saudável,
+   a requisição cai nele.
+5. **O healthcheck não é o gargalo.** Um sucesso dentro do `start_period` já marca `healthy`, e
+   durante ele o Docker 25+ sonda a cada `start_interval` (padrão 5 s), não a cada `interval`. Mexer em
+   `interval` ou `start_period` renderia segundos. Um `start_interval` explícito também: no Docker
+   anterior ao 25 ele não existe (versões antigas do compose recusam o serviço, as novas o ignoram),
+   e as versões do servidor não estão registradas.
+
+Decisão:
+
+- **O `portal` deixa de depender da API** (`docker-compose.prod.yml`). O `depends_on` não garantia nada
+  em execução, porque o portal fala com a API pelo domínio público, e o portal já tolera a API fora do
+  ar: o `robots.txt` do healthcheck não a chama, Home e sitemap caem para estado vazio, o proxy de
+  `/imovel/*` deixa passar quando ela não responde e as páginas geradas no build seguem no cache. A CI
+  já sobe a imagem sem API nenhuma e exige o `/robots.txt` respondendo e a Home renderizada com a
+  canônica. Enquanto a API sobe, só busca e anúncio renderizados na hora respondem erro. De quebra,
+  uma API que não fica saudável deixa de derrubar o portal: o compose não inicia quem depende de
+  serviço doente, e antes o portal ficava fora até o deploy seguinte.
+- **Painel e healthchecks ficam como estão.** O painel não funciona sem a API; o healthcheck, pelo
+  item 5.
+- **Medir nos dois próximos deploys** com `scripts/medir-janela-deploy.sh`, laço de curl a cada 1 s
+  em `/robots.txt`, `/login` e `/health` que também marca o reinício do processo da API. O primeiro
+  deploy ainda para o portal cedo, porque o contêiner no ar nasceu do compose antigo, e só ganha a
+  cadeia da API. Do segundo em diante o portal nasce na primeira leva, com `minio` e `migrate`, e
+  passa a parar entre os quatro últimos.
+- **Zero downtime exige tirar o portal do recurso de compose**: aplicação própria no Coolify, build
+  pack Dockerfile no alvo `portal`, com healthcheck, sem porta publicada nem nome fixo de contêiner,
+  que é o tipo de recurso com rolling update. Mexe em recursos e domínios do Coolify: só com o dono, e
+  só se a janela medida ainda incomodar.
+
+Evidência (simulação local, não é produção): Docker 29.3.1 e Compose 5.1.1, com o grafo de
+dependências e os healthchecks deste compose, a parada do Coolify (um contêiner por vez, do mais novo
+ao mais antigo, 10 s cada, o ritmo do deploy real) e `up -d`. Tempo do portal sem contêiner saudável:
+107 s em dois deploys com o compose de antes (painel 117 s, API 92 s); 97 s no primeiro deploy sem o
+`depends_on`, que ainda para o portal primeiro, mas o traz de volta 6 s depois do `up -d` em vez de
+26 s; 16 s e 46 s nos dois seguintes. A diferença entre esses dois é a posição do portal entre os
+quatro serviços sem dependência (`legacy-pgdata`, `migrate`, `minio` e ele), que o compose cria juntos
+e em ordem sorteada: a janela fica perto de (contêineres parados depois dele, de 0 a 3) × (tempo de
+parada de cada um) + ~6 s. Numa segunda simulação, com a API sem nunca ficar saudável, o portal com o
+`depends_on` ficou em `created` ("dependency failed to start"); sem ele, subiu.
+
+Reversão: devolver ao `portal` o bloco `depends_on: api: condition: service_healthy`.
+
+Consequências: o portal para de herdar a subida da API e passa a ficar fora só entre a própria parada
+e o próprio healthcheck. Continua havendo janela a cada deploy enquanto ele morar no recurso de
+compose, e a medição diz se ela é aceitável. API e painel também são recriados em todo deploy e ficam
+fora enquanto a API sobe; o laço amostra os três para dimensionar isso.

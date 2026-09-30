@@ -54,6 +54,7 @@ sem necessidade.
 | `worker`        | `Dockerfile` → `server`                    | fila do Postgres (pagamentos, assinatura, screening, canais, Meta); entra por `apps/worker/src/main.ts`, com health HTTP na porta 4001 (só dentro do container)     |
 | `backup`        | `Dockerfile` → `server`                    | `pg_dump` 17 por dia às 06:00 UTC, cifrado em fluxo com `BACKUP_ENCRYPTION_KEY`, 14 cópias no volume `aluguei-backups`; healthcheck vermelho sem backup bom em 26 h |
 | `web`           | `Dockerfile` → `web`                       | Next.js (`next start`), porta 3000, healthcheck `/login`                                                                                                            |
+| `portal`        | `Dockerfile` → `portal`                    | portal público do AchouImóvel, Next.js (`next start`), porta 3100, healthcheck `/robots.txt`; sobe sem esperar a API (sem `depends_on`, ADR-106)                    |
 | `legacy-pgdata` | `busybox:1.36`                             | monta só para leitura o volume `aluguei-pgdata` (dados do banco embutido da primeira implantação) e termina; existe só para o volume continuar no recurso (ADR-062) |
 
 API, worker, migrations e `storage-init` rodam TypeScript com tsx: os pacotes do workspace exportam
@@ -187,6 +188,11 @@ no plano ILIMITADO.
 - **Deploy**: painel do Coolify → `aluguei-app` → Deploy, ou `POST /api/v1/deploy?uuid=<app>` com um
   token de API que tenha permissão de deploy. Tokens usados em sessões assistidas devem ser
   revogados depois.
+- **Janela de indisponibilidade**: compose não tem rolling update no Coolify. Depois do build, ele
+  para e remove todos os contêineres, um por vez, e só então roda `docker compose up -d`; cada
+  domínio fica em 503 até o serviço dele voltar saudável (ADR-106). Para medir, deixar rodando
+  `bash scripts/medir-janela-deploy.sh` (laço de curl em portal, painel e API, a cada 1 s) antes
+  de disparar o deploy.
 - **Saúde do worker**: healthcheck do próprio container em `http://127.0.0.1:4001/health` (200 com
   o loop de jobs saudável; 503 com o motivo — parando, ciclo preso há mais de 5 min, três falhas
   seguidas ou nenhum ciclo bem-sucedido há mais de 60 s). Sem domínio público. No deploy, o worker

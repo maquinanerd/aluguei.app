@@ -260,9 +260,12 @@ services:
       # Valor vazio quebraria a API: o Coolify repassa as variaveis do compose a
       # todos os servicos e o schema so aceita "true"/"false" (2026-09-24).
       API_BASE_URL_ALLOW_HTTP: ${API_BASE_URL_ALLOW_HTTP:-false}
-    depends_on:
-      api:
-        condition: service_healthy
+    # Sem depends_on de proposito (ADR-106). Compose nao tem rolling update no
+    # Coolify: ele para e remove todos os conteineres, um por vez e do mais novo
+    # para o mais antigo, e so depois roda `docker compose up -d`. Esperar a API
+    # saudavel deixava o portal entre os primeiros a parar e punha a subida
+    # inteira dela (minio, storage-init, migrate, boot) na janela de 503. O portal
+    # fala com a API pelo dominio publico e ja tolera a API fora do ar.
     healthcheck:
       test:
         [

@@ -144,3 +144,10 @@ deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada 
   Cloudflare (com desafio DNS-01) e uma base local de geolocalizacao.
 - Continuam com o dono: licenca da fonte Guton, CNPJ e razao social do rodape, logos dos portais
   parceiros, perfis das redes sociais e o canal de suporte da conta suspensa.
+
+## Portal sem depends_on na API (ADR-106) — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- A mudanca no `docker-compose.prod.yml` foi validada com `docker compose config` e numa simulacao
+  local do deploy de compose do Coolify, mas nao foi implantada. Falta o dono pedir o deploy e medir
+  a janela de 503 do portal com `scripts/medir-janela-deploy.sh` no primeiro e no segundo deploy (so
+  a partir do segundo o portal para entre os ultimos). O resultado entra no ADR-106.

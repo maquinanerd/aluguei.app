@@ -25,6 +25,8 @@ tmp/
 temp/
 .cache/
 *.log
+# amostras do laço de medição de deploy (scripts/medir-janela-deploy.sh)
+janela-deploy-*.tsv
 
 # local databases
 *.sqlite
