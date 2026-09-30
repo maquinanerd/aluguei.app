@@ -24,8 +24,11 @@ for (const janela of [
     ).toBeVisible();
     // Em texto: o tsconfig do E2E não tem o DOM, e a Guton precisa estar carregada na captura.
     await page.evaluate('document.fonts.ready.then(() => true)');
-    // O card de verdade, com os dados da tela, escreve os textos da amostra.
-    await expect(page.getByText('Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130')).toBeVisible();
+    // O card de verdade, com os dados da tela, escreve os textos da amostra (seção 5; a seção 6
+    // repete o card na forma de lista).
+    await expect(
+      page.locator('#s6').getByText('Aluguel R$ 2.300 · Cond. R$ 480 · IPTU R$ 130'),
+    ).toBeVisible();
     await capturarPagina(page, { area: 'portal', tela: janela.tela }, { largura: janela.largura });
     await contexto.close();
   });
