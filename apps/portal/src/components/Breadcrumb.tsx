@@ -6,17 +6,22 @@ export interface Trilho {
 
 export interface BreadcrumbProps {
   trilhos: readonly Trilho[];
+  /**
+   * `faixa`: branca, dentro da faixa colorida da busca; no celular some o último nível, como na
+   * tela. `pagina` (padrão): cinza, acima do anúncio.
+   */
+  variante?: 'faixa' | 'pagina';
 }
 
-/** Trilha da busca e do anúncio. O último item não é link. */
-export function Breadcrumb({ trilhos }: BreadcrumbProps) {
+/** Trilha da busca e do anúncio, com "›" entre os níveis. O último item não é link. */
+export function Breadcrumb({ trilhos, variante = 'pagina' }: BreadcrumbProps) {
   return (
-    <nav className="trilha" aria-label="Trilha de navegação">
+    <nav className={`trilha trilha--${variante}`} aria-label="Trilha de navegação">
       {trilhos.map((trilho, indice) => (
-        <span key={trilho.rotulo}>
+        <span className="trilha__nivel" key={`${String(indice)}-${trilho.rotulo}`}>
           {indice > 0 ? (
             <span className="trilha__separador" aria-hidden="true">
-              {' · '}
+              ›
             </span>
           ) : null}
           {trilho.href ? (

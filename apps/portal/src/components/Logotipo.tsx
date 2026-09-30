@@ -9,10 +9,16 @@ import type { TipoImovel } from '@/lib/tipos';
  */
 export type CorLogotipo = 'acento' | 'branco' | TipoImovel;
 
+/**
+ * Tamanhos que as telas usam: 19 no cabeçalho do celular, 20 na linha de cores da identidade,
+ * 21 no cabeçalho do desktop, 22 no bloco da marca do rodapé e 30 na identidade.
+ */
+export type TamanhoLogotipo = 19 | 20 | 21 | 22 | 30;
+
 export interface LogotipoProps {
   /** Cor da palavra "Imóvel". */
   cor?: CorLogotipo;
-  tamanho?: 'sm' | 'md' | 'lg';
+  tamanho?: TamanhoLogotipo;
   /** Vira link quando recebe href; sem href é só texto (ex.: dentro do rodapé). */
   href?: string;
 }
@@ -30,13 +36,13 @@ function corDe(cor: CorLogotipo): CSSProperties {
   return { '--logo-imovel-color': TIPO_IMOVEL[cor].cor } as CSSProperties;
 }
 
-export function Logotipo({ cor = 'acento', tamanho = 'md', href }: LogotipoProps) {
+export function Logotipo({ cor = 'acento', tamanho = 21, href }: LogotipoProps) {
   const conteudo = (
     <>
       Achou<span className="logo__imovel">Imóvel</span>
     </>
   );
-  const className = `logo logo--${tamanho}`;
+  const className = `logo logo--${String(tamanho)}`;
   const style = corDe(cor);
 
   if (href) {

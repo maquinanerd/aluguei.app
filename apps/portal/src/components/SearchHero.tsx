@@ -81,11 +81,11 @@ export function SearchHero({ cidadePadrao, cidades }: SearchHeroProps) {
 
       <div className="hero-busca__acao">
         {destino === null ? (
-          <Botao grande disabled>
+          <Botao altura={52} larguraTotal disabled>
             Escolha uma cidade
           </Botao>
         ) : (
-          <a className="botao botao--acento botao--grande" href={destino}>
+          <a className="botao botao--acento botao--52 botao--total" href={destino}>
             {finalidade === 'alugar' ? 'Buscar imóveis para alugar' : 'Buscar imóveis à venda'}
           </a>
         )}

@@ -7,16 +7,19 @@ export interface GavetaProps {
   aberta: boolean;
   titulo: string;
   aoFechar: () => void;
+  /** Ação no canto direito do topo (ex.: "Limpar" na gaveta de filtros). */
+  acaoDoTopo?: ReactNode;
   /** Barra fixa no rodapé (ex.: "Ver 48 imóveis"). */
   rodape?: ReactNode;
   children: ReactNode;
 }
 
 /**
- * Gaveta cheia do celular (menu e filtros). Fecha no Esc, prende o foco no
- * conteúdo e devolve o foco para quem abriu.
+ * Gaveta cheia do celular (menu e filtros), com o topo da gaveta de filtros das telas: "×" à
+ * esquerda, título e a ação à direita. Fecha no Esc, prende o foco no conteúdo e devolve o foco
+ * para quem abriu.
  */
-export function Gaveta({ aberta, titulo, aoFechar, rodape, children }: GavetaProps) {
+export function Gaveta({ aberta, titulo, aoFechar, acaoDoTopo, rodape, children }: GavetaProps) {
   const painel = useRef<HTMLDivElement>(null);
   const focoAnterior = useRef<HTMLElement | null>(null);
 
@@ -53,10 +56,11 @@ export function Gaveta({ aberta, titulo, aoFechar, rodape, children }: GavetaPro
       tabIndex={-1}
     >
       <div className="gaveta__topo">
-        <span>{titulo}</span>
-        <button type="button" className="cabecalho__botao" onClick={aoFechar} aria-label="Fechar">
+        <button type="button" className="gaveta__fechar" onClick={aoFechar} aria-label="Fechar">
           ×
         </button>
+        <span className="gaveta__titulo">{titulo}</span>
+        {acaoDoTopo ?? <span />}
       </div>
       <div className="gaveta__corpo">{children}</div>
       {rodape ? <div className="gaveta__rodape">{rodape}</div> : null}

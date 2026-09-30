@@ -3,8 +3,18 @@
 import { useActionState } from 'react';
 import { criarAlertaAction } from '@/app/actions';
 import type { EstadoDoFormulario } from '@/app/actions';
+import { POLITICA_DE_PRIVACIDADE } from '@/lib/legal';
 import { Botao } from './Botao';
-import { Campo, CheckboxLgpd } from './Campo';
+import { Campo } from './Campo';
+
+/**
+ * Formas do alerta nas telas (telas/portal/02-busca e 04-outras):
+ * - `bloco` — bloco cinza da busca, ao lado do FAQ (botão de 50px);
+ * - `caixa` — caixa com filete preto de 2px da busca com poucos anúncios e da busca vazia;
+ * - `modal` — painel "Criar alerta" com o resumo da busca em chips (botão de 52px e o erro
+ *   embaixo dele).
+ */
+export type FormaDoAlerta = 'bloco' | 'caixa' | 'modal';
 
 export interface AlertaImovelProps {
   purpose: 'RENT' | 'SALE';
@@ -12,77 +22,127 @@ export interface AlertaImovelProps {
   neighborhood?: string | undefined;
   propertyType?: string | undefined;
   bedrooms?: number | undefined;
-  /** Resumo do que a pessoa está buscando, para ela conferir antes de aceitar. */
-  resumo: string;
+  forma?: FormaDoAlerta;
+  /** "Alerta de imóvel", "Poucas opções agora"; nulo na busca vazia e no modal. */
+  sobretitulo?: string | null;
+  /** O recorte dito em frase ("Receba os novos apartamentos de 2 quartos no Setor Bueno."). */
+  titulo: string;
+  /** Resumo da busca em chips, só no modal. */
+  chips?: readonly string[];
 }
 
 const INICIAL: EstadoDoFormulario = { estado: 'inicial' };
 
+/** Texto do consentimento em cada forma, sem citar a política enquanto ela não existir. */
+function Consentimento({ forma }: { forma: FormaDoAlerta }) {
+  const politica =
+    POLITICA_DE_PRIVACIDADE === null ? null : (
+      <>
+        {' '}
+        e li a <a href={POLITICA_DE_PRIVACIDADE}>política de privacidade</a>
+      </>
+    );
+  if (forma === 'modal') {
+    return <>Aceito receber avisos de novos imóveis desta busca{politica}.</>;
+  }
+  if (forma === 'caixa') {
+    return <>Aceito receber avisos{politica}.</>;
+  }
+  return <>Aceito receber avisos de imóveis{politica}. Posso cancelar quando quiser.</>;
+}
+
 /**
- * Alerta de imóvel. Criado, fica pendente: a pessoa confirma pelo link de uso
- * único. Ninguém entra numa lista de aviso sem confirmar (ADR-099).
+ * Alerta de imóvel. Criado, fica pendente: a pessoa confirma pelo link de uso único. Ninguém entra
+ * numa lista de aviso sem confirmar (ADR-099). O aviso é só por e-mail (defeito 9), então o canal
+ * E-mail/WhatsApp das telas não aparece.
  */
-export function AlertaImovel(props: AlertaImovelProps) {
+export function AlertaImovel({
+  forma = 'bloco',
+  sobretitulo = null,
+  titulo,
+  chips,
+  ...recorte
+}: AlertaImovelProps) {
   const [estado, acao, enviando] = useActionState(criarAlertaAction, INICIAL);
+  const classe = `alerta alerta--${forma}`;
 
   if (estado.estado === 'enviado') {
     return (
-      <section className="alerta alerta--enviado" role="status">
-        <strong>Quase lá.</strong>
-        <p>{estado.mensagem}</p>
+      <section className={classe} role="status">
+        <h3 className="alerta__titulo alerta__titulo--pronto">Falta confirmar seu e-mail</h3>
+        <p className="alerta__texto">{estado.mensagem}</p>
       </section>
     );
   }
 
-  return (
-    <form className="alerta" action={acao}>
-      <h2 className="secao__titulo">Avise quando aparecer</h2>
-      <p className="alerta__resumo">{props.resumo}</p>
+  const erroDoContato = estado.estado === 'erro' && estado.campo === 'contato';
+  const erroGeral =
+    (estado.estado === 'erro' && !erroDoContato) || estado.estado === 'limite'
+      ? estado.mensagem
+      : null;
 
-      <input type="hidden" name="purpose" value={props.purpose} />
-      <input type="hidden" name="city" value={props.city} />
-      {props.neighborhood === undefined ? null : (
-        <input type="hidden" name="neighborhood" value={props.neighborhood} />
+  return (
+    <form className={classe} action={acao}>
+      {sobretitulo ? <span className="alerta__sobretitulo">{sobretitulo}</span> : null}
+      <h3 className="alerta__titulo">{titulo}</h3>
+      {chips && chips.length > 0 ? (
+        <div className="alerta__chips">
+          {chips.map((chip) => (
+            <span key={chip} className="chip chip--etiqueta">
+              {chip}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <input type="hidden" name="purpose" value={recorte.purpose} />
+      <input type="hidden" name="city" value={recorte.city} />
+      {recorte.neighborhood === undefined ? null : (
+        <input type="hidden" name="neighborhood" value={recorte.neighborhood} />
       )}
-      {props.propertyType === undefined ? null : (
-        <input type="hidden" name="propertyType" value={props.propertyType} />
+      {recorte.propertyType === undefined ? null : (
+        <input type="hidden" name="propertyType" value={recorte.propertyType} />
       )}
-      {props.bedrooms === undefined ? null : (
-        <input type="hidden" name="bedrooms" value={String(props.bedrooms)} />
+      {recorte.bedrooms === undefined ? null : (
+        <input type="hidden" name="bedrooms" value={String(recorte.bedrooms)} />
       )}
       {/* Só e-mail: não há envio por WhatsApp (Onda 0 da rodada de fidelidade, defeito 9). */}
       <input type="hidden" name="canal" value="EMAIL" />
 
       <Campo
-        id="alerta-contato"
+        id={`alerta-contato-${forma}`}
         name="contato"
         rotulo="Seu e-mail"
+        placeholder="seu@email.com"
         type="email"
         inputMode="email"
+        autoComplete="email"
         required
-        {...(estado.estado === 'erro' && estado.campo === 'contato'
-          ? { erro: estado.mensagem }
-          : {})}
+        {...(erroDoContato ? { erro: estado.mensagem } : {})}
       />
 
-      <CheckboxLgpd id="alerta-consentimento" name="consentimento">
-        Autorizo o AchouImóvel a me avisar por este contato quando aparecer imóvel nesta busca.
-      </CheckboxLgpd>
+      <div className="consentimento consentimento--alerta">
+        <input
+          type="checkbox"
+          id={`alerta-consentimento-${forma}`}
+          name="consentimento"
+          className="consentimento__controle"
+        />
+        <span className="consentimento__caixa" aria-hidden="true" />
+        <label htmlFor={`alerta-consentimento-${forma}`} className="consentimento__texto">
+          <Consentimento forma={forma} />
+        </label>
+      </div>
 
-      {estado.estado === 'erro' && estado.campo !== 'contato' ? (
-        <p className="form-contato__aviso" role="alert">
-          {estado.mensagem}
-        </p>
-      ) : null}
-      {estado.estado === 'limite' ? (
-        <p className="form-contato__aviso" role="alert">
-          {estado.mensagem}
-        </p>
-      ) : null}
-
-      <Botao type="submit" carregando={enviando}>
+      <Botao type="submit" altura={forma === 'modal' ? 52 : 50} larguraTotal carregando={enviando}>
         {enviando ? 'Criando…' : 'Criar alerta'}
       </Botao>
+
+      {erroGeral ? (
+        <p className="alerta__erro" role="alert">
+          {erroGeral}
+        </p>
+      ) : null}
     </form>
   );
 }

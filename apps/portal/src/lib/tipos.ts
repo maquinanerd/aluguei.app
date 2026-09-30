@@ -55,7 +55,7 @@ export const TIPO_IMOVEL: Record<TipoImovel, TipoInfo> = {
     corTexto: 'var(--tipo-sobrado-on)',
   },
   'kitnet-studio': {
-    nome: 'Kitnet/studio',
+    nome: 'Kitnet e studio',
     plural: 'kitnets e studios',
     cor: 'var(--tipo-kitnet-studio)',
     corTexto: 'var(--tipo-kitnet-studio-on)',
@@ -67,7 +67,7 @@ export const TIPO_IMOVEL: Record<TipoImovel, TipoInfo> = {
     corTexto: 'var(--tipo-cobertura-on)',
   },
   'sala-loja': {
-    nome: 'Sala/loja',
+    nome: 'Sala e loja',
     plural: 'salas e lojas',
     cor: 'var(--tipo-sala-loja)',
     corTexto: 'var(--tipo-sala-loja-on)',
