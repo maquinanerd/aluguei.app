@@ -15,13 +15,13 @@ decisões e diagnóstico de cada tela: `docs/frontend/ACHOUIMOVEL_PLAN.md`.
 
 | Onda                    | Telas | Pendente | Implementada | Conferida com print |
 | ----------------------- | ----- | -------- | ------------ | ------------------- |
-| 1 · fundação            | 3     | 2        | 1            | 0                   |
+| 1 · fundação            | 3     | 1        | 2            | 0                   |
 | 2 · portal público      | 17    | 17       | 0            | 0                   |
 | 3 · B2B e conta         | 13    | 13       | 0            | 0                   |
 | 4 · gestão, ajustes     | 11    | 11       | 0            | 0                   |
 | 5 · gestão, telas novas | 8     | 8        | 0            | 0                   |
 | 6 · área do cliente     | 7     | 7        | 0            | 0                   |
-| **Total**               | 59    | 58       | 1            | 0                   |
+| **Total**               | 59    | 57       | 2            | 0                   |
 
 ## Telas
 
@@ -58,7 +58,7 @@ decisões e diagnóstico de cada tela: `docs/frontend/ACHOUIMOVEL_PLAN.md`.
 | 29  | conta   | 07-conta-em-analise            | `/situacao-da-conta` (mantida)                            | 3    | 720×560 · 1x                    | OUTRO_CAMINHO · B | pendente     | —         | §7; T2                                                                                                                     |
 | 30  | conta   | 08-conta-suspensa              | `/situacao-da-conta` (mantida)                            | 3    | 720×560 · 1x                    | OUTRO_CAMINHO · B | pendente     | —         | §7; canal de suporte (dono)                                                                                                |
 | 31  | conta   | 09-cadastro-mobile             | `/register`, etapa 3                                      | 3    | 390×720 · 2x                    | EXISTE · B        | pendente     | —         | CPF continua aceito? (decisão)                                                                                             |
-| 32  | gestao  | 01-visao-geral                 | `/app`                                                    | 1    | 1440×940 · 1x                   | EXISTE · B        | pendente     | —         | D1 (linha de canal); menu T8, T9                                                                                           |
+| 32  | gestao  | 01-visao-geral                 | `/app`                                                    | 1    | 1440×940 · 1x                   | EXISTE · B        | implementada | —         | D1 (linha de canal); B14 (fila, ciclo da semana, reservados, demanda por tipo; adendo 1C-B2); menu T8, T9                  |
 | 33  | gestao  | 02-upgrade-plano               | rota do módulo bloqueado (ex.: `/app/leases`)             | 1    | 1440×940 · 1x                   | OUTRO_CAMINHO · B | implementada | —         | defeito 13; D6 (sem a frase do e-mail); barra do topo completa (adendo 1C-B1, item 5); plano oferecido por preço e tamanho |
 | 34  | gestao  | 03-publicar                    | `/app/listings` · diálogo                                 | 4    | elemento 520 · 2x               | EXISTE · B        | pendente     | —         | D1; defeito 10                                                                                                             |
 | 35  | gestao  | 04-publicar-bloqueado          | `/app/listings` · diálogo                                 | 4    | elemento 520 · 2x               | EXISTE · B        | pendente     | —         | B16 muda a régua no ar                                                                                                     |

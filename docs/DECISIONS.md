@@ -1935,3 +1935,29 @@ produto não faz vira pendência visível no plano, e não texto na tela.
    o produto mantém busca, sino e conta em todas, porque é por ali que se busca e se sai. Os estilos
    seguem a barra completa da Visão Geral (busca de 340 × 32, atalho ⌘K em cinza, sino desenhado,
    conta como "RA ⌄").
+
+### Adendo ao ADR-105 — Visão Geral (Onda 1C-B2, 2026-09-30)
+
+1. **Fila "Próximas ações" (B14).** O resumo (`GET /dashboard/summary`) traz `queue`: lead sem
+   retorno (`NEW`), visita e vistoria em aberto marcadas para hoje, proposta enviada que vence hoje e
+   publicação recusada pelo canal. São até cinco itens, um de cada tipo antes de repetir, e cada tipo
+   só com a permissão de leitura dele. `total` alimenta "N item(ns) exigem atenção"; `attention`
+   (vermelho e âmbar: leads sem retorno, propostas que vencem hoje e recusas de canal) alimenta "N
+   pendências exigem atenção hoje.". As duas contagens cobrem tudo, não só os cinco itens mostrados.
+   Tarefas e cobranças vencidas saem da fila, que o desenho não as tem; continuam no cartão e no menu.
+2. **Ciclo da semana.** `week` conta na semana de São Paulo (segunda, 00:00, a domingo): leads
+   criados, os que chegaram à qualificação ou além, visitas marcadas (sem canceladas e ausências),
+   propostas enviadas, candidaturas de crédito, contratos de locação (sem os anulados) e locações
+   criadas. Antes a tela mostrava, sob o mesmo título, o estoque aberto de cada etapa.
+3. **Reservados.** Imóvel ativo com proposta aceita e sem locação ativa ou inadimplente. Antes a linha
+   repetia as locações ativas. O E2E de navegação (P1-01) passa a esperar 0 para a semente dele, que
+   não tem proposta aceita.
+4. **Demanda por tipo e quartos.** `GET /reporting/demand-by-neighborhood?groupBy=type` separa também
+   pelo tipo e pelos quartos pedidos no alerta ("Setor Bueno · Apto 2 qts"); `published` conta os
+   anúncios no mesmo recorte (tipo igual; quartos como a busca do portal: exatos, e 4 ou mais a partir
+   de 4). Sem `groupBy`, o agrupamento continua por finalidade. Só contagem, como antes.
+5. **O que a tela deixa e o que escolhe.** Saem a faixa de alertas e o cartão Atendimento, que o
+   desenho não tem. O número fica âmbar ou vermelho só quando é maior que zero. A saudação acompanha o
+   relógio de quem lê ("Bom dia" das 5h ao meio-dia, "Boa tarde" até as 18h, "Boa noite" no resto).
+   Entram os tokens `--peg-warning-text` (#A05C06) e `--peg-danger-text` (#B91C1C), com par no tema
+   escuro.
