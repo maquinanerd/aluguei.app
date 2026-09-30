@@ -17,9 +17,7 @@ body {
 body {
   background: var(--portal-bg);
   color: var(--portal-ink);
-  font-family: var(--font-sans);
-  font-size: var(--type-body);
-  line-height: 1.6;
+  font: var(--type-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -304,8 +302,7 @@ a {
 }
 
 .campo__rotulo {
-  font-size: var(--type-label);
-  font-weight: 600;
+  font: var(--type-label);
   color: var(--portal-muted-2);
 }
 
@@ -614,9 +611,8 @@ textarea.campo__controle {
 }
 
 .imovel-card__valor {
-  font-size: var(--type-price-card);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font: var(--type-price-card);
+  letter-spacing: var(--tracking-price-card);
   color: var(--brand-accent);
 }
 

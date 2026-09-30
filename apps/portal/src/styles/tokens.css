@@ -48,17 +48,23 @@
   --grid-size-mobile: 40px;
   --grid-size-tile: 34px;
 
-  /* Tipografia */
+  /* Tipografia — a tabela da identidade (telas/portal/00-identidade), que prevalece sobre o CSS
+   * entregue onde os dois divergem (ADR-105, T4). Cada `--type-*` é o atalho `font` completo:
+   * use sempre `font: var(--type-…)`, nunca em `font-size` (fica inválido e vira 16px). */
   --font-sans: var(--font-guton), Guton, system-ui, sans-serif;
-  --type-h1-home: 700 clamp(30px, 4.2vw, 52px)/1.08 var(--font-sans);
-  --type-h1: 800 clamp(28px, 4vw, 46px)/1.06 var(--font-sans);
+  --type-h1-home: 700 clamp(30px, 4.2vw, 52px)/1.1 var(--font-sans);
+  --type-h1: 800 clamp(28px, 4vw, 46px)/1.08 var(--font-sans);
   --type-h2: 700 clamp(20px, 2.3vw, 26px)/1.1 var(--font-sans);
-  --type-price-xl: 800 clamp(34px, 4.4vw, 48px)/1 var(--font-sans);
-  --type-price-card: 800 20px/1.2 var(--font-sans);
-  --type-body: 400 16px/1.7 var(--font-sans);
-  --type-label: 600 12px/1.4 var(--font-sans);
+  --type-price-xl: 800 clamp(34px, 4.4vw, 52px)/1 var(--font-sans);
+  --type-price-card: 800 clamp(18px, 1.4vw, 20px)/1.2 var(--font-sans);
+  --type-card-title: 600 clamp(14px, 1.05vw, 15px)/1.35 var(--font-sans);
+  --type-body: 400 clamp(15px, 1.15vw, 16.5px)/1.7 var(--font-sans);
+  --type-label: 600 clamp(11.5px, 0.84vw, 12px)/1.4 var(--font-sans);
+  --tracking-h1-home: -0.03em;
   --tracking-title: -0.035em;
   --tracking-h2: -0.02em;
+  --tracking-price-card: -0.025em;
+  --tracking-card-title: -0.015em;
   --tracking-logo: -0.03em;
 
   /* Espaço e layout */
@@ -70,17 +76,35 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
-  --portal-max: 1280px;
+  /* Quadro e respiro pelos artboards (ADR-105, T1): o desktop de referência tem 1440 com 64px de
+   * margem (miolo de 1312) e 88px entre seções; o de leitura, 1040 com 48px; o celular, 390 com
+   * 18px. A tabela da identidade ainda diz 1280/36px, mas as telas usam estes valores. */
+  --portal-max: 1440px;
   --portal-header-max: 1440px;
-  --portal-gutter: clamp(18px, 4vw, 36px);
-  --portal-section-gap: clamp(56px, 8vw, 104px);
+  --portal-gutter: 18px;
+  --portal-section-gap: 48px;
   --header-h-desktop: 64px;
   --header-h-mobile: 56px;
   --tap-min: 44px;
 
-  /* Raio */
-  --radius-structure: 0;
-  --radius: 4px;
+  /* Raio (nomes da identidade; `--radius*` fica como apelido para o CSS existente) */
+  --portal-radius-structure: 0;
+  --portal-radius: 4px;
+  --radius-avatar: 50%;
+  --radius-structure: var(--portal-radius-structure);
+  --radius: var(--portal-radius);
+}
+@media (min-width: 900px) {
+  :root {
+    --portal-gutter: 48px;
+    --portal-section-gap: 72px;
+  }
+}
+@media (min-width: 1280px) {
+  :root {
+    --portal-gutter: 64px;
+    --portal-section-gap: 88px;
+  }
 }
 .bloco-grade {
   background-image:
