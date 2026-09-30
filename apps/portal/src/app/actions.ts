@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { PortalApiError, criarAlerta, enviarContato } from '@/lib/api';
+import { PortalApiError, criarAlerta, enviarContato, responderAlerta } from '@/lib/api';
 
 /**
  * Ações de escrita do portal. Rodam no servidor: o navegador nunca fala com a
@@ -92,11 +92,13 @@ const alertaSchema = z
       .optional(),
     propertyType: z.string().optional(),
     bedrooms: z.coerce.number().int().min(1).max(6).optional(),
-    contato: z.string().trim().min(8, 'Informe um e-mail ou WhatsApp').max(120),
-    canal: z.enum(['EMAIL', 'WHATSAPP']),
+    contato: z.string().trim().min(8, 'Informe um e-mail').max(120),
+    // Só e-mail: não existe envio por WhatsApp, e o alerta pedido por lá nunca confirmava
+    // (Onda 0 da rodada de fidelidade, defeito 9).
+    canal: z.enum(['EMAIL'], { message: 'Por enquanto o aviso é só por e-mail' }),
     consentimento: z.literal('on', { message: 'Precisa autorizar para criar o alerta' }),
   })
-  .refine((entrada) => entrada.canal !== 'EMAIL' || z.email().safeParse(entrada.contato).success, {
+  .refine((entrada) => z.email().safeParse(entrada.contato).success, {
     message: 'E-mail inválido',
     path: ['contato'],
   });
@@ -142,15 +144,33 @@ export async function criarAlertaAction(
     });
     return {
       estado: 'enviado',
-      mensagem:
-        entrada.data.canal === 'EMAIL'
-          ? 'Falta um passo: confirme pelo link que enviamos para o seu e-mail.'
-          : 'Falta um passo: confirme pelo link que enviamos para o seu WhatsApp.',
+      mensagem: 'Falta um passo: confirme pelo link que enviamos para o seu e-mail.',
     };
   } catch (erro) {
     if (erro instanceof PortalApiError && erro.status === 429) {
       return { estado: 'limite', mensagem: 'Muitos pedidos seguidos. Espere um minuto.' };
     }
     return { estado: 'erro', mensagem: 'Não deu para criar o alerta agora.' };
+  }
+}
+
+/**
+ * Cancela o alerta pelo token do link — só quando a pessoa aperta o botão. Abrir o link apenas
+ * pergunta: leitor de e-mail que pré-abre links cancelava alerta sozinho quando o cancelamento
+ * acontecia no GET da página (Onda 0 da rodada de fidelidade, defeito 8).
+ */
+export async function cancelarAlertaAction(
+  _anterior: EstadoDoFormulario,
+  dados: FormData,
+): Promise<EstadoDoFormulario> {
+  const token = dados.get('token');
+  if (typeof token !== 'string' || token.trim() === '') {
+    return { estado: 'erro', mensagem: 'O link está incompleto.' };
+  }
+  try {
+    await responderAlerta('cancel', token);
+    return { estado: 'enviado' };
+  } catch {
+    return { estado: 'erro', mensagem: 'O link já foi usado ou não vale mais.' };
   }
 }
