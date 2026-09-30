@@ -211,7 +211,14 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
 
   await app.register(helmet);
   await app.register(cookie);
-  await app.register(cors, { origin: config.corsOrigins, credentials: true });
+  // O envio ao storage em disco (F3) é um PUT do navegador direto na API, como no bucket. Só com
+  // esse storage o CORS libera o PUT: o @fastify/cors 11 aceita GET, HEAD e POST por padrão, e em
+  // produção o arquivo vai direto ao R2, que tem o próprio CORS.
+  await app.register(cors, {
+    origin: config.corsOrigins,
+    credentials: true,
+    ...(env.STORAGE_DRIVER === 'disk' ? { methods: ['GET', 'HEAD', 'POST', 'PUT'] } : {}),
+  });
   // Rate limit global por IP: 300 req/min. Rotas sensíveis têm limites menores.
   // Store: Redis quando configurado (multi-instância); senão memória por processo.
   const rateLimitOptions: {

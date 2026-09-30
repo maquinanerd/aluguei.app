@@ -30,7 +30,10 @@ describe('F3: storage em disco da stack de testes', () => {
   beforeAll(async () => {
     pasta = await mkdtemp(join(tmpdir(), 'aluguei-dev-storage-'));
     storage = new DiskStorageAdapter({ root: pasta, publicUrl: 'http://127.0.0.1:4000' });
-    app = await buildTestApp({ storage });
+    app = await buildTestApp({
+      storage,
+      env: { STORAGE_DRIVER: 'disk', ALLOW_FAKE_PROVIDERS: 'true' },
+    });
     dono = await registerUser(app);
   });
 
@@ -123,10 +126,34 @@ describe('F3: storage em disco da stack de testes', () => {
     expect(await storage.headObject('orgs/x/docs/renda.pdf')).toBeNull();
   });
 
-  it('com o storage de sempre, a rota nem existe', async () => {
+  it('o navegador pode mandar o PUT: a pré-checagem de CORS libera o método', async () => {
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/dev/storage/object?key=a',
+      headers: {
+        origin: 'http://localhost:3000',
+        'access-control-request-method': 'PUT',
+        'access-control-request-headers': 'content-type',
+      },
+    });
+    expect(res.statusCode).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(String(res.headers['access-control-allow-methods'])).toContain('PUT');
+  });
+
+  it('com o storage de sempre, a rota nem existe e o CORS não libera o PUT', async () => {
     const padrao = await buildTestApp({ env: {} });
     const res = await padrao.inject({ method: 'GET', url: '/dev/storage/object?key=a' });
     expect(res.statusCode).toBe(404);
+    const preflight = await padrao.inject({
+      method: 'OPTIONS',
+      url: '/properties',
+      headers: {
+        origin: 'http://localhost:3000',
+        'access-control-request-method': 'PUT',
+      },
+    });
+    expect(String(preflight.headers['access-control-allow-methods'])).not.toContain('PUT');
     await padrao.close();
   });
 });
