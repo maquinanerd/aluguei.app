@@ -628,6 +628,25 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
     expect(a.body.crm?.openLeads).toBe(106);
   });
 
+  it('B14: os contadores do menu repetem os números do resumo', async () => {
+    const semSessao = await app.inject({ method: 'GET', url: '/dashboard/counters' });
+    expect(semSessao.statusCode).toBe(401);
+
+    const resumo = await summaryOf(A.cookie);
+    const res = await app.inject({
+      method: 'GET',
+      url: '/dashboard/counters',
+      headers: { cookie: A.cookie },
+    });
+    expect(res.statusCode).toBe(200);
+    assertSeededDay(new Date(resumo.body.generatedAt));
+    expect(res.json()).toEqual({
+      leads: resumo.body.crm?.newLeadsToday,
+      tasks: (resumo.body.tasks?.overdue ?? 0) + (resumo.body.tasks?.dueToday ?? 0),
+      inbox: resumo.body.conversations?.needsHuman,
+    });
+  });
+
   it('RBAC: seção sem permissão vem null, as demais seguem iguais às do dono', async () => {
     const viewer = await registerUser(app);
     const added = await app.inject({

@@ -342,8 +342,59 @@ async function financeSection(db: AppDb, orgId: string) {
   };
 }
 
+/** Contadores do menu lateral; nulo sem a permissão (o menu não mostra número). */
+const dashboardCountersSchema = z.object({
+  leads: count.nullable(),
+  tasks: count.nullable(),
+  inbox: count.nullable(),
+});
+
+export type DashboardCounters = z.infer<typeof dashboardCountersSchema>;
+
 export const dashboardRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
+
+  /**
+   * Contadores do menu lateral (rodada de fidelidade, ADR-105, B14), como no
+   * `Painel Sidebar.dc.html`: Leads (novos hoje, o mesmo número do cartão CRM), Tarefas
+   * (atrasadas e para hoje) e Inbox (conversas que pedem uma pessoa, em vermelho). Leve de
+   * propósito: roda em toda página do painel.
+   */
+  app.get('/dashboard/counters', async (request) => {
+    const auth = requireAuth(request);
+    const orgId = auth.orgId;
+    const now = new Date();
+    const day = saoPauloDay(now);
+    const can = (permission: Permission): boolean => hasPermission(auth.role, permission);
+
+    const [leadsHoje, tarefas, inbox] = await Promise.all([
+      can('lead:read')
+        ? db
+            .select({
+              n: countWhere(all(gte(leads.createdAt, day.start), lt(leads.createdAt, day.end))),
+            })
+            .from(leads)
+            .where(eq(leads.orgId, orgId))
+            .then(([row]) => row?.n ?? 0)
+        : null,
+      can('task:read')
+        ? db
+            .select({ n: countWhere(all(eq(tasks.status, 'OPEN'), lt(tasks.dueAt, day.end))) })
+            .from(tasks)
+            .where(eq(tasks.orgId, orgId))
+            .then(([row]) => row?.n ?? 0)
+        : null,
+      can('conversation:read')
+        ? db
+            .select({ n: countWhere(eq(conversations.status, 'NEEDS_HUMAN')) })
+            .from(conversations)
+            .where(eq(conversations.orgId, orgId))
+            .then(([row]) => row?.n ?? 0)
+        : null,
+    ]);
+
+    return dashboardCountersSchema.parse({ leads: leadsHoje, tasks: tarefas, inbox });
+  });
 
   app.get('/dashboard/summary', async (request) => {
     const auth = requireAuth(request);
