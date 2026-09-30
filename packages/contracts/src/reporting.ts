@@ -81,6 +81,11 @@ export const demandByNeighborhoodQuerySchema = z.object({
   /** Cidade da carteira; ausente, a de maior estoque publicado. */
   city: z.string().trim().max(90).optional(),
   limit: z.coerce.number().int().min(1).max(20).default(8),
+  /**
+   * `type` separa também pelo tipo de imóvel e pelos quartos que o alerta pediu, como o cartão
+   * "Demanda por bairro" da Visão Geral (ADR-105, B14); o padrão separa só pela finalidade.
+   */
+  groupBy: z.enum(['purpose', 'type']).default('purpose'),
 });
 
 export const demandByNeighborhoodResponseSchema = z.object({
@@ -94,6 +99,9 @@ export const demandByNeighborhoodResponseSchema = z.object({
       neighborhoodSlug: z.string(),
       neighborhood: z.string(),
       purpose: z.enum(['RENT', 'SALE']),
+      /** Tipo e quartos pedidos no alerta; só com `groupBy=type`, nulos se o alerta não escolheu. */
+      propertyType: z.string().nullable(),
+      bedrooms: z.number().int().positive().nullable(),
       count: z.number().int().nonnegative(),
       /** Anúncios publicados da imobiliária no mesmo recorte. */
       published: z.number().int().nonnegative(),

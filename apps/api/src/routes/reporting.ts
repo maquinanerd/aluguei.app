@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { and, asc, count, desc, eq, gte, isNotNull, lte } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, isNotNull, lte, sql } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import {
   charges,
@@ -271,10 +271,19 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
         .from(searchAlerts)
         .where(and(eq(searchAlerts.citySlug, citySlug), eq(searchAlerts.status, 'ACTIVE')));
 
+      // Com `groupBy=type`, o recorte ganha o tipo e os quartos do alerta ("Setor Bueno · Apto
+      // 2 qts"); sem ele, tipo e quartos voltam nulos e o agrupamento é o de antes.
+      const porTipo = query.groupBy === 'type';
       const demanda = await db
         .select({
           neighborhoodSlug: searchAlerts.neighborhoodSlug,
           purpose: searchAlerts.purpose,
+          propertyType: porTipo
+            ? sql<string | null>`${searchAlerts.propertyType}`
+            : sql<string | null>`null`,
+          bedrooms: porTipo
+            ? sql<number | null>`${searchAlerts.bedrooms}`
+            : sql<number | null>`null`,
           n: count(),
         })
         .from(searchAlerts)
@@ -285,8 +294,17 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
             isNotNull(searchAlerts.neighborhoodSlug),
           ),
         )
-        .groupBy(searchAlerts.neighborhoodSlug, searchAlerts.purpose)
-        .orderBy(desc(count()))
+        .groupBy(
+          ...(porTipo
+            ? [
+                searchAlerts.neighborhoodSlug,
+                searchAlerts.purpose,
+                searchAlerts.propertyType,
+                searchAlerts.bedrooms,
+              ]
+            : [searchAlerts.neighborhoodSlug, searchAlerts.purpose]),
+        )
+        .orderBy(desc(count()), asc(searchAlerts.neighborhoodSlug))
         .limit(query.limit);
 
       // Quanto a imobiliária já publica em cada bairro: sem isso a contagem de
@@ -296,6 +314,8 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
         .select({
           neighborhoodSlug: propertyAddresses.neighborhoodSlug,
           neighborhood: propertyAddresses.neighborhood,
+          propertyType: properties.propertyType,
+          bedrooms: properties.bedrooms,
           n: count(),
         })
         .from(listings)
@@ -308,8 +328,28 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
             eq(propertyAddresses.citySlug, citySlug),
           ),
         )
-        .groupBy(propertyAddresses.neighborhoodSlug, propertyAddresses.neighborhood);
-      const porBairro = new Map(publicados.map((linha) => [linha.neighborhoodSlug, linha.n]));
+        .groupBy(
+          propertyAddresses.neighborhoodSlug,
+          propertyAddresses.neighborhood,
+          properties.propertyType,
+          properties.bedrooms,
+        );
+      // Anúncios no mesmo recorte do alerta: o bairro e, por tipo, o tipo e os quartos como a
+      // busca do portal os entende (quartos exatos; 4 ou mais a partir de 4).
+      const publicadosNoRecorte = (
+        slug: string,
+        tipo: string | null,
+        quartos: number | null,
+      ): number =>
+        publicados
+          .filter(
+            (linha) =>
+              linha.neighborhoodSlug === slug &&
+              (tipo === null || linha.propertyType === tipo) &&
+              (quartos === null ||
+                (quartos >= 4 ? (linha.bedrooms ?? 0) >= quartos : linha.bedrooms === quartos)),
+          )
+          .reduce((soma, linha) => soma + linha.n, 0);
       // Nome como a pessoa digitou no cadastro; o slug perdeu acento e caixa.
       const nomeDoBairro = new Map(
         publicados
@@ -329,8 +369,10 @@ export const reportingRoutes: FastifyPluginAsync = (app) => {
               neighborhoodSlug: slug,
               neighborhood: nomeDoBairro.get(slug) ?? lugarLegivel(slug),
               purpose: linha.purpose === 'SALE' ? 'SALE' : 'RENT',
+              propertyType: linha.propertyType,
+              bedrooms: linha.bedrooms,
               count: linha.n,
-              published: porBairro.get(slug) ?? 0,
+              published: publicadosNoRecorte(slug, linha.propertyType, linha.bedrooms),
             };
           }),
       });
