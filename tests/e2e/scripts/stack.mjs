@@ -56,6 +56,8 @@ export const PORTS = {
   pg: Number(process.env.PG_PORT ?? 5433),
   api: Number(process.env.API_PORT ?? 4000),
   web: Number(process.env.WEB_PORT ?? 3000),
+  // Portal público (apps/portal), para as telas do AchouImóvel na comparação com os prints.
+  portal: Number(process.env.PORTAL_PORT ?? 3100),
 };
 
 const pgExe = (name) => join(PG_BIN, IS_WIN ? `${name}.exe` : name);
@@ -335,6 +337,7 @@ function stackEnv(databaseUrl) {
     API_PORT: String(PORTS.api),
     APP_BASE_URL: `http://localhost:${PORTS.web}`,
     API_BASE_URL: `http://127.0.0.1:${PORTS.api}`,
+    PORTAL_BASE_URL: `http://localhost:${PORTS.portal}`,
     COOKIE_SECURE: 'false',
     META_MODE: 'dry_run',
     // Cifra dos tokens por conexão (Meta Ads e WhatsApp, ADR-028): chave descartável por stack.
@@ -394,14 +397,19 @@ export async function bootStack({ mode = 'playwright' } = {}) {
 
   log('verificando portas e processos existentes...');
   const external = process.env.E2E_DATABASE_URL;
-  const ports = { api: PORTS.api, web: PORTS.web, ...(external ? {} : { postgres: PORTS.pg }) };
+  const ports = {
+    api: PORTS.api,
+    web: PORTS.web,
+    portal: PORTS.portal,
+    ...(external ? {} : { postgres: PORTS.pg }),
+  };
   const busy = [];
   for (const [name, port] of Object.entries(ports)) {
     if (await portInUse(port)) busy.push(`${name} (${port})`);
   }
   if (busy.length > 0) {
     throw new Error(
-      `portas ocupadas: ${busy.join(', ')} — outra stack/aplicação está no ar. Pare-a ou defina PG_PORT/API_PORT/WEB_PORT.`,
+      `portas ocupadas: ${busy.join(', ')} — outra stack/aplicação está no ar. Pare-a ou defina PG_PORT/API_PORT/WEB_PORT/PORTAL_PORT.`,
     );
   }
   const nextDevs = projectNextDevPids();
@@ -504,6 +512,23 @@ export async function bootStack({ mode = 'playwright' } = {}) {
     );
     track(web);
     await waitForHttp(`http://localhost:${PORTS.web}/`, web, 300_000);
+
+    // O portal lê a API pelo servidor (`API_BASE_URL`); o robots.txt é a rota mais leve que prova
+    // que o Next subiu sem depender de dado no banco.
+    log(`portal (next dev) em :${PORTS.portal}...`);
+    const portal = spawnLogged(
+      'portal',
+      process.execPath,
+      [
+        join(ROOT, 'apps/portal/node_modules/next/dist/bin/next'),
+        'dev',
+        '--port',
+        String(PORTS.portal),
+      ],
+      { cwd: join(ROOT, 'apps/portal'), env, logFile: join(runDir, 'portal.log') },
+    );
+    track(portal);
+    await waitForHttp(`http://localhost:${PORTS.portal}/robots.txt`, portal, 300_000);
 
     log(`stack pronta (logs em ${runDir}).`);
     return state;
