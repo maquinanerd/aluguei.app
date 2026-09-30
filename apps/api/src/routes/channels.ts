@@ -26,7 +26,7 @@ import {
   updateRequestSchema,
   uuidSchema,
 } from '@aluguei/contracts';
-import { getChannelAdapter } from '@aluguei/integrations';
+import { getChannelAdapter, isChannelAvailable } from '@aluguei/integrations';
 import type { FakeChannel, IListingChannelAdapter } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { publishBlockers } from './listings.js';
@@ -69,9 +69,20 @@ function toJobDto(row: typeof channelSyncJobs.$inferSelect): unknown {
   });
 }
 
+/**
+ * Canal disponível para esta instalação. O `fake` só com `ALLOW_FAKE_CHANNEL=true`: em produção
+ * ele aparecia para qualquer imobiliária (Onda 0 da rodada de fidelidade, defeito 16).
+ */
+function canalDisponivel(app: FastifyApp, channel: ChannelType): boolean {
+  return isChannelAvailable(channel, {
+    allowFake: app.env.ALLOW_FAKE_CHANNEL === 'true',
+    overrides: app.channels,
+  });
+}
+
 /** Resolve adapter; canais reais sem contrato → 404 (nunca inventar endpoints). */
 function resolveAdapter(app: FastifyApp, channel: ChannelType): IListingChannelAdapter {
-  const adapter = getChannelAdapter(channel, app.channels);
+  const adapter = canalDisponivel(app, channel) ? getChannelAdapter(channel, app.channels) : null;
   if (!adapter) {
     throw new DomainError('NOT_FOUND', 'Canal não configurado');
   }
@@ -133,7 +144,7 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
     listAvailableChannelsResponseSchema.parse({
       channels: CHANNEL_TYPES.map((channel) => ({
         channel,
-        available: getChannelAdapter(channel, app.channels) !== null,
+        available: canalDisponivel(app, channel),
       })),
     }),
   );
@@ -433,7 +444,7 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
         blockers: bloqueios,
         channels: CHANNEL_TYPES.map((channel) => ({
           channel,
-          available: getChannelAdapter(channel, app.channels) !== null,
+          available: canalDisponivel(app, channel),
           status: porCanal.get(channel) ?? null,
         })),
       });

@@ -284,3 +284,28 @@ describe('Fase 04: Channel Distribution', () => {
     expect(body.channels.some((c) => c.channel === 'fake' && c.total >= 1)).toBe(true);
   });
 });
+
+describe('Canal de teste só onde a configuração libera', () => {
+  // Onda 0 da rodada de fidelidade, defeito 16: o `fake` aparecia para qualquer imobiliária como
+  // canal disponível, inclusive em produção, que roda com ALLOW_FAKE_PROVIDERS=true.
+  let app: FastifyInstance;
+
+  beforeAll(async () => {
+    app = await buildTestApp({
+      env: { ALLOW_FAKE_PROVIDERS: 'true', ALLOW_FAKE_CHANNEL: undefined },
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('sem ALLOW_FAKE_CHANNEL, o canal de teste não é oferecido', async () => {
+    const { cookie } = await registerUser(app);
+    const lista = await app.inject({ method: 'GET', url: '/channels', headers: { cookie } });
+    expect(lista.statusCode).toBe(200);
+    const canais = (lista.json() as { channels: { channel: string; available: boolean }[] })
+      .channels;
+    expect(canais.find((canal) => canal.channel === 'fake')?.available).toBe(false);
+  });
+});

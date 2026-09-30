@@ -26,6 +26,8 @@ export const fakeMetaAds = new FakeMetaAdsProvider();
 /** Env mínimo de teste (cookie não-seguro via config override). */
 export const testEnv: AppEnv = {
   NODE_ENV: 'test',
+  // Os testes de canal publicam no `fake`; fora dos testes ele fica desligado (defeito 16).
+  ALLOW_FAKE_CHANNEL: 'true',
   LOG_LEVEL: 'silent',
   API_HOST: '127.0.0.1',
   API_PORT: 0,

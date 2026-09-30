@@ -348,6 +348,9 @@ function stackEnv(databaseUrl) {
     PAYMENT_PROVIDER: 'FAKE',
     SIGNATURE_PROVIDER: 'FAKE',
     SCREENING_PROVIDER: 'FAKE',
+    // O "Canal de teste" só existe onde a configuração libera (defeito 16 da Onda 0 da rodada de
+    // fidelidade); o E2E de publicação por canal usa ele.
+    ALLOW_FAKE_CHANNEL: 'true',
     LOG_LEVEL: 'info',
     NEXT_TELEMETRY_DISABLED: '1',
     PLATFORM_ADMIN_EMAILS: E2E_PLATFORM_ADMIN.email,
