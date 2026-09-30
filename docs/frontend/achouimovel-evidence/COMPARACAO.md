@@ -4,7 +4,7 @@ Gerado por `scripts/design/comparacao.mjs` a partir do `SCREENS.md` e das captur
 (`tests/e2e/src/telas/`). Diferença aceita: só dado, ou item do §7 do plano
 (`docs/frontend/ACHOUIMOVEL_PLAN.md`); o estado de cada tela fica no checklist.
 
-Telas com captura: 1 de 59.
+Telas com captura: 3 de 59.
 
 ## 01 · portal/00-identidade
 
@@ -13,6 +13,22 @@ Referência de marca, tokens, cores por tipo, status, componentes base
 | Print                                                                        | Implementação                                    |
 | ---------------------------------------------------------------------------- | ------------------------------------------------ |
 | ![print](../../../design-source/achouimovel/prints/portal/00-identidade.png) | ![implementação](portal/00-identidade__impl.png) |
+
+## 32 · gestao/01-visao-geral
+
+Visão Geral + card Demanda por bairro (Novo) + marca AchouImóvel Gestão + grupo Vendas na sidebar
+
+| Print                                                                         | Implementação                                     |
+| ----------------------------------------------------------------------------- | ------------------------------------------------- |
+| ![print](../../../design-source/achouimovel/prints/gestao/01-visao-geral.png) | ![implementação](gestao/01-visao-geral__impl.png) |
+
+## 33 · gestao/02-upgrade-plano
+
+Cadeado na sidebar + tela de upgrade
+
+| Print                                                                           | Implementação                                       |
+| ------------------------------------------------------------------------------- | --------------------------------------------------- |
+| ![print](../../../design-source/achouimovel/prints/gestao/02-upgrade-plano.png) | ![implementação](gestao/02-upgrade-plano__impl.png) |
 
 ## Sem captura ainda
 
@@ -46,8 +62,6 @@ Referência de marca, tokens, cores por tipo, status, componentes base
 - 29 · conta/07-conta-em-analise
 - 30 · conta/08-conta-suspensa
 - 31 · conta/09-cadastro-mobile
-- 32 · gestao/01-visao-geral
-- 33 · gestao/02-upgrade-plano
 - 34 · gestao/03-publicar
 - 35 · gestao/04-publicar-bloqueado
 - 36 · gestao/05-valores-venda-exclusividade
