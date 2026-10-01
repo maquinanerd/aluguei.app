@@ -130,6 +130,17 @@ existe) e apontar `AI_AUDIO_PROVIDER` para ele.
 Nao implementado de proposito, e **nao prometido em tela**: analise de foto (legenda sugerida,
 deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada disso.
 
+## Assinatura pela Clicksign (ADR-107) — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- A Clicksign voltou ao lado da Autentique (pedido do dono em 01/10/2026). Adapter da API v3
+  (envelope → documento → signatários por e-mail → requisitos → ativação) testado com `fetch`
+  simulado; nada foi enviado à Clicksign.
+- Para homologar: `SIGNATURE_PROVIDER=CLICKSIGN`, token em `CLICKSIGN_API_TOKEN`,
+  `CLICKSIGN_ENV=sandbox` e o webhook apontando para `POST /webhooks/signature` com
+  `SIGNATURE_WEBHOOK_TOKEN`. A confirmar no sandbox: esquema do header `Authorization` (token cru
+  ou `Bearer`), payload nativo do webhook (HMAC `Content-Hmac`) e o link do documento assinado
+  (`docs/integrations/CLICKSIGN_HOMOLOGATION.md`).
+
 ## Assinatura pela Autentique (ADR-106) — IMPLEMENTED_NOT_LIVE_VERIFIED
 
 - Decisão do dono em 01/10/2026: Autentique no lugar da Clicksign. Adapter GraphQL (documento por

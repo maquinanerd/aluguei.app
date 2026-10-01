@@ -91,8 +91,12 @@ export const envSchema = z.object({
   AUTENTIQUE_ENV: opcaoOpcional(['sandbox', 'production']),
   /** Segredo do endpoint cadastrado na Autentique: confere o `x-autentique-signature` dos webhooks. */
   AUTENTIQUE_WEBHOOK_SECRET: z.preprocess(emptyAsUndefined, z.string().optional()),
+  /** Token da API v3 da Clicksign (alternativa à Autentique, ADR-107). */
+  CLICKSIGN_API_TOKEN: z.preprocess(emptyAsUndefined, z.string().optional()),
+  /** Ambiente da Clicksign: `sandbox` (sandbox.clicksign.com) ou `production` (app.clicksign.com). */
+  CLICKSIGN_ENV: opcaoOpcional(['sandbox', 'production']),
   D4SIGN_API_TOKEN: z.string().optional(),
-  SIGNATURE_PROVIDER: opcaoOpcional(['FAKE', 'AUTENTIQUE', 'D4SIGN']),
+  SIGNATURE_PROVIDER: opcaoOpcional(['FAKE', 'AUTENTIQUE', 'CLICKSIGN', 'D4SIGN']),
   SIGNATURE_WEBHOOK_TOKEN: z.string().optional(),
   SCREENING_APPROVE_SCORE_MIN: z.coerce.number().int().optional(),
   SCREENING_PROVIDER: opcaoOpcional(['FAKE', 'SERASA', 'SPC']),

@@ -11,7 +11,7 @@ declare module 'fastify' {
 export interface SignaturePluginOptions {
   provider?: string;
   token?: string;
-  /** Ambiente da Autentique (sandbox | production). */
+  /** Ambiente do provider real escolhido (sandbox | production). */
   environment?: 'sandbox' | 'production';
   signature?: ISignatureProvider;
 }

@@ -20,7 +20,7 @@ import {
 import { formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
-import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
+import { PROVIDER_REAL, assinaturaEmSandbox, emTeste, useCapacidades } from '@/lib/capacidades';
 import { useLookup } from '@/lib/lookup';
 import { contractActions } from '@/lib/contract-rules';
 import { label, CONTRACT_STATUS_LABELS, CONTRACT_STATUS_TONES } from '@/lib/labels';
@@ -103,6 +103,7 @@ function ContractBody() {
 
   const aggQ = useQuery<Aggregate>(`/contracts/${id}`, [id]);
   const { data: capacidades } = useCapacidades();
+  const sandboxAssinatura = assinaturaEmSandbox(capacidades?.providers.signature);
   const versionsQ = useQuery<{ versions: ContractVersion[] }>(`/contracts/${id}/versions`, [id]);
 
   const contract = aggQ.data?.contract ?? null;
@@ -301,9 +302,9 @@ function ContractBody() {
             {/* Envelope sem provedor real não tem validade jurídica; a tela diz
                 isso em vez de deixar a pessoa concluir que o contrato foi assinado. */}
             {emTeste(capacidades?.providers.signature) ? (
-              <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
-                {capacidades?.providers.signature === 'AUTENTIQUE_SANDBOX'
-                  ? 'O envelope vai para o sandbox da Autentique: as partes recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.'
+              <AvisoModoTeste provedor={sandboxAssinatura ?? PROVIDER_REAL.signature}>
+                {sandboxAssinatura
+                  ? `O envelope vai para o sandbox da ${sandboxAssinatura}: as partes recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.`
                   : 'Assinatura com validade jurídica chega em breve. Hoje o envelope simula os eventos para você testar o fluxo — nada é enviado ao provedor.'}
               </AvisoModoTeste>
             ) : null}

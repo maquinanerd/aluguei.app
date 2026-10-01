@@ -161,7 +161,7 @@ export const updateContractStatusRequestSchema = z.object({ status: z.literal('V
 export const updateContractStatusResponseSchema = z.object({ contract: contractAggregateSchema });
 
 export const signatureWebhookEventSchema = z.object({
-  provider: z.enum(['AUTENTIQUE', 'D4SIGN', 'FAKE']),
+  provider: z.enum(['AUTENTIQUE', 'CLICKSIGN', 'D4SIGN', 'FAKE']),
   eventType: z.enum(['SIGNER_SIGNED', 'COMPLETED', 'FAILED']),
   providerEventId: z.string().min(1),
   providerEnvelopeId: z.string().min(1),

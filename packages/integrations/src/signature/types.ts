@@ -27,12 +27,12 @@ export interface EnvelopeSigner {
 
 export interface CreateEnvelopeResult {
   providerEnvelopeId: string;
-  /** Presente quando o provider identifica cada assinatura por um id próprio (Autentique). */
+  /** Presente quando o provider identifica cada assinatura por um id próprio (Autentique, Clicksign). */
   signers?: EnvelopeSigner[];
 }
 
 /** Nome do provider — gravado no envelope e usado pelo webhook para localizá-lo. */
-export type SignatureProviderName = 'AUTENTIQUE' | 'D4SIGN' | 'FAKE';
+export type SignatureProviderName = 'AUTENTIQUE' | 'CLICKSIGN' | 'D4SIGN' | 'FAKE';
 
 /** Provider de assinatura eletrônica — D4Sign real sem credencial fica sem adapter. */
 export interface ISignatureProvider {

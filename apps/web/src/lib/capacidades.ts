@@ -12,8 +12,15 @@ import { useQuery } from './use-query';
  */
 
 export type ModoPagamento = 'FAKE' | 'ASAAS' | null;
-/** `AUTENTIQUE_SANDBOX`: o pedido de assinatura sai de verdade, mas o documento é de teste. */
-export type ModoAssinatura = 'FAKE' | 'AUTENTIQUE_SANDBOX' | 'AUTENTIQUE' | 'D4SIGN' | null;
+/** `*_SANDBOX`: o pedido de assinatura sai de verdade, mas o documento é de teste. */
+export type ModoAssinatura =
+  | 'FAKE'
+  | 'AUTENTIQUE_SANDBOX'
+  | 'AUTENTIQUE'
+  | 'CLICKSIGN_SANDBOX'
+  | 'CLICKSIGN'
+  | 'D4SIGN'
+  | null;
 export type ModoAnalise = 'FAKE' | 'SERASA' | 'SPC' | null;
 export type ModoMeta = 'dry_run' | 'live' | null;
 
@@ -46,8 +53,23 @@ export function emTeste(modo: string | null | undefined): boolean {
     modo === null ||
     modo === 'FAKE' ||
     modo === 'dry_run' ||
-    modo === 'AUTENTIQUE_SANDBOX'
+    modo === 'AUTENTIQUE_SANDBOX' ||
+    modo === 'CLICKSIGN_SANDBOX'
   );
+}
+
+/**
+ * Provedor de assinatura no sandbox (Autentique ou Clicksign): o pedido sai por e-mail, mas o
+ * documento não vale. `null` quando a assinatura não está em sandbox de provedor real.
+ */
+export function assinaturaEmSandbox(modo: string | null | undefined): string | null {
+  if (modo === 'AUTENTIQUE_SANDBOX') {
+    return 'Autentique';
+  }
+  if (modo === 'CLICKSIGN_SANDBOX') {
+    return 'Clicksign';
+  }
+  return null;
 }
 
 /** Nome do provider real que falta, para o aviso dizer o que está por vir. */

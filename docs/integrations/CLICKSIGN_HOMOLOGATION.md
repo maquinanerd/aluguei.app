@@ -1,8 +1,9 @@
 # Clicksign — Homologação
 
-> **Substituída pela Autentique em 01/10/2026** (decisão do dono, ADR-106). O adapter da Clicksign
-> saiu do código; este documento fica como histórico. Para a assinatura, veja
-> `docs/integrations/AUTENTIQUE_HOMOLOGATION.md`.
+> **Ativa ao lado da Autentique desde 01/10/2026** (ADR-107). `SIGNATURE_PROVIDER=CLICKSIGN` liga
+> este adapter, com `CLICKSIGN_API_TOKEN` e `CLICKSIGN_ENV` (`sandbox` | `production`). Cada parte
+> vai com o e-mail do cadastro e recebe o pedido por e-mail; o nome enviado é o papel no contrato.
+> Para a Autentique, veja `docs/integrations/AUTENTIQUE_HOMOLOGATION.md`.
 
 > Classificação: **IMPLEMENTED_NOT_LIVE_VERIFIED** — adapter implementado e testado com
 > `fetchImpl` mockado; nenhuma chamada real foi feita (sem credencial sandbox) e nenhum

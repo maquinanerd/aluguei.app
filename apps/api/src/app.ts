@@ -375,11 +375,16 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.SIGNATURE_PROVIDER === 'AUTENTIQUE' && env.AUTENTIQUE_API_TOKEN) {
     signatureOptions.token = env.AUTENTIQUE_API_TOKEN;
   }
+  if (env.SIGNATURE_PROVIDER === 'CLICKSIGN' && env.CLICKSIGN_API_TOKEN) {
+    signatureOptions.token = env.CLICKSIGN_API_TOKEN;
+  }
   if (env.SIGNATURE_PROVIDER === 'D4SIGN' && env.D4SIGN_API_TOKEN) {
     signatureOptions.token = env.D4SIGN_API_TOKEN;
   }
-  if (env.AUTENTIQUE_ENV) {
-    signatureOptions.environment = env.AUTENTIQUE_ENV;
+  const signatureEnvironment =
+    env.SIGNATURE_PROVIDER === 'CLICKSIGN' ? env.CLICKSIGN_ENV : env.AUTENTIQUE_ENV;
+  if (signatureEnvironment) {
+    signatureOptions.environment = signatureEnvironment;
   }
   await app.register(signaturePlugin, signatureOptions);
   const paymentsOptions: PaymentsPluginOptions = {};

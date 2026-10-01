@@ -18,7 +18,7 @@ import type { BadgeTone, IconName } from '@aluguei/ui';
 import { formatDate, formatDateTime } from '@aluguei/ui';
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@/lib/use-query';
-import { PROVIDER_REAL, emTeste, useCapacidades } from '@/lib/capacidades';
+import { PROVIDER_REAL, assinaturaEmSandbox, emTeste, useCapacidades } from '@/lib/capacidades';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied } from '@aluguei/ui';
 import {
@@ -122,6 +122,7 @@ function IntegrationsBody() {
   const toast = useToast();
   const metaQ = useQuery<{ connections: Connection[] }>('/meta/connections', []);
   const { data: capacidades } = useCapacidades();
+  const sandboxAssinatura = assinaturaEmSandbox(capacidades?.providers.signature);
   const waQ = useQuery<{ connections: WaConnection[]; verifier: WaVerifier }>(
     '/whatsapp/connections',
     [],
@@ -173,9 +174,9 @@ function IntegrationsBody() {
         </AvisoModoTeste>
       ) : null}
       {emTeste(capacidades?.providers.signature) ? (
-        <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
-          {capacidades?.providers.signature === 'AUTENTIQUE_SANDBOX'
-            ? 'A assinatura roda no sandbox da Autentique: os signatários recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.'
+        <AvisoModoTeste provedor={sandboxAssinatura ?? PROVIDER_REAL.signature}>
+          {sandboxAssinatura
+            ? `A assinatura roda no sandbox da ${sandboxAssinatura}: os signatários recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.`
             : 'O envelope de assinatura simula os eventos; nada é enviado ao provedor.'}
         </AvisoModoTeste>
       ) : null}

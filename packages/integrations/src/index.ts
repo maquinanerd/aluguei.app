@@ -99,6 +99,8 @@ export { SignatureProviderError } from './signature/errors.js';
 export type { SignatureProviderErrorCode } from './signature/errors.js';
 export { AutentiqueSignatureProvider, statusFromSignatures } from './signature/autentique.js';
 export type { AutentiqueSignatureProviderOptions } from './signature/autentique.js';
+export { ClicksignSignatureProvider } from './signature/clicksign.js';
+export type { ClicksignSignatureProviderOptions } from './signature/clicksign.js';
 export {
   AUTENTIQUE_SIGNATURE_HEADER,
   AutentiqueWebhookError,

@@ -75,7 +75,7 @@ Criar um CRM + site + aplicativo para imobiliárias operarem locação de ponta 
 - templates versionados aprovados
 - variáveis preenchidas pelo sistema
 - geração de documento
-- provider adapter de assinatura (Autentique; D4Sign registrada sem adapter)
+- provider adapter de assinatura (Autentique ou Clicksign; D4Sign registrada sem adapter)
 - webhooks idempotentes
 - trilha de auditoria e hash do documento final
 

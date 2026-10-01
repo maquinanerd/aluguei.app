@@ -2091,3 +2091,28 @@ Decisão:
 
 Consequência: `IMPLEMENTED_NOT_LIVE_VERIFIED` até a chave e o webhook da conta do dono
 (`docs/integrations/AUTENTIQUE_HOMOLOGATION.md`). O G4 passa a ser Storage, Asaas e Autentique.
+
+## ADR-107 — Autentique e Clicksign lado a lado (2026-10-01)
+
+Contexto: o ADR-106 tirou a Clicksign do código para pôr a Autentique. No mesmo dia o dono pediu
+para manter a Clicksign e incluir também a Autentique (`https://docs.autentique.com.br/api`).
+
+Decisão:
+
+- Os dois adapters convivem. `SIGNATURE_PROVIDER` escolhe quem cria o envelope: `AUTENTIQUE`,
+  `CLICKSIGN` ou `FAKE`. Só um fica ativo por vez; o envelope grava o provider que o criou.
+- A Clicksign volta com o adapter da API v3, agora no contrato atual da interface: o documento leva
+  o título do contrato, cada parte vai com o e-mail do cadastro (nome = papel + ordem, sem nome
+  real) e recebe o pedido por e-mail. Parte sem e-mail barra o envio antes de chamar a API, como
+  na Autentique. O id de cada signatário fica em `provider_signers`.
+- `CLICKSIGN_ENV` (`sandbox` | `production`, obrigatória em produção, sem padrão) escolhe
+  `sandbox.clicksign.com` ou `app.clicksign.com`. Antes o adapter ficava sempre no sandbox.
+- Com o sandbox de um provider real, `GET /capabilities` devolve `AUTENTIQUE_SANDBOX` ou
+  `CLICKSIGN_SANDBOX`, e o painel mostra o aviso de teste com o nome do provider.
+- Os eventos da Clicksign continuam entrando pelo webhook normalizado `POST /webhooks/signature`
+  (Bearer `SIGNATURE_WEBHOOK_TOKEN`). O formato nativo do webhook da Clicksign (HMAC
+  `Content-Hmac`) não foi implementado: a documentação da v3 não fecha o payload, e isso fica para a
+  homologação.
+
+Consequência: as duas integrações ficam `IMPLEMENTED_NOT_LIVE_VERIFIED`. O G4 pede a credencial do
+provider que o dono escolher ligar primeiro.

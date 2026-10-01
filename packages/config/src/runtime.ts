@@ -118,7 +118,7 @@ function productionProblems(
   if (service === 'api') {
     switch (env.SIGNATURE_PROVIDER) {
       case undefined:
-        missing('SIGNATURE_PROVIDER', 'escolha AUTENTIQUE ou FAKE');
+        missing('SIGNATURE_PROVIDER', 'escolha AUTENTIQUE, CLICKSIGN ou FAKE');
         break;
       case 'AUTENTIQUE':
         if (!env.AUTENTIQUE_API_TOKEN) {
@@ -134,8 +134,18 @@ function productionProblems(
           );
         }
         break;
+      case 'CLICKSIGN':
+        if (!env.CLICKSIGN_API_TOKEN) {
+          missing('CLICKSIGN_API_TOKEN', 'obrigatório com SIGNATURE_PROVIDER=CLICKSIGN');
+        }
+        if (!env.CLICKSIGN_ENV) {
+          missing('CLICKSIGN_ENV', 'defina sandbox ou production (sem ambiente padrão)');
+        }
+        break;
       case 'D4SIGN':
-        problems.push('SIGNATURE_PROVIDER=D4SIGN não tem adapter: use AUTENTIQUE ou FAKE');
+        problems.push(
+          'SIGNATURE_PROVIDER=D4SIGN não tem adapter: use AUTENTIQUE, CLICKSIGN ou FAKE',
+        );
         break;
       case 'FAKE':
         break;
