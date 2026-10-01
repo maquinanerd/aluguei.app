@@ -2076,6 +2076,13 @@ Decisão:
   ou nas fotos reenfileira a reavaliação; o arquivo reavalia de novo ao ser gerado. Inválido fica
   fora só do Grupo OLX. Nada é truncado nem inventado: título fora do limite, descrição curta e tipo
   ambíguo bloqueiam com o motivo.
+- **Conexão por imobiliária** (`channel_connections`): liga/desliga, destinos, conta e código de
+  anunciante, cotas e observabilidade (última busca, última busca do robô, último relatório, último
+  sucesso e último erro, entregas de lead repetidas). A situação da conexão é derivada desses campos
+  (desligada, sem URL, aguardando o robô, buscada) e aparece como aviso na tela, em vez de uma coluna
+  que poderia divergir deles. A homologação é do **software**, não da imobiliária: fica no estágio do
+  registry (`IMPLEMENTED_NOT_LIVE_VERIFIED` → `HOMOLOGATION_PENDING` → `LIVE_VERIFIED`), não em
+  cada conexão.
 - **Tipo e destaque são da distribuição**, não do imóvel: `portal_property_type` (obrigatório para
   comercial e terreno, escolhido entre os compatíveis) e `publication_tier` (os seis valores do
   VRSync) ficam na publicação. Cotas (`listing_quota`, `featured_quota`, `super_featured_quota`) são

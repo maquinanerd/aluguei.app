@@ -484,13 +484,15 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
    * única credencial: a documentação não prevê usuário e senha. Token desconhecido, revogado,
    * conexão desligada ou imobiliária fora do ar dão a mesma resposta 404 — nada a enumerar.
    * Balde de limite próprio por token: atrás do Traefik todo mundo tem o mesmo IP (risco 1 do G0).
+   * O robô busca duas vezes por dia e cada busca pode gerar até 50 mil anúncios: 6 por minuto basta
+   * para a imobiliária conferir a URL e não deixa quem tem o token pesar no servidor.
    */
   app.get(
     '/integrations/grupo-olx/feed/:file',
     {
       config: {
         rateLimit: {
-          max: 30,
+          max: 6,
           timeWindow: '1 minute',
           keyGenerator: (request: { params?: unknown }) => {
             const params = request.params as { file?: string } | undefined;
