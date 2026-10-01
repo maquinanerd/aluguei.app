@@ -210,7 +210,7 @@ export function linhaDaFila(item: ItemDaFila, agora: Date): LinhaDaFila {
         titulo: item.error === null ? recusa : `${recusa} · ${item.error}`,
         meta: 'Falha de publicação',
         prazo: quando(item.at, agora),
-        href: '/app/channels',
+        href: item.channel === 'grupoolx' ? '/app/channels/grupo-olx' : '/app/channels',
         tom: item.tone,
       };
     }

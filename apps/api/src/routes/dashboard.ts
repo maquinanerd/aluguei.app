@@ -285,19 +285,29 @@ async function visitsSection(db: AppDb, orgId: string, day: Day) {
   };
 }
 
+/**
+ * Publicação ativa é a que o canal confirmou: PUBLISHED no envio direto; IMPORTED (com ou sem
+ * aviso) no feed do Grupo OLX, que só vem do relatório do portal (ADR-108). Falha é a recusa:
+ * o envio que falhou ou o relatório que recusou — o bloqueio da nossa validação não conta.
+ */
+const ACTIVE_PUBLICATION_STATUSES = ['PUBLISHED', 'IMPORTED', 'IMPORTED_WITH_WARNINGS'];
+const FAILED_PUBLICATION_STATUSES = ['FAILED', 'IMPORT_ERROR'];
+
 async function listingsSection(db: AppDb, orgId: string) {
   const publications = listingChannelPublications;
   const [counts] = await db
     .select({
-      publishedPublications: countWhere(eq(publications.status, 'PUBLISHED')),
-      failedPublications: countWhere(eq(publications.status, 'FAILED')),
+      publishedPublications: countWhere(inArray(publications.status, ACTIVE_PUBLICATION_STATUSES)),
+      failedPublications: countWhere(inArray(publications.status, FAILED_PUBLICATION_STATUSES)),
     })
     .from(publications)
     .where(eq(publications.orgId, orgId));
   const failedByChannel = await db
     .select({ channel: publications.channel, failed: countAll() })
     .from(publications)
-    .where(all(eq(publications.orgId, orgId), eq(publications.status, 'FAILED')))
+    .where(
+      all(eq(publications.orgId, orgId), inArray(publications.status, FAILED_PUBLICATION_STATUSES)),
+    )
     .groupBy(publications.channel)
     .orderBy(asc(publications.channel));
   return {
