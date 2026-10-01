@@ -19,6 +19,8 @@ export interface ApplicationFixture {
   tenantId: string;
   landlordId: string | null;
   applicationId: string;
+  /** E-mails cadastrados com `emails: true` (assinatura pela Autentique). */
+  emails: { landlord: string | null; tenant: string | null };
 }
 
 export interface ContractFixture extends ApplicationFixture {
@@ -48,8 +50,13 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
   const { call, rows, uniq, registerOrg } = base;
 
   async function approvedApplication(
-    opts: { rentCents?: number; landlord?: boolean } = {},
+    opts: { rentCents?: number; landlord?: boolean; emails?: boolean } = {},
   ): Promise<ApplicationFixture> {
+    const tag = uniq();
+    const emails = {
+      landlord: opts.emails && (opts.landlord ?? true) ? `proprietaria-${tag}@example.test` : null,
+      tenant: opts.emails ? `locataria-${tag}@example.test` : null,
+    };
     const user = await registerOrg();
     const cookie = user.cookie;
     const property = await call('POST', '/properties', {
@@ -71,7 +78,10 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
         payload: {
           type: 'PERSON',
           name: 'Proprietária Contrato',
-          identities: [{ kind: 'CPF', value: '11144477735' }],
+          identities: [
+            { kind: 'CPF', value: '11144477735' },
+            ...(emails.landlord ? [{ kind: 'EMAIL', value: emails.landlord }] : []),
+          ],
         },
       });
       expect(owner.status, JSON.stringify(owner.body)).toBe(201);
@@ -88,7 +98,10 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
       payload: {
         type: 'PERSON',
         name: 'Locatária Contrato',
-        identities: [{ kind: 'CPF', value: '52998224725' }],
+        identities: [
+          { kind: 'CPF', value: '52998224725' },
+          ...(emails.tenant ? [{ kind: 'EMAIL', value: emails.tenant }] : []),
+        ],
       },
     });
     expect(tenant.status, JSON.stringify(tenant.body)).toBe(201);
@@ -125,6 +138,7 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
       tenantId,
       landlordId,
       applicationId,
+      emails,
     };
   }
 
@@ -144,7 +158,7 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
   }
 
   async function draftContract(
-    opts: { rentCents?: number; landlord?: boolean; templateBody?: string } = {},
+    opts: { rentCents?: number; landlord?: boolean; templateBody?: string; emails?: boolean } = {},
   ): Promise<ContractFixture> {
     const application = await approvedApplication(opts);
     const templateId = await approvedTemplate(application.cookie, opts.templateBody);
@@ -168,7 +182,7 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
   }
 
   async function generatedContract(
-    opts: { rentCents?: number; landlord?: boolean; templateBody?: string } = {},
+    opts: { rentCents?: number; landlord?: boolean; templateBody?: string; emails?: boolean } = {},
   ): Promise<ContractFixture> {
     const fixture = await draftContract(opts);
     const res = await generate(fixture);
@@ -177,7 +191,7 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
   }
 
   async function sentContract(
-    opts: { rentCents?: number; landlord?: boolean; templateBody?: string } = {},
+    opts: { rentCents?: number; landlord?: boolean; templateBody?: string; emails?: boolean } = {},
   ): Promise<SentContractFixture> {
     const fixture = await generatedContract(opts);
     const send = await call('POST', `/contracts/${fixture.contractId}/send-for-signature`, {
@@ -217,7 +231,7 @@ export function createContractFixtures(app: FastifyInstance, runWorker: () => Pr
   }
 
   async function signedContract(
-    opts: { rentCents?: number; landlord?: boolean; templateBody?: string } = {},
+    opts: { rentCents?: number; landlord?: boolean; templateBody?: string; emails?: boolean } = {},
   ): Promise<SentContractFixture> {
     const fixture = await sentContract(opts);
     for (let order = 1; order <= fixture.signers; order += 1) {

@@ -34,7 +34,13 @@ export const capabilitiesRoutes: FastifyPluginAsync = (app) => {
         : null;
 
     const payments = (app.payments?.name ?? null) as PaymentProviderMode;
-    const signature = (app.signature?.name ?? null) as SignatureProviderMode;
+    // Autentique em sandbox assina de verdade, mas o documento não vale: o painel mostra o teste.
+    const signature: SignatureProviderMode =
+      app.signature === null
+        ? null
+        : app.signature.name === 'AUTENTIQUE' && app.signature.testOnly
+          ? 'AUTENTIQUE_SANDBOX'
+          : app.signature.name;
 
     return capabilitiesResponseSchema.parse({
       providers: {

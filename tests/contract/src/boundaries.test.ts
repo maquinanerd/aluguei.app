@@ -110,7 +110,7 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
 describe('identificadores externos (provider ids) em webhooks', () => {
   it('signature webhook exige providerEnvelopeId (nunca confia em org_id)', () => {
     const ok = signatureWebhookEventSchema.safeParse({
-      provider: 'CLICKSIGN',
+      provider: 'AUTENTIQUE',
       eventType: 'SIGNER_SIGNED',
       providerEventId: 'e1',
       providerEnvelopeId: 'env-1',
@@ -119,7 +119,7 @@ describe('identificadores externos (provider ids) em webhooks', () => {
     expect(ok.success).toBe(true);
     expect(
       signatureWebhookEventSchema.safeParse({
-        provider: 'CLICKSIGN',
+        provider: 'AUTENTIQUE',
         eventType: 'SIGNER_SIGNED',
         providerEventId: 'e1',
         signerOrder: 1,

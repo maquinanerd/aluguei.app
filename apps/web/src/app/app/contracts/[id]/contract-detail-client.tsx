@@ -302,8 +302,9 @@ function ContractBody() {
                 isso em vez de deixar a pessoa concluir que o contrato foi assinado. */}
             {emTeste(capacidades?.providers.signature) ? (
               <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
-                Assinatura com validade jurídica chega em breve. Hoje o envelope simula os eventos
-                para você testar o fluxo — nada é enviado ao provedor.
+                {capacidades?.providers.signature === 'AUTENTIQUE_SANDBOX'
+                  ? 'O envelope vai para o sandbox da Autentique: as partes recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.'
+                  : 'Assinatura com validade jurídica chega em breve. Hoje o envelope simula os eventos para você testar o fluxo — nada é enviado ao provedor.'}
               </AvisoModoTeste>
             ) : null}
             {envelope ? (
