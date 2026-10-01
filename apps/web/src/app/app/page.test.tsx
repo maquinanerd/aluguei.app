@@ -182,7 +182,7 @@ describe('Visão Geral (tela 32)', () => {
     for (const trecho of [
       'CRM › Novos leads hoje 7 Sem atendimento 2 Aguardando resposta 3 Atividades atrasadas 1',
       'Imóveis › Disponíveis 58 Publicações ativas 212 Arquivados 14 Reservados 6',
-      'Operação › Crédito pendente 2 Contratos aguardando 3 Vistorias em aberto 4 Locações ativas 96',
+      'Aluguel › Crédito pendente 2 Contratos aguardando 3 Vistorias em aberto 4 Locações ativas 96',
       'Financeiro › Cobranças agendadas 41 Em aberto 12 Vencidas 2 Repasses pendentes 5',
     ]) {
       expect(visivel).toContain(trecho);

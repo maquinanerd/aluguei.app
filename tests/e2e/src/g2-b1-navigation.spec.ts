@@ -295,8 +295,8 @@ test.describe('P1-01: telas que usavam limit=200', () => {
     // tem a proposta em rascunho e a locação ativa: nenhum. Antes a linha repetia as locações ativas.
     await expect(summaryValue(page, 'Imóveis', 'Reservados')).toHaveText('0');
     await expect(summaryValue(page, 'CRM', 'Aguardando resposta')).toHaveText('1');
-    await expect(summaryValue(page, 'Operação', 'Vistorias em aberto')).toHaveText('1');
-    await expect(summaryValue(page, 'Operação', 'Locações ativas')).toHaveText('1');
+    await expect(summaryValue(page, 'Aluguel', 'Vistorias em aberto')).toHaveText('1');
+    await expect(summaryValue(page, 'Aluguel', 'Locações ativas')).toHaveText('1');
   });
 
   test('os modais de criação oferecem o imóvel da organização', async ({ page }) => {
