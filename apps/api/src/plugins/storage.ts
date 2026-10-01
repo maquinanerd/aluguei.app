@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
-import { S3StorageAdapter } from '@aluguei/storage';
-import type { StorageService } from '@aluguei/storage';
+import { DiskStorageAdapter, S3StorageAdapter } from '@aluguei/storage';
+import type { DiskStorageAdapterOptions, StorageService } from '@aluguei/storage';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -16,6 +16,11 @@ export interface StoragePluginOptions {
   secretAccessKey?: string;
   /** Endereçamento path-style (MinIO e S3 compatíveis atrás de domínio próprio). */
   forcePathStyle?: boolean;
+  /**
+   * Storage em disco da stack de testes (F3): a configuração só o deixa subir fora de produção e
+   * com ALLOW_FAKE_PROVIDERS=true (`storageProblems`, `@aluguei/config`).
+   */
+  disk?: DiskStorageAdapterOptions;
   storage?: StorageService;
 }
 
@@ -27,6 +32,10 @@ export interface StoragePluginOptions {
 export const storagePlugin = fp<StoragePluginOptions>((app, opts) => {
   if (opts.storage) {
     app.decorate('storage', opts.storage);
+    return;
+  }
+  if (opts.disk) {
+    app.decorate('storage', new DiskStorageAdapter(opts.disk));
     return;
   }
   if (!opts.bucket) {

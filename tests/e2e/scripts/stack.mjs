@@ -324,7 +324,7 @@ export const E2E_PLATFORM_ADMIN = {
   password: 'senha-segura-123',
 };
 
-function stackEnv(databaseUrl) {
+function stackEnv(databaseUrl, runDir) {
   const env = { ...process.env };
   // REDIS_URL derruba a API no boot (P1-14, Fase 6) — nunca herdar no E2E.
   delete env.REDIS_URL;
@@ -354,6 +354,14 @@ function stackEnv(databaseUrl) {
     // O "Canal de teste" só existe onde a configuração libera (defeito 16 da Onda 0 da rodada de
     // fidelidade); o E2E de publicação por canal usa ele.
     ALLOW_FAKE_CHANNEL: 'true',
+    // Storage em disco (F3, ADR-105): fotos, áudio e documentos vão para a pasta da execução, e a
+    // própria API assina as URLs de envio e de leitura. Só sobe com ALLOW_FAKE_PROVIDERS=true.
+    ALLOW_FAKE_PROVIDERS: 'true',
+    STORAGE_DRIVER: 'disk',
+    STORAGE_DISK_ROOT: join(runDir, 'storage'),
+    STORAGE_DISK_PUBLIC_URL: `http://127.0.0.1:${PORTS.api}`,
+    // A CSP do painel só deixa o navegador enviar o arquivo para a origem do storage (B29).
+    STORAGE_PUBLIC_ORIGIN: `http://127.0.0.1:${PORTS.api}`,
     LOG_LEVEL: 'info',
     NEXT_TELEMETRY_DISABLED: '1',
     PLATFORM_ADMIN_EMAILS: E2E_PLATFORM_ADMIN.email,
@@ -460,7 +468,7 @@ export async function bootStack({ mode = 'playwright' } = {}) {
       join(runDir, 'migrations.log'),
       { cwd: ROOT, env: { ...process.env, DATABASE_URL: databaseUrl } },
     );
-    const env = stackEnv(databaseUrl);
+    const env = stackEnv(databaseUrl, state.runDir);
 
     log('conta do admin da plataforma...');
     runLogged(

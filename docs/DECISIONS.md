@@ -2033,3 +2033,17 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
 4. **Tokens.** `--peg-warning-border` (#F3DDB8) e `--peg-warning-ink` (#7A4605), da faixa de aviso.
    O tema escuro não é usado em lugar nenhum hoje; os tokens novos seguem o `--peg-warning-bg`, que
    também não tem par escuro.
+
+### Adendo ao ADR-105 — storage de teste na stack de E2E (B29, F3, 2026-09-30)
+
+1. **Storage em disco atrás do mesmo contrato.** `DiskStorageAdapter` (`packages/storage`) implementa
+   o `StorageService` sobre uma pasta local. As URLs "pré-assinadas" apontam para a própria API
+   (`/dev/storage/object`), com HMAC sobre método, chave, tipo (no envio) e validade — como as do
+   S3: sem sessão, e só para o que foi assinado. A chave não sai da pasta.
+2. **Onde sobe.** Com `STORAGE_DRIVER=disk`, e a configuração só aceita fora de produção e com
+   `ALLOW_FAKE_PROVIDERS=true` (`storageProblems`); em produção o boot recusa, mesmo com a
+   permissão, porque a pasta do contêiner some no próximo deploy. A rota só é registrada quando esse
+   storage está ativo. Variáveis vazias contam como ausentes (incidente de 2026-09-24).
+3. **Na stack de E2E.** A API sobe com o disco na pasta da execução. O envio de documento do contato
+   passa a ir até o fim (antes o E2E conferia "Storage não configurado"), e fotos, áudio e
+   documentos das telas das próximas ondas têm onde ficar.

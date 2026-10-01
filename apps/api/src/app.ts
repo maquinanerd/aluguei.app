@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import Fastify, {
   type FastifyInstance,
   type FastifyPluginAsync,
@@ -15,6 +17,7 @@ import { annotateHttpRoute } from '@aluguei/observability';
 import { parsePlatformAdminEmails } from '@aluguei/domain';
 import type { PlanModule } from '@aluguei/domain';
 import { requireModule } from './plugins/authz.js';
+import { DiskStorageAdapter } from '@aluguei/storage';
 import type { StorageService } from '@aluguei/storage';
 import type {
   GeocodingService,
@@ -79,6 +82,7 @@ import { chargeRoutes } from './routes/charges.js';
 import { paymentsRoutes } from './routes/payments.js';
 import { devPaymentRoutes } from './routes/dev-payments.js';
 import { devOutboxRoutes } from './routes/dev-outbox.js';
+import { devStorageRoutes } from './routes/dev-storage.js';
 import { metaRoutes } from './routes/meta.js';
 import { portalRoutes } from './routes/portal.js';
 import { reportingRoutes } from './routes/reporting.js';
@@ -207,7 +211,14 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
 
   await app.register(helmet);
   await app.register(cookie);
-  await app.register(cors, { origin: config.corsOrigins, credentials: true });
+  // O envio ao storage em disco (F3) é um PUT do navegador direto na API, como no bucket. Só com
+  // esse storage o CORS libera o PUT: o @fastify/cors 11 aceita GET, HEAD e POST por padrão, e em
+  // produção o arquivo vai direto ao R2, que tem o próprio CORS.
+  await app.register(cors, {
+    origin: config.corsOrigins,
+    credentials: true,
+    ...(env.STORAGE_DRIVER === 'disk' ? { methods: ['GET', 'HEAD', 'POST', 'PUT'] } : {}),
+  });
   // Rate limit global por IP: 300 req/min. Rotas sensíveis têm limites menores.
   // Store: Redis quando configurado (multi-instância); senão memória por processo.
   const rateLimitOptions: {
@@ -273,6 +284,17 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   }
   if (env.STORAGE_FORCE_PATH_STYLE === 'true') {
     storageOptions.forcePathStyle = true;
+  }
+  // Storage em disco da stack de testes (F3); a configuração já recusou produção e a falta de
+  // ALLOW_FAKE_PROVIDERS=true (`storageProblems`).
+  if (!opts.storage && env.STORAGE_DRIVER === 'disk') {
+    storageOptions.disk = {
+      root: env.STORAGE_DISK_ROOT ?? join(tmpdir(), 'aluguei-storage'),
+      publicUrl:
+        env.STORAGE_DISK_PUBLIC_URL ??
+        env.API_BASE_URL ??
+        `http://127.0.0.1:${String(env.API_PORT)}`,
+    };
   }
   await app.register(storagePlugin, storageOptions);
 
@@ -437,6 +459,10 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
     await app.register(devPaymentRoutes);
     // Leitura da caixa de saída local por destinatário (dev/E2E) — nunca em produção.
     await app.register(devOutboxRoutes);
+    // Upload e download das URLs assinadas do storage em disco (F3) — só com esse storage.
+    if (app.storage instanceof DiskStorageAdapter) {
+      await app.register(devStorageRoutes, { storage: app.storage });
+    }
   }
   await registerBehindModule(app, 'MARKETING', [metaRoutes]);
   await app.register(portalRoutes);

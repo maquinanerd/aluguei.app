@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { buildApp } from '@aluguei/api';
 import { createTestDb } from '@aluguei/db';
+import type { StorageService } from '@aluguei/storage';
 import type { AppEnv } from '@aluguei/config';
 import type { FastifyInstance } from 'fastify';
 import {
@@ -52,6 +53,8 @@ export interface TestAppOptions {
   audioAi?: AudioAiProvider;
   /** Sobrescreve chaves do env de teste. */
   env?: Partial<AppEnv>;
+  /** Storage no lugar do falso em memória (ex.: o de disco da stack de testes, F3). */
+  storage?: StorageService;
 }
 
 /**
@@ -62,7 +65,8 @@ export interface TestAppOptions {
  * configuração diferente precisa dela isolada, e quem a pede fecha no `afterAll`.
  */
 export async function buildTestApp(opts: TestAppOptions = {}): Promise<FastifyInstance> {
-  const proprio = opts.audioAi !== undefined || opts.env !== undefined;
+  const proprio =
+    opts.audioAi !== undefined || opts.env !== undefined || opts.storage !== undefined;
   if (appCache && !proprio) {
     return appCache;
   }
@@ -71,7 +75,7 @@ export async function buildTestApp(opts: TestAppOptions = {}): Promise<FastifyIn
     db,
     env: opts.env ? { ...testEnv, ...opts.env } : testEnv,
     config: { cookieSecure: false },
-    storage: fakeStorage,
+    storage: opts.storage ?? fakeStorage,
     channels: { fake: fakeChannel },
     whatsapp: fakeWhatsApp,
     ai: fakeAi,

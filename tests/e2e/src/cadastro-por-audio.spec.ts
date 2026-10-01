@@ -5,8 +5,9 @@ import { registerViaApi, useSession } from './g2-b1-support';
  * Cadastro de imóvel por áudio (ADR-104), pela interface.
  *
  * O que este spec cobre é a **tela**: o caminho de dados (transcrever, redigir,
- * extrair, confirmar) está na integração, com storage de mentira — a stack de
- * E2E não sobe storage, e fingir que sobe seria testar outra coisa.
+ * extrair, confirmar) está na integração, com o transcritor de mentira. A stack
+ * de E2E tem storage em disco (F3), mas gravar áudio no navegador de teste não
+ * diria nada sobre o transcritor de verdade.
  *
  * Aqui interessa que o corretor chegue à tela pelo caminho normal, que ela
  * avise que a transcrição é simulação **antes** de ele gravar três minutos, e

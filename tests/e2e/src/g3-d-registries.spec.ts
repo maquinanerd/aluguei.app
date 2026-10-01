@@ -63,7 +63,8 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
     await expect(page.getByText('(11) 98888-7777')).toBeVisible();
     await expect(page.getByText('Locatário', { exact: true })).toBeVisible();
 
-    // Documentos: sem storage na stack de E2E, a tela mostra o erro da API em vez de fingir.
+    // Documentos: a stack sobe com o storage em disco (F3), então o envio vai até o fim — URL
+    // assinada, arquivo no storage e confirmação pela API.
     await page.getByRole('tab', { name: 'Documentos' }).click();
     await expect(page.getByText('Nenhum documento')).toBeVisible();
     await page.getByRole('button', { name: 'Enviar documento' }).first().click();
@@ -75,8 +76,9 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
       buffer: Buffer.from('%PDF-1.4 teste'),
     });
     await upload.getByRole('button', { name: 'Enviar', exact: true }).click();
-    await expect(upload.getByText('Storage não configurado')).toBeVisible({ timeout: 30_000 });
-    await upload.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await expect(page.getByText('Documento enviado')).toBeVisible({ timeout: 30_000 });
+    await expect(upload).toBeHidden();
+    await expect(page.getByText('Comprovante de renda', { exact: true })).toBeVisible();
 
     await page.getByRole('button', { name: 'Arquivar', exact: true }).click();
     const confirm = page.getByRole('dialog', { name: 'Arquivar contato?' });
@@ -88,7 +90,7 @@ test.describe('G3 trilha D — cadastros pela interface', () => {
       cookie: owner.cookie,
     });
     expect(list.body.parties.map((p) => p.name)).not.toContain(renamed);
-    expect(watch.backendFailures.filter((f) => !f.includes('/documents/upload-url'))).toEqual([]);
+    expect(watch.backendFailures).toEqual([]);
     expect(watch.pageErrors).toEqual([]);
   });
 

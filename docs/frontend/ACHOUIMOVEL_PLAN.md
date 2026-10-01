@@ -399,11 +399,10 @@ falha antes. Arquivos: rotas BFF em `apps/web/src/app/api/portal/**`, `apps/port
 - Depende de: D5.
 
 > **Andamento (30/09/2026).** 1A (laço de fidelidade) e 1B (base visual do portal) implantadas;
-> 1B2 (componentes base do portal e tela 01) no PR #56; **1C-A** (backend do upgrade: B15 — pedido de
-> troca de plano, fila da plataforma e data de entrada no plano — e o defeito 13, `details` no
-> cliente do painel) no PR seguinte. Ficam para a **1C-B**, junto com as telas 32 e 33: B14 (campos da
-> Visão Geral), o menu (T8, T9) e o upgrade no lugar do "sem permissão". Depois, 1D (e-mail, D6) e
-> B29 (storage de teste).
+> 1B2 (componentes base do portal e tela 01) mesclada no PR #56; **1C-A** (B15 e defeito 13, #58) e
+> **1D** (e-mail, B28, #63) mescladas em 01/10. Em PRs: **1C-B1** (menu, T8 e T9, e tela 33, #59),
+> **1C-B2** (B14 e tela 32, #60), **1C-C** (aviso de teste, barra, switch e diálogos, #61) e **B29**
+> (storage de teste, #62). Com elas, a Onda 1 fica completa; a próxima é a Onda 2.
 
 **Onda 2 · portal público — telas 02 a 16, 21 e 22.**
 
