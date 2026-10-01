@@ -1,17 +1,19 @@
-import { ClicksignSignatureProvider } from './clicksign.js';
+import { AutentiqueSignatureProvider } from './autentique.js';
 import { FakeSignatureProvider } from './fake.js';
 import type { ISignatureProvider } from './types.js';
 
 export interface SignatureRegistryOptions {
-  provider?: string; // CLICKSIGN | D4SIGN | FAKE
+  provider?: string; // AUTENTIQUE | D4SIGN | FAKE
   token?: string;
+  /** Ambiente da Autentique. Sem valor, sandbox: documento de teste, sem custo e sem validade. */
+  environment?: 'sandbox' | 'production';
   fake?: ISignatureProvider;
 }
 
 /**
  * Seleciona o provider de assinatura: override injetado > FAKE (dev/test).
- * CLICKSIGN com token → adapter real (IMPLEMENTED_NOT_LIVE_VERIFIED — requer
- * conta sandbox/homologação para efeito real). Produção sem token é null
+ * AUTENTIQUE com token → adapter real (IMPLEMENTED_NOT_LIVE_VERIFIED — requer
+ * o token da conta para efeito real). Produção sem token é null
  * (nunca assinatura fake em prod — 400 "não configurado").
  * D4SIGN permanece registrado sem adapter até contrato/documentação.
  */
@@ -24,8 +26,11 @@ export function getSignatureProvider(
   if (opts.provider === 'FAKE') {
     return new FakeSignatureProvider();
   }
-  if (opts.provider === 'CLICKSIGN' && opts.token) {
-    return new ClicksignSignatureProvider({ token: opts.token });
+  if (opts.provider === 'AUTENTIQUE' && opts.token) {
+    return new AutentiqueSignatureProvider({
+      token: opts.token,
+      sandbox: opts.environment !== 'production',
+    });
   }
   return null;
 }

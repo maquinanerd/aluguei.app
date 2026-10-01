@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { and, asc, desc, eq, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, ne } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import {
@@ -8,6 +8,7 @@ import {
   contractTemplates,
   contractVersions,
   parties,
+  partyIdentities,
   propertyFinancialTerms,
   propertyOwners,
   properties,
@@ -44,7 +45,8 @@ import {
   updateContractStatusResponseSchema,
   uuidSchema,
 } from '@aluguei/contracts';
-import { renderContractPdf } from '@aluguei/integrations';
+import { SignatureProviderError, renderContractPdf } from '@aluguei/integrations';
+import type { CreateEnvelopeResult, EnvelopeParty } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { first } from './helpers.js';
@@ -735,10 +737,18 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
             sendForSignatureResponseSchema.parse({ envelope: toEnvelopeDto(existingEnvelope) }),
           );
       }
-      const partiesRows = await db
-        .select()
-        .from(contractParties)
-        .where(eq(contractParties.contractId, contract.id));
+      const signatarios = await signatariosDoContrato(db, auth.orgId, contract.id);
+      // A Autentique manda o pedido de assinatura por e-mail: sem e-mail, nem chama o provider.
+      const semEmail = app.signature.requiresSignerEmail
+        ? signatarios.find((party) => party.email === null)
+        : undefined;
+      if (semEmail) {
+        throw new DomainError(
+          'INVALID_INPUT',
+          `Cadastre o e-mail ${PAPEL_NO_CONTRATO[semEmail.role]} para enviar o contrato para assinatura`,
+          { role: semEmail.role, signOrder: semEmail.signOrder },
+        );
+      }
       // P1-11: o provider recebe o PDF gerado do texto da versão vigente (antes
       // recebia o hash) e o envelope grava o provider configurado (antes 'FAKE'
       // fixo, que o webhook de um provider real nunca localizaria) e o hash do PDF.
@@ -750,15 +760,20 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
       });
       const documentHash = createHash('sha256').update(pdf).digest('hex');
       const providerName = app.signature.name;
-      const envelopeResult = await app.signature.createEnvelope({
-        contractId: contract.id,
-        parties: partiesRows.map((row) => ({
-          partyId: row.partyId ?? '',
-          role: row.role as 'LANDLORD' | 'TENANT' | 'GUARANTOR',
-          signOrder: row.signOrder,
-        })),
-        documentRef: `data:application/pdf;base64,${Buffer.from(pdf).toString('base64')}`,
-      });
+      let envelopeResult: CreateEnvelopeResult;
+      try {
+        envelopeResult = await app.signature.createEnvelope({
+          contractId: contract.id,
+          title: `${contract.kind === 'SALE' ? 'Contrato de compra e venda' : 'Contrato de locação'} · versão ${String(contract.currentVersion)}`,
+          parties: signatarios,
+          documentRef: `data:application/pdf;base64,${Buffer.from(pdf).toString('base64')}`,
+        });
+      } catch (err) {
+        if (err instanceof SignatureProviderError) {
+          throw erroDoProvedorDeAssinatura(err);
+        }
+        throw err;
+      }
       const envelope = await db.transaction(async (tx) => {
         // O texto enviado ao provider é o da versão lida acima: se outra
         // requisição regenerou o contrato durante a chamada, nada é gravado.
@@ -793,6 +808,7 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
               providerEnvelopeId: envelopeResult.providerEnvelopeId,
               contractVersion: locked.currentVersion,
               documentHash,
+              providerSigners: envelopeResult.signers ?? null,
               status: 'SENT',
             })
             .returning(),
@@ -934,3 +950,85 @@ export const contractRoutes: FastifyPluginAsync = (app) => {
 
   return Promise.resolve();
 };
+
+/** "do locatário": quem falta, sem repetir nome nem e-mail na mensagem (que vai para o log). */
+const PAPEL_NO_CONTRATO: Record<EnvelopeParty['role'], string> = {
+  LANDLORD: 'do proprietário',
+  TENANT: 'do locatário',
+  GUARANTOR: 'do fiador',
+  SELLER: 'do vendedor',
+  BUYER: 'do comprador',
+};
+
+/**
+ * Partes do contrato como signatários: nome do cadastro e o primeiro e-mail da pessoa (o mais
+ * antigo). Do cadastro, o provider só recebe o e-mail.
+ */
+async function signatariosDoContrato(
+  db: AppDb,
+  orgId: string,
+  contractId: string,
+): Promise<EnvelopeParty[]> {
+  const rows = await db
+    .select({
+      partyId: contractParties.partyId,
+      role: contractParties.role,
+      signOrder: contractParties.signOrder,
+      name: parties.name,
+    })
+    .from(contractParties)
+    .leftJoin(parties, eq(parties.id, contractParties.partyId))
+    .where(eq(contractParties.contractId, contractId));
+  const partyIds = rows.flatMap((row) => (row.partyId === null ? [] : [row.partyId]));
+  const emails = new Map<string, string>();
+  if (partyIds.length > 0) {
+    const identidades = await db
+      .select({ partyId: partyIdentities.partyId, value: partyIdentities.value })
+      .from(partyIdentities)
+      .where(
+        and(
+          eq(partyIdentities.orgId, orgId),
+          eq(partyIdentities.kind, 'EMAIL'),
+          inArray(partyIdentities.partyId, partyIds),
+        ),
+      )
+      .orderBy(asc(partyIdentities.createdAt), asc(partyIdentities.id));
+    for (const identidade of identidades) {
+      if (!emails.has(identidade.partyId)) {
+        emails.set(identidade.partyId, identidade.value);
+      }
+    }
+  }
+  return rows.map((row) => ({
+    partyId: row.partyId ?? '',
+    role: row.role as EnvelopeParty['role'],
+    signOrder: row.signOrder,
+    name: row.name ?? '',
+    email: row.partyId === null ? null : (emails.get(row.partyId) ?? null),
+  }));
+}
+
+/**
+ * Erro do provider de assinatura como erro de domínio: entrada recusada é 400; token, limite,
+ * rede e resposta inesperada são 502. A mensagem do adapter não traz e-mail nem nome.
+ */
+function erroDoProvedorDeAssinatura(err: SignatureProviderError): DomainError {
+  if (err.code === 'SIGNER_EMAIL_REQUIRED') {
+    return new DomainError(
+      'INVALID_INPUT',
+      'Cadastre o e-mail de todas as partes para enviar o contrato para assinatura',
+      { code: err.code },
+    );
+  }
+  if (err.code === 'INVALID_INPUT' || err.code === 'UNSUPPORTED_DOCUMENT_REF') {
+    const motivo = err.message.replace(/^[A-Za-z0-9]+: /, '');
+    return new DomainError('INVALID_INPUT', `${motivo.charAt(0).toUpperCase()}${motivo.slice(1)}`, {
+      code: err.code,
+    });
+  }
+  return new DomainError(
+    'PROVIDER_ERROR',
+    'O provedor de assinatura não aceitou o envio agora. Tente de novo em alguns minutos.',
+    { code: err.code },
+  );
+}

@@ -32,7 +32,7 @@ describe('AvisoModoTeste nas formas dos prints', () => {
   it('caixa com "!", e larga na tela do Pix', () => {
     const caixa = renderToStaticMarkup(
       <AvisoModoTeste forma="caixa">
-        Assinatura real (Clicksign) em breve. Hoje o envelope roda em modo de teste.
+        Assinatura real (Autentique) em breve. Hoje o envelope roda em modo de teste.
       </AvisoModoTeste>,
     );
     expect(caixa).toContain('class="peg-aviso-caixa" role="status"');

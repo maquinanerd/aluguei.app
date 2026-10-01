@@ -338,7 +338,7 @@ function DemoBody() {
             <AvisoModoTeste forma="selo" />
           </Group>
           <AvisoModoTeste forma="caixa">
-            Assinatura real (Clicksign) em breve. Hoje o envelope roda em modo de teste.
+            Assinatura real (Autentique) em breve. Hoje o envelope roda em modo de teste.
           </AvisoModoTeste>
           <AvisoModoTeste forma="alerta">
             Consulta ao Serasa e SPC em breve. As regras abaixo usam só os dados informados na

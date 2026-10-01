@@ -104,7 +104,13 @@ services:
       STORAGE_ACCESS_KEY_ID: ${SERVICE_USER_MINIO}
       STORAGE_SECRET_ACCESS_KEY: ${SERVICE_PASSWORD_MINIO}
       PAYMENT_PROVIDER: FAKE
-      SIGNATURE_PROVIDER: FAKE
+      # Assinatura: FAKE até a chave da Autentique entrar no recurso. Com AUTENTIQUE, a API
+      # exige AUTENTIQUE_API_TOKEN, AUTENTIQUE_ENV (sandbox | production) e o segredo do
+      # webhook cadastrado na Autentique (POST /webhooks/signature/autentique).
+      SIGNATURE_PROVIDER: ${SIGNATURE_PROVIDER:-FAKE}
+      AUTENTIQUE_API_TOKEN: ${AUTENTIQUE_API_TOKEN:-}
+      AUTENTIQUE_ENV: ${AUTENTIQUE_ENV:-}
+      AUTENTIQUE_WEBHOOK_SECRET: ${AUTENTIQUE_WEBHOOK_SECRET:-}
       SCREENING_PROVIDER: FAKE
       META_MODE: dry_run
       AI_PROVIDER: mock

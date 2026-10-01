@@ -95,11 +95,17 @@ export type {
 } from './payments/types.js';
 
 export { FakeSignatureProvider } from './signature/fake.js';
-export { ClicksignSignatureProvider, SignatureProviderError } from './signature/clicksign.js';
-export type {
-  ClicksignSignatureProviderOptions,
-  SignatureProviderErrorCode,
-} from './signature/clicksign.js';
+export { SignatureProviderError } from './signature/errors.js';
+export type { SignatureProviderErrorCode } from './signature/errors.js';
+export { AutentiqueSignatureProvider, statusFromSignatures } from './signature/autentique.js';
+export type { AutentiqueSignatureProviderOptions } from './signature/autentique.js';
+export {
+  AUTENTIQUE_SIGNATURE_HEADER,
+  AutentiqueWebhookError,
+  parseAutentiqueWebhook,
+  verifyAutentiqueSignature,
+} from './signature/autentique-webhook.js';
+export type { AutentiqueSignatureEvent } from './signature/autentique-webhook.js';
 export { getSignatureProvider } from './signature/registry.js';
 export { renderContractPdf } from './signature/document.js';
 export type { ContractPdfInput } from './signature/document.js';
@@ -108,6 +114,7 @@ export type {
   CreateEnvelopeInput,
   CreateEnvelopeResult,
   EnvelopeParty,
+  EnvelopeSigner,
   EnvelopeStatus,
   SignatureProviderName,
 } from './signature/types.js';
