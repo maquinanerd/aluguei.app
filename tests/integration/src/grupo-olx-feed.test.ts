@@ -2,17 +2,19 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { and, eq, sql } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import {
-  channelConnections,
-  channelFeedFetches,
-  channelSyncJobs,
-  listingChannelPublications,
-} from '@aluguei/db';
-import type { StorageService } from '@aluguei/storage';
+import { channelConnections, channelFeedFetches, channelSyncJobs } from '@aluguei/db';
 import { runChannelJobs } from '@aluguei/worker/channel-jobs';
 import { buildTestApp } from './helpers.js';
 import { approveAgency, call, registerAgency } from './platform-fixtures.js';
 import type { RegisteredAgency } from './platform-fixtures.js';
+import {
+  API_PUBLIC_URL,
+  BROWSER,
+  CRAWLER,
+  MemoryStorage,
+  grupoOlxFixtures,
+} from './grupo-olx-fixtures.js';
+import type { GrupoOlxFixtures } from './grupo-olx-fixtures.js';
 
 /**
  * Grupo OLX / Canal Pro (ADR-107): conexão por imobiliária, token opaco, avaliação de cada anúncio,
@@ -20,221 +22,26 @@ import type { RegisteredAgency } from './platform-fixtures.js';
  * estável. Nada aqui fala com o Grupo OLX: o "robô" é uma requisição com o User-Agent dele.
  */
 
-const API_PUBLIC_URL = 'https://api.achouimovel.test';
-const CRAWLER = 'VivaRealBot/1.0 (+http://www.vivareal.com/bot.html)';
-const BROWSER = 'Mozilla/5.0 (Windows NT 10.0) Chrome/130';
-
-/** Storage em memória que guarda os bytes (o falso compartilhado devolve zeros). */
-class MemoryStorage implements StorageService {
-  readonly objects = new Map<string, Buffer>();
-  putObject(input: { key: string; body: Buffer | Uint8Array }) {
-    this.objects.set(input.key, Buffer.from(input.body));
-    return Promise.resolve({ key: input.key, size: input.body.byteLength });
-  }
-  getObject(key: string) {
-    return Promise.resolve(this.objects.get(key) ?? null);
-  }
-  deleteObject(key: string) {
-    this.objects.delete(key);
-    return Promise.resolve();
-  }
-  headObject(key: string) {
-    const body = this.objects.get(key);
-    return Promise.resolve(body ? { key, size: body.byteLength } : null);
-  }
-  getPresignedPutUrl(input: { key: string }) {
-    return Promise.resolve({ url: `https://storage.test/${input.key}`, expiresIn: 300 });
-  }
-  getPresignedDownloadUrl(input: { key: string }) {
-    return Promise.resolve({ url: `https://storage.test/${input.key}`, expiresIn: 300 });
-  }
-}
-
-const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(2000, 7)]);
-const DESCRICAO =
-  'Apartamento ventilado, com varanda e duas vagas. Perto de escolas, mercados e do parque.';
-
 describe('Grupo OLX — feed VRSync por token (ADR-107)', () => {
   let app: FastifyInstance;
   let db: AppDb;
-  let storage: MemoryStorage;
+  let fx: GrupoOlxFixtures;
   let agencia: RegisteredAgency;
   let outra: RegisteredAgency;
   let feedPath: string;
 
-  async function prepararImobiliaria(alvo: RegisteredAgency): Promise<string> {
-    expect(
-      (
-        await call(app, 'PUT', '/organization/contact', {
-          cookie: alvo.cookie,
-          payload: { publicContactEmail: 'Contato@Imobiliaria.Test' },
-        })
-      ).status,
-    ).toBe(200);
-    const conexao = await call(app, 'PUT', '/integrations/grupo-olx', {
-      cookie: alvo.cookie,
-      payload: {
-        enabled: true,
-        destinations: ['ZAP', 'VIVAREAL', 'OLX'],
-        externalAccountId: null,
-        externalCustomerId: null,
-        listingQuota: null,
-        featuredQuota: null,
-        superFeaturedQuota: null,
-      },
-    });
-    expect(conexao.status, JSON.stringify(conexao.body)).toBe(200);
-    const token = await call(app, 'POST', '/integrations/grupo-olx/feed-token', {
-      cookie: alvo.cookie,
-    });
-    expect(token.status, JSON.stringify(token.body)).toBe(201);
-    const url = new URL(String(token.body.feedUrl));
-    expect(url.origin).toBe(API_PUBLIC_URL);
-    return url.pathname;
-  }
-
-  interface Semente {
-    propertyType?: string;
-    purpose?: 'RENT' | 'SALE' | 'BOTH';
-    fotos?: number;
-    fotoPng?: boolean;
-    descricao?: string | null;
-    titulo?: string;
-    cep?: string | null;
-  }
-
-  let sequencia = 0;
-
-  async function criarAnuncio(
-    alvo: RegisteredAgency,
-    semente: Semente = {},
-  ): Promise<{
-    listingId: string;
-    propertyId: string;
-  }> {
-    const imovel = await call(app, 'POST', '/properties', {
-      cookie: alvo.cookie,
-      payload: {
-        title: 'Imóvel do feed',
-        propertyType: semente.propertyType ?? 'APARTMENT',
-        purpose: semente.purpose ?? 'RENT',
-        builtAreaSqm: 72.5,
-        totalAreaSqm: 90,
-        bedrooms: 2,
-        suites: 1,
-        bathrooms: 2,
-        parkingSpots: 1,
-      },
-    });
-    expect(imovel.status, JSON.stringify(imovel.body)).toBe(201);
-    const propertyId = (imovel.body.property as { id: string }).id;
-    expect(
-      (
-        await call(app, 'PUT', `/properties/${propertyId}/address`, {
-          cookie: alvo.cookie,
-          payload: {
-            privateAddress: {
-              street: 'Rua T-55',
-              number: '930',
-              complement: 'Apto 804',
-              neighborhood: 'Setor Bueno',
-              city: 'Goiânia',
-              state: 'GO',
-              ...(semente.cep === null ? {} : { zipCode: semente.cep ?? '74215-170' }),
-            },
-            publicAddress: { neighborhood: 'Setor Bueno', city: 'Goiânia', state: 'GO' },
-          },
-        })
-      ).status,
-    ).toBe(200);
-    const venda = semente.purpose === 'SALE' || semente.purpose === 'BOTH';
-    const aluguel = semente.purpose !== 'SALE';
-    expect(
-      (
-        await call(app, 'PUT', `/properties/${propertyId}/financial-terms`, {
-          cookie: alvo.cookie,
-          payload: {
-            ...(aluguel ? { monthlyRentCents: 280_000 } : {}),
-            ...(venda ? { salePriceCents: 86_000_000 } : {}),
-            condoFeeCents: 48_000,
-          },
-        })
-      ).status,
-    ).toBe(200);
-    const total = semente.fotos ?? 5;
-    for (let i = 0; i < total; i += 1) {
-      const png = semente.fotoPng === true && i === 0;
-      const pedido = await call(app, 'POST', `/properties/${propertyId}/media/upload-url`, {
-        cookie: alvo.cookie,
-        payload: {
-          kind: 'PHOTO',
-          mimeType: png ? 'image/png' : 'image/jpeg',
-          sizeBytes: JPEG.byteLength,
-        },
-      });
-      expect(pedido.status, JSON.stringify(pedido.body)).toBe(200);
-      const key = String(pedido.body.key);
-      await storage.putObject({ key, body: png ? Buffer.alloc(2004, 1) : JPEG });
-      const confirmado = await call(app, 'POST', `/properties/${propertyId}/media/confirm`, {
-        cookie: alvo.cookie,
-        payload: { key },
-      });
-      expect(confirmado.status, JSON.stringify(confirmado.body)).toBe(201);
-    }
-    const anuncio = await call(app, 'POST', '/listings', {
-      cookie: alvo.cookie,
-      payload: {
-        propertyId,
-        // Título diferente a cada anúncio: o slug do portal é único no país inteiro.
-        title:
-          semente.titulo ?? `Apartamento com 2 quartos no Setor Bueno ${String((sequencia += 1))}`,
-        ...(semente.descricao === null ? {} : { description: semente.descricao ?? DESCRICAO }),
-      },
-    });
-    expect(anuncio.status, JSON.stringify(anuncio.body)).toBe(201);
-    const listingId = (anuncio.body.listing as { id: string }).id;
-    for (const status of ['READY', 'PUBLISHED']) {
-      const mudou = await call(app, 'PATCH', `/listings/${listingId}/status`, {
-        cookie: alvo.cookie,
-        payload: { status },
-      });
-      expect(mudou.status, JSON.stringify(mudou.body)).toBe(200);
-    }
-    return { listingId, propertyId };
-  }
-
-  async function publicar(
-    alvo: RegisteredAgency,
-    listingId: string,
-    payload: object = {},
-  ): Promise<{ status: number; body: Record<string, unknown> }> {
-    return call(app, 'POST', `/listings/${listingId}/channels/grupoolx/publish`, {
-      cookie: alvo.cookie,
-      payload,
-    });
-  }
-
-  async function estado(listingId: string) {
-    const [row] = await db
-      .select()
-      .from(listingChannelPublications)
-      .where(
-        and(
-          eq(listingChannelPublications.listingId, listingId),
-          eq(listingChannelPublications.channel, 'grupoolx'),
-        ),
-      );
-    return row;
-  }
-
-  async function buscar(path: string, userAgent: string) {
-    return app.inject({ method: 'GET', url: path, headers: { 'user-agent': userAgent } });
-  }
+  const prepararImobiliaria = (alvo: RegisteredAgency) => fx.prepararImobiliaria(alvo);
+  const criarAnuncio = (...args: Parameters<GrupoOlxFixtures['criarAnuncio']>) =>
+    fx.criarAnuncio(...args);
+  const publicar = (...args: Parameters<GrupoOlxFixtures['publicar']>) => fx.publicar(...args);
+  const estado = (listingId: string) => fx.estado(listingId);
+  const buscar = (path: string, userAgent: string) => fx.buscar(path, userAgent);
 
   beforeAll(async () => {
-    storage = new MemoryStorage();
+    const storage = new MemoryStorage();
     app = await buildTestApp({ env: { API_PUBLIC_URL }, storage });
-    db = (app as unknown as { db: AppDb }).db;
+    fx = grupoOlxFixtures(app, storage);
+    db = fx.db;
     agencia = await registerAgency(app);
     await approveAgency(app, agencia.org.id);
     outra = await registerAgency(app);
@@ -443,18 +250,7 @@ describe('Grupo OLX — feed VRSync por token (ADR-107)', () => {
     await approveAgency(app, temporaria.org.id);
     const caminho = await prepararImobiliaria(temporaria);
     expect((await buscar(caminho, CRAWLER)).statusCode).toBe(200);
-    await call(app, 'PUT', '/integrations/grupo-olx', {
-      cookie: temporaria.cookie,
-      payload: {
-        enabled: false,
-        destinations: [],
-        externalAccountId: null,
-        externalCustomerId: null,
-        listingQuota: null,
-        featuredQuota: null,
-        superFeaturedQuota: null,
-      },
-    });
+    await fx.ligarConexao(temporaria, false);
     expect((await buscar(caminho, CRAWLER)).statusCode).toBe(404);
     const revogado = await call(app, 'DELETE', '/integrations/grupo-olx/feed-token', {
       cookie: temporaria.cookie,

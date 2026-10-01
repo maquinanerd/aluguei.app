@@ -29,7 +29,9 @@ import {
   VRSYNC_MAX_IMAGE_BYTES,
   VRSYNC_MAX_LISTINGS,
   grupoOlxLeadPayloadSchema,
+  grupoOlxReportPayloadSchema,
   normalizeGrupoOlxLead,
+  normalizeGrupoOlxReport,
   portalPropertyTypeOptions,
   verifyGrupoOlxAuthorization,
 } from '@aluguei/integrations';
@@ -52,6 +54,11 @@ import {
   countDuplicateLeadDelivery,
   routeGrupoOlxLead,
 } from '../grupo-olx/leads.js';
+import {
+  GRUPO_OLX_REPORT_PROVIDER,
+  GRUPO_OLX_REPORT_TYPE,
+  routeGrupoOlxReport,
+} from '../grupo-olx/reports.js';
 import {
   applyCrawlerFetch,
   generateGrupoOlxFeed,
@@ -666,13 +673,11 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
       return unavailable(reply, 'Webhook do Grupo OLX ainda não configurado nesta instalação');
     }
     if (verifyGrupoOlxAuthorization(authorization, secret) !== 'OK') {
-      return reply
-        .status(401)
-        .send({
-          error: 'Unauthorized',
-          code: 'UNAUTHORIZED',
-          message: 'Chave do Grupo OLX inválida',
-        });
+      return reply.status(401).send({
+        error: 'Unauthorized',
+        code: 'UNAUTHORIZED',
+        message: 'Chave do Grupo OLX inválida',
+      });
     }
     return null;
   }
@@ -695,13 +700,11 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
     if (recusa) return recusa;
     const parsed = grupoOlxLeadPayloadSchema.safeParse(request.body);
     if (!parsed.success) {
-      return reply
-        .status(400)
-        .send({
-          error: 'ValidationError',
-          code: 'VALIDATION',
-          message: 'Lead do Grupo OLX inválido',
-        });
+      return reply.status(400).send({
+        error: 'ValidationError',
+        code: 'VALIDATION',
+        message: 'Lead do Grupo OLX inválido',
+      });
     }
     const lead = normalizeGrupoOlxLead(parsed.data);
     const ref = (request.params as { ref?: string } | undefined)?.ref ?? null;
@@ -739,6 +742,63 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
   app.post('/integrations/grupo-olx/leads', { config: webhookRateLimit }, receberLead);
   // URL por imobiliária, se a homologação pedir esse formato: a referência é opaca (ADR-108).
   app.post('/integrations/grupo-olx/leads/:ref', { config: webhookRateLimit }, receberLead);
+
+  /**
+   * Relatório de importação (`FEEDS_INTEGRATION_REPORT`), separado do lead. É a evidência de que o
+   * portal aceitou ou recusou cada anúncio. O Grupo OLX não reenvia relatório: grava e responde na
+   * hora, e o worker atualiza o estado. A documentação não diz se vem com Basic Auth; aqui exige,
+   * como o lead (pergunta 7 da homologação).
+   */
+  const receberRelatorio = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<FastifyReply> => {
+    const recusa = autenticarWebhook(request.headers.authorization, reply);
+    if (recusa) return recusa;
+    const parsed = grupoOlxReportPayloadSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: 'ValidationError',
+        code: 'VALIDATION',
+        message: 'Relatório do Grupo OLX inválido',
+      });
+    }
+    if (parsed.data.type && parsed.data.type !== GRUPO_OLX_REPORT_TYPE) {
+      return reply.status(400).send({
+        error: 'ValidationError',
+        code: 'UNSUPPORTED_TYPE',
+        message: 'Tipo de relatório não suportado',
+      });
+    }
+    const report = normalizeGrupoOlxReport(parsed.data);
+    const ref = (request.params as { ref?: string } | undefined)?.ref ?? null;
+    const routing = await routeGrupoOlxReport(db, report, ref);
+    if (!routing.ok) {
+      request.log.warn(
+        { code: routing.code },
+        'grupo-olx: relatório sem imobiliária identificável',
+      );
+      return reply
+        .status(routing.status)
+        .send({ error: 'DomainError', code: routing.code, message: routing.message });
+    }
+    const inserted = await db
+      .insert(webhookInbox)
+      .values({
+        orgId: routing.orgId,
+        provider: GRUPO_OLX_REPORT_PROVIDER,
+        providerEventId: report.externalReportId,
+        payload: { report: parsed.data },
+      })
+      .onConflictDoNothing({ target: [webhookInbox.provider, webhookInbox.providerEventId] })
+      .returning({ id: webhookInbox.id });
+    return reply
+      .status(200)
+      .send(inserted.length === 0 ? { ok: true, duplicate: true } : { ok: true });
+  };
+
+  app.post('/integrations/grupo-olx/reports', { config: webhookRateLimit }, receberRelatorio);
+  app.post('/integrations/grupo-olx/reports/:ref', { config: webhookRateLimit }, receberRelatorio);
 
   return Promise.resolve();
 };

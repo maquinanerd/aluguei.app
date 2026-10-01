@@ -4,7 +4,12 @@ import { resolveMetaMode, resolveScreeningProvider } from '@aluguei/config';
 import type { AppEnv } from '@aluguei/config';
 import { createDbFakePaymentStore, webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
-import { GRUPO_OLX_LEAD_PROVIDER, processGrupoOlxLead } from '@aluguei/api/grupo-olx';
+import {
+  GRUPO_OLX_LEAD_PROVIDER,
+  GRUPO_OLX_REPORT_PROVIDER,
+  processGrupoOlxLead,
+  processGrupoOlxReport,
+} from '@aluguei/api/grupo-olx';
 import type { GrupoOlxLeadInboxPayload } from '@aluguei/api/grupo-olx';
 import {
   getAiProvider,
@@ -326,6 +331,9 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
               job.orgId,
               job.payload as unknown as GrupoOlxLeadInboxPayload,
             );
+          } else if (job.provider === GRUPO_OLX_REPORT_PROVIDER) {
+            // Relatório de importação (ADR-108): estado real dos anúncios no portal.
+            await processGrupoOlxReport(db, job.orgId, job.payload.report);
           } else {
             throw new Error(`provider desconhecido: ${job.provider}`);
           }
