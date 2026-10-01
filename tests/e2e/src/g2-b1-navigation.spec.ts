@@ -295,8 +295,24 @@ test.describe('P1-01: telas que usavam limit=200', () => {
     // tem a proposta em rascunho e a locação ativa: nenhum. Antes a linha repetia as locações ativas.
     await expect(summaryValue(page, 'Imóveis', 'Reservados')).toHaveText('0');
     await expect(summaryValue(page, 'CRM', 'Aguardando resposta')).toHaveText('1');
-    await expect(summaryValue(page, 'Operação', 'Vistorias em aberto')).toHaveText('1');
-    await expect(summaryValue(page, 'Operação', 'Locações ativas')).toHaveText('1');
+    await expect(summaryValue(page, 'Aluguel', 'Vistorias em aberto')).toHaveText('1');
+    await expect(summaryValue(page, 'Aluguel', 'Locações ativas')).toHaveText('1');
+  });
+
+  test('o menu recolhido volta pelo botão no topo', async ({ page }) => {
+    test.setTimeout(300_000);
+    await useSession(page, seed.cookie);
+    await page.goto('/app', { timeout: 240_000 });
+    const menu = page.locator('aside.app-sidebar');
+    await menu.getByRole('button', { name: 'Recolher menu lateral' }).click();
+    await expect(menu).toHaveClass(/app-sidebar--collapsed/);
+    const expandir = menu.locator('.app-sidebar__header').getByRole('button', {
+      name: 'Expandir menu lateral',
+    });
+    await expect(expandir).toBeInViewport();
+    await expandir.click();
+    await expect(menu).not.toHaveClass(/app-sidebar--collapsed/);
+    await expect(menu.getByRole('link', { name: 'Leads' })).toBeVisible();
   });
 
   test('os modais de criação oferecem o imóvel da organização', async ({ page }) => {

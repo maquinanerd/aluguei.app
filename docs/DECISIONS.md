@@ -2091,3 +2091,13 @@ Decisão:
 
 Consequência: `IMPLEMENTED_NOT_LIVE_VERIFIED` até a chave e o webhook da conta do dono
 (`docs/integrations/AUTENTIQUE_HOMOLOGATION.md`). O G4 passa a ser Storage, Asaas e Autentique.
+
+### Adendo ao ADR-105 — menu por departamento: Aluguel e Vendas (2026-10-01)
+
+Pedido do usuário: o painel misturava aluguel e venda. O grupo "Operação" juntava atendimento comum (Inbox, Visitas) com o ciclo da locação. Agora:
+
+- **CRM** recebe Inbox e Visitas: atendimento comum aos dois departamentos (o lead chega antes de se saber se é aluguel ou venda).
+- **Aluguel** (novo, substitui "Operação"): Propostas, Crédito, Contratos, Vistorias, Locações — propostas são de aluguel (`monthlyRentCents`).
+- **Vendas** segue com Negociações (painel de vendas pelo cabeçalho, T9).
+- Ordem: CRM, Imóveis, Aluguel, Vendas, Financeiro, Crescimento, Administração. O breadcrumb passa a mostrar o grupo também para Aluguel; o cartão "Operação" da Visão Geral vira "Aluguel".
+- Desvio consciente do desenho T8 na nomenclatura dos grupos; rotas, ícones, módulos e cadeados não mudam.

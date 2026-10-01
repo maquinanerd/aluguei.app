@@ -67,6 +67,29 @@ describe('módulos do plano na navegação', () => {
     }
   });
 
+  it('o menu separa aluguel e venda em departamentos próprios', () => {
+    const rotasDe = (titulo: string) =>
+      NAV_GROUPS.find((grupo) => grupo.title === titulo)?.items.map((item) => item.href);
+    expect(NAV_GROUPS.map((grupo) => grupo.title)).toEqual([
+      'CRM',
+      'Imóveis',
+      'Aluguel',
+      'Vendas',
+      'Financeiro',
+      'Crescimento',
+      'Administração',
+    ]);
+    expect(rotasDe('Aluguel')).toEqual([
+      '/app/proposals',
+      '/app/screening',
+      '/app/contracts',
+      '/app/inspections',
+      '/app/leases',
+    ]);
+    // Atendimento comum aos dois departamentos fica no CRM.
+    expect(rotasDe('CRM')).toEqual(expect.arrayContaining(['/app/inbox', '/app/visits']));
+  });
+
   it('itens de módulo carregam o módulo certo e a base segue sem módulo', () => {
     const porRota = new Map(
       NAV_GROUPS.flatMap((grupo) => grupo.items).map((item) => [item.href, item.module ?? null]),

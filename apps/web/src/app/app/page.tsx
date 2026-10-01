@@ -131,7 +131,7 @@ export default async function OverviewPage() {
       ],
     },
     {
-      titulo: 'Operação',
+      titulo: 'Aluguel',
       href: '/app/leases',
       linhas: [
         { rotulo: 'Crédito pendente', valor: summary?.screening?.pending ?? null },

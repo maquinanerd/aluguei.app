@@ -175,21 +175,33 @@ export function AppShell({
   const sidebar = (navId: string) => (
     <>
       <header className="app-sidebar__header">
-        <Link
-          href="/app"
-          className="app-sidebar__brand"
-          onClick={() => {
-            setDrawerOpen(false);
-          }}
-          title={BRAND.b2bName}
-        >
-          <span className="app-sidebar__logo">{BRAND.seal}</span>
-          {!collapsed ? (
+        {/* Recolhido, o topo vira o botão de expandir: é onde o usuário procura (o do
+            rodapé fica escondido abaixo da lista de ícones). */}
+        {collapsed ? (
+          <button
+            type="button"
+            className="app-sidebar__collapse app-sidebar__expand"
+            aria-label="Expandir menu lateral"
+            title="Expandir menu lateral"
+            onClick={toggleCollapse}
+          >
+            <Icon name="panelRight" size={16} />
+          </button>
+        ) : (
+          <Link
+            href="/app"
+            className="app-sidebar__brand"
+            onClick={() => {
+              setDrawerOpen(false);
+            }}
+            title={BRAND.b2bName}
+          >
+            <span className="app-sidebar__logo">{BRAND.seal}</span>
             <span className="app-sidebar__wordmark">
               {BRAND.name} <span className="app-sidebar__wordmark-sub">Gestão</span>
             </span>
-          ) : null}
-        </Link>
+          </Link>
+        )}
         {!collapsed ? (
           <button
             type="button"
