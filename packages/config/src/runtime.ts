@@ -50,6 +50,9 @@ export function fakeProvidersInUse(env: AppEnv, service: RuntimeService): string
   if (service === 'worker' && env.SCREENING_PROVIDER === 'FAKE') {
     fakes.push('SCREENING_PROVIDER=FAKE');
   }
+  if (service === 'worker' && env.EMAIL_PROVIDER === 'FAKE') {
+    fakes.push('EMAIL_PROVIDER=FAKE');
+  }
   if (env.META_MODE === 'dry_run') {
     fakes.push('META_MODE=dry_run');
   }
@@ -148,6 +151,15 @@ function productionProblems(
         break;
       case 'FAKE':
         break;
+    }
+    // E-mail é opcional (sem provedor, a caixa de saída guarda a mensagem); escolhido, completo.
+    if (env.EMAIL_PROVIDER === 'RESEND') {
+      if (!env.RESEND_API_KEY) {
+        missing('RESEND_API_KEY', 'obrigatória com EMAIL_PROVIDER=RESEND');
+      }
+      if (!env.EMAIL_FROM) {
+        missing('EMAIL_FROM', 'remetente verificado, obrigatório com EMAIL_PROVIDER=RESEND');
+      }
     }
   }
 
