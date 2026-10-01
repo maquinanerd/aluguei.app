@@ -12,6 +12,7 @@ import {
   LOT_AREA_TYPES,
   STATE_NAMES,
   mapFeature,
+  ownValue,
   resolveStateAbbreviation,
 } from './mapping.js';
 import { cdata, element, escapeXmlAttribute, renderAttributes } from './xml.js';
@@ -123,8 +124,8 @@ export function portalPropertyTypeOptions(propertyType: string): {
   options: readonly GrupoOlxPropertyType[];
 } {
   return {
-    defaultType: DEFAULT_PORTAL_PROPERTY_TYPE[propertyType] ?? null,
-    options: ALLOWED_PORTAL_PROPERTY_TYPES[propertyType] ?? [],
+    defaultType: ownValue(DEFAULT_PORTAL_PROPERTY_TYPE, propertyType) ?? null,
+    options: ownValue(ALLOWED_PORTAL_PROPERTY_TYPES, propertyType) ?? [],
   };
 }
 
@@ -474,7 +475,9 @@ function renderLocation(address: VrsyncAddress, displayAddress: GrupoOlxDisplayA
   const state = resolveStateAbbreviation(address.state);
   const parts = [
     element('Country', 'Brasil', { abbreviation: 'BR' }),
-    state === null ? '' : element('State', STATE_NAMES[state] ?? state, { abbreviation: state }),
+    state === null
+      ? ''
+      : element('State', ownValue(STATE_NAMES, state) ?? state, { abbreviation: state }),
     element('City', address.city?.trim() ?? null),
     element('Neighborhood', address.neighborhood?.trim() ?? null),
     present(address.street) ? element('Address', address.street.trim()) : '',

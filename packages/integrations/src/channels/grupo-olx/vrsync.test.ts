@@ -418,17 +418,22 @@ describe('XML do feed VRSync (ADR-107)', () => {
     expect(saoPauloLocalDateTime(new Date('2026-01-15T02:30:05Z'))).toBe('2026-01-14T23:30:05');
   });
 
-  it('escrever 50 mil anúncios cabe no tempo de uma busca (sem montar o arquivo na memória)', () => {
-    const inicio = performance.now();
-    let bytes = 0;
-    for (let i = 0; i < 50_000; i += 1) {
-      bytes += renderVrsyncListing(baseInput({ listingId: `id-${String(i)}` }), context).length;
-    }
-    const segundos = (performance.now() - inicio) / 1000;
-    expect(bytes).toBeGreaterThan(50_000 * 1000);
-    // Folga larga para CI lenta: o robô dá 20 minutos de download.
-    expect(segundos).toBeLessThan(60);
-  });
+  // O teste tem o próprio teto (90 s, folga larga para CI carregada; o robô dá 20 minutos de
+  // download): o limite padrão de 5 s do vitest estourava com a suíte inteira rodando em paralelo.
+  it(
+    'escrever 50 mil anúncios cabe no tempo de uma busca (sem montar o arquivo na memória)',
+    { timeout: 90_000 },
+    () => {
+      const inicio = performance.now();
+      let bytes = 0;
+      for (let i = 0; i < 50_000; i += 1) {
+        bytes += renderVrsyncListing(baseInput({ listingId: `id-${String(i)}` }), context).length;
+      }
+      const segundos = (performance.now() - inicio) / 1000;
+      expect(bytes).toBeGreaterThan(50_000 * 1000);
+      expect(segundos).toBeLessThan(60);
+    },
+  );
 });
 
 describe('tabelas de correspondência (ADR-107)', () => {
@@ -439,6 +444,20 @@ describe('tabelas de correspondência (ADR-107)', () => {
         expect(oficiais.has(opcao), opcao).toBe(true);
       }
     }
+  });
+
+  it('nome que existe no protótipo não vira característica nem tipo (revisão de segurança)', () => {
+    for (const termo of ['constructor', '__proto__', 'toString', 'hasOwnProperty']) {
+      expect(mapFeature(termo), termo).toBeNull();
+    }
+    const xml = renderVrsyncListing(baseInput({ features: ['constructor', 'Piscina'] }), context);
+    expect(xml).not.toContain('function');
+    expect(xml).toContain('<Feature>Pool</Feature>');
+    expect(
+      evaluateVrsyncListing(baseInput({ propertyType: 'constructor' }), context).issues.map(
+        (issue) => issue.code,
+      ),
+    ).toContain('PORTAL_PROPERTY_TYPE_REQUIRED');
   });
 
   it('característica em texto livre casa sem acento nem caixa', () => {

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { and, eq, lt, sql } from 'drizzle-orm';
+import { and, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 import { channelConnections, channelFeedFetches, listingChannelPublications } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import { FEED_DESIRED_STATUSES, isChannelPublicationStatus, nextFeedStatus } from '@aluguei/domain';
@@ -193,6 +193,21 @@ export async function applyCrawlerFetch(
       from (values ${sql.join(batch, sql`, `)}) as v(id, current_status, next_status, hash, issues, included)
       where p.id = v.id and p.org_id = ${orgId}::uuid and p.status = v.current_status
     `);
+  }
+  // Tirado no meio da busca, mas já levado nela: continua no portal até a próxima busca, então é
+  // REMOVING, não REMOVED (revisão de segurança de 01/10/2026).
+  const included = entries.filter((entry) => entry.included).map((entry) => entry.publicationId);
+  for (let i = 0; i < included.length; i += UPDATE_BATCH) {
+    await db
+      .update(listingChannelPublications)
+      .set({ status: 'REMOVING', lastInFeedAt: now, updatedAt: now })
+      .where(
+        and(
+          inArray(listingChannelPublications.id, included.slice(i, i + UPDATE_BATCH)),
+          eq(listingChannelPublications.status, 'REMOVED'),
+          gte(listingChannelPublications.updatedAt, fetchStartedAt),
+        ),
+      );
   }
   // Quem estava saindo e não foi neste arquivo já saiu. Só o que mudou antes da busca começar:
   // um "tirar" no meio da busca pode ter ido no arquivo que o robô acabou de levar.

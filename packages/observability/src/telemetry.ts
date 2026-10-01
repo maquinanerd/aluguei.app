@@ -7,7 +7,14 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION,
+  ATTR_URL_PATH,
+  ATTR_URL_QUERY,
+} from '@opentelemetry/semantic-conventions';
+import { IncomingMessage } from 'node:http';
+import { redactUrl } from './pii.js';
 
 /** Reexportado para quem lê spans nos testes sem depender do @opentelemetry/api. */
 export { SpanKind } from '@opentelemetry/api';
@@ -87,7 +94,9 @@ export function startTelemetry(opts: TelemetryOptions): Telemetry {
     metricReaders: [],
     logRecordProcessors: [],
     instrumentations: [
-      new HttpInstrumentation(),
+      // O caminho e a busca vão para o coletor com a mesma redação do log: sem dado pessoal e
+      // sem o token do feed do Grupo OLX (revisão de segurança de 01/10/2026).
+      new HttpInstrumentation({ requestHook: redactIncomingRequestSpan }),
       new PgInstrumentation(),
       new UndiciInstrumentation(),
     ],
@@ -161,4 +170,24 @@ export function annotateHttpRoute(method: string, route: string | undefined): vo
   }
   span.setAttribute('http.route', route);
   span.updateName(`${method} ${route}`);
+}
+
+/** Caminho e busca redigidos de uma URL de requisição (o que o span de entrada guarda). */
+export function redactedUrlAttributes(url: string): { path: string; query: string | null } {
+  const redacted = redactUrl(url);
+  const mark = redacted.indexOf('?');
+  return mark === -1
+    ? { path: redacted, query: null }
+    : { path: redacted.slice(0, mark), query: redacted.slice(mark + 1) };
+}
+
+function redactIncomingRequestSpan(span: Span, request: unknown): void {
+  if (!(request instanceof IncomingMessage) || typeof request.url !== 'string') {
+    return;
+  }
+  const { path, query } = redactedUrlAttributes(request.url);
+  span.setAttribute(ATTR_URL_PATH, path);
+  if (query !== null) {
+    span.setAttribute(ATTR_URL_QUERY, query);
+  }
 }

@@ -1,4 +1,5 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
+import { DomainError } from '@aluguei/domain';
 import { channelConnections } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
 import { grupoOlxConnectionSchema } from '@aluguei/contracts';
@@ -107,10 +108,20 @@ export async function rotateFeedToken(
       feedTokenCreatedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(eq(channelConnections.id, connection.id))
+    .where(
+      and(
+        eq(channelConnections.id, connection.id),
+        connection.feedTokenHash === null
+          ? isNull(channelConnections.feedTokenHash)
+          : eq(channelConnections.feedTokenHash, connection.feedTokenHash),
+      ),
+    )
     .returning();
   if (!updated) {
-    throw new Error('token do feed não gravado');
+    throw new DomainError(
+      'CONFLICT',
+      'A URL do feed acabou de ser trocada em outra tela. Recarregue a página antes de gerar outra.',
+    );
   }
   return { token, connection: updated };
 }

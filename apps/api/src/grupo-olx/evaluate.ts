@@ -110,15 +110,10 @@ export async function requestGrupoOlxPublish(
     .onConflictDoNothing({
       target: [listingChannelPublications.listingId, listingChannelPublications.channel],
     });
-  const existing = await loadPublication(db, orgId, listingId);
-  if (!existing) {
-    throw new Error('publicação do Grupo OLX não gravada');
-  }
-  const next = nextFeedStatus(currentStatus(existing), { kind: 'PUBLISH_REQUESTED' });
-  await db
-    .update(listingChannelPublications)
-    .set({ status: next, ...settingsPatch, updatedAt: new Date() })
-    .where(eq(listingChannelPublications.id, existing.id));
+  await transitionGuarded(db, orgId, listingId, (current) => ({
+    status: nextFeedStatus(currentStatus(current), { kind: 'PUBLISH_REQUESTED' }),
+    ...settingsPatch,
+  }));
   await evaluateGrupoOlxListings(db, orgId, [listingId]);
   const updated = await loadPublication(db, orgId, listingId);
   if (!updated) {
@@ -163,19 +158,45 @@ export async function requestGrupoOlxRemove(
   orgId: string,
   listingId: string,
 ): Promise<PublicationRow | null> {
-  const existing = await loadPublication(db, orgId, listingId);
-  if (!existing) {
-    return null;
+  const changed = await transitionGuarded(db, orgId, listingId, (current) => ({
+    status: nextFeedStatus(currentStatus(current), {
+      kind: 'REMOVE_REQUESTED',
+      everInFeed: current.lastInFeedAt !== null,
+    }),
+  }));
+  return changed ? loadPublication(db, orgId, listingId) : null;
+}
+
+/**
+ * Grava a mudança só se o estado ainda for o que foi lido; se outra escrita chegou antes (a busca
+ * do robô, outro pedido), relê e recalcula. Devolve falso quando a publicação não existe.
+ */
+async function transitionGuarded(
+  db: AppDb,
+  orgId: string,
+  listingId: string,
+  change: (current: PublicationRow) => Partial<typeof listingChannelPublications.$inferInsert>,
+): Promise<boolean> {
+  for (let tentativa = 0; tentativa < 3; tentativa += 1) {
+    const current = await loadPublication(db, orgId, listingId);
+    if (!current) {
+      return false;
+    }
+    const updated = await db
+      .update(listingChannelPublications)
+      .set({ ...change(current), updatedAt: new Date() })
+      .where(
+        and(
+          eq(listingChannelPublications.id, current.id),
+          eq(listingChannelPublications.status, current.status),
+        ),
+      )
+      .returning({ id: listingChannelPublications.id });
+    if (updated.length > 0) {
+      return true;
+    }
   }
-  const next = nextFeedStatus(currentStatus(existing), {
-    kind: 'REMOVE_REQUESTED',
-    everInFeed: existing.lastInFeedAt !== null,
-  });
-  await db
-    .update(listingChannelPublications)
-    .set({ status: next, updatedAt: new Date() })
-    .where(eq(listingChannelPublications.id, existing.id));
-  return loadPublication(db, orgId, listingId);
+  throw new Error('publicação do Grupo OLX mudou três vezes seguidas durante o pedido');
 }
 
 export async function loadPublication(

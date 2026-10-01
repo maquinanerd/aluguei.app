@@ -487,38 +487,64 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
    * O robô busca duas vezes por dia e cada busca pode gerar até 50 mil anúncios: 6 por minuto basta
    * para a imobiliária conferir a URL e não deixa quem tem o token pesar no servidor.
    */
-  app.get(
-    '/integrations/grupo-olx/feed/:file',
-    {
-      config: {
-        rateLimit: {
-          max: 6,
-          timeWindow: '1 minute',
-          keyGenerator: (request: { params?: unknown }) => {
-            const params = request.params as { file?: string } | undefined;
-            return `grupo-olx-feed:${(params?.file ?? '').slice(0, 12)}`;
-          },
-        },
+  const feedRateLimit = {
+    rateLimit: {
+      max: 6,
+      timeWindow: '1 minute',
+      keyGenerator: (request: FastifyRequest) => {
+        const params = request.params as { file?: string } | undefined;
+        return `grupo-olx-feed:${(params?.file ?? '').slice(0, 12)}`;
       },
     },
+  };
+
+  /** Conexão do token, se o feed pode sair agora; qualquer outro caso é o mesmo 404. */
+  async function conexaoDoFeed(params: unknown) {
+    const { file } = z.object({ file: z.string().max(80) }).parse(params);
+    const token = file.endsWith('.xml') ? file.slice(0, -'.xml'.length) : '';
+    const connection = await findConnectionByFeedToken(db, token);
+    if (!connection?.enabled) {
+      return null;
+    }
+    const [org] = await db
+      .select({ status: organizations.status })
+      .from(organizations)
+      .where(eq(organizations.id, connection.orgId))
+      .limit(1);
+    return org?.status === 'ACTIVE' ? connection : null;
+  }
+
+  // HEAD responde sem gerar o arquivo e sem mexer em estado: só diz se a URL vale.
+  app.head(
+    '/integrations/grupo-olx/feed/:file',
+    { config: feedRateLimit },
     async (request, reply) => {
-      const { file } = z.object({ file: z.string().max(80) }).parse(request.params);
-      const token = file.endsWith('.xml') ? file.slice(0, -'.xml'.length) : '';
-      const notFound: () => never = () => {
+      if (apiPublicUrl() === null) {
+        return unavailable(reply, 'Feed indisponível nesta instalação');
+      }
+      if ((await conexaoDoFeed(request.params)) === null) {
         throw new DomainError('NOT_FOUND', 'Feed não encontrado');
-      };
+      }
+      return reply
+        .type(XML_TYPE)
+        .header('cache-control', 'no-store')
+        .header('x-robots-tag', 'noindex, nofollow')
+        .send();
+    },
+  );
+
+  app.get(
+    '/integrations/grupo-olx/feed/:file',
+    { exposeHeadRoute: false, config: feedRateLimit },
+    async (request, reply) => {
       const base = apiPublicUrl();
       if (base === null) {
         return unavailable(reply, 'Feed indisponível nesta instalação');
       }
-      const connection = (await findConnectionByFeedToken(db, token)) ?? notFound();
-      if (!connection.enabled) notFound();
-      const [org] = await db
-        .select({ status: organizations.status })
-        .from(organizations)
-        .where(eq(organizations.id, connection.orgId))
-        .limit(1);
-      if (org?.status !== 'ACTIVE') notFound();
+      const connection = await conexaoDoFeed(request.params);
+      if (connection === null) {
+        throw new DomainError('NOT_FOUND', 'Feed não encontrado');
+      }
 
       const agency = await loadAgency(db, connection.orgId);
       const userAgent = request.headers['user-agent'];
@@ -577,10 +603,15 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
     '/integrations/grupo-olx/media/:mediaId/:file',
     {
       config: {
+        // Balde por foto: o robô baixa cada URL uma vez, e quem martela uma URL inventada
+        // não esgota o limite das outras (revisão de segurança de 01/10/2026).
         rateLimit: {
-          max: 3000,
+          max: 30,
           timeWindow: '1 minute',
-          keyGenerator: () => 'grupo-olx-media',
+          keyGenerator: (request: FastifyRequest) => {
+            const params = request.params as { mediaId?: string } | undefined;
+            return `grupo-olx-media:${(params?.mediaId ?? '').slice(0, 36)}`;
+          },
         },
       },
     },
@@ -684,9 +715,23 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
     return null;
   }
 
-  /** Balde de limite próprio: o Grupo OLX chama de poucos IPs, atrás do Traefik vira um só. */
+  /**
+   * Balde de limite próprio (atrás do Traefik todos têm o mesmo IP), separado entre quem traz a
+   * chave e quem não traz: anônimo martelando a rota não esgota o limite do Grupo OLX — e o
+   * relatório, que não é reenviado, não se perde por isso (revisão de segurança de 01/10/2026).
+   */
   const webhookRateLimit = {
-    rateLimit: { max: 600, timeWindow: '1 minute', keyGenerator: () => 'grupo-olx-webhook' },
+    rateLimit: {
+      max: 600,
+      timeWindow: '1 minute',
+      keyGenerator: (request: FastifyRequest) => {
+        const secret = app.env.GRUPO_OLX_LEADS_SECRET_KEY;
+        const autenticado =
+          secret !== undefined &&
+          verifyGrupoOlxAuthorization(request.headers.authorization, secret) === 'OK';
+        return autenticado ? 'grupo-olx-webhook:auth' : 'grupo-olx-webhook:anon';
+      },
+    },
   };
 
   /**

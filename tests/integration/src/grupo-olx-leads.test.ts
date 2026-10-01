@@ -90,6 +90,7 @@ describe('Grupo OLX — webhook de leads (ADR-108)', () => {
 
   async function anuncio(
     alvo: RegisteredAgency,
+    opcoes: { noGrupoOlx?: boolean } = {},
   ): Promise<{ listingId: string; propertyId: string }> {
     const imovel = await call(app, 'POST', '/properties', {
       cookie: alvo.cookie,
@@ -100,7 +101,21 @@ describe('Grupo OLX — webhook de leads (ADR-108)', () => {
       cookie: alvo.cookie,
       payload: { propertyId: id, title: `Anúncio do lead ${String((sequencia += 1))}` },
     });
-    return { listingId: (criado.body.listing as { id: string }).id, propertyId: id };
+    const listingId = (criado.body.listing as { id: string }).id;
+    if (opcoes.noGrupoOlx !== false) {
+      // O feed mandou o anúncio ao Grupo OLX (bloqueado ou não, a publicação existe).
+      const publicado = await call(
+        app,
+        'POST',
+        `/listings/${listingId}/channels/grupoolx/publish`,
+        {
+          cookie: alvo.cookie,
+          payload: {},
+        },
+      );
+      expect(publicado.status, JSON.stringify(publicado.body)).toBe(201);
+    }
+    return { listingId, propertyId: id };
   }
 
   beforeAll(async () => {
@@ -236,6 +251,22 @@ describe('Grupo OLX — webhook de leads (ADR-108)', () => {
     expect(res.statusCode).toBe(422);
     const outroUuid = await postar(leadDoAnuncio('6f0c1d2e-3a4b-4c5d-8e9f-0a1b2c3d4e5f'));
     expect(outroUuid.statusCode).toBe(422);
+  });
+
+  it('anúncio que existe aqui mas nunca foi ao Grupo OLX: 422 (a chave não abre qualquer anúncio)', async () => {
+    const fora = await anuncio(agencia, { noGrupoOlx: false });
+    const res = await postar(leadDoAnuncio(fora.listingId));
+    expect(res.statusCode).toBe(422);
+    expect(res.json()).toMatchObject({ code: 'LISTING_NOT_FOUND' });
+  });
+
+  it('anônimo martelando a rota não esgota o limite de quem tem a chave', async () => {
+    for (let i = 0; i < 610; i += 1) {
+      const anonimo = await postar(leadDoAnuncio(listingId), { auth: null });
+      if (anonimo.statusCode === 429) break;
+    }
+    const comChave = await postar(leadDoAnuncio(listingId));
+    expect(comChave.statusCode, comChave.body).toBe(200);
   });
 
   it('MCMV sem anúncio não recebe 4xx por isso: vai para a imobiliária do CNPJ', async () => {

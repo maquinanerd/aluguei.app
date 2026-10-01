@@ -3,6 +3,7 @@ import {
   channelConnections,
   leadPropertyInterests,
   leads,
+  listingChannelPublications,
   listings,
   organizations,
   parties,
@@ -102,10 +103,21 @@ export async function routeGrupoOlxLead(
       message: 'Lead de anúncio sem clientListingId',
     };
   }
+  // Só anúncio que o feed mandou ao Grupo OLX (com publicação no canal, em qualquer estado): a
+  // chave é uma só para a instalação, e não pode servir para criar lead em anúncio que nunca foi
+  // ao portal (revisão de segurança de 01/10/2026).
   const [listing] = UUID.test(lead.clientListingId)
     ? await db
         .select({ id: listings.id, orgId: listings.orgId, propertyId: listings.propertyId })
         .from(listings)
+        .innerJoin(
+          listingChannelPublications,
+          and(
+            eq(listingChannelPublications.listingId, listings.id),
+            eq(listingChannelPublications.orgId, listings.orgId),
+            eq(listingChannelPublications.channel, GRUPO_OLX_CHANNEL),
+          ),
+        )
         .where(eq(listings.id, lead.clientListingId))
         .limit(1)
     : [];

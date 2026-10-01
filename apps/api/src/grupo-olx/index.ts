@@ -9,6 +9,7 @@ export {
   updateGrupoOlxSettings,
 } from './evaluate.js';
 export { GRUPO_OLX_CHANNEL } from './feed-data.js';
+export { applyCrawlerFetch } from './feed.js';
 export { GRUPO_OLX_LEAD_PROVIDER, processGrupoOlxLead } from './leads.js';
 export type { GrupoOlxLeadInboxPayload } from './leads.js';
 export { GRUPO_OLX_REPORT_PROVIDER, processGrupoOlxReport } from './reports.js';

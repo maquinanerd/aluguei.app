@@ -136,11 +136,19 @@ export function normalizeTerm(value: string): string {
     .trim();
 }
 
+/**
+ * Leitura de tabela só pelas chaves próprias: `tabela["constructor"]` devolveria a função do
+ * protótipo, e ela iria parar no XML (revisão de segurança de 01/10/2026).
+ */
+export function ownValue<T>(table: Readonly<Record<string, T>>, key: string): T | undefined {
+  return Object.hasOwn(table, key) ? table[key] : undefined;
+}
+
 /** Sigla da UF a partir do que está no cadastro (sigla ou nome). */
 export function resolveStateAbbreviation(value: string | null): string | null {
   if (value === null) return null;
   const upper = value.trim().toUpperCase();
-  if (upper in STATE_NAMES) return upper;
+  if (ownValue(STATE_NAMES, upper) !== undefined) return upper;
   const normalized = normalizeTerm(value);
   const found = Object.entries(STATE_NAMES).find(([, name]) => normalizeTerm(name) === normalized);
   return found ? found[0] : null;
@@ -287,5 +295,5 @@ const FEATURE_BY_TERM: Record<string, string> = {
 };
 
 export function mapFeature(term: string): string | null {
-  return FEATURE_BY_TERM[normalizeTerm(term)] ?? null;
+  return ownValue(FEATURE_BY_TERM, normalizeTerm(term)) ?? null;
 }

@@ -4,6 +4,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
 import { channelConnections, channelFeedFetches, channelSyncJobs } from '@aluguei/db';
 import { runChannelJobs } from '@aluguei/worker/channel-jobs';
+import { applyCrawlerFetch } from '@aluguei/api/grupo-olx';
 import { buildTestApp } from './helpers.js';
 import { approveAgency, call, registerAgency } from './platform-fixtures.js';
 import type { RegisteredAgency } from './platform-fixtures.js';
@@ -227,6 +228,64 @@ describe('Grupo OLX — feed VRSync por token (ADR-107)', () => {
       .where(eq(channelConnections.orgId, agencia.org.id));
     expect(conexao?.lastCrawlerFetchAt).not.toBeNull();
     expect(conexao?.lastCrawlerListingCount).toBeGreaterThanOrEqual(1);
+  });
+
+  it('HEAD do robô diz se a URL vale sem gerar o arquivo nem mover estado', async () => {
+    const { listingId } = await criarAnuncio(agencia);
+    await publicar(agencia, listingId);
+    const antes = await db
+      .select()
+      .from(channelFeedFetches)
+      .where(eq(channelFeedFetches.orgId, agencia.org.id));
+    const head = await app.inject({
+      method: 'HEAD',
+      url: feedPath,
+      headers: { 'user-agent': CRAWLER },
+    });
+    expect(head.statusCode).toBe(200);
+    expect(head.body).toBe('');
+    expect((await estado(listingId))?.status).toBe('ELIGIBLE');
+    const depois = await db
+      .select()
+      .from(channelFeedFetches)
+      .where(eq(channelFeedFetches.orgId, agencia.org.id));
+    expect(depois).toHaveLength(antes.length);
+    const falso = await app.inject({
+      method: 'HEAD',
+      url: `/integrations/grupo-olx/feed/${'B'.repeat(43)}.xml`,
+    });
+    expect(falso.statusCode).toBe(404);
+  });
+
+  it('tirado no meio da busca, mas levado nela: REMOVING até a próxima, não REMOVED', async () => {
+    const { listingId } = await criarAnuncio(agencia);
+    await publicar(agencia, listingId);
+    const lido = await estado(listingId);
+    const inicioDaBusca = new Date(Date.now() - 1000);
+    // A imobiliária tira enquanto o robô ainda baixa o arquivo que já leva o anúncio.
+    const tirado = await call(app, 'POST', `/listings/${listingId}/channels/grupoolx/remove`, {
+      cookie: agencia.cookie,
+      payload: {},
+    });
+    expect((tirado.body.publication as { status: string }).status).toBe('REMOVED');
+    await applyCrawlerFetch(
+      db,
+      agencia.org.id,
+      [
+        {
+          publicationId: lido?.id ?? '',
+          current: 'ELIGIBLE',
+          included: true,
+          previousHash: null,
+          hash: 'a'.repeat(64),
+          issues: [],
+        },
+      ],
+      inicioDaBusca,
+    );
+    const depois = await estado(listingId);
+    expect(depois?.status).toBe('REMOVING');
+    expect(depois?.lastInFeedAt).not.toBeNull();
   });
 
   it('o feed de uma imobiliária nunca leva anúncio de outra', async () => {

@@ -89,7 +89,7 @@ function decodeSegment(segment: string): string {
  * credencial da URL que o robô busca — o portal não manda cabeçalho de autenticação.
  */
 const SECRET_PATH_SEGMENTS: ReadonlyArray<readonly [RegExp, string]> = [
-  [/^(\/integrations\/grupo-olx\/feed\/)[^/]+$/, '$1[REDACTED]'],
+  [/(\/integrations\/grupo-olx\/feed\/)[^/?#]*/gi, '$1[REDACTED]'],
 ];
 
 function redactSecretPath(path: string): string {
@@ -106,9 +106,10 @@ function redactSecretPath(path: string): string {
  */
 export function redactUrl(url: string): string {
   const mark = url.indexOf('?');
-  const path = redactSecretPath(mark === -1 ? url : url.slice(0, mark));
+  const path = mark === -1 ? url : url.slice(0, mark);
+  // O roteador decodifica o caminho: `%66eed` chega como `feed`. A redação olha o decodificado.
   const decodedPath = decodeSegment(path);
-  const maskedPath = redactPiiText(decodedPath);
+  const maskedPath = redactPiiText(redactSecretPath(decodedPath));
   const outPath = maskedPath === decodedPath ? path : maskedPath;
   if (mark === -1) {
     return outPath;

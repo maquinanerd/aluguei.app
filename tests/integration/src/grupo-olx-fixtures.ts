@@ -1,8 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import { expect } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { and, eq } from 'drizzle-orm';
 import type { AppDb } from '@aluguei/db';
-import { listingChannelPublications } from '@aluguei/db';
+import { listingChannelPublications, propertyMedia } from '@aluguei/db';
 import type { StorageService } from '@aluguei/storage';
 import { call } from './platform-fixtures.js';
 import type { RegisteredAgency } from './platform-fixtures.js';
@@ -166,25 +167,24 @@ export function grupoOlxFixtures(app: FastifyInstance, storage: MemoryStorage): 
       },
     });
     expect(valores.status, JSON.stringify(valores.body)).toBe(200);
+    // Fotos gravadas direto (banco e storage), como a confirmação de envio grava: estes testes são
+    // do feed, e o envio pela API tem limite de 60 por minuto por usuário — de propósito.
     const total = semente.fotos ?? 5;
     for (let i = 0; i < total; i += 1) {
       const png = semente.fotoPng === true && i === 0;
-      const pedido = await call(app, 'POST', `/properties/${propertyId}/media/upload-url`, {
-        cookie: alvo.cookie,
-        payload: {
-          kind: 'PHOTO',
-          mimeType: png ? 'image/png' : 'image/jpeg',
-          sizeBytes: JPEG.byteLength,
-        },
+      const key = `orgs/${alvo.org.id}/properties/${propertyId}/photo/${randomUUID()}.${png ? 'png' : 'jpg'}`;
+      const body = png ? Buffer.alloc(2004, 1) : JPEG;
+      await storage.putObject({ key, body });
+      await db.insert(propertyMedia).values({
+        orgId: alvo.org.id,
+        propertyId,
+        kind: 'PHOTO',
+        storageKey: key,
+        sizeBytes: body.byteLength,
+        isPublic: true,
+        sortOrder: i,
+        isCover: i === 0,
       });
-      expect(pedido.status, JSON.stringify(pedido.body)).toBe(200);
-      const key = String(pedido.body.key);
-      await storage.putObject({ key, body: png ? Buffer.alloc(2004, 1) : JPEG });
-      const confirmado = await call(app, 'POST', `/properties/${propertyId}/media/confirm`, {
-        cookie: alvo.cookie,
-        payload: { key },
-      });
-      expect(confirmado.status, JSON.stringify(confirmado.body)).toBe(201);
     }
     const anuncio = await call(app, 'POST', '/listings', {
       cookie: alvo.cookie,
