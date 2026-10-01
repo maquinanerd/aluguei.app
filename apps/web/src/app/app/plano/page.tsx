@@ -4,6 +4,7 @@ import { apiFetch, assertSecureApiBase } from '@/lib/api-server';
 import { PlanoBloqueado } from '@/components/shell/plano-bloqueado';
 import { moduloDe } from '@/lib/plan-modules';
 import type { SessionPlan } from '@/lib/session';
+import { portalBaseUrl } from '@/lib/portal-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,11 @@ export default async function PlanoPage({
   const modulo = moduloDe(Array.isArray(bruto) ? bruto[0] : bruto);
 
   assertSecureApiBase();
-  const me = await apiFetch<{ plan: SessionPlan | null }>('/auth/me');
+  const me = await apiFetch<{
+    plan: SessionPlan | null;
+    activeOrg: { id: string } | null;
+    memberships: Array<{ orgId: string; role: string }>;
+  }>('/auth/me');
   const plano = me.plan;
   const temModulo = modulo ? (plano?.modules.includes(modulo) ?? false) : false;
 
@@ -33,6 +38,11 @@ export default async function PlanoPage({
       modulo={modulo}
       plano={plano}
       emPreparacao={modulo !== null && temModulo && EM_PREPARACAO.includes(modulo)}
+      orgId={me.activeOrg?.id ?? null}
+      podePedir={me.memberships.some(
+        (m) => m.orgId === me.activeOrg?.id && (m.role === 'owner' || m.role === 'admin'),
+      )}
+      portalUrl={portalBaseUrl()}
     />
   );
 }

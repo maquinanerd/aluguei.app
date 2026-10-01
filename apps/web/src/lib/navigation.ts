@@ -1,10 +1,11 @@
-import type { IconName } from '@aluguei/ui';
+import type { NavIconName } from '@/components/shell/nav-icon';
 import type { Permission, PlanModule } from '@aluguei/domain';
 
 export interface NavItem {
   href: string;
   label: string;
-  icon: IconName;
+  /** Ícone do `Painel Sidebar.dc.html` (T8). */
+  icon: NavIconName;
   permission?: Permission;
   /** Badge numérica opcional (dados reais apenas; sem inventar). */
   badge?: number;
@@ -66,7 +67,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       {
         href: '/app/crm/tasks',
         label: 'Tarefas',
-        icon: 'clipboardList',
+        icon: 'clip',
         permission: 'task:read',
         section: 'primary',
       },
@@ -74,7 +75,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/crm/calendar',
         module: 'CRM',
         label: 'Agenda',
-        icon: 'calendar',
+        icon: 'cal',
         permission: 'visit:read',
         section: 'primary',
       },
@@ -94,7 +95,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       {
         href: '/app/listings',
         label: 'Anúncios',
-        icon: 'megaphone',
+        icon: 'mega',
         permission: 'listing:read',
         section: 'primary',
         activePrefixes: ['/app/listings'],
@@ -109,27 +110,19 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     ],
   },
   {
-    // Vendas (Onda 5): as telas existem; o cadeado por plano continua valendo.
+    // Vendas (Onda 5): o design só tem Negociações (T9). O painel de vendas continua em
+    // `/app/vendas`, pelo link no cabeçalho de Negociações, e acende o mesmo item.
     title: 'Vendas',
     items: [
       {
-        href: '/app/vendas',
-        label: 'Painel de vendas',
-        icon: 'trendingUp',
-        permission: 'report:read',
-        section: 'primary',
-        module: 'VENDAS',
-        novo: true,
-      },
-      {
         href: '/app/vendas/negociacoes',
         label: 'Negociações',
-        icon: 'columns',
+        icon: 'tag',
         permission: 'lead:read',
         section: 'primary',
         module: 'VENDAS',
         novo: true,
-        activePrefixes: ['/app/vendas/negociacoes'],
+        activePrefixes: ['/app/vendas'],
       },
     ],
   },
@@ -140,7 +133,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/inbox',
         module: 'ATENDIMENTO',
         label: 'Inbox',
-        icon: 'messageCircle',
+        icon: 'chat',
         permission: 'conversation:read',
         section: 'primary',
       },
@@ -148,7 +141,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/visits',
         module: 'CRM',
         label: 'Visitas',
-        icon: 'calendarClock',
+        icon: 'clock',
         permission: 'visit:read',
         section: 'primary',
       },
@@ -156,7 +149,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/proposals',
         module: 'CRM',
         label: 'Propostas',
-        icon: 'handshake',
+        icon: 'hand',
         permission: 'proposal:read',
         section: 'primary',
       },
@@ -173,7 +166,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/contracts',
         module: 'LOCACAO',
         label: 'Contratos',
-        icon: 'fileText',
+        icon: 'file',
         permission: 'contract:read',
         section: 'primary',
         activePrefixes: ['/app/contracts', '/app/contract-templates'],
@@ -182,7 +175,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/inspections',
         module: 'LOCACAO',
         label: 'Vistorias',
-        icon: 'camera',
+        icon: 'cam',
         permission: 'inspection:read',
         section: 'primary',
       },
@@ -203,7 +196,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/finance',
         module: 'FINANCEIRO',
         label: 'Visão Geral',
-        icon: 'barChart',
+        icon: 'bar',
         permission: 'finance:read',
         section: 'primary',
       },
@@ -219,7 +212,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/payments',
         module: 'FINANCEIRO',
         label: 'Pagamentos',
-        icon: 'creditCard',
+        icon: 'card',
         permission: 'finance:read',
         section: 'primary',
       },
@@ -227,7 +220,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/payouts',
         module: 'FINANCEIRO',
         label: 'Repasses',
-        icon: 'trendingUp',
+        icon: 'trend',
         permission: 'finance:read',
         section: 'primary',
       },
@@ -235,7 +228,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/reconciliation',
         module: 'FINANCEIRO',
         label: 'Conciliação',
-        icon: 'checkCircle',
+        icon: 'check',
         permission: 'finance:read',
         section: 'primary',
       },
@@ -243,7 +236,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/ledger',
         module: 'FINANCEIRO',
         label: 'Ledger',
-        icon: 'database',
+        icon: 'db',
         permission: 'finance:read',
         section: 'primary',
       },
@@ -256,7 +249,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         href: '/app/marketing',
         module: 'MARKETING',
         label: 'Marketing',
-        icon: 'megaphone',
+        icon: 'mega',
         permission: 'meta:read',
         section: 'primary',
         activePrefixes: ['/app/marketing', '/app/meta'],
@@ -264,7 +257,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       {
         href: '/app/reporting',
         label: 'Relatórios',
-        icon: 'pieChart',
+        icon: 'pie',
         permission: 'report:read',
         section: 'primary',
       },
@@ -290,7 +283,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       {
         href: '/app/settings',
         label: 'Configurações',
-        icon: 'settings',
+        icon: 'gear',
         permission: 'org:manage',
         section: 'admin',
       },

@@ -1965,3 +1965,26 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
    chave existir, o status é `IMPLEMENTED_NOT_LIVE_VERIFIED` (`docs/BLOCKERS.md`), e as telas seguem
    sem prometer e-mail (adendo 1C-A, item 1); cada tela volta a prometer quando a entrega estiver no
    ar.
+
+### Adendo ao ADR-105 — menu da gestão e upgrade no lugar (Onda 1C-B1, 2026-09-30)
+
+1. **Upgrade no lugar (tela 33).** O item fora do plano abre a própria rota (`/app/leases`), aceso e
+   com cadeado, e a moldura mostra ali a tela de upgrade, no lugar da página. A moldura sabe o
+   módulo da rota pelo menu; um 403 `PLAN_MODULE_NOT_INCLUDED` de qualquer consulta da página faz o
+   mesmo (`useQuery` avisa a moldura). `/app/plano?modulo=` continua existindo para links antigos.
+2. **Plano oferecido.** Entre os planos públicos que incluem o módulo, a tela oferece o mais barato
+   com preço público (o "Fale com a gente" vai por último); no empate, o de menos módulos e o
+   código. Hoje, em produção, isso dá o Essencial para Locação e o Ilimitado para Vendas.
+   "Comparar planos" leva a `/planos` do portal (`PORTAL_BASE_URL` passa a chegar também ao `web`).
+3. **Menu igual ao `Painel Sidebar.dc.html`** (T8, T9): ícones do desenho (viewBox 16, traço 1,4,
+   15px), "Gestão" em 500, botão de recolher sem moldura, item bloqueado com rótulo 500 e ícone
+   `#B6B7BB`, sem "Novo" nem contador, cadeado do desenho, rolagem sem barra, "Painel de vendas"
+   fora do menu (link no cabeçalho de Negociações). Contadores reais em Leads, Tarefas e Inbox
+   (`GET /dashboard/counters`, B14), os mesmos números do resumo.
+4. **Rodapé "Gestor · plano".** Dono e administrador aparecem como "Gestor", seguido do plano
+   ("Gestão Locação" ou "plano Anunciante"). O "⋮" sai; a linha do usuário inteira abre o menu da
+   conta, que continua com Configurações e Sair.
+5. **Barra do topo mantida em todas as telas.** Os artboards das telas internas desenham só a trilha;
+   o produto mantém busca, sino e conta em todas, porque é por ali que se busca e se sai. Os estilos
+   seguem a barra completa da Visão Geral (busca de 340 × 32, atalho ⌘K em cinza, sino desenhado,
+   conta como "RA ⌄").

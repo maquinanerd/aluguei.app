@@ -227,6 +227,8 @@ services:
       APP_BASE_URL: ${APP_BASE_URL}
       API_BASE_URL: ${API_BASE_URL}
       PUBLIC_ORG_SLUG: ${PUBLIC_ORG_SLUG:-}
+      # "Comparar planos" da tela de upgrade leva à página de planos do portal (ADR-105, tela 33).
+      PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3100}
     depends_on:
       api:
         condition: service_healthy

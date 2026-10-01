@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Badge,
   Button,
@@ -95,6 +96,11 @@ function NegociacoesBody() {
       <PageToolbar
         title="Negociações"
         description="Propostas de venda por etapa, da primeira oferta ao fechamento."
+        actions={
+          <Link href="/app/vendas" className="peg-btn peg-btn--secondary peg-btn--sm">
+            Painel de vendas
+          </Link>
+        }
       />
 
       {lista.error ? (

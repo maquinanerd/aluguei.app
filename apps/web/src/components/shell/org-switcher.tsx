@@ -48,7 +48,7 @@ export function OrgSwitcher({ session }: { session: Session }) {
     >
       <button
         type="button"
-        className="peg-group"
+        className="peg-group org-switcher"
         style={{
           gap: 8,
           width: '100%',
@@ -73,7 +73,9 @@ export function OrgSwitcher({ session }: { session: Session }) {
         >
           {activeOrg.name}
         </span>
-        <Icon name="chevronsUpDown" size={14} />
+        <span className="org-switcher__setas" aria-hidden="true">
+          ⌃⌄
+        </span>
       </button>
       {open ? (
         <div

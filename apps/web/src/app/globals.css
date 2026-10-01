@@ -80,6 +80,12 @@ body {
   text-overflow: ellipsis;
 }
 
+/* "AchouImóvel Gestão": "Gestão" em 500 e cinza (Painel Sidebar.dc.html:13). */
+.app-sidebar__wordmark-sub {
+  font-weight: 500;
+  color: var(--peg-text-tertiary);
+}
+
 .app-sidebar__logo {
   width: 24px;
   height: 24px;
@@ -95,8 +101,31 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Botão de recolher: o retângulo de 16 × 14 do desenho, sem moldura em volta. */
 .app-sidebar__collapse {
   flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--peg-radius-xs);
+  cursor: pointer;
+}
+
+.app-sidebar__collapse:hover {
+  background: var(--peg-surface-subtle);
+}
+
+.app-sidebar__collapse-icon {
+  width: 16px;
+  height: 14px;
+  border: 1.5px solid var(--peg-text-tertiary);
+  border-radius: 3px;
+  display: block;
 }
 
 .app-sidebar__body {
@@ -104,6 +133,11 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--peg-space-3);
+  scrollbar-width: none;
+}
+
+.app-sidebar__body::-webkit-scrollbar {
+  display: none;
 }
 
 .app-sidebar__group {
@@ -112,6 +146,11 @@ body {
 
 .app-sidebar__group:last-child {
   margin-bottom: 0;
+}
+
+/* Depois da Visão Geral o primeiro grupo começa 16px abaixo; os demais, 20 (Painel Sidebar.dc.html:66). */
+.app-sidebar__group:first-child {
+  margin-bottom: var(--peg-space-4);
 }
 
 .app-sidebar__group-title {
@@ -151,7 +190,6 @@ body {
   display: inline-flex;
   flex: none;
   color: inherit;
-  opacity: 0.9;
 }
 
 .app-sidebar__label {
@@ -188,12 +226,24 @@ body {
 /* Badge numérica compacta (dados reais apenas) */
 /* Item fora do plano ou de tela ainda em preparação: cadeado e cor mais fraca.
    A cor não é o único sinal — há o cadeado e o aria-label. */
-.app-sidebar__link--bloqueado {
+.app-sidebar__link--bloqueado,
+.app-sidebar__link--bloqueado.app-sidebar__link--active {
   color: var(--peg-text-tertiary);
 }
 
-.app-sidebar__link--bloqueado .app-sidebar__label {
-  font-weight: 400;
+.app-sidebar__link--bloqueado .app-sidebar__icon {
+  color: var(--peg-text-disabled);
+}
+
+/* Aberto e fora do plano (a tela de upgrade no lugar): ícone verde, texto cinza. */
+.app-sidebar__link--bloqueado.app-sidebar__link--active .app-sidebar__icon {
+  color: var(--peg-nav-active-icon);
+}
+
+.app-sidebar__cadeado {
+  display: inline-flex;
+  flex: none;
+  color: var(--peg-text-tertiary);
 }
 
 /* Etiqueta "Novo" da entrega de design. */
@@ -206,9 +256,8 @@ body {
   border-radius: var(--peg-radius-xs);
   background: var(--brand-subtle);
   color: var(--brand-strong);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .app-sidebar__badge {
@@ -287,16 +336,47 @@ body {
   display: flex;
   align-items: center;
   gap: var(--peg-space-2);
-  padding: var(--peg-space-1) var(--peg-space-1);
   border-radius: var(--peg-radius-sm);
+}
+
+/* Linha do usuário (Painel Sidebar.dc.html:33): avatar de 28, nome e "Gestor · plano"; a linha
+   inteira abre o menu da conta. */
+.app-sidebar__profile-botao {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--peg-space-2);
+  padding: 0 var(--peg-space-2);
+  border: 0;
+  border-radius: var(--peg-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-sidebar__profile-botao:hover {
+  background: var(--peg-surface-subtle);
+}
+
+.app-sidebar__profile-botao .peg-avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .app-sidebar__profile-text {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-sidebar__profile-name {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--peg-text-primary);
   white-space: nowrap;
@@ -312,13 +392,30 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Topbar */
+/* Linha da imobiliária (Painel Sidebar.dc.html:32): avatar de 24 em #F0F0F0 e "⌃⌄". */
+.org-switcher {
+  height: 40px;
+}
+
+.org-switcher .peg-avatar {
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--peg-surface-subtle);
+  color: var(--peg-text-secondary);
+}
+
+.org-switcher__setas {
+  font-size: 10px;
+  color: var(--peg-text-tertiary);
+}
+
+/* Topbar (01-painel.dc.html:34) */
 .app-topbar {
   display: flex;
   align-items: center;
   gap: var(--peg-space-2);
   height: var(--peg-topbar-height);
-  padding: 0 var(--peg-space-4);
+  padding: 0 var(--peg-space-4) 0 20px;
   border-bottom: 1px solid var(--peg-border);
   background: var(--peg-canvas);
   flex: none;
@@ -338,22 +435,197 @@ body {
   padding: var(--peg-page-padding);
 }
 
+/* Busca global: 340 × 32, borda #C7C7C7 e o atalho em cinza (01-painel.dc.html:36). */
 .app-topbar__search {
   width: 340px;
+}
+
+.app-topbar__search .peg-input {
+  height: 32px;
+  border-color: var(--peg-border-strong);
+  border-radius: var(--peg-radius-sm);
+  padding: 0 10px;
+}
+
+.app-topbar__search .peg-input__control {
+  font-size: 13px;
+}
+
+.app-topbar__search .peg-input__control::placeholder {
+  color: var(--peg-text-tertiary);
 }
 
 .app-kbd {
   display: inline-flex;
   align-items: center;
-  height: 18px;
-  padding: 0 5px;
-  border: 1px solid var(--peg-border);
+  padding: 2px 5px;
   border-radius: var(--peg-radius-xs);
   background: var(--peg-surface-subtle);
   color: var(--peg-text-secondary);
-  font-family: var(--peg-font-mono);
-  font-size: 10px;
-  line-height: 1;
+  font-size: 11px;
+  line-height: normal;
+}
+
+/* Sino do topo, desenhado como no design (16 × 16, borda de 1,5). */
+.app-topbar__sino {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--peg-text-secondary);
+  border-radius: 8px 8px 3px 3px;
+  display: block;
+}
+
+/* Tela de upgrade no lugar do módulo (tela 33, 01-painel.dc.html:83-90). */
+.upgrade {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upgrade__cartao {
+  width: min(560px, 100%);
+  background: var(--peg-surface);
+  border: 1px solid var(--peg-border);
+  border-radius: var(--peg-radius-md);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.upgrade__selo {
+  align-self: flex-start;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--peg-radius-xs);
+  background: var(--peg-surface-muted);
+  color: var(--peg-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.upgrade__selo svg {
+  width: 10px;
+  height: 11px;
+}
+
+.upgrade__titulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.upgrade__texto {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--peg-text-secondary);
+}
+
+.upgrade__lista {
+  margin: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--peg-surface-subtle);
+  border-bottom: 1px solid var(--peg-surface-subtle);
+}
+
+.upgrade__lista li {
+  font-size: 12.5px;
+  line-height: normal;
+  display: flex;
+  gap: 6px;
+}
+
+/* No desenho cada item cabe numa linha. No Linux o Inter sai ~3% mais largo e "Reajuste,
+   renovação e encerramento" passaria 1px da coluna; no desktop o item não quebra (sobra o vão de
+   16px entre as colunas). */
+@media (min-width: 640px) {
+  .upgrade__lista li {
+    white-space: nowrap;
+  }
+}
+
+.upgrade__marca {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.upgrade__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.upgrade__botao {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--peg-radius-sm);
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.upgrade__botao--principal {
+  background: var(--brand);
+  color: var(--brand-on);
+  border: 0;
+}
+
+.upgrade__botao--principal[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.upgrade__botao--secundario,
+.upgrade__botao--secundario:hover {
+  border: 1px solid var(--peg-border-strong);
+  color: var(--peg-text-primary);
+  background: var(--peg-surface);
+  text-decoration: none;
+}
+
+.upgrade__pedido {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--peg-text-primary);
+}
+
+.upgrade__erro {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--peg-danger);
+}
+
+.upgrade__nota {
+  margin: 0;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--peg-text-tertiary);
+}
+
+@media (max-width: 639px) {
+  .upgrade__cartao {
+    padding: 20px;
+  }
+
+  .upgrade__lista {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Skip link (WCAG 2.4.1) */

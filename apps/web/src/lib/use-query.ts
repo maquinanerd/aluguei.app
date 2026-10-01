@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { PlanModule } from '@aluguei/domain';
 import { apiClient, ApiClientError, moduloForaDoPlano } from './api-client';
+import { useAvisarForaDoPlano } from '@/components/shell/fora-do-plano';
 
 export interface QueryState<T> {
   data: T | null;
@@ -26,6 +27,7 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [foraDoPlano, setForaDoPlano] = useState<PlanModule | null>(null);
   const [tick, setTick] = useState(0);
+  const avisarForaDoPlano = useAvisarForaDoPlano();
 
   const reload = useCallback(() => {
     setTick((t) => t + 1);
@@ -51,7 +53,9 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
         if (cancelled) return;
         if (err instanceof ApiClientError && (err.status === 401 || err.status === 403)) {
           setPermissionDenied(true);
-          setForaDoPlano(moduloForaDoPlano(err));
+          const modulo = moduloForaDoPlano(err);
+          setForaDoPlano(modulo);
+          if (modulo) avisarForaDoPlano(modulo);
         } else {
           setError(err instanceof Error ? err.message : 'Falha ao carregar');
         }
@@ -62,7 +66,7 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
     return () => {
       cancelled = true;
     };
-  }, [path, tick, depsKey]);
+  }, [path, tick, depsKey, avisarForaDoPlano]);
 
   return { data, loading, error, permissionDenied, foraDoPlano, reload, setData };
 }
