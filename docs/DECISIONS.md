@@ -2145,3 +2145,22 @@ Decisão:
 
 Consequências: com a chave e a homologação, o recebimento liga sem mudar código. Relatório limpo sem
 URL por imobiliária não tem dono (422) até a homologação dizer como identificar o anunciante.
+
+Revisão de segurança (01/10/2026), sobre o feed e os webhooks dos ADR-107 e ADR-108:
+
+- **Corrigido** — o token do feed ia ao span HTTP da telemetria: o `requestHook` redige o caminho
+  (`packages/observability/src/telemetry.ts`), como o log já fazia.
+- **Corrigido** — a chave é uma só para a instalação e abria qualquer anúncio: lead só é roteado para
+  anúncio com publicação no canal `grupoolx`, em qualquer estado (`apps/api/src/grupo-olx/leads.ts`).
+- **Corrigido** — anônimo esgotava o limite do webhook (e o relatório não é reenviado): baldes
+  separados para quem traz a chave e para quem não traz; fotos com balde por `mediaId`; HEAD do feed
+  responde sem gerar o arquivo e sem mover estado.
+- **Corrigido** — corridas: anúncio tirado durante a busca, mas levado nela, fica REMOVING até a
+  próxima busca; publicar e tirar gravam só sobre o estado lido; a rotação do token só grava sobre o
+  token lido (a segunda rotação simultânea recebe 409).
+- **Corrigido** — chaves do protótipo (`constructor`) nas tabelas de correspondência: leitura só por
+  chave própria.
+- **Mantido por decisão do dono** — o arquivo leva o endereço completo (rua, número, complemento,
+  CEP) e as coordenadas; o portal exibe só o bairro (`displayAddress=Neighborhood`). Por isso a URL
+  do feed é tratada como dado sensível da imobiliária: mostrada uma vez, só o hash no banco, fora do
+  log e da telemetria, revogável na tela. Quem tem a URL lê os endereços exatos.

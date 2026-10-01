@@ -49,6 +49,11 @@ existir — variável vazia vale como ausente.
 Observação do Canal Pro: anúncio criado pelo XML não pode ser editado lá; anúncio manual igual ao do
 XML dá erro de duplicidade e precisa ser apagado à mão no Canal Pro.
 
+> **A URL do feed é sensível.** O arquivo leva o endereço completo (com complemento) e as
+> coordenadas de cada anúncio — o portal mostra só o bairro, mas quem tem a URL lê tudo. Cadastre-a
+> só no Canal Pro, não a envie por e-mail ou mensagem e, se vazar, gere outra na tela (a antiga deixa
+> de responder na hora). Revisão de segurança: `docs/DECISIONS.md`, ADR-108.
+
 ## 4. Checklist da validação real (para sair de IMPLEMENTED_NOT_LIVE_VERIFIED)
 
 - [ ] Imobiliária piloto com conta Canal Pro e plano ativo

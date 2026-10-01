@@ -564,8 +564,9 @@ function FeedCard({
           <Stack gap={1}>
             <Input label="URL do feed" readOnly value={url} />
             <span className="peg-text-secondary" style={{ fontSize: 12 }}>
-              Copie agora: por segurança, a URL inteira não aparece de novo. Se perder, gere outra
-              (a anterior deixa de valer).
+              Copie agora: por segurança, a URL inteira não aparece de novo. Ela dá acesso ao
+              endereço completo dos anúncios — cadastre só no Canal Pro, sem enviar por e-mail ou
+              mensagem. Se perder ou vazar, gere outra (a anterior deixa de valer).
             </span>
             <Group gap={2}>
               <Button
