@@ -11,7 +11,7 @@ export interface JobLogger {
   error(obj: Record<string, unknown>, msg: string): void;
 }
 
-export type JobQueue = 'inbox' | 'channel' | 'meta';
+export type JobQueue = 'inbox' | 'channel' | 'meta' | 'email';
 
 export interface JobRef {
   queue: JobQueue;
@@ -19,7 +19,8 @@ export interface JobRef {
   /** Provider do inbox, `canal:operação` nos canais, tipo do job da Meta. */
   jobType: string;
   attempt: number;
-  orgId: string;
+  /** Nulo na mensagem de conta (recuperação de senha), que não pertence a imobiliária nenhuma. */
+  orgId: string | null;
 }
 
 export interface JobLogHandle {

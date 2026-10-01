@@ -84,6 +84,14 @@ export const envSchema = z.object({
   ASAAS_ENV: opcaoOpcional(['sandbox', 'production']),
   ASAAS_WEBHOOK_TOKEN: z.string().optional(),
   PAYMENT_PROVIDER: opcaoOpcional(['FAKE', 'ASAAS']),
+  /**
+   * Quem entrega a caixa de saída de e-mail (B28, D6 b). Sem valor, nada sai e a mensagem fica na
+   * caixa de saída, como antes. RESEND exige RESEND_API_KEY e EMAIL_FROM.
+   */
+  EMAIL_PROVIDER: opcaoOpcional(['RESEND', 'FAKE']),
+  RESEND_API_KEY: z.preprocess(emptyAsUndefined, z.string().optional()),
+  /** Remetente verificado no provedor: "AchouImóvel <nao-responda@achouimovel.online>". */
+  EMAIL_FROM: z.preprocess(emptyAsUndefined, z.string().optional()),
   META_ACCESS_TOKEN: z.string().optional(),
   META_AD_ACCOUNT_ID: z.string().optional(),
   META_TOKEN_ENCRYPTION_KEY: z.string().optional(),

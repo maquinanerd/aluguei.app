@@ -154,6 +154,11 @@ services:
       # Homologação: em produção o worker recusa FAKE, mock e dry_run sem esta permissão.
       ALLOW_FAKE_PROVIDERS: 'true'
       META_TOKEN_ENCRYPTION_KEY: ${SERVICE_HEX_64_METATOKENKEY}
+      # E-mail (B28, D6 b): vazio, nada sai e a mensagem fica na caixa de saída. Para ligar,
+      # EMAIL_PROVIDER=RESEND com RESEND_API_KEY e EMAIL_FROM (remetente de domínio verificado).
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
       # Health HTTP só dentro do container (sem domínio): 200 com o loop saudável, 503 sem.
       WORKER_HEALTH_PORT: '4001'
       # No SIGTERM o worker espera os jobs em andamento até este limite (abaixo do stop_grace_period).

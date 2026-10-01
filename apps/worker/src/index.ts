@@ -4,9 +4,10 @@ import type { AppEnv } from '@aluguei/config';
 import { createLogger, withSpan } from '@aluguei/observability';
 import { createDb } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import { getChannelAdapter, getMetaAdsProvider } from '@aluguei/integrations';
-import type { FakeChannel } from '@aluguei/integrations';
+import { getChannelAdapter, getEmailSender, getMetaAdsProvider } from '@aluguei/integrations';
+import type { FakeChannel, IEmailSender } from '@aluguei/integrations';
 import { runChannelJobs } from './channelJobs.js';
+import { runEmailOutbox } from './emailJobs.js';
 import { runInboxJobs } from './inboxJobs.js';
 import type { InboxDeadLetter } from './inboxJobs.js';
 import { runMetaJobs } from './metaJobs.js';
@@ -53,6 +54,8 @@ export interface WorkerLogger extends JobLogger {
 }
 
 export interface WorkerRunOptions {
+  /** Provedor de e-mail no lugar do configurado (testes); `null` desliga a entrega. */
+  emailSender?: IEmailSender | null;
   db?: AppDb;
   /** Configuração já validada (`run`); sem ela, lê o ambiente do processo. */
   env?: AppEnv;
@@ -99,7 +102,17 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
   const metaAds = getMetaAdsProvider(metaAdsOptions);
   const logger = opts.logger ? { logger: opts.logger } : {};
 
-  const [channels, inbox, metaJobs] = await Promise.all([
+  // Sem EMAIL_PROVIDER, ninguém entrega: a mensagem fica na caixa de saída (D6).
+  const emailSender =
+    opts.emailSender !== undefined
+      ? opts.emailSender
+      : getEmailSender({
+          provider: env.EMAIL_PROVIDER,
+          apiKey: env.RESEND_API_KEY,
+          from: env.EMAIL_FROM,
+        });
+
+  const [channels, inbox, metaJobs, emails] = await Promise.all([
     runChannelJobs({
       db,
       adapterFor: (channel) =>
@@ -117,8 +130,11 @@ export async function runOnce(opts: WorkerRunOptions = {}): Promise<{ processed:
       ...(opts.onDeadLetter ? { onDeadLetter: opts.onDeadLetter } : {}),
     }),
     runMetaJobs({ db, meta: metaAds, limit: 10, log, ...logger }),
+    runEmailOutbox({ db, sender: emailSender, limit: 20, log, ...logger }),
   ]);
-  return { processed: channels.processed + inbox.processed + metaJobs.processed };
+  return {
+    processed: channels.processed + inbox.processed + metaJobs.processed + emails.processed,
+  };
 }
 
 /** Dependências de `run` que os testes substituem; em produção vêm do ambiente. */
