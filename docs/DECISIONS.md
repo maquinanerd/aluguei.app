@@ -1926,3 +1926,21 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
 10. **Tela 01 reproduz a identidade inteira** (referências, acentos e decisões, como no print) com os
     componentes e os tokens de verdade, e ganha a seção 6 com os estados de cada componente. As tabelas
     de quadro e respiro mostram o valor aplicado (T1), não o da tabela original.
+
+### Adendo ao ADR-105 — pedido de troca de plano e erro com `details` (Onda 1C-A, 2026-09-30)
+
+1. **Pedido de troca de plano (B15).** A tela de upgrade ("Pedir o Gestão Locação") registra um
+   pedido em `plan_change_requests`; o pedido **não troca o plano**. Quem troca continua sendo a
+   equipe da plataforma, pela rota de sempre (`PUT /platform/organizations/:id/plan`), e a troca
+   atende o pedido em aberto (`DONE`) na mesma transação, com auditoria. A equipe também pode
+   descartar (`DISMISSED`). No máximo um pedido em aberto por imobiliária (índice único parcial):
+   pedir de novo devolve o mesmo pedido. Pede quem administra a imobiliária (`member:manage`, dono
+   e administrador). Sem provedor de e-mail (D6), a fila `GET /platform/plan-change-requests` é o
+   canal; a frase "Você recebe a confirmação por e-mail" fica fora da tela até a Onda 1D.
+2. **Data de entrada no plano.** `organizations.plan_started_at` muda junto com o plano (aprovação
+   com plano e troca pela plataforma). A migration 0038 preenche as imobiliárias existentes com o
+   último evento de auditoria que as pôs no plano atual (`payload.toPlanId`) e, sem evento, com a
+   criação da imobiliária. "Plano e uso" passa a mostrar essa data, não a criação.
+3. **Erro com `details` no painel (defeito 13).** `ApiClientError` guarda o `details` da API;
+   `moduloForaDoPlano(err)` devolve o módulo do 403 `PLAN_MODULE_NOT_INCLUDED`, e `useQuery` expõe
+   `foraDoPlano`. A tela de upgrade no lugar do "sem permissão" é a Onda 1C-B.

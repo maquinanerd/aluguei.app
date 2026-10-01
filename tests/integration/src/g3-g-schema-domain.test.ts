@@ -49,6 +49,9 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'whatsapp_connections.status': { values: d.WHATSAPP_CONNECTION_STATUSES },
   // Onda 1A do frontend: módulos incluídos no plano (o CHECK é `modules <@ array[...]`).
   'plans.modules': { values: d.PLAN_MODULES },
+  // Rodada de fidelidade (ADR-105, B15): pedido de troca de plano feito na tela de upgrade.
+  'plan_change_requests.status': { values: d.PLAN_CHANGE_REQUEST_STATUSES },
+  'plan_change_requests.requested_module': { values: d.PLAN_MODULES, nullable: true },
 
   // Trilha G — CRM e imóveis.
   'party_roles.role': { values: c.partyRoleSchema.options },

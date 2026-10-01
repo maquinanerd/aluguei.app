@@ -141,6 +141,8 @@ export const AUDIT_ACTIONS = {
   PLATFORM_ORG_SUSPENDED: 'platform.organization.suspended',
   PLATFORM_ORG_REACTIVATED: 'platform.organization.reactivated',
   PLATFORM_ORG_PLAN_CHANGED: 'platform.organization.plan_changed',
+  PLAN_CHANGE_REQUESTED: 'organization.plan_change_requested',
+  PLATFORM_PLAN_CHANGE_REQUEST_RESOLVED: 'platform.plan_change_request.resolved',
   PLATFORM_PLAN_CREATED: 'platform.plan.created',
   PLATFORM_PLAN_UPDATED: 'platform.plan.updated',
   PLATFORM_ADMIN_BOOTSTRAPPED: 'platform.admin.bootstrapped',

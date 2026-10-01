@@ -147,3 +147,71 @@ export const rejectOrganizationRequestSchema = z.object({ reason: reasonSchema }
 export const suspendOrganizationRequestSchema = z.object({ reason: reasonSchema });
 
 export const changeOrganizationPlanRequestSchema = z.object({ planId: uuidSchema });
+
+/**
+ * Pedido de troca de plano feito pela imobiliária na tela de upgrade (rodada de fidelidade,
+ * ADR-105, B15). Não troca o plano: a equipe da plataforma troca e o pedido vira `DONE`, ou o
+ * descarta. A lista canônica de estados é `PLAN_CHANGE_REQUEST_STATUSES` (`packages/domain`).
+ */
+export const planChangeRequestStatusSchema = z.enum(['PENDING', 'DONE', 'DISMISSED']);
+
+export const planChangeRequestSchema = z.object({
+  id: uuidSchema,
+  requestedModule: planModuleSchema.nullable(),
+  requestedPlanCode: z.string().nullable(),
+  status: planChangeRequestStatusSchema,
+  createdAt: z.string(),
+  resolvedAt: z.string().nullable(),
+});
+
+/** O módulo do cadeado que a pessoa clicou, ou o plano escolhido na comparação. */
+export const createPlanChangeRequestSchema = z
+  .object({
+    module: planModuleSchema.optional(),
+    planCode: z
+      .string()
+      .trim()
+      .regex(/^[A-Z0-9_]{2,40}$/)
+      .optional(),
+  })
+  .refine((entrada) => entrada.module !== undefined || entrada.planCode !== undefined, {
+    message: 'Diga o módulo ou o plano pedido',
+  });
+
+/** `created` falso: já havia um pedido em aberto, e é ele que volta. */
+export const planChangeRequestResponseSchema = z.object({
+  request: planChangeRequestSchema,
+  created: z.boolean(),
+});
+
+export const listPlanChangeRequestsResponseSchema = z.object({
+  requests: z.array(planChangeRequestSchema),
+});
+
+/** Fila da plataforma: o pedido com a imobiliária, o plano de hoje e quem pediu. */
+export const platformPlanChangeRequestSchema = planChangeRequestSchema.extend({
+  organization: z.object({
+    id: uuidSchema,
+    name: z.string(),
+    planCode: z.string(),
+    planName: z.string(),
+  }),
+  requestedBy: z.object({ id: uuidSchema, name: z.string(), email: z.string() }).nullable(),
+});
+
+export const listPlatformPlanChangeRequestsQuerySchema = z.object({
+  status: planChangeRequestStatusSchema.default('PENDING'),
+});
+
+export const listPlatformPlanChangeRequestsResponseSchema = z.object({
+  requests: z.array(platformPlanChangeRequestSchema),
+});
+
+/** Resolver sem trocar o plano: `DISMISSED`. A troca pela rota do plano resolve como `DONE`. */
+export const resolvePlanChangeRequestSchema = z.object({
+  outcome: z.enum(['DONE', 'DISMISSED']),
+});
+
+export const platformPlanChangeRequestResponseSchema = z.object({
+  request: platformPlanChangeRequestSchema,
+});

@@ -1,13 +1,19 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { apiClient, ApiClientError } from './api-client';
+import type { PlanModule } from '@aluguei/domain';
+import { apiClient, ApiClientError, moduloForaDoPlano } from './api-client';
 
 export interface QueryState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
   permissionDenied: boolean;
+  /**
+   * Módulo fora do plano quando o 403 é `PLAN_MODULE_NOT_INCLUDED`: a tela mostra o upgrade, não
+   * o "sem permissão" genérico (defeito 13). `permissionDenied` continua verdadeiro junto.
+   */
+  foraDoPlano: PlanModule | null;
   reload: () => void;
   setData: (updater: (prev: T | null) => T) => void;
 }
@@ -18,6 +24,7 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [foraDoPlano, setForaDoPlano] = useState<PlanModule | null>(null);
   const [tick, setTick] = useState(0);
 
   const reload = useCallback(() => {
@@ -35,6 +42,7 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
     setLoading(true);
     setError(null);
     setPermissionDenied(false);
+    setForaDoPlano(null);
     apiClient<T>(path)
       .then((res) => {
         if (!cancelled) setData(res);
@@ -43,6 +51,7 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
         if (cancelled) return;
         if (err instanceof ApiClientError && (err.status === 401 || err.status === 403)) {
           setPermissionDenied(true);
+          setForaDoPlano(moduloForaDoPlano(err));
         } else {
           setError(err instanceof Error ? err.message : 'Falha ao carregar');
         }
@@ -55,5 +64,5 @@ export function useQuery<T>(path: string | null, deps: unknown[] = []): QuerySta
     };
   }, [path, tick, depsKey]);
 
-  return { data, loading, error, permissionDenied, reload, setData };
+  return { data, loading, error, permissionDenied, foraDoPlano, reload, setData };
 }

@@ -13,3 +13,4 @@ export * from './portal.js';
 export * from './portal-search.js';
 export * from './app-metadata.js';
 export * from './platform.js';
+export * from './plan-change-requests.js';

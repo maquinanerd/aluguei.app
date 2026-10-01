@@ -6,6 +6,7 @@ import {
   memberInvites,
   memberships,
   organizations,
+  planChangeRequests,
   plans,
   userSessions,
   users,
@@ -37,6 +38,9 @@ import {
   listEmailOutboxResponseSchema,
   listMemberInvitesResponseSchema,
   listMembersResponseSchema,
+  createPlanChangeRequestSchema,
+  listPlanChangeRequestsResponseSchema,
+  planChangeRequestResponseSchema,
   planUsageResponseSchema,
   removeMemberResponseSchema,
   revokeMemberInviteResponseSchema,
@@ -155,6 +159,19 @@ async function countOwners(db: AppDb, orgId: string): Promise<number> {
   return rows.filter((row) => row.role === 'owner').length;
 }
 
+type PedidoDeTroca = typeof planChangeRequests.$inferSelect;
+
+function toPlanChangeRequestDto(pedido: PedidoDeTroca) {
+  return {
+    id: pedido.id,
+    requestedModule: pedido.requestedModule,
+    requestedPlanCode: pedido.requestedPlanCode,
+    status: pedido.status,
+    createdAt: pedido.createdAt.toISOString(),
+    resolvedAt: pedido.resolvedAt?.toISOString() ?? null,
+  };
+}
+
 export const organizationRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
@@ -171,8 +188,7 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
     const [org] = await db
       .select({
         planId: organizations.planId,
-        updatedAt: organizations.updatedAt,
-        createdAt: organizations.createdAt,
+        planStartedAt: organizations.planStartedAt,
       })
       .from(organizations)
       .where(eq(organizations.id, orgId))
@@ -199,7 +215,84 @@ export const organizationRoutes: FastifyPluginAsync = (app) => {
         },
       },
       usage: await loadPlanUsage(db, orgId),
-      since: org.createdAt.toISOString(),
+      since: org.planStartedAt.toISOString(),
+    });
+  });
+
+  /**
+   * Pedido de troca de plano, feito na tela de upgrade (rodada de fidelidade, ADR-105, B15). Só
+   * registra a intenção e entra na fila da plataforma: quem troca o plano é a equipe da plataforma.
+   * Com um pedido em aberto, pedir de novo devolve o mesmo pedido (200), sem duplicar.
+   */
+  app.post('/organizations/:orgId/plan-change-requests', async (request, reply) => {
+    const auth = requireAuth(request);
+    const { orgId } = z.object({ orgId: uuidSchema }).parse(request.params);
+    await assertOrgMemberPermission(db, orgId, auth.userId, 'member:manage');
+    const input = createPlanChangeRequestSchema.parse(request.body ?? {});
+
+    const resultado = await db.transaction(async (tx) => {
+      const aberto = async () => {
+        const [linha] = await tx
+          .select()
+          .from(planChangeRequests)
+          .where(and(eq(planChangeRequests.orgId, orgId), eq(planChangeRequests.status, 'PENDING')))
+          .limit(1);
+        return linha;
+      };
+
+      const existente = await aberto();
+      if (existente) {
+        return { pedido: existente, criado: false };
+      }
+      // O índice único parcial segura a corrida: quem chega depois não insere e lê o que entrou.
+      const [novo] = await tx
+        .insert(planChangeRequests)
+        .values({
+          orgId,
+          requestedByUserId: auth.userId,
+          requestedModule: input.module ?? null,
+          requestedPlanCode: input.planCode ?? null,
+        })
+        .onConflictDoNothing()
+        .returning();
+      if (!novo) {
+        const vencedor = await aberto();
+        if (!vencedor) {
+          throw new DomainError('CONFLICT', 'Não deu para registrar o pedido agora');
+        }
+        return { pedido: vencedor, criado: false };
+      }
+      await writeAudit(tx, {
+        orgId,
+        actorUserId: auth.userId,
+        action: AUDIT_ACTIONS.PLAN_CHANGE_REQUESTED,
+        entityType: 'PLAN_CHANGE_REQUEST',
+        entityId: novo.id,
+        payload: { module: novo.requestedModule, planCode: novo.requestedPlanCode },
+      });
+      return { pedido: novo, criado: true };
+    });
+
+    reply.code(resultado.criado ? 201 : 200);
+    return planChangeRequestResponseSchema.parse({
+      request: toPlanChangeRequestDto(resultado.pedido),
+      created: resultado.criado,
+    });
+  });
+
+  /** Pedidos da própria imobiliária, o mais novo primeiro (a tela de upgrade mostra o em aberto). */
+  app.get('/organizations/:orgId/plan-change-requests', async (request) => {
+    const auth = requireAuth(request);
+    const { orgId } = z.object({ orgId: uuidSchema }).parse(request.params);
+    await assertOrgMemberPermission(db, orgId, auth.userId, 'member:read');
+    const rows = await db
+      .select()
+      .from(planChangeRequests)
+      .where(eq(planChangeRequests.orgId, orgId))
+      .orderBy(desc(planChangeRequests.createdAt))
+      .limit(20);
+    return listPlanChangeRequestsResponseSchema.parse({
+      requests: rows.map(toPlanChangeRequestDto),
     });
   });
 

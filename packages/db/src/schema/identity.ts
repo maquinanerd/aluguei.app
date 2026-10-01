@@ -50,6 +50,11 @@ export const organizations = pgTable(
      * intenção declarada, para a fila de aprovação não ter de adivinhar.
      */
     requestedPlanCode: text('requested_plan_code'),
+    /**
+     * Quando a imobiliária entrou no plano atual ("Desde ..." na tela Plano e uso). Muda junto
+     * com `planId`, na aprovação e na troca de plano pela plataforma (ADR-105, B15).
+     */
+    planStartedAt: timestamp('plan_started_at', { withTimezone: true }).notNull().defaultNow(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
