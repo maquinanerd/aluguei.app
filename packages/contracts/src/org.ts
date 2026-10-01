@@ -147,3 +147,21 @@ export const planUsageResponseSchema = z.object({
 });
 
 export type PlanUsageResponse = z.infer<typeof planUsageResponseSchema>;
+
+/**
+ * Contato público da imobiliária (ADR-107): o e-mail que vai no `ContactInfo` do feed e que o
+ * portal mostra. Campo próprio — nunca o e-mail de login de alguém da equipe.
+ */
+export const organizationContactResponseSchema = z.object({
+  publicContactEmail: z.email().nullable(),
+});
+
+export const updateOrganizationContactRequestSchema = z.object({
+  publicContactEmail: z
+    .string()
+    .trim()
+    .max(254)
+    .transform((value) => (value === '' ? null : value.toLowerCase()))
+    .pipe(z.email('E-mail inválido').nullable())
+    .nullable(),
+});

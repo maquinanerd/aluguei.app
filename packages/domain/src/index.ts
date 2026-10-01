@@ -109,6 +109,9 @@ export type {
   ChannelJobType,
   ChannelJobStatus,
 } from './channel/publication.js';
+export { FEED_DESIRED_STATUSES, isFeedDesiredStatus, nextFeedStatus } from './channel/feed.js';
+export { assertSuitesWithinBedrooms } from './property/rooms.js';
+export type { FeedEvent } from './channel/feed.js';
 
 export {
   CONVERSATION_STATUSES,

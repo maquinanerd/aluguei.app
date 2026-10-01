@@ -71,9 +71,15 @@ describe('Onda 4 — prontidão para publicar', () => {
       cookie: agencia.cookie,
     });
     const canais = (res.body as { channels: { channel: string; available: boolean }[] }).channels;
-    // Todos os canais do domínio aparecem; a disponibilidade é que varia.
-    expect(canais.length).toBeGreaterThanOrEqual(5);
-    expect(canais.some((canal) => !canal.available)).toBe(true);
+    // Os canais oferecidos aparecem mesmo indisponíveis; a disponibilidade é que varia. Canal Pro,
+    // ZAP e Viva Real deram lugar ao Grupo OLX, e a API própria da OLX fica fora (ADR-107).
+    const nomes = canais.map((canal) => canal.channel);
+    expect(nomes).toEqual(expect.arrayContaining(['grupoolx', 'imovelweb']));
+    for (const substituido of ['canalpro', 'zap', 'vivareal', 'olx']) {
+      expect(nomes).not.toContain(substituido);
+    }
+    expect(canais.find((canal) => canal.channel === 'grupoolx')?.available).toBe(false);
+    expect(canais.find((canal) => canal.channel === 'imovelweb')?.available).toBe(false);
   });
 
   it('resolvidos os bloqueios, a rota libera e a publicação passa', async () => {

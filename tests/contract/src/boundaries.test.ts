@@ -64,6 +64,7 @@ describe('serialização de datas (wire format ISO 8601 string)', () => {
       totalAreaSqm: null,
       builtAreaSqm: null,
       bedrooms: null,
+      suites: null,
       bathrooms: null,
       parkingSpots: null,
       furnished: false,

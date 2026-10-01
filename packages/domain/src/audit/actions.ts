@@ -65,6 +65,12 @@ export const AUDIT_ACTIONS = {
   CHANNEL_IMPORT_LEADS_REQUESTED: 'channel.import_leads_requested',
   CHANNEL_JOB_SUCCEEDED: 'channel.job_succeeded',
   CHANNEL_JOB_FAILED: 'channel.job_failed',
+  // Grupo OLX (ADR-107): conexão da imobiliária, token do feed e ajustes da distribuição.
+  CHANNEL_CONNECTION_UPDATED: 'channel.connection_updated',
+  CHANNEL_FEED_TOKEN_ROTATED: 'channel.feed_token_rotated',
+  CHANNEL_FEED_TOKEN_REVOKED: 'channel.feed_token_revoked',
+  CHANNEL_SETTINGS_UPDATED: 'channel.settings_updated',
+  ORG_CONTACT_UPDATED: 'org.contact_updated',
   CONVERSATION_CREATED: 'conversation.created',
   CONVERSATION_HANDOFF_REQUESTED: 'conversation.handoff_requested',
   CONVERSATION_HANDOFF_RETURNED: 'conversation.handoff_returned',

@@ -1,7 +1,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { listingChannelPublications, listings } from '@aluguei/db';
+import { listingChannelPublications, listings, properties } from '@aluguei/db';
 import type { channelSyncJobs } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
@@ -26,13 +26,25 @@ import {
   updateRequestSchema,
   uuidSchema,
 } from '@aluguei/contracts';
-import { getChannelAdapter, isChannelAvailable } from '@aluguei/integrations';
+import {
+  CHANNEL_TYPE_FEATURES,
+  getChannelAdapter,
+  isChannelAvailable,
+  isFeedChannel,
+  portalPropertyTypeOptions,
+} from '@aluguei/integrations';
 import type { FakeChannel, IListingChannelAdapter } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { publishBlockers } from './listings.js';
 import { writeAudit } from '../plugins/audit.js';
 import { buildChannelListingInput, enqueueChannelJob } from './channel-jobs.js';
 import { first } from './helpers.js';
+import { loadConnection } from '../grupo-olx/connection.js';
+import {
+  evaluateGrupoOlxListings,
+  requestGrupoOlxPublish,
+  requestGrupoOlxRemove,
+} from '../grupo-olx/evaluate.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -51,6 +63,11 @@ function toPublicationDto(row: typeof listingChannelPublications.$inferSelect): 
     lastError: row.lastError,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
+    publicationTier:
+      row.publicationTier ?? (isFeedChannel(row.channel as ChannelType) ? 'STANDARD' : null),
+    portalPropertyType: row.portalPropertyType,
+    issues: Array.isArray(row.issues) ? row.issues : [],
+    lastInFeedAt: row.lastInFeedAt?.toISOString() ?? null,
   });
 }
 
@@ -80,6 +97,40 @@ function canalDisponivel(app: FastifyApp, channel: ChannelType): boolean {
   });
 }
 
+/**
+ * Disponível para esta imobiliária: canal PUSH com adapter configurado, ou canal FEED (Grupo OLX,
+ * ADR-107) com a conexão dela ligada.
+ */
+async function disponivelParaOrg(
+  app: FastifyApp,
+  orgId: string,
+  channel: ChannelType,
+): Promise<boolean> {
+  if (isFeedChannel(channel)) {
+    const connection = await loadConnection(app.db, orgId);
+    return connection?.enabled === true;
+  }
+  return canalDisponivel(app, channel);
+}
+
+/** Aparece na tela: canal oferecido, e o de teste só onde a configuração o libera. */
+function oferecido(app: FastifyApp, channel: ChannelType): boolean {
+  return (
+    CHANNEL_TYPE_FEATURES[channel].offered && (channel !== 'fake' || canalDisponivel(app, 'fake'))
+  );
+}
+
+/** Canal FEED exige a conexão ligada antes de aceitar publicação. */
+async function assertFeedConnectionEnabled(app: FastifyApp, orgId: string): Promise<void> {
+  const connection = await loadConnection(app.db, orgId);
+  if (connection?.enabled !== true) {
+    throw new DomainError(
+      'CONFLICT',
+      'Ative a integração com o Grupo OLX (Canais → Grupo OLX) antes de publicar.',
+    );
+  }
+}
+
 /** Resolve adapter; canais reais sem contrato → 404 (nunca inventar endpoints). */
 function resolveAdapter(app: FastifyApp, channel: ChannelType): IListingChannelAdapter {
   const adapter = canalDisponivel(app, channel) ? getChannelAdapter(channel, app.channels) : null;
@@ -90,6 +141,18 @@ function resolveAdapter(app: FastifyApp, channel: ChannelType): IListingChannelA
 }
 
 type FastifyApp = Parameters<FastifyPluginAsync>[0];
+
+const PUBLICADO = new Set(['PUBLISHED', 'IMPORTED', 'IMPORTED_WITH_WARNINGS']);
+const PENDENTE = new Set([
+  'PENDING',
+  'PUBLISHING',
+  'UPDATE_PENDING',
+  'RECONCILING',
+  'ELIGIBLE',
+  'AWAITING_IMPORT',
+  'REMOVING',
+]);
+const FALHOU = new Set(['FAILED', 'BLOCKED', 'IMPORT_ERROR']);
 
 async function loadPublication(
   db: FastifyApp['db'],
@@ -140,14 +203,19 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
   // Canais que podem receber publicação agora: só os que têm adapter configurado (P1-17).
-  app.get('/channels', { onRequest: [requirePermission('listing:read')] }, () =>
-    listAvailableChannelsResponseSchema.parse({
-      channels: CHANNEL_TYPES.map((channel) => ({
+  app.get('/channels', { onRequest: [requirePermission('listing:read')] }, async (request) => {
+    const auth = requireAuth(request);
+    const channels = await Promise.all(
+      CHANNEL_TYPES.map(async (channel) => ({
         channel,
-        available: canalDisponivel(app, channel),
+        available: await disponivelParaOrg(app, auth.orgId, channel),
+        offered: oferecido(app, channel),
+        mode: CHANNEL_TYPE_FEATURES[channel].mode,
+        stage: CHANNEL_TYPE_FEATURES[channel].stage,
       })),
-    }),
-  );
+    );
+    return listAvailableChannelsResponseSchema.parse({ channels });
+  });
 
   app.post(
     '/listings/:id/channels/:channel/publish',
@@ -155,7 +223,44 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const params = z.object({ id: uuidSchema, channel: channelTypeSchema }).parse(request.params);
-      publishRequestSchema.parse(request.body);
+      const body = publishRequestSchema.parse(request.body ?? {});
+
+      if (isFeedChannel(params.channel)) {
+        await assertFeedConnectionEnabled(app, auth.orgId);
+        const [row] = await db
+          .select({ listing: listings, propertyType: properties.propertyType })
+          .from(listings)
+          .innerJoin(properties, eq(properties.id, listings.propertyId))
+          .where(and(eq(listings.id, params.id), eq(listings.orgId, auth.orgId)))
+          .limit(1);
+        if (!row) {
+          throw new DomainError('NOT_FOUND', 'Recurso não encontrado');
+        }
+        if (
+          body.portalPropertyType !== undefined &&
+          body.portalPropertyType !== null &&
+          !portalPropertyTypeOptions(row.propertyType).options.includes(body.portalPropertyType)
+        ) {
+          throw new DomainError(
+            'INVALID_INPUT',
+            'O tipo escolhido para o Grupo OLX não combina com o tipo do imóvel',
+          );
+        }
+        const publication = await requestGrupoOlxPublish(db, auth.orgId, row.listing.id, {
+          publicationTier: body.publicationTier,
+          portalPropertyType: body.portalPropertyType,
+        });
+        await writeAudit(db, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CHANNEL_PUBLISH_REQUESTED,
+          entityType: 'LISTING',
+          entityId: row.listing.id,
+          payload: { channel: params.channel, status: publication.status },
+        });
+        // Feed não tem job: a avaliação é na hora, e quem busca o arquivo é o portal.
+        return reply.status(201).send({ publication: toPublicationDto(publication), job: null });
+      }
 
       const adapter = resolveAdapter(app, params.channel);
       const [listing] = await db
@@ -229,6 +334,33 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const params = z.object({ id: uuidSchema, channel: channelTypeSchema }).parse(request.params);
       updateRequestSchema.parse(request.body);
+      if (isFeedChannel(params.channel)) {
+        const [listing] = await db
+          .select()
+          .from(listings)
+          .where(and(eq(listings.id, params.id), eq(listings.orgId, auth.orgId)))
+          .limit(1);
+        const existing = listing
+          ? await loadPublication(db, auth.orgId, listing.id, params.channel)
+          : null;
+        if (!listing || !existing) {
+          throw new DomainError('NOT_FOUND', 'Publicação não encontrada no canal');
+        }
+        // O arquivo é gerado a cada busca: "atualizar" é reavaliar com os dados de agora.
+        await evaluateGrupoOlxListings(db, auth.orgId, [listing.id]);
+        const publication = await loadPublication(db, auth.orgId, listing.id, params.channel);
+        await writeAudit(db, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CHANNEL_UPDATE_REQUESTED,
+          entityType: 'LISTING',
+          entityId: listing.id,
+          payload: { channel: params.channel },
+        });
+        return reply
+          .status(200)
+          .send({ publication: toPublicationDto(publication ?? existing), job: null });
+      }
       resolveAdapter(app, params.channel);
 
       const [listing] = await db
@@ -283,6 +415,28 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const params = z.object({ id: uuidSchema, channel: channelTypeSchema }).parse(request.params);
       removeRequestSchema.parse(request.body);
+      if (isFeedChannel(params.channel)) {
+        const [listing] = await db
+          .select()
+          .from(listings)
+          .where(and(eq(listings.id, params.id), eq(listings.orgId, auth.orgId)))
+          .limit(1);
+        const publication = listing
+          ? await requestGrupoOlxRemove(db, auth.orgId, listing.id)
+          : null;
+        if (!listing || !publication) {
+          throw new DomainError('NOT_FOUND', 'Publicação não encontrada no canal');
+        }
+        await writeAudit(db, {
+          orgId: auth.orgId,
+          actorUserId: auth.userId,
+          action: AUDIT_ACTIONS.CHANNEL_REMOVE_REQUESTED,
+          entityType: 'LISTING',
+          entityId: listing.id,
+          payload: { channel: params.channel, status: publication.status },
+        });
+        return reply.status(200).send({ publication: toPublicationDto(publication), job: null });
+      }
       resolveAdapter(app, params.channel);
 
       const [listing] = await db
@@ -341,7 +495,11 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { channel } = z.object({ channel: channelTypeSchema }).parse(request.params);
       const input = reconcileRequestSchema.parse(request.body);
-      resolveAdapter(app, channel);
+      if (isFeedChannel(channel)) {
+        await assertFeedConnectionEnabled(app, auth.orgId);
+      } else {
+        resolveAdapter(app, channel);
+      }
 
       // Escopo do listingId: pertence à org (senão 404).
       if (input.listingId) {
@@ -385,6 +543,12 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       const auth = requireAuth(request);
       const { channel } = z.object({ channel: channelTypeSchema }).parse(request.params);
       importLeadsRequestSchema.parse(request.body);
+      if (isFeedChannel(channel)) {
+        throw new DomainError(
+          'INVALID_INPUT',
+          'Leads do Grupo OLX chegam pelo webhook do Grupo OLX, não por importação',
+        );
+      }
       const adapter = resolveAdapter(app, channel);
       if (!adapter.supportsImportLeads) {
         throw new DomainError('INVALID_INPUT', 'Canal não suporta importação de leads');
@@ -442,11 +606,13 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
       return publishReadinessResponseSchema.parse({
         canPublish: bloqueios.length === 0,
         blockers: bloqueios,
-        channels: CHANNEL_TYPES.map((channel) => ({
-          channel,
-          available: canalDisponivel(app, channel),
-          status: porCanal.get(channel) ?? null,
-        })),
+        channels: await Promise.all(
+          CHANNEL_TYPES.filter((channel) => oferecido(app, channel)).map(async (channel) => ({
+            channel,
+            available: await disponivelParaOrg(app, auth.orgId, channel),
+            status: porCanal.get(channel) ?? null,
+          })),
+        ),
       });
     },
   );
@@ -505,15 +671,10 @@ export const channelRoutes: FastifyPluginAsync = (app) => {
           removed: 0,
         };
         agg.total += 1;
-        if (p.status === 'PUBLISHED') agg.published += 1;
-        if (
-          p.status === 'PENDING' ||
-          p.status === 'PUBLISHING' ||
-          p.status === 'UPDATE_PENDING' ||
-          p.status === 'RECONCILING'
-        )
-          agg.pending += 1;
-        if (p.status === 'FAILED') agg.failed += 1;
+        // Feed (ADR-107): "publicado" só com o relatório do portal; no arquivo ainda é pendente.
+        if (PUBLICADO.has(p.status)) agg.published += 1;
+        if (PENDENTE.has(p.status)) agg.pending += 1;
+        if (FALHOU.has(p.status)) agg.failed += 1;
         if (p.status === 'REMOVED') agg.removed += 1;
         byChannel.set(p.channel, agg);
       }

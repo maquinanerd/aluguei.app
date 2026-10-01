@@ -70,6 +70,8 @@ import { saleNegotiationRoutes } from './routes/sale-negotiations.js';
 import { portalRequestLinkRoutes } from './routes/portal-request-link.js';
 import { propertyDraftRoutes } from './routes/property-drafts.js';
 import { channelRoutes } from './routes/channels.js';
+import { grupoOlxRoutes } from './routes/grupo-olx.js';
+import { organizationContactRoutes } from './routes/organization-contact.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { conversationRoutes } from './routes/conversations.js';
 import { whatsappConnectionRoutes } from './routes/whatsapp-connections.js';
@@ -441,6 +443,8 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(portalRequestLinkRoutes);
   await app.register(propertyDraftRoutes);
   await app.register(channelRoutes);
+  await app.register(grupoOlxRoutes);
+  await app.register(organizationContactRoutes);
   await app.register(webhookRoutes);
   // Grupos atrás do módulo do plano: fora do plano a API responde 403 com
   // `details.reason = PLAN_MODULE_NOT_INCLUDED` e o painel abre a tela de upgrade.

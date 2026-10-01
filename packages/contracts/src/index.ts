@@ -21,6 +21,7 @@ export * from './capabilities.js';
 export * from './sale-exclusivity.js';
 export * from './sale-negotiation.js';
 export * from './channels.js';
+export * from './grupo-olx.js';
 export * from './conversations.js';
 export * from './inspections.js';
 export * from './rental.js';

@@ -1,4 +1,14 @@
-export type ChannelType = 'fake' | 'canalpro' | 'vivareal' | 'zap' | 'olx' | 'imovelweb';
+export type ChannelType =
+  'fake' | 'canalpro' | 'vivareal' | 'zap' | 'olx' | 'imovelweb' | 'grupoolx';
+/** PUSH: o sistema chama o portal. FEED: o portal busca um arquivo (ADR-107). */
+export type ChannelMode = 'PUSH' | 'FEED';
+/** Estágio da integração no produto (ADR-097, ADR-107). */
+export type IntegrationStage =
+  | 'IN_PREPARATION'
+  | 'IMPLEMENTED_NOT_LIVE_VERIFIED'
+  | 'HOMOLOGATION_PENDING'
+  | 'LIVE_VERIFIED'
+  | 'TEST_ONLY';
 export type ChannelPublicationStatus =
   | 'PENDING'
   | 'PUBLISHING'

@@ -9,9 +9,13 @@ export type { GeocodingService, GeocodeInput, GeocodeResult } from './geocoding/
 export { FakeChannel } from './channels/fake.js';
 export {
   CHANNEL_TYPE_FEATURES,
+  channelFeatures,
   getChannelAdapter,
   isChannelAvailable,
+  isFeedChannel,
 } from './channels/registry.js';
+export type { ChannelFeatures } from './channels/registry.js';
+export * from './channels/grupo-olx/index.js';
 export type {
   IListingChannelAdapter,
   ChannelType,
@@ -24,6 +28,8 @@ export type {
   ChannelReconcileResult,
   ChannelValidationResult,
   ChannelLeadInput,
+  ChannelMode,
+  IntegrationStage,
 } from './channels/types.js';
 
 export { MockAiProvider } from './ai/mock.js';

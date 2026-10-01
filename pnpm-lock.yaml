@@ -315,6 +315,9 @@ importers:
       '@aluguei/config':
         specifier: workspace:*
         version: link:../config
+      '@aluguei/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@aluguei/domain':
         specifier: workspace:*
         version: link:../domain
@@ -327,6 +330,13 @@ importers:
       zod:
         specifier: 4.4.3
         version: 4.4.3
+    devDependencies:
+      '@xmldom/xmldom':
+        specifier: 0.9.10
+        version: 0.9.10
+      sax:
+        specifier: 1.6.1
+        version: 1.6.1
 
   packages/observability:
     dependencies:

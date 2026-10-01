@@ -115,6 +115,18 @@ export const envSchema = z.object({
     emptyAsUndefined,
     z.coerce.number().int().positive().optional(),
   ),
+  /**
+   * Endereço público da própria API (https em produção), base das URLs que saem do sistema: o feed
+   * do Grupo OLX e as fotos que o robô dele baixa (ADR-107). Separado de `API_BASE_URL`, que é o
+   * endereço que o BFF usa e pode ser da rede interna. Ausente: o feed não é gerado.
+   */
+  API_PUBLIC_URL: z.preprocess(emptyAsUndefined, z.url().optional()),
+  /**
+   * Chave que o Grupo OLX entrega na homologação do software (Basic Auth `vivareal:<chave>`, uma
+   * por software, não por imobiliária). Ausente: os webhooks de lead e de relatório respondem 503 —
+   * nada entra sem autenticação (ADR-108).
+   */
+  GRUPO_OLX_LEADS_SECRET_KEY: z.preprocess(emptyAsUndefined, z.string().min(8).optional()),
   // Admins da plataforma (e-mails separados por vírgula). Ausente: ninguém é admin.
   PLATFORM_ADMIN_EMAILS: z.string().optional(),
   // Web (Next.js): lidas por apps/web, que não depende deste pacote. Ficam no schema para o

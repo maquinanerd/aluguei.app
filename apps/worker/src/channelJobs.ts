@@ -13,8 +13,10 @@ import {
 } from '@aluguei/db';
 import { DomainError, normalizeEmail, normalizePhone } from '@aluguei/domain';
 import type { ChannelPublicationStatus } from '@aluguei/domain';
-import type { ChannelLeadInput, IListingChannelAdapter } from '@aluguei/integrations';
+import { isFeedChannel } from '@aluguei/integrations';
+import type { ChannelLeadInput, ChannelType, IListingChannelAdapter } from '@aluguei/integrations';
 import { buildChannelListingInput } from '@aluguei/api/channel-jobs';
+import { evaluateGrupoOlxListings, requestGrupoOlxRemove } from '@aluguei/api/grupo-olx';
 import { markSpanError, withSpan } from '@aluguei/observability';
 import { startJobLog } from './job-log.js';
 import type { JobLogger } from './job-log.js';
@@ -279,6 +281,29 @@ async function importLead(
   return true;
 }
 
+/**
+ * Canal FEED (Grupo OLX, ADR-107): não há portal a chamar — o robô busca o arquivo. Os jobs servem
+ * para reavaliar os anúncios quando o dado muda, para a tela mostrar a situação e o motivo.
+ */
+async function runFeedJob(db: AppDb, job: ClaimedJob): Promise<void> {
+  switch (job.jobType) {
+    case 'PUBLISH':
+    case 'UPDATE':
+      if (!job.listingId) throw new DomainError('INVALID_INPUT', `${job.jobType} exige listing`);
+      await evaluateGrupoOlxListings(db, job.orgId, [job.listingId]);
+      return;
+    case 'RECONCILE':
+      await evaluateGrupoOlxListings(db, job.orgId, job.listingId ? [job.listingId] : undefined);
+      return;
+    case 'REMOVE':
+      if (!job.listingId) throw new DomainError('INVALID_INPUT', 'REMOVE exige listing');
+      await requestGrupoOlxRemove(db, job.orgId, job.listingId);
+      return;
+    default:
+      throw new DomainError('INVALID_INPUT', `Job ${job.jobType} não se aplica a canal de feed`);
+  }
+}
+
 /** Executa um ciclo de jobs de canal. Retorna quantos foram processados. */
 export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ processed: number }> {
   const { db, adapterFor, limit = 1, log, logger } = opts;
@@ -304,6 +329,21 @@ export async function runChannelJobs(opts: RunChannelJobsOptions): Promise<{ pro
           attempt: job.attempts,
           orgId: job.orgId,
         });
+        if (isFeedChannel(job.channel as ChannelType)) {
+          try {
+            await runFeedJob(db, job);
+            await markJobSuccess(db, job.id);
+            jobLog.finished('SUCCESS');
+            log?.(`job ${job.id} (${job.channel}:${job.jobType}) OK`);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            await markJobFailed(db, job.id, message);
+            jobLog.failed('FAILED', sanitizeError(message), err);
+            markSpanError(span, err);
+            log?.(`job ${job.id} (${job.channel}:${job.jobType}) FAILED: ${message}`);
+          }
+          return;
+        }
         const adapter = adapterFor(job.channel);
         if (!adapter) {
           await markJobFailed(db, job.id, 'Canal não configurado');

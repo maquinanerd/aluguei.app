@@ -35,6 +35,8 @@ export const properties = pgTable(
     totalAreaSqm: doublePrecision('total_area_sqm'),
     builtAreaSqm: doublePrecision('built_area_sqm'),
     bedrooms: integer('bedrooms'),
+    /** Quartos com banheiro; o VRSync tem campo próprio (ADR-107). */
+    suites: integer('suites'),
     bathrooms: integer('bathrooms'),
     parkingSpots: integer('parking_spots'),
     furnished: boolean('furnished').notNull().default(false),
