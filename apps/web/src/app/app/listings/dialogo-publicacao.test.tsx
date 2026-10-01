@@ -16,7 +16,8 @@ vi.mock('@/lib/use-query', () => ({
       blockers: [],
       channels: [
         { channel: 'fake', available: true, status: null },
-        { channel: 'olx', available: false, status: null },
+        { channel: 'imovelweb', available: false, status: null },
+        { channel: 'grupoolx', available: true, status: 'AWAITING_IMPORT' },
       ],
     },
   }),

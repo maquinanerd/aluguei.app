@@ -82,7 +82,13 @@ test('P1-17: primeira publicação de um anúncio em canal pela tela', async ({ 
   const dialog = page.getByRole('dialog', { name: 'Publicar anúncio em canal' });
   await dialog.getByLabel('Anúncio', { exact: true }).selectOption({ label: title });
   const channel = dialog.getByLabel('Canal', { exact: true });
-  await expect(channel.locator('option', { hasText: 'OLX (sem integração)' })).toBeDisabled();
+  // ADR-107: Canal Pro, ZAP, Viva Real e a OLX antiga saíram da lista; o Imovelweb segue em
+  // preparação e o Grupo OLX só recebe publicação com a conexão da imobiliária ligada.
+  await expect(
+    channel.locator('option', { hasText: 'Imóvel Web (sem integração)' }),
+  ).toBeDisabled();
+  await expect(channel.locator('option', { hasText: 'Grupo OLX (sem integração)' })).toBeDisabled();
+  await expect(channel.locator('option', { hasText: 'OLX (sem integração)' })).toHaveCount(0);
   await channel.selectOption({ label: 'Canal de teste' });
   await dialog.getByRole('button', { name: 'Publicar' }).click();
   await expect(page.getByText('Publicação enviada ao canal')).toBeVisible({ timeout: 30_000 });

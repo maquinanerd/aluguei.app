@@ -123,6 +123,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         icon: 'share',
         permission: 'listing:read',
         section: 'primary',
+        activePrefixes: ['/app/channels/'],
       },
     ],
   },

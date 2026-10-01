@@ -135,6 +135,7 @@ export function haQuanto(iso: string, agora: Date): string {
 /** De onde o lead veio, como a equipe fala; valor desconhecido aparece como veio. */
 const ORIGEM_DO_LEAD: Record<string, string> = {
   PORTAL_ACHOUIMOVEL: 'Portal AchouImóvel',
+  GRUPO_OLX: 'Grupo OLX',
   PORTAL: 'Portal',
   WHATSAPP: 'WhatsApp',
   INDICACAO: 'Indicação',
@@ -209,7 +210,7 @@ export function linhaDaFila(item: ItemDaFila, agora: Date): LinhaDaFila {
         titulo: item.error === null ? recusa : `${recusa} · ${item.error}`,
         meta: 'Falha de publicação',
         prazo: quando(item.at, agora),
-        href: '/app/channels',
+        href: item.channel === 'grupoolx' ? '/app/channels/grupo-olx' : '/app/channels',
         tom: item.tone,
       };
     }

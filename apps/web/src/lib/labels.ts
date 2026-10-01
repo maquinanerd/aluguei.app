@@ -85,6 +85,13 @@ export const CHANNEL_STATUS_LABELS: Record<string, string> = {
   REMOVED: 'Removido',
   FAILED: 'Falhou',
   RECONCILING: 'Reconciliando',
+  // Feed do Grupo OLX (ADR-107): entrar no arquivo não é estar publicado no portal.
+  BLOCKED: 'Bloqueado',
+  ELIGIBLE: 'Pronto para o feed',
+  AWAITING_IMPORT: 'No feed, aguardando relatório',
+  IMPORTED: 'Importado pelo Grupo OLX',
+  IMPORTED_WITH_WARNINGS: 'Importado com avisos',
+  IMPORT_ERROR: 'Recusado pelo Grupo OLX',
 };
 
 export const CHANNEL_STATUS_TONES: Record<string, BadgeTone> = {
@@ -96,15 +103,44 @@ export const CHANNEL_STATUS_TONES: Record<string, BadgeTone> = {
   REMOVED: 'neutral',
   FAILED: 'danger',
   RECONCILING: 'warning',
+  BLOCKED: 'danger',
+  ELIGIBLE: 'info',
+  AWAITING_IMPORT: 'warning',
+  IMPORTED: 'success',
+  IMPORTED_WITH_WARNINGS: 'warning',
+  IMPORT_ERROR: 'danger',
 };
 
 export const CHANNEL_TYPE_LABELS: Record<string, string> = {
   fake: 'Canal de teste',
+  // Canal Pro, Viva Real e ZAP foram substituídos pelo Grupo OLX e `olx` ficou para a API própria
+  // da OLX (ADR-107): não aparecem mais na tela, mas os nomes ficam para registro antigo.
   canalpro: 'CanalPro',
   vivareal: 'Viva Real',
   zap: 'ZAP Imóveis',
   olx: 'OLX',
   imovelweb: 'Imóvel Web',
+  grupoolx: 'Grupo OLX',
+};
+
+/**
+ * O que o produto pode afirmar sobre cada integração (ADR-097, ADR-107): nunca "conectado" sem
+ * conta real, nem "disponível" só porque a documentação do portal é pública.
+ */
+export const INTEGRATION_STAGE_LABELS: Record<string, string> = {
+  IN_PREPARATION: 'Em preparação',
+  IMPLEMENTED_NOT_LIVE_VERIFIED: 'Implementado — aguardando validação real',
+  HOMOLOGATION_PENDING: 'Homologação pendente',
+  LIVE_VERIFIED: 'Validado com conta real',
+  TEST_ONLY: 'Só para teste',
+};
+
+export const INTEGRATION_STAGE_TONES: Record<string, BadgeTone> = {
+  IN_PREPARATION: 'neutral',
+  IMPLEMENTED_NOT_LIVE_VERIFIED: 'warning',
+  HOMOLOGATION_PENDING: 'info',
+  LIVE_VERIFIED: 'success',
+  TEST_ONLY: 'neutral',
 };
 
 export const VISIT_STATUS_LABELS: Record<string, string> = {

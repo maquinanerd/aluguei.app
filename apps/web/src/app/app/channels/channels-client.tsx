@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import {
   Badge,
@@ -24,7 +25,16 @@ import {
   CHANNEL_STATUS_LABELS,
   CHANNEL_STATUS_TONES,
   CHANNEL_TYPE_LABELS,
+  INTEGRATION_STAGE_LABELS,
+  INTEGRATION_STAGE_TONES,
 } from '@/lib/labels';
+import {
+  PORTAL_PROPERTY_TYPE_LABELS,
+  PUBLICATION_TIER_LABELS,
+  acaoDaPublicacao,
+  motivoPrincipal,
+} from '@/lib/grupo-olx';
+import type { Motivo } from '@/lib/grupo-olx';
 import { PageToolbar } from '@/components/page-toolbar';
 import { PermissionDenied, EmptyState, ErrorState } from '@aluguei/ui';
 
@@ -44,7 +54,24 @@ interface ChannelSummary {
   }>;
 }
 
-const ALL_CHANNELS = ['fake', 'canalpro', 'vivareal', 'zap', 'olx', 'imovelweb'];
+interface ListingChannels {
+  channels: Array<{ channel: string; status: string; issues: Motivo[] }>;
+}
+
+/** Canal como a API descreve (ADR-107): só os oferecidos aparecem, com o estágio honesto. */
+interface ChannelInfo extends AvailableChannel {
+  offered: boolean;
+  mode: 'PUSH' | 'FEED' | null;
+  stage: string;
+}
+
+/** Texto curto de cada canal no card. */
+const CHANNEL_DESCRIPTIONS: Record<string, string> = {
+  grupoolx:
+    'Um feed só para ZAP Imóveis, Viva Real e OLX, conforme o plano da imobiliária no Grupo OLX.',
+  imovelweb: 'Publicação e retirada no Imovelweb.',
+  fake: 'Canal de teste: só existe em desenvolvimento e nos testes.',
+};
 
 function ChannelsBody() {
   const toast = useToast();
@@ -55,6 +82,8 @@ function ChannelsBody() {
     '/channels/summary',
     [],
   );
+  const channelsQ = useQuery<{ channels: ChannelInfo[] }>('/channels', []);
+  const offered = (channelsQ.data?.channels ?? []).filter((c) => c.offered);
 
   const channelStats = useMemo(() => {
     const map = new Map<
@@ -85,17 +114,25 @@ function ChannelsBody() {
     try {
       const listing = listingId ?? '';
       if (kind === 'publish') {
-        await apiClient(`/listings/${listing}/channels/${channel}/publish`, {
-          method: 'POST',
-          body: {},
-        });
-        toast.success('Publicação enfileirada', label(CHANNEL_TYPE_LABELS, channel));
+        const res = await apiClient<{ publication: { status: string } }>(
+          `/listings/${listing}/channels/${channel}/publish`,
+          { method: 'POST', body: {} },
+        );
+        toast.success(
+          channel === 'grupoolx' ? 'Anúncio avaliado' : 'Publicação enfileirada',
+          channel === 'grupoolx'
+            ? label(CHANNEL_STATUS_LABELS, res.publication.status)
+            : label(CHANNEL_TYPE_LABELS, channel),
+        );
       } else if (kind === 'remove') {
         await apiClient(`/listings/${listing}/channels/${channel}/remove`, {
           method: 'POST',
           body: {},
         });
-        toast.success('Remoção enfileirada', label(CHANNEL_TYPE_LABELS, channel));
+        toast.success(
+          channel === 'grupoolx' ? 'Anúncio fora do feed' : 'Remoção enfileirada',
+          label(CHANNEL_TYPE_LABELS, channel),
+        );
       } else if (kind === 'reconcile') {
         const res = await apiClient<{ processed: number }>(`/channels/${channel}/reconcile`, {
           method: 'POST',
@@ -123,45 +160,25 @@ function ChannelsBody() {
         title="Canais"
         description="Distribuição dos anúncios para portais e integrações."
         actions={
-          <Group gap={2}>
-            <Button
-              size="sm"
-              variant="brand"
-              icon={<Icon name="send" size={14} />}
-              onClick={() => {
-                setPublishOpen(true);
-              }}
-            >
-              Publicar anúncio
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<Icon name="refresh" size={14} />}
-              onClick={() => {
-                void action('reconcile', null, 'fake');
-              }}
-            >
-              Reconciliar (teste)
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<Icon name="download" size={14} />}
-              onClick={() => {
-                void action('importLeads', null, 'fake');
-              }}
-            >
-              Importar leads (teste)
-            </Button>
-          </Group>
+          <Button
+            size="sm"
+            variant="brand"
+            icon={<Icon name="send" size={14} />}
+            onClick={() => {
+              setPublishOpen(true);
+            }}
+          >
+            Publicar anúncio
+          </Button>
         }
       />
 
       {error ? <ErrorState body={error} onRetry={reload} /> : null}
+      {channelsQ.error ? <ErrorState body={channelsQ.error} onRetry={channelsQ.reload} /> : null}
 
       <div className="peg-grid cols-3">
-        {ALL_CHANNELS.map((ch) => {
+        {offered.map((info) => {
+          const ch = info.channel;
           const stats = channelStats.get(ch) ?? {
             total: 0,
             published: 0,
@@ -173,35 +190,59 @@ function ChannelsBody() {
             <Card key={ch} title={label(CHANNEL_TYPE_LABELS, ch)} padless>
               <Stack gap={2} style={{ padding: 16 }}>
                 <Group gap={2} wrap>
-                  <Tag icon="checkCircle">{`${String(stats.published)} publicados`}</Tag>
-                  <Tag icon="clock">{`${String(stats.pending)} pendentes`}</Tag>
-                  {stats.failed > 0 ? (
-                    <Tag icon="alertCircle">{`${String(stats.failed)} falhas`}</Tag>
-                  ) : null}
-                  {stats.total === 0 ? <Tag icon="alertCircle">não conectado</Tag> : null}
+                  <Badge tone={INTEGRATION_STAGE_TONES[info.stage] ?? 'neutral'}>
+                    {label(INTEGRATION_STAGE_LABELS, info.stage)}
+                  </Badge>
+                  {info.mode === 'FEED' ? <Tag icon="share">feed</Tag> : null}
                 </Group>
-                <Group gap={2}>
-                  <Button
-                    size="xs"
-                    variant="secondary"
-                    loading={busyKey === `reconcile:org:${ch}`}
-                    onClick={() => {
-                      void action('reconcile', null, ch);
-                    }}
-                  >
-                    Reconciliar
-                  </Button>
-                  <Button
-                    size="xs"
-                    variant="secondary"
-                    loading={busyKey === `importLeads:org:${ch}`}
-                    onClick={() => {
-                      void action('importLeads', null, ch);
-                    }}
-                  >
-                    Importar leads
-                  </Button>
-                </Group>
+                {CHANNEL_DESCRIPTIONS[ch] ? (
+                  <span className="peg-text-secondary" style={{ fontSize: 12 }}>
+                    {CHANNEL_DESCRIPTIONS[ch]}
+                  </span>
+                ) : null}
+                {info.stage !== 'IN_PREPARATION' ? (
+                  <Group gap={2} wrap>
+                    <Tag icon="checkCircle">{`${String(stats.published)} publicados`}</Tag>
+                    <Tag icon="clock">{`${String(stats.pending)} pendentes`}</Tag>
+                    {stats.failed > 0 ? (
+                      <Tag icon="alertCircle">{`${String(stats.failed)} com problema`}</Tag>
+                    ) : null}
+                  </Group>
+                ) : null}
+                {ch === 'grupoolx' ? (
+                  <Group gap={2}>
+                    <Link
+                      href="/app/channels/grupo-olx"
+                      className="peg-btn peg-btn--secondary peg-btn--xs"
+                    >
+                      Configurar e acompanhar
+                    </Link>
+                  </Group>
+                ) : null}
+                {ch === 'fake' ? (
+                  <Group gap={2}>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      loading={busyKey === 'reconcile:org:fake'}
+                      onClick={() => {
+                        void action('reconcile', null, 'fake');
+                      }}
+                    >
+                      Reconciliar (teste)
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      loading={busyKey === 'importLeads:org:fake'}
+                      onClick={() => {
+                        void action('importLeads', null, 'fake');
+                      }}
+                    >
+                      Importar leads (teste)
+                    </Button>
+                  </Group>
+                ) : null}
               </Stack>
             </Card>
           );
@@ -222,62 +263,67 @@ function ChannelsBody() {
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{l.title}</span>
                 </Group>
                 <Group gap={2} wrap>
-                  {l.channels.map((c) => (
-                    <div
-                      key={c.channel}
-                      className="peg-group"
-                      style={{
-                        gap: 6,
-                        padding: '6px 10px',
-                        borderRadius: 'var(--peg-radius-sm)',
-                        border: '1px solid var(--peg-border)',
-                      }}
-                    >
-                      <span style={{ fontSize: 12, fontWeight: 500 }}>
-                        {label(CHANNEL_TYPE_LABELS, c.channel)}
-                      </span>
-                      <Badge tone={CHANNEL_STATUS_TONES[c.status] ?? 'neutral'}>
-                        {label(CHANNEL_STATUS_LABELS, c.status)}
-                      </Badge>
-                      {c.status === 'FAILED' && c.lastError ? (
-                        <span
-                          className="peg-text-tertiary"
-                          style={{ fontSize: 11 }}
-                          title={c.lastError}
-                        >
-                          {c.lastError.slice(0, 40)}
+                  {l.channels.map((c) => {
+                    const acao = acaoDaPublicacao(c.channel, c.status);
+                    return (
+                      <div
+                        key={c.channel}
+                        className="peg-group"
+                        style={{
+                          gap: 6,
+                          padding: '6px 10px',
+                          borderRadius: 'var(--peg-radius-sm)',
+                          border: '1px solid var(--peg-border)',
+                        }}
+                      >
+                        <span style={{ fontSize: 12, fontWeight: 500 }}>
+                          {label(CHANNEL_TYPE_LABELS, c.channel)}
                         </span>
-                      ) : null}
-                      <Group gap={1}>
-                        {c.status === 'FAILED' ||
-                        c.status === 'REMOVED' ||
-                        c.status === 'PENDING' ? (
-                          <Button
-                            size="xs"
-                            variant="tertiary"
-                            loading={busyKey === `publish:${l.listingId}:${c.channel}`}
-                            onClick={() => {
-                              void action('publish', l.listingId, c.channel);
-                            }}
+                        <Badge tone={CHANNEL_STATUS_TONES[c.status] ?? 'neutral'}>
+                          {label(CHANNEL_STATUS_LABELS, c.status)}
+                        </Badge>
+                        {c.status === 'FAILED' && c.lastError ? (
+                          <span
+                            className="peg-text-tertiary"
+                            style={{ fontSize: 11 }}
+                            title={c.lastError}
                           >
-                            Publicar
-                          </Button>
+                            {c.lastError.slice(0, 40)}
+                          </span>
                         ) : null}
-                        {c.status === 'PUBLISHED' ? (
-                          <Button
-                            size="xs"
-                            variant="tertiary"
-                            loading={busyKey === `remove:${l.listingId}:${c.channel}`}
-                            onClick={() => {
-                              void action('remove', l.listingId, c.channel);
-                            }}
-                          >
-                            Remover
-                          </Button>
+                        {c.channel === 'grupoolx' &&
+                        (c.status === 'BLOCKED' || c.status === 'IMPORT_ERROR') ? (
+                          <MotivoDoGrupoOlx listingId={l.listingId} />
                         ) : null}
-                      </Group>
-                    </div>
-                  ))}
+                        <Group gap={1}>
+                          {acao === 'publicar' ? (
+                            <Button
+                              size="xs"
+                              variant="tertiary"
+                              loading={busyKey === `publish:${l.listingId}:${c.channel}`}
+                              onClick={() => {
+                                void action('publish', l.listingId, c.channel);
+                              }}
+                            >
+                              {c.channel === 'grupoolx' ? 'Reavaliar' : 'Publicar'}
+                            </Button>
+                          ) : null}
+                          {acao === 'remover' ? (
+                            <Button
+                              size="xs"
+                              variant="tertiary"
+                              loading={busyKey === `remove:${l.listingId}:${c.channel}`}
+                              onClick={() => {
+                                void action('remove', l.listingId, c.channel);
+                              }}
+                            >
+                              Remover
+                            </Button>
+                          ) : null}
+                        </Group>
+                      </div>
+                    );
+                  })}
                 </Group>
               </div>
             ))}
@@ -293,6 +339,7 @@ function ChannelsBody() {
 
       <PublishListingModal
         open={publishOpen}
+        channels={offered}
         onClose={() => {
           setPublishOpen(false);
         }}
@@ -305,18 +352,34 @@ function ChannelsBody() {
   );
 }
 
+/** Por que o anúncio está fora do Grupo OLX (lido da publicação, que guarda os motivos). */
+function MotivoDoGrupoOlx({ listingId }: { listingId: string }) {
+  const { data } = useQuery<ListingChannels>(`/listings/${listingId}/channels`, [listingId]);
+  const publicacao = data?.channels.find((c) => c.channel === 'grupoolx');
+  const motivo = publicacao ? motivoPrincipal(publicacao.issues) : null;
+  if (!motivo) return null;
+  return (
+    <span className="peg-text-tertiary" style={{ fontSize: 11 }} title={motivo.message}>
+      {motivo.message}
+    </span>
+  );
+}
+
 /**
  * Primeira publicação de um anúncio em canal (auditoria 2026-09-10, P1-17): a tela
  * só republicava o que já estava em algum canal. Lista os anúncios publicados
- * (todas as páginas) e os canais de `GET /channels`; canal sem integração aparece
- * desabilitado.
+ * (todas as páginas) e os canais oferecidos; canal sem integração aparece
+ * desabilitado. No Grupo OLX (ADR-107) a imobiliária escolhe o destaque contratado e,
+ * quando o tipo do imóvel não decide sozinho, o tipo no portal.
  */
 function PublishListingModal({
   open,
+  channels,
   onClose,
   onPublished,
 }: {
   open: boolean;
+  channels: readonly ChannelInfo[];
   onClose: () => void;
   onPublished: () => void;
 }) {
@@ -325,14 +388,25 @@ function PublishListingModal({
     open ? '/listings?status=PUBLISHED' : null,
     'listings',
   );
-  const channelsQ = useQuery<{ channels: AvailableChannel[] }>(open ? '/channels' : null, [open]);
   const [listingId, setListingId] = useState('');
   const [channel, setChannel] = useState('');
+  const [tier, setTier] = useState('STANDARD');
+  const [portalType, setPortalType] = useState('');
   const [busy, setBusy] = useState(false);
+  const grupoOlx = channel === 'grupoolx';
+  const typeQ = useQuery<{ defaultType: string | null; options: string[] }>(
+    open && grupoOlx && listingId
+      ? `/integrations/grupo-olx/listings/${listingId}/property-type-options`
+      : null,
+    [open, grupoOlx, listingId],
+  );
+  const precisaTipo = grupoOlx && typeQ.data !== null && typeQ.data.defaultType === null;
 
   function close() {
     setListingId('');
     setChannel('');
+    setTier('STANDARD');
+    setPortalType('');
     onClose();
   }
 
@@ -341,13 +415,22 @@ function PublishListingModal({
     if (!listingId || !channel) return;
     setBusy(true);
     try {
-      await apiClient(`/listings/${listingId}/channels/${channel}/publish`, {
-        method: 'POST',
-        body: {},
-      });
-      toast.success('Publicação enviada ao canal', label(CHANNEL_TYPE_LABELS, channel));
+      const body = grupoOlx
+        ? { publicationTier: tier, ...(portalType ? { portalPropertyType: portalType } : {}) }
+        : {};
+      const res = await apiClient<{ publication: { status: string } }>(
+        `/listings/${listingId}/channels/${channel}/publish`,
+        { method: 'POST', body },
+      );
+      toast.success(
+        grupoOlx ? 'Anúncio avaliado para o Grupo OLX' : 'Publicação enviada ao canal',
+        grupoOlx
+          ? label(CHANNEL_STATUS_LABELS, res.publication.status)
+          : label(CHANNEL_TYPE_LABELS, channel),
+      );
       setListingId('');
       setChannel('');
+      setPortalType('');
       onPublished();
     } catch (err) {
       toast.error('Não foi possível publicar', err instanceof Error ? err.message : undefined);
@@ -373,7 +456,7 @@ function PublishListingModal({
             type="submit"
             form="publish-listing-form"
             loading={busy}
-            disabled={noListings}
+            disabled={noListings || (precisaTipo && !portalType)}
           >
             Publicar
           </Button>
@@ -394,6 +477,7 @@ function PublishListingModal({
           value={listingId}
           onChange={(e) => {
             setListingId(e.target.value);
+            setPortalType('');
           }}
           placeholder={listingsQ.loading ? 'Carregando anúncios…' : 'Selecione o anúncio'}
           options={listingsQ.rows.map((l) => ({ value: l.id, label: l.title }))}
@@ -412,10 +496,49 @@ function PublishListingModal({
           onChange={(e) => {
             setChannel(e.target.value);
           }}
-          placeholder={channelsQ.loading ? 'Carregando canais…' : 'Selecione o canal'}
-          options={channelSelectOptions(channelsQ.data?.channels ?? [])}
-          {...(channelsQ.error ? { error: channelsQ.error } : {})}
+          placeholder={channels.length === 0 ? 'Carregando canais…' : 'Selecione o canal'}
+          options={channelSelectOptions(channels)}
         />
+        {grupoOlx ? (
+          <>
+            <Select
+              label="Destaque no Grupo OLX"
+              value={tier}
+              onChange={(e) => {
+                setTier(e.target.value);
+              }}
+              options={Object.entries(PUBLICATION_TIER_LABELS).map(([value, text]) => ({
+                value,
+                label: text,
+              }))}
+              helper="O destaque que o contrato da imobiliária com o Grupo OLX permite."
+            />
+            {typeQ.data && typeQ.data.options.length > 0 ? (
+              <Select
+                label="Tipo no Grupo OLX"
+                {...(precisaTipo ? { required: true } : { optional: true })}
+                value={portalType}
+                onChange={(e) => {
+                  setPortalType(e.target.value);
+                }}
+                placeholder={
+                  typeQ.data.defaultType
+                    ? `Padrão: ${label(PORTAL_PROPERTY_TYPE_LABELS, typeQ.data.defaultType)}`
+                    : 'Escolha o tipo'
+                }
+                options={typeQ.data.options.map((value) => ({
+                  value,
+                  label: label(PORTAL_PROPERTY_TYPE_LABELS, value),
+                }))}
+                helper={
+                  precisaTipo
+                    ? 'Comercial e terreno têm mais de uma opção no Grupo OLX: escolha a certa.'
+                    : 'Só mude se o padrão não descrever o imóvel.'
+                }
+              />
+            ) : null}
+          </>
+        ) : null}
       </form>
     </Modal>
   );

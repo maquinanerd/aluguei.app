@@ -27,6 +27,10 @@
     "./whatsapp": {
       "types": "./src/whatsapp/gateway.ts",
       "default": "./src/whatsapp/gateway.ts"
+    },
+    "./grupo-olx": {
+      "types": "./src/grupo-olx/index.ts",
+      "default": "./src/grupo-olx/index.ts"
     }
   },
   "scripts": {

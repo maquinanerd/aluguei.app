@@ -32,6 +32,7 @@ function buildLoadedProperty(): Parameters<typeof toPropertyDto>[0] {
     totalAreaSqm: null,
     builtAreaSqm: null,
     bedrooms: null,
+    suites: null,
     bathrooms: null,
     parkingSpots: null,
     furnished: false,

@@ -11,8 +11,9 @@ import {
   propertyMedia,
 } from '@aluguei/db';
 import type { AppDb } from '@aluguei/db';
-import type { ChannelJobType, IListingChannelAdapter } from '@aluguei/integrations';
-import { DomainError, isChannelJobType } from '@aluguei/domain';
+import { isFeedChannel } from '@aluguei/integrations';
+import type { ChannelJobType, ChannelType, IListingChannelAdapter } from '@aluguei/integrations';
+import { DomainError, FEED_DESIRED_STATUSES, isChannelJobType } from '@aluguei/domain';
 
 /** Serializa payload para hash canônico (chaves ordenadas). */
 function canonicalJson(value: unknown): string {
@@ -165,31 +166,56 @@ export async function buildChannelListingInput(
   };
 }
 
+/** Publicação que acompanha mudanças: PUSH publicado, ou FEED (Grupo OLX) ainda desejado. */
+function followsChanges(publication: { channel: string; status: string }): boolean {
+  return isFeedChannel(publication.channel as ChannelType)
+    ? (FEED_DESIRED_STATUSES as readonly string[]).includes(publication.status)
+    : publication.status === 'PUBLISHED';
+}
+
 /**
  * Enfileira UPDATE nos canais com publicação ativa do property (preço/fotos/
  * endereço mudaram). Idempotência: mesma chave reusa a linha; o worker
- * recarrega o conteúdo do DB na execução.
+ * recarrega o conteúdo do DB na execução. No canal FEED (Grupo OLX, ADR-107) o
+ * UPDATE é reavaliar: o arquivo já sai com o dado novo, a tela precisa do motivo.
+ * `feedOnly`: só os canais FEED (mudança que antes não disparava nada nos PUSH).
  */
 export async function enqueueUpdatesForProperty(
   db: AppDb,
   orgId: string,
   propertyId: string,
+  options: { feedOnly?: boolean } = {},
 ): Promise<number> {
   const listingRows = await db.select().from(listings).where(eq(listings.propertyId, propertyId));
   const listingIds = listingRows.map((l) => l.id);
+  return enqueueUpdatesForListings(db, orgId, listingIds, options);
+}
+
+/** Igual a `enqueueUpdatesForProperty`, a partir dos anúncios. */
+export async function enqueueUpdatesForListings(
+  db: AppDb,
+  orgId: string,
+  listingIds: readonly string[],
+  options: { feedOnly?: boolean } = {},
+): Promise<number> {
   if (listingIds.length === 0) {
     return 0;
   }
-  const active = await db
+  const candidates = await db
     .select()
     .from(listingChannelPublications)
     .where(
       and(
         eq(listingChannelPublications.orgId, orgId),
-        eq(listingChannelPublications.status, 'PUBLISHED'),
-        inArray(listingChannelPublications.listingId, listingIds),
+        inArray(listingChannelPublications.status, ['PUBLISHED', ...FEED_DESIRED_STATUSES]),
+        inArray(listingChannelPublications.listingId, [...listingIds]),
       ),
     );
+  const active = candidates.filter(
+    (publication) =>
+      followsChanges(publication) &&
+      (!options.feedOnly || isFeedChannel(publication.channel as ChannelType)),
+  );
   for (const publication of active) {
     await enqueueChannelJob(db, {
       orgId,

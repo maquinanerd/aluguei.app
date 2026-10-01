@@ -200,7 +200,7 @@ describe('P1-17: canais disponíveis para a primeira publicação', () => {
     expect(res.status, JSON.stringify(res.body)).toBe(200);
     const channels = res.body.channels as Array<{ channel: string; available: boolean }>;
     expect(channels.map((c) => c.channel).sort()).toEqual(
-      ['canalpro', 'fake', 'imovelweb', 'olx', 'vivareal', 'zap'].sort(),
+      ['canalpro', 'fake', 'grupoolx', 'imovelweb', 'olx', 'vivareal', 'zap'].sort(),
     );
     expect(channels.find((c) => c.channel === 'fake')?.available).toBe(true);
     expect(channels.find((c) => c.channel === 'olx')?.available).toBe(false);

@@ -35,7 +35,7 @@ import {
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
 import { assertPlanAllowsOneMore } from '../platform/usage.js';
-import { enqueueChannelJob } from './channel-jobs.js';
+import { enqueueChannelJob, enqueueUpdatesForListings } from './channel-jobs.js';
 import { first } from './helpers.js';
 
 /** Guarda de prontidão: READY exige termos financeiros + endereço público. */
@@ -165,6 +165,7 @@ async function loadListingDetail(db: AppDb, orgId: string, listingId: string): P
       totalAreaSqm: property.totalAreaSqm,
       builtAreaSqm: property.builtAreaSqm,
       bedrooms: property.bedrooms,
+      suites: property.suites,
       bathrooms: property.bathrooms,
       parkingSpots: property.parkingSpots,
       furnished: property.furnished,
@@ -442,6 +443,8 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
         }
       }
 
+      // Título e descrição mudam a avaliação do Grupo OLX (ADR-107).
+      await enqueueUpdatesForListings(db, auth.orgId, [updated.id], { feedOnly: true });
       const detail = await loadListingDetail(db, auth.orgId, updated.id);
       if (!detail) {
         throw new Error('listing not found after update');
@@ -520,6 +523,8 @@ export const listingRoutes: FastifyPluginAsync = (app) => {
         return row;
       });
 
+      // Pausado ou arquivado sai do feed do Grupo OLX: a tela precisa dizer por quê.
+      await enqueueUpdatesForListings(db, auth.orgId, [updated.id], { feedOnly: true });
       const detail = await loadListingDetail(db, auth.orgId, updated.id);
       if (!detail) {
         throw new Error('listing not found after status change');

@@ -5,6 +5,13 @@ import type { AppEnv } from '@aluguei/config';
 import { createDbFakePaymentStore, webhookInbox } from '@aluguei/db';
 import { processWhatsAppInboxJob } from '@aluguei/api/whatsapp';
 import {
+  GRUPO_OLX_LEAD_PROVIDER,
+  GRUPO_OLX_REPORT_PROVIDER,
+  processGrupoOlxLead,
+  processGrupoOlxReport,
+} from '@aluguei/api/grupo-olx';
+import type { GrupoOlxLeadInboxPayload } from '@aluguei/api/grupo-olx';
+import {
   getAiProvider,
   getInspectionAiProvider,
   getPaymentProvider,
@@ -317,6 +324,16 @@ export async function runInboxJobs(opts: RunInboxJobsOptions): Promise<{ process
             await processProposalExpiryJob(db, job);
           } else if (job.provider === 'META') {
             await processMetaWebhookJob(db, job);
+          } else if (job.provider === GRUPO_OLX_LEAD_PROVIDER) {
+            // Lead do ZAP, Viva Real ou OLX (ADR-108): vira pessoa, lead e interesse no imóvel.
+            await processGrupoOlxLead(
+              db,
+              job.orgId,
+              job.payload as unknown as GrupoOlxLeadInboxPayload,
+            );
+          } else if (job.provider === GRUPO_OLX_REPORT_PROVIDER) {
+            // Relatório de importação (ADR-108): estado real dos anúncios no portal.
+            await processGrupoOlxReport(db, job.orgId, job.payload.report);
           } else {
             throw new Error(`provider desconhecido: ${job.provider}`);
           }

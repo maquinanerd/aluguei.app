@@ -14,6 +14,7 @@ import type { AppDb } from '@aluguei/db';
 import {
   AUDIT_ACTIONS,
   DomainError,
+  assertSuitesWithinBedrooms,
   assertOwnershipTotal,
   assertTermsMatchPurpose,
   citySlug,
@@ -61,6 +62,7 @@ interface LoadedProperty {
   totalAreaSqm: number | null;
   builtAreaSqm: number | null;
   bedrooms: number | null;
+  suites: number | null;
   bathrooms: number | null;
   parkingSpots: number | null;
   furnished: boolean;
@@ -131,6 +133,7 @@ export function toPropertyDto(loaded: LoadedProperty): unknown {
     totalAreaSqm: loaded.totalAreaSqm,
     builtAreaSqm: loaded.builtAreaSqm,
     bedrooms: loaded.bedrooms,
+    suites: loaded.suites,
     bathrooms: loaded.bathrooms,
     parkingSpots: loaded.parkingSpots,
     furnished: loaded.furnished,
@@ -236,6 +239,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
     async (request, reply) => {
       const auth = requireAuth(request);
       const input = createPropertyRequestSchema.parse(request.body);
+      assertSuitesWithinBedrooms(input.bedrooms ?? null, input.suites ?? null);
 
       const property = await db.transaction(async (tx) => {
         await assertPlanAllowsOneMore(tx, auth.orgId, 'properties');
@@ -252,6 +256,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
               totalAreaSqm: input.totalAreaSqm ?? null,
               builtAreaSqm: input.builtAreaSqm ?? null,
               bedrooms: input.bedrooms ?? null,
+              suites: input.suites ?? null,
               bathrooms: input.bathrooms ?? null,
               parkingSpots: input.parkingSpots ?? null,
               furnished: input.furnished ?? false,
@@ -336,6 +341,10 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
           patch[key] = value;
         }
       }
+      assertSuitesWithinBedrooms(
+        input.bedrooms !== undefined ? input.bedrooms : property.bedrooms,
+        input.suites !== undefined ? input.suites : property.suites,
+      );
       const updated = first(
         await db
           .update(properties)
@@ -357,6 +366,8 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         payload: auditDiff(property as Record<string, unknown>, patch),
       });
 
+      // Área, quartos, suítes e descrição mudam a avaliação do Grupo OLX (ADR-107).
+      await enqueueUpdatesForProperty(db, auth.orgId, updated.id, { feedOnly: true });
       const loaded = await loadProperty(db, auth.orgId, updated.id);
       if (!loaded) {
         throw new Error('property not found after update');
@@ -684,6 +695,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
         payload: { feature: input.feature },
       });
 
+      await enqueueUpdatesForProperty(db, auth.orgId, property.id, { feedOnly: true });
       const loaded = await loadProperty(db, auth.orgId, property.id);
       if (!loaded) {
         throw new Error('property not found after feature add');
@@ -726,6 +738,7 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
           entityId: property.id,
           payload: { feature },
         });
+        await enqueueUpdatesForProperty(db, auth.orgId, property.id, { feedOnly: true });
       }
       return { ok: true as const };
     },
@@ -954,6 +967,8 @@ export const propertyRoutes: FastifyPluginAsync = (app) => {
           entityId: property.id,
           payload: { mediaId },
         });
+        // Foto a menos pode deixar o anúncio abaixo do mínimo do Grupo OLX.
+        await enqueueUpdatesForProperty(db, auth.orgId, property.id, { feedOnly: true });
       }
       return { ok: true as const };
     },
@@ -986,6 +1001,7 @@ function summaryOf(row: typeof properties.$inferSelect): Record<string, unknown>
     totalAreaSqm: row.totalAreaSqm,
     builtAreaSqm: row.builtAreaSqm,
     bedrooms: row.bedrooms,
+    suites: row.suites,
     bathrooms: row.bathrooms,
     parkingSpots: row.parkingSpots,
     furnished: row.furnished,

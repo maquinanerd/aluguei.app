@@ -46,6 +46,11 @@ export const organizations = pgTable(
     phone: text('phone'),
     creci: text('creci'),
     /**
+     * E-mail público de contato da imobiliária (ADR-107): vai no `ContactInfo` do feed do Grupo
+     * OLX. Campo próprio — nunca o e-mail de login de alguém da equipe.
+     */
+    publicContactEmail: text('public_contact_email'),
+    /**
      * Plano pedido no cadastro (código, não id). Não é o plano vigente: quem
      * decide é o admin na aprovação (ADR-060), em `planId`. Aqui fica só a
      * intenção declarada, para a fila de aprovação não ter de adivinhar.

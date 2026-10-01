@@ -92,6 +92,21 @@ const DOMAIN_CHECKS: Record<string, DomainCheck> = {
   'channel_sync_jobs.channel': { values: d.CHANNEL_TYPES },
   'channel_sync_jobs.job_type': { values: d.CHANNEL_JOB_TYPES },
   'channel_sync_jobs.status': { values: d.CHANNEL_JOB_STATUSES },
+  // Grupo OLX (ADR-107): distribuição, conexão por imobiliária, buscas do feed e relatórios.
+  'listing_channel_publications.publication_tier': {
+    values: c.grupoOlxPublicationTierSchema.options,
+    nullable: true,
+  },
+  'listing_channel_publications.portal_property_type': {
+    values: c.grupoOlxPropertyTypeSchema.options,
+    nullable: true,
+  },
+  'channel_connections.channel': { values: d.CHANNEL_TYPES },
+  'channel_connections.display_address': { values: c.grupoOlxDisplayAddressSchema.options },
+  'channel_connections.destinations': { values: c.grupoOlxDestinationSchema.options },
+  'channel_feed_fetches.channel': { values: d.CHANNEL_TYPES },
+  'channel_feed_fetches.outcome': { values: c.channelFeedFetchOutcomeSchema.options },
+  'channel_import_reports.channel': { values: d.CHANNEL_TYPES },
 
   // WhatsApp.
   'conversations.status': { values: d.CONVERSATION_STATUSES },

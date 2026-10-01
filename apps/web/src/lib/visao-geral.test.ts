@@ -140,6 +140,24 @@ describe('Visão Geral: a fila "Próximas ações" (tela 32)', () => {
       AGORA,
     );
     expect([canal.titulo, canal.prazo]).toEqual(['ZAP Imóveis recusou o anúncio', '20/09']);
+    expect(canal.href).toBe('/app/channels');
+    // A recusa do relatório do Grupo OLX leva à tela onde o anúncio é ajustado.
+    const grupoOlx = linhaDaFila(
+      {
+        kind: 'CHANNEL',
+        tone: 'warning',
+        id: 'g',
+        channel: 'grupoolx',
+        propertyCode: 'IMV-0201',
+        error: 'Foto com marca d’água',
+        at: '2026-09-20T10:00:00.000-03:00',
+      },
+      AGORA,
+    );
+    expect([grupoOlx.titulo, grupoOlx.href]).toEqual([
+      'Grupo OLX recusou IMV-0201 · Foto com marca d’água',
+      '/app/channels/grupo-olx',
+    ]);
   });
 
   it('quando e há quanto, no fuso de São Paulo', () => {

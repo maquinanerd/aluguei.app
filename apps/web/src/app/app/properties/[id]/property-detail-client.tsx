@@ -39,6 +39,7 @@ interface Property {
   totalAreaSqm: number | null;
   builtAreaSqm: number | null;
   bedrooms: number | null;
+  suites: number | null;
   bathrooms: number | null;
   parkingSpots: number | null;
   furnished: boolean;
@@ -224,6 +225,9 @@ function PropertyBody() {
               {property.bedrooms !== null ? (
                 <Tag icon="home">{`${String(property.bedrooms)} dorm.`}</Tag>
               ) : null}
+              {property.suites !== null && property.suites > 0 ? (
+                <Tag icon="home">{`${String(property.suites)} ${property.suites === 1 ? 'suíte' : 'suítes'}`}</Tag>
+              ) : null}
               {property.bathrooms !== null ? (
                 <Tag icon="home">{`${String(property.bathrooms)} ban.`}</Tag>
               ) : null}
@@ -303,6 +307,10 @@ function PropertyBody() {
                     <InfoRow
                       label="Dormitórios"
                       value={property.bedrooms !== null ? String(property.bedrooms) : '—'}
+                    />
+                    <InfoRow
+                      label="Suítes"
+                      value={property.suites !== null ? String(property.suites) : '—'}
                     />
                     <InfoRow
                       label="Banheiros"

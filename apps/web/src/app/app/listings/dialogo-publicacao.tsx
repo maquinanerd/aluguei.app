@@ -2,7 +2,12 @@
 
 import { Badge, Button, Group, Modal, Stack } from '@aluguei/ui';
 import { useQuery } from '@/lib/use-query';
-import { label, CHANNEL_TYPE_LABELS } from '@/lib/labels';
+import {
+  label,
+  CHANNEL_STATUS_LABELS,
+  CHANNEL_STATUS_TONES,
+  CHANNEL_TYPE_LABELS,
+} from '@/lib/labels';
 
 export interface Prontidao {
   canPublish: boolean;
@@ -132,6 +137,11 @@ export function DialogoPublicacao({
                   <Badge tone="neutral">não conectado</Badge>
                 ) : canal.status === 'PUBLISHED' ? (
                   <Badge tone="success">já publicado</Badge>
+                ) : canal.status !== null ? (
+                  // Feed do Grupo OLX (ADR-107): o estado diz se entrou no arquivo ou foi importado.
+                  <Badge tone={CHANNEL_STATUS_TONES[canal.status] ?? 'neutral'}>
+                    {label(CHANNEL_STATUS_LABELS, canal.status)}
+                  </Badge>
                 ) : (
                   <Badge tone="neutral">pela tela de Canais</Badge>
                 )}

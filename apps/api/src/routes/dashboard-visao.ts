@@ -26,6 +26,15 @@ import type { Permission } from '@aluguei/domain';
 
 const count = z.number().int().nonnegative();
 
+/** Motivo da recusa do Grupo OLX: a primeira crítica bloqueante do relatório (ADR-108). */
+function primeiraCritica(issues: unknown): string | null {
+  if (!Array.isArray(issues)) return null;
+  const critica = (issues as Array<{ message?: unknown; blocking?: unknown }>).find(
+    (issue) => issue.blocking === true && typeof issue.message === 'string',
+  );
+  return typeof critica?.message === 'string' ? critica.message : null;
+}
+
 export const queueItemSchema = z.discriminatedUnion('kind', [
   /** Lead sem retorno (status NEW): vermelho. */
   z.object({
@@ -205,9 +214,11 @@ export async function filaDeAcoes(
     gte(inspections.scheduledAt, dia.start),
     lt(inspections.scheduledAt, dia.end),
   );
+  // Recusa de verdade: falha ao publicar, ou o relatório do Grupo OLX recusou o anúncio (ADR-108).
+  // O bloqueio da nossa validação (BLOCKED) não entra: a fila diz "recusou", e quem bloqueou fomos nós.
   const publicacaoRecusada = all(
     eq(listingChannelPublications.orgId, orgId),
-    eq(listingChannelPublications.status, 'FAILED'),
+    inArray(listingChannelPublications.status, ['FAILED', 'IMPORT_ERROR']),
   );
 
   const [lead, visita, proposta, vistoria, canal] = await Promise.all([
@@ -319,6 +330,7 @@ export async function filaDeAcoes(
             channel: listingChannelPublications.channel,
             propertyCode: properties.code,
             error: listingChannelPublications.lastError,
+            issues: listingChannelPublications.issues,
             at: listingChannelPublications.updatedAt,
           })
           .from(listingChannelPublications)
@@ -372,7 +384,7 @@ export async function filaDeAcoes(
       id: linha.id,
       channel: linha.channel,
       propertyCode: linha.propertyCode,
-      error: linha.error,
+      error: linha.error ?? primeiraCritica(linha.issues),
       at: linha.at.toISOString(),
     })),
   ];

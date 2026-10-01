@@ -254,6 +254,15 @@ async function seedOrganization(
     { orgId, listingId: l1.id, channel: 'zap', status: 'FAILED' },
     { orgId, listingId: l2.id, channel: 'fake', status: 'FAILED' },
     { orgId, listingId: l2.id, channel: 'olx', status: 'PENDING' },
+    // Feed do Grupo OLX (ADR-108): confirmado pelo relatório é ativa; recusado é falha.
+    { orgId, listingId: l1.id, channel: 'grupoolx', status: 'IMPORTED' },
+    {
+      orgId,
+      listingId: l2.id,
+      channel: 'grupoolx',
+      status: 'IMPORT_ERROR',
+      issues: [{ code: 'REPORT_ERROR', message: 'Foto com marca d’água', blocking: true }],
+    },
   ]);
 
   await db.insert(leads).values([
@@ -536,15 +545,15 @@ async function oracle(app: FastifyInstance, orgId: string, now: Date) {
     },
     listings: {
       publishedPublications: await n(
-        sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status = 'PUBLISHED'`,
+        sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status in ('PUBLISHED', 'IMPORTED', 'IMPORTED_WITH_WARNINGS')`,
       ),
       failedPublications: await n(
-        sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status = 'FAILED'`,
+        sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status in ('FAILED', 'IMPORT_ERROR')`,
       ),
       failedByChannel: (
         await rows(
           app,
-          sql`select channel, count(*) as failed from listing_channel_publications where org_id = ${orgId} and status = 'FAILED' group by channel order by channel`,
+          sql`select channel, count(*) as failed from listing_channel_publications where org_id = ${orgId} and status in ('FAILED', 'IMPORT_ERROR') group by channel order by channel`,
         )
       ).map((row) => ({ channel: String(row.channel), failed: Number(row.failed) })),
     },
@@ -641,8 +650,8 @@ async function queueOracle(app: FastifyInstance, orgId: string, day: Day) {
     ],
     [
       'CHANNEL',
-      sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status = 'FAILED'`,
-      sql`select id from listing_channel_publications where org_id = ${orgId} and status = 'FAILED' order by updated_at desc, id asc limit 2`,
+      sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status in ('FAILED', 'IMPORT_ERROR')`,
+      sql`select id from listing_channel_publications where org_id = ${orgId} and status in ('FAILED', 'IMPORT_ERROR') order by updated_at desc, id asc limit 2`,
     ],
   ];
   const totals = new Map<string, number>();
@@ -800,8 +809,9 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
       'INSPECTION',
       'CHANNEL',
     ]);
-    expect(expected.queue.total).toBe(101 + 1 + 1 + 1 + 2);
-    expect(expected.queue.attention).toBe(101 + 1 + 2);
+    // Canais: duas falhas de envio e uma recusa do relatório do Grupo OLX.
+    expect(expected.queue.total).toBe(101 + 1 + 1 + 1 + 3);
+    expect(expected.queue.attention).toBe(101 + 1 + 3);
     const { start: weekStart, ...stages } = expected.week;
     expect(weekStart).toBe(saoPauloWeek(day).start.toISOString());
     for (const [stage, value] of Object.entries(stages)) {
@@ -1044,6 +1054,92 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
       // "5 item(ns) exigem atenção" e "3 pendências exigem atenção hoje.", como na tela.
       total: 5,
       attention: 3,
+    });
+  });
+
+  it('Grupo OLX: a recusa do relatório entra na fila com o motivo; o bloqueio nosso, não', async () => {
+    const D = await registerUser(app);
+    const orgId = D.body.org.id;
+    const db = app.db;
+    const imovel = must(
+      (
+        await db
+          .insert(properties)
+          .values({
+            orgId,
+            title: 'Apto 1201 Setor Bueno',
+            propertyType: 'APARTMENT',
+            status: 'ACTIVE',
+            code: 'IMV-0201',
+          })
+          .returning()
+      )[0],
+      'imóvel',
+    );
+    const anuncios = await db
+      .insert(listings)
+      .values(
+        ['recusado', 'bloqueado', 'confirmado'].map((nome) => ({
+          orgId,
+          propertyId: imovel.id,
+          title: `Apto 1201 ${nome}`,
+          slug: `apto-1201-${nome}`,
+          publicSlug: `apto-1201-${nome}-${randomUUID().slice(0, 8)}`,
+          status: 'PUBLISHED',
+        })),
+      )
+      .returning();
+    const publicacoes = await db
+      .insert(listingChannelPublications)
+      .values([
+        {
+          orgId,
+          listingId: must(anuncios[0], 'recusado').id,
+          channel: 'grupoolx',
+          status: 'IMPORT_ERROR',
+          issues: [
+            { code: 'REPORT_WARNING', message: 'Descrição curta', blocking: false },
+            { code: 'REPORT_ERROR', message: 'Foto com marca d’água', blocking: true },
+          ],
+        },
+        {
+          orgId,
+          listingId: must(anuncios[1], 'bloqueado').id,
+          channel: 'grupoolx',
+          status: 'BLOCKED',
+          issues: [{ code: 'PHOTOS_MIN', message: 'Mínimo de 5 fotos', blocking: true }],
+        },
+        {
+          orgId,
+          listingId: must(anuncios[2], 'confirmado').id,
+          channel: 'grupoolx',
+          status: 'IMPORTED',
+        },
+      ])
+      .returning();
+    const recusa = must(publicacoes[0], 'publicação recusada');
+
+    const res = await summaryOf(D.cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.queue).toEqual({
+      items: [
+        {
+          kind: 'CHANNEL',
+          tone: 'warning',
+          id: recusa.id,
+          channel: 'grupoolx',
+          propertyCode: 'IMV-0201',
+          error: 'Foto com marca d’água',
+          at: recusa.updatedAt.toISOString(),
+        },
+      ],
+      total: 1,
+      attention: 1,
+    });
+    expect(res.body.listings).toEqual({
+      publishedPublications: 1,
+      failedPublications: 1,
+      failedByChannel: [{ channel: 'grupoolx', failed: 1 }],
     });
   });
 
