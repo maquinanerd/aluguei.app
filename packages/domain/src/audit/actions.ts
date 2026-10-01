@@ -16,8 +16,12 @@ export const AUDIT_ACTIONS = {
   MEMBER_INVITED: 'member.invited',
   MEMBER_INVITE_REVOKED: 'member.invite_revoked',
   MEMBER_INVITE_ACCEPTED: 'member.invite_accepted',
-  /** Mensagem gravada na caixa de saída local — nada é enviado. */
+  /** Mensagem gravada na caixa de saída local; sem provedor configurado, nada é enviado. */
   EMAIL_QUEUED: 'email.queued',
+  /** Entregue pelo provedor de e-mail (B28), pelo worker. */
+  EMAIL_SENT: 'email.sent',
+  /** O provedor recusou ou as tentativas acabaram: a mensagem fica como FAILED. */
+  EMAIL_FAILED: 'email.failed',
   LEAD_CREATED: 'lead.created',
   LEAD_STATUS_CHANGED: 'lead.status_changed',
   LEAD_UPDATED: 'lead.updated',

@@ -39,6 +39,12 @@ const HOMOLOGATION_WORKER: NodeJS.ProcessEnv = {
   META_TOKEN_ENCRYPTION_KEY: HEX_64,
 };
 
+/** O worker da homologação, com a permissão dos providers de mentira: sobe como está. */
+const HOMOLOGATION_WORKER_OK: NodeJS.ProcessEnv = {
+  ...HOMOLOGATION_WORKER,
+  ALLOW_FAKE_PROVIDERS: 'true',
+};
+
 function problemsOf(fn: () => unknown): string[] {
   try {
     fn();
@@ -250,5 +256,45 @@ describe('loadRuntimeEnv: worker em produção', () => {
       }),
     );
     expect(problems.some((p) => p.startsWith(name))).toBe(true);
+  });
+});
+
+describe('loadRuntimeEnv: e-mail do worker (B28, D6 b)', () => {
+  it('sem EMAIL_PROVIDER, sobe: a mensagem fica na caixa de saída', () => {
+    expect(problemsOf(() => loadRuntimeEnv('worker', HOMOLOGATION_WORKER_OK))).toEqual([]);
+  });
+
+  it('RESEND sem chave ou sem remetente é recusado, com o nome do que falta', () => {
+    const problems = problemsOf(() =>
+      loadRuntimeEnv('worker', { ...HOMOLOGATION_WORKER_OK, EMAIL_PROVIDER: 'RESEND' }),
+    );
+    expect(problems.some((p) => p.startsWith('RESEND_API_KEY'))).toBe(true);
+    expect(problems.some((p) => p.startsWith('EMAIL_FROM'))).toBe(true);
+  });
+
+  it('RESEND completo sobe, e o valor da chave nunca aparece na mensagem de erro', () => {
+    const completo = {
+      ...HOMOLOGATION_WORKER_OK,
+      EMAIL_PROVIDER: 'RESEND',
+      RESEND_API_KEY: 're_segredo_da_chave',
+      EMAIL_FROM: 'AchouImóvel <nao-responda@achouimovel.online>',
+    };
+    expect(problemsOf(() => loadRuntimeEnv('worker', completo))).toEqual([]);
+    const semRemetente = messageOf(() => loadRuntimeEnv('worker', { ...completo, EMAIL_FROM: '' }));
+    expect(semRemetente).toContain('EMAIL_FROM');
+    expect(semRemetente).not.toContain('re_segredo_da_chave');
+  });
+
+  it('FAKE em produção só com ALLOW_FAKE_PROVIDERS=true', () => {
+    const env = loadRuntimeEnv('worker', { ...HOMOLOGATION_WORKER_OK, EMAIL_PROVIDER: 'FAKE' });
+    expect(fakeProvidersInUse(env, 'worker')).toContain('EMAIL_PROVIDER=FAKE');
+    const semPermissao = problemsOf(() =>
+      loadRuntimeEnv('worker', {
+        ...HOMOLOGATION_WORKER_OK,
+        ALLOW_FAKE_PROVIDERS: undefined,
+        EMAIL_PROVIDER: 'FAKE',
+      }),
+    );
+    expect(semPermissao.some((p) => p.includes('EMAIL_PROVIDER=FAKE'))).toBe(true);
   });
 });
