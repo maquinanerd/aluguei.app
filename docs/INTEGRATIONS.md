@@ -29,6 +29,15 @@ Cada canal pode usar REST, XML/feed, SFTP, webhook ou outra modalidade contratad
 
 Implementação concreta (Fase 04): interface em `packages/integrations/src/channels/types.ts`, `FakeChannel` de referência (dev/test, determinístico, falhas injetáveis) em `channels/fake.ts`, registry em `channels/registry.ts` (canais reais — canalpro/vivareal/zap/olx/imovelweb — registrados SEM adapter: rotas respondem 404 "canal não configurado"). Jobs enfileirados em `channel_sync_jobs` (idempotency_key UNIQUE) e processados pelo worker com claim atômico no Postgres (ADR-010). Estado desejado por (listing, canal) em `listing_channel_publications`. Contrato de idempotência obrigatório: `channelListingId` determinístico por (channel, externalId); remove de item inexistente resolve com sucesso. Nota: o FakeChannel mantém store em memória por processo — em dev, API e worker não compartilham estado (relevante só para o canal fake).
 
+Grupo OLX / Canal Pro (01/10/2026, ADR-107 e ADR-108): canal `grupoolx` em modo **FEED** — um
+arquivo VRSync por imobiliária, numa URL com token opaco, que o Grupo OLX busca a cada ~12 h e
+publica no ZAP, no Viva Real ou na OLX conforme o plano. Canal Pro, ZAP e Viva Real deixaram de ser
+canais próprios; `olx` ficou para a API própria da OLX. Leads e relatório de importação chegam por
+webhook com Basic Auth e passam pela `webhook_inbox`. Código em
+`packages/integrations/src/channels/grupo-olx/` (VRSync e webhooks, puros) e
+`apps/api/src/grupo-olx/` (dados, avaliação, feed, leads, relatório). IMPLEMENTED_NOT_LIVE_VERIFIED —
+ver `docs/integrations/GRUPO_OLX_HOMOLOGATION.md`.
+
 ## Crédito/identidade
 
 `IScreeningProvider` e adapters Serasa/SPC/outros. Consentimento e finalidade registrados antes da consulta.

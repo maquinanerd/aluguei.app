@@ -104,6 +104,10 @@ Definidas no recurso:
 | `PUBLIC_ORG_SLUG`       | opcional (vitrine pública)                                                                   |
 | `PLATFORM_ADMIN_EMAILS` | e-mails dos admins da plataforma, separados por vírgula; vazio: ninguém acessa `/plataforma` |
 
+Derivada no compose (ADR-107): `API_PUBLIC_URL` da API recebe o valor de `API_BASE_URL` — o endereço
+público do feed do Grupo OLX e das fotos que o robô dele baixa. Em produção só vale `https://`;
+sem ela, o feed responde 503 e a tela avisa.
+
 Fixas no compose: `NODE_ENV=production`, `COOKIE_SECURE=true`, `STORAGE_BUCKET=aluguei-private`,
 `STORAGE_REGION=us-east-1`, `STORAGE_FORCE_PATH_STYLE=true`, `PAYMENT_PROVIDER=FAKE`,
 `SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`,
@@ -119,11 +123,12 @@ a subida dizendo quais providers são FAKE. Com ela, cada um registra um aviso n
 
 Opcionais, não definidas hoje:
 
-| Variável                      | Para quê                                                                                                                                                                      |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log) |
-| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https       |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria              |
+| Variável                      | Para quê                                                                                                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log)   |
+| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https         |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria                |
+| `GRUPO_OLX_LEADS_SECRET_KEY`  | chave que o Grupo OLX entrega na homologação (Basic Auth `vivareal:<chave>`, uma por software). Sem ela os webhooks de lead e de relatório do Grupo OLX respondem 503 (ADR-108) |
 
 `STORAGE_FORCE_PATH_STYLE=true` é obrigatório com MinIO atrás de domínio próprio: sem ele o SDK assina
 a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não atende.

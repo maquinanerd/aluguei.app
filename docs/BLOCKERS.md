@@ -142,9 +142,32 @@ deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada 
   Para ligar, no worker: `EMAIL_PROVIDER=RESEND`, `RESEND_API_KEY` e `EMAIL_FROM` com um remetente
   de dominio verificado na Resend (SPF e DKIM do dominio). Depende do dono: contratar e verificar o
   dominio.
-- **Portais parceiros (D1)**: Canal Pro, OLX e Imovelweb seguem sem adapter, e a interface mostra
-  "Em preparacao". Adapters de feed so como fase propria, se o dono pedir.
+- **Portais parceiros (D1)**: o Grupo OLX (ZAP, Viva Real e OLX num feed so) foi implementado em
+  01/10/2026 — ver a secao abaixo. Imovelweb segue sem adapter e "Em preparacao"; os demais portais
+  da lista ampliada nao foram pesquisados em fonte oficial.
 - **Cidade por IP (D4)**: a camada no cliente entra sem fonte real ate a escolha entre o proxy do
   Cloudflare (com desafio DNS-01) e uma base local de geolocalizacao.
 - Continuam com o dono: licenca da fonte Guton, CNPJ e razao social do rodape, logos dos portais
   parceiros, perfis das redes sociais e o canal de suporte da conta suspensa.
+
+## Grupo OLX / Canal Pro (ADR-107, ADR-108) — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+Feed VRSync por token opaco, fotos JPG com URL estavel, webhook de leads (Basic Auth, roteamento por
+`clientListingId`, MCMV, deduplicacao por `originLeadId`) e webhook do relatorio de importacao,
+com testes de unidade e integracao e verificacao na stack local (01/10/2026). Nenhuma chamada a
+portal real. Guia: `docs/integrations/GRUPO_OLX_HOMOLOGATION.md`.
+
+Dependem de fora (e so isto):
+
+1. Envio do contato ao Grupo OLX (`chamado.integracao@olxbr.com`) — e-mail pronto no guia, nao enviado.
+2. SECRET_KEY real do webhook (`GRUPO_OLX_LEADS_SECRET_KEY`); sem ela os webhooks respondem 503.
+3. Submissao do formulario de homologacao.
+4. Imobiliaria piloto com conta Canal Pro.
+5. Plano e cota reais do cliente (hoje informados a mao na conexao).
+6. Validacao real do feed (busca do robo, importacao, fotos).
+7. Teste real de leads (validador de endpoint do Grupo OLX ou lead real).
+8. Confirmacao do caminho Canal Pro/VRSync x API propria da OLX.
+
+Nao determinado ate a resposta do Grupo OLX: autenticacao e dono do relatorio por webhook, formato
+de URL por anunciante, XSD atual (o oficial respondeu 403). O site B2B continua dizendo "Em
+preparacao" ate o piloto.

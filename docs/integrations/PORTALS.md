@@ -1,4 +1,73 @@
-# Portais imobiliários — Pesquisa e classificação (2026-08-17)
+# Portais imobiliários — pesquisa e classificação
+
+## Atualização de 01/10/2026 — Grupo OLX / Canal Pro
+
+Data de verificação: **01/10/2026**. Fonte: páginas oficiais de `developers.grupozap.com` baixadas
+nessa data, central de ajuda do ZAP e o repositório oficial `github.com/olxbr/crm-lead-integration`.
+Só o Grupo OLX foi pesquisado de novo; os demais portais seguem como na pesquisa de 17/08 (abaixo),
+e a lista ampliada que circulou depois (Chaves na Mão, Mercado Livre, Loft, QuintoAndar, regionais,
+Órulo, DWV) **não foi verificada** e não vale como contrato técnico.
+
+### Confirmado em documentação oficial
+
+- **Um feed só para três portais.** O Canal Pro é o console do Grupo OLX; o feed VRSync numa URL
+  pública é lido a cada ~12 h e reflete no ZAP, no Viva Real **ou** na OLX conforme o plano
+  contratado (`/feeds/integration.html`). Canal Pro, ZAP e Viva Real não são integrações separadas.
+- **Desenvolvedor Próprio.** Sem o software na lista (~450 homologados), a imobiliária escolhe
+  "Desenvolvedor Próprio" e cadastra a URL (`ajuda.zapimoveis.com.br/s/article/o-que-e-integracao`).
+- **Robô do feed** (`/feeds/connection_guideline.html`): User-Agent `VivaRealBot/1.0`, IPs publicados
+  (54.162.151.93, 35.170.24.75, 35.169.28.85, 52.6.165.235, 54.156.129.60, 3.89.171.165,
+  3.208.42.223, 35.175.17.150, 35.173.9.239, 18.231.52.186, 100.24.160.21 — sujeitos a mudança),
+  60 s para conectar, 20 min para baixar, URL até 255 caracteres, TLS documentado até 1.2,
+  certificado válido, sem autenticação documentada.
+- **Regras** (`/feeds/integration_rules.html`): até 50 mil anúncios por arquivo; anúncio do XML não é
+  editável no Canal Pro; anúncio manual igual ao do XML dá duplicidade; cota do contrato inativa o
+  excedente.
+- **VRSync** (`/feeds/vrsync/elements/*`): ListingID 1–50, Title 10–100, Description 50–3.000 sem HTML,
+  PostalCode obrigatório, endereço completo recomendado com `displayAddress` separado, ≥ 5 fotos JPG
+  de até 7 MB, URL da foto como identidade, ContactInfo com nome e e-mail, PublicationType
+  (STANDARD … TRIPLE), 24 PropertyType, valores inteiros.
+- **Validador de XML** em beta (`/feeds/xml_validator/`, até 30 MB, upload manual).
+- **Webhook de leads** (`/webhooks/integration_leads.html`, `/webhooks/security.html`): POST JSON por
+  lead; Basic Auth `vivareal:<SECRET_KEY>` com a chave **por software**; 2xx é sucesso, fora disso 3
+  tentativas e 14 dias de guarda; `originLeadId` para idempotência; `clientListingId` obrigatório em
+  lead de anúncio (ausente → 4xx); lead MCMV sem anúncio, com CPF/CNPJ do anunciante; `leadType`
+  CLICK_SCHEDULE, CLICK_WHATSAPP, CONTACT_CHAT, CONTACT_FORM, PHONE_VIEW, VISIT_REQUEST; timeout de
+  30 s; URL pode carregar o identificador do anunciante (`/webhooks/url_encoding.html`).
+- **Relatório de importação por webhook** (`/webhooks/integration_report_feeds_via_webhooks.html`):
+  `FEEDS_INTEGRATION_REPORT`, endpoint homologado, sem retentativa.
+- **Homologação**: formulário oficial e validador de endpoint; contato único
+  `chamado.integracao@olxbr.com` (`/contact/contact.html`).
+- **API própria da OLX** continua no ar em `developers.olx.com.br` (anúncios por API/XML próprio,
+  leads, chat): é outra integração.
+
+### Confirmado no código (01/10/2026)
+
+Canal `grupoolx` em modo FEED (ADR-107) e webhooks de lead e relatório (ADR-108), com testes de
+unidade e integração e verificação na stack local. Detalhe e checklist do piloto em
+`docs/integrations/GRUPO_OLX_HOMOLOGATION.md`. Estado: **IMPLEMENTED_NOT_LIVE_VERIFIED**.
+
+### Não determinado
+
+- Se o relatório por webhook vem com o mesmo Basic Auth e como identificar o anunciante quando ele
+  não cita anúncio (o código exige a chave e aceita URL por imobiliária).
+- Se o robô de imagens segue redirecionamento (o código serve os bytes direto, sem depender disso).
+- O XSD oficial: `http://xml.vivareal.com/vrsync.xsd` respondeu 403 em 01/10/2026.
+- Qual caminho a OLX recomenda para imobiliária: Canal Pro/VRSync ou a API própria.
+- WhatsApp (11) 4861-1799: citado fora da documentação (Reclame Aqui) — **UNVERIFIED**.
+
+### Bloqueado externamente
+
+Envio do contato ao Grupo OLX; SECRET_KEY real; submissão da homologação; imobiliária piloto com
+conta Canal Pro; plano/cota real do cliente; validação real do feed; teste real de leads;
+confirmação do caminho Canal Pro × API própria da OLX.
+
+---
+
+## Pesquisa de 17/08/2026 (histórico)
+
+> Atualizado em 01/10/2026: ZAP, Viva Real, OLX e Canal Pro passaram a ser um canal só, o feed do Grupo
+> OLX (ver acima). A tabela abaixo é o registro de 17/08 e não foi apagada.
 
 Pesquisa por API/feed oficial de **ZAP**, **VivaReal** (Grupo OLX), **OLX
 Imóveis**, **ImovelWeb** e **CanalPro**, feita via web em 2026-08-17. Nada foi

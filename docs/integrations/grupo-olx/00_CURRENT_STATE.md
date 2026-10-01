@@ -7,24 +7,24 @@ Vocabulário: PROVADO, EXISTE_MAS_NÃO_PROVADO, PARCIAL, MOCK_VERIFICADO, AUSENT
 
 ## 1. O que existe
 
-| Componente | Situação | Evidência |
-|---|---|---|
-| Interface de adapter (`validate/publish/update/remove/reconcile/importLeads`), sem transporte fixo | EXISTE, só o `fake` implementa | `packages/integrations/src/channels/types.ts:74` |
-| Vocabulário de canais: `fake`, `canalpro`, `vivareal`, `zap`, `olx`, `imovelweb` | EXISTE; quatro entradas para o que é um feed só | `packages/domain/src/channel/publication.ts:3`, CHECKs em `packages/db/src/schema/channels.ts:40,78` |
-| Registry: canais reais sem adapter | AUSENTE por decisão (ADR-097): API responde 404 "Canal não configurado" **antes** de gravar qualquer linha | `packages/integrations/src/channels/registry.ts:9-19`, `apps/api/src/routes/channels.ts:83-88,160` |
-| Estado por anúncio × canal (`listing_channel_publications`) | EXISTE, semântica de empurrar (PENDING → PUBLISHING → PUBLISHED) | `packages/db/src/schema/channels.ts:19`, transições em `publication.ts:31-40` |
-| Fila `channel_sync_jobs` (chave de idempotência única, claim com `SKIP LOCKED`, backoff, 5 tentativas) | EXISTE, MOCK_VERIFICADO com o `fake` | `apps/worker/src/channelJobs.ts:43-71,281-430` |
-| Montagem do conteúdo enviado ao canal | PARCIAL: só aluguel, endereço só bairro/cidade/UF do endereço público, sem área, suítes, venda, condomínio, IPTU, legenda e capa | `apps/api/src/routes/channel-jobs.ts:101-166`, `types.ts:13-32` |
-| Reenvio quando o imóvel muda (`enqueueUpdatesForProperty`) | EXISTE, só para publicações `PUBLISHED` | `channel-jobs.ts:168-203` |
-| Caixa de entrada de webhooks com deduplicação (`webhook_inbox`, único por `provider` + `provider_event_id`) | EXISTE; `org_id` é obrigatório | `packages/db/src/schema/whatsapp.ts:150-173` |
-| Processador da caixa de entrada (claim, backoff, DEAD após 3 tentativas) | EXISTE; despacho por `provider` | `apps/worker/src/inboxJobs.ts:184-372` |
-| Importação de lead de canal (dedupe da pessoa por e-mail/telefone, consentimento `LEAD_IMPORT`, timeline) | EXISTE, só exercitada pelo `fake` | `apps/worker/src/channelJobs.ts:173-279` |
-| Lead do portal próprio (origem `PORTAL_ACHOUIMOVEL`, canal `PORTAL`, interesse no imóvel, auditoria sem PII) | EXISTE (no ar desde a Onda 2B) | `apps/api/src/routes/public-portal.ts:167-235` |
-| Token opaco (32 bytes, base64url) + hash SHA-256 | EXISTE, usado por convite e senha | `apps/api/src/email-outbox.ts:63-69` |
-| Foto pública | EXISTE: `GET /public/media/:id` responde 302 para URL assinada de 1 h | `apps/api/src/routes/public-search.ts:173-207` |
-| Tela Canais | EXISTE com 6 cards fixos e botões "Reconciliar (teste)" e "Importar leads (teste)" que, em produção, terminam em 404 | `apps/web/src/app/app/channels/channels-client.tsx:47,136-155` |
-| Diálogo de publicação | EXISTE; lista todos os `CHANNEL_TYPES`, inclusive o canal de teste | `apps/web/src/app/app/listings/dialogo-publicacao.tsx:128-140`, `channels.ts:420-452` |
-| Site B2B: Canal Pro, OLX e Imovelweb "Em preparação" | EXISTE, coerente com o código | `apps/portal/src/app/b2b-conteudo.ts:20-34` |
+| Componente                                                                                                   | Situação                                                                                                                         | Evidência                                                                                            |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Interface de adapter (`validate/publish/update/remove/reconcile/importLeads`), sem transporte fixo           | EXISTE, só o `fake` implementa                                                                                                   | `packages/integrations/src/channels/types.ts:74`                                                     |
+| Vocabulário de canais: `fake`, `canalpro`, `vivareal`, `zap`, `olx`, `imovelweb`                             | EXISTE; quatro entradas para o que é um feed só                                                                                  | `packages/domain/src/channel/publication.ts:3`, CHECKs em `packages/db/src/schema/channels.ts:40,78` |
+| Registry: canais reais sem adapter                                                                           | AUSENTE por decisão (ADR-097): API responde 404 "Canal não configurado" **antes** de gravar qualquer linha                       | `packages/integrations/src/channels/registry.ts:9-19`, `apps/api/src/routes/channels.ts:83-88,160`   |
+| Estado por anúncio × canal (`listing_channel_publications`)                                                  | EXISTE, semântica de empurrar (PENDING → PUBLISHING → PUBLISHED)                                                                 | `packages/db/src/schema/channels.ts:19`, transições em `publication.ts:31-40`                        |
+| Fila `channel_sync_jobs` (chave de idempotência única, claim com `SKIP LOCKED`, backoff, 5 tentativas)       | EXISTE, MOCK_VERIFICADO com o `fake`                                                                                             | `apps/worker/src/channelJobs.ts:43-71,281-430`                                                       |
+| Montagem do conteúdo enviado ao canal                                                                        | PARCIAL: só aluguel, endereço só bairro/cidade/UF do endereço público, sem área, suítes, venda, condomínio, IPTU, legenda e capa | `apps/api/src/routes/channel-jobs.ts:101-166`, `types.ts:13-32`                                      |
+| Reenvio quando o imóvel muda (`enqueueUpdatesForProperty`)                                                   | EXISTE, só para publicações `PUBLISHED`                                                                                          | `channel-jobs.ts:168-203`                                                                            |
+| Caixa de entrada de webhooks com deduplicação (`webhook_inbox`, único por `provider` + `provider_event_id`)  | EXISTE; `org_id` é obrigatório                                                                                                   | `packages/db/src/schema/whatsapp.ts:150-173`                                                         |
+| Processador da caixa de entrada (claim, backoff, DEAD após 3 tentativas)                                     | EXISTE; despacho por `provider`                                                                                                  | `apps/worker/src/inboxJobs.ts:184-372`                                                               |
+| Importação de lead de canal (dedupe da pessoa por e-mail/telefone, consentimento `LEAD_IMPORT`, timeline)    | EXISTE, só exercitada pelo `fake`                                                                                                | `apps/worker/src/channelJobs.ts:173-279`                                                             |
+| Lead do portal próprio (origem `PORTAL_ACHOUIMOVEL`, canal `PORTAL`, interesse no imóvel, auditoria sem PII) | EXISTE (no ar desde a Onda 2B)                                                                                                   | `apps/api/src/routes/public-portal.ts:167-235`                                                       |
+| Token opaco (32 bytes, base64url) + hash SHA-256                                                             | EXISTE, usado por convite e senha                                                                                                | `apps/api/src/email-outbox.ts:63-69`                                                                 |
+| Foto pública                                                                                                 | EXISTE: `GET /public/media/:id` responde 302 para URL assinada de 1 h                                                            | `apps/api/src/routes/public-search.ts:173-207`                                                       |
+| Tela Canais                                                                                                  | EXISTE com 6 cards fixos e botões "Reconciliar (teste)" e "Importar leads (teste)" que, em produção, terminam em 404             | `apps/web/src/app/app/channels/channels-client.tsx:47,136-155`                                       |
+| Diálogo de publicação                                                                                        | EXISTE; lista todos os `CHANNEL_TYPES`, inclusive o canal de teste                                                               | `apps/web/src/app/app/listings/dialogo-publicacao.tsx:128-140`, `channels.ts:420-452`                |
+| Site B2B: Canal Pro, OLX e Imovelweb "Em preparação"                                                         | EXISTE, coerente com o código                                                                                                    | `apps/portal/src/app/b2b-conteudo.ts:20-34`                                                          |
 
 ## 2. O que não existe (AUSENTE)
 
@@ -34,18 +34,18 @@ suítes no imóvel; e-mail público de contato da imobiliária; URL de foto est�
 
 ## 3. Lacunas do modelo para o VRSync
 
-| VRSync | Hoje | Evidência |
-|---|---|---|
-| Título 10–100, sem HTML | 1–200 | `packages/contracts/src/listing.ts:40` |
-| Descrição obrigatória 50–3.000 | opcional; o portal mostra `listings.description` | `listing.ts:41`, `public-cards.ts:83` |
-| Tipo de imóvel (24 valores) | 8 tipos; `COMMERCIAL` e `LAND` não dizem o subtipo; `TOWNHOUSE` é "Sobrado" | `packages/contracts/src/property.ts:17-26`, `apps/web/src/lib/visao-geral.ts:224` |
-| Área útil / área total inteiras | `builtAreaSqm` ("Área construída") e `totalAreaSqm` ("Área total"), `double` | `packages/db/src/schema/properties.ts:35-36`, `property-form.tsx:62-63` |
-| Suítes | não existe | — |
-| Endereço completo + `displayAddress` | duas linhas: privada (completa) e pública (exibida); lat/lng geocodificados na pública | `apps/api/src/routes/properties.ts:386-456` |
-| UF com sigla | `state` guarda a sigla (entra em `citySlug`) | `properties.ts:407-410` |
+| VRSync                                   | Hoje                                                                                                                   | Evidência                                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Título 10–100, sem HTML                  | 1–200                                                                                                                  | `packages/contracts/src/listing.ts:40`                                                               |
+| Descrição obrigatória 50–3.000           | opcional; o portal mostra `listings.description`                                                                       | `listing.ts:41`, `public-cards.ts:83`                                                                |
+| Tipo de imóvel (24 valores)              | 8 tipos; `COMMERCIAL` e `LAND` não dizem o subtipo; `TOWNHOUSE` é "Sobrado"                                            | `packages/contracts/src/property.ts:17-26`, `apps/web/src/lib/visao-geral.ts:224`                    |
+| Área útil / área total inteiras          | `builtAreaSqm` ("Área construída") e `totalAreaSqm` ("Área total"), `double`                                           | `packages/db/src/schema/properties.ts:35-36`, `property-form.tsx:62-63`                              |
+| Suítes                                   | não existe                                                                                                             | —                                                                                                    |
+| Endereço completo + `displayAddress`     | duas linhas: privada (completa) e pública (exibida); lat/lng geocodificados na pública                                 | `apps/api/src/routes/properties.ts:386-456`                                                          |
+| UF com sigla                             | `state` guarda a sigla (entra em `citySlug`)                                                                           | `properties.ts:407-410`                                                                              |
 | Foto: JPG, ≤ 7 MB, ≥ 5, URL = identidade | aceita JPEG, PNG, WebP até 10 MB; `mime_type` fica **nulo** na confirmação (o formato só aparece na extensão da chave) | `apps/api/src/media-rules.ts:6-22`, `packages/contracts/src/media.ts:18-22`, `properties.ts:818-826` |
-| `ContactInfo` com nome e e-mail | organização tem nome, documento, telefone e CRECI; sem e-mail | `packages/db/src/schema/identity.ts:31-47` |
-| Características (lista fechada) | texto livre até 40 caracteres | `property.ts:207` |
+| `ContactInfo` com nome e e-mail          | organização tem nome, documento, telefone e CRECI; sem e-mail                                                          | `packages/db/src/schema/identity.ts:31-47`                                                           |
+| Características (lista fechada)          | texto livre até 40 caracteres                                                                                          | `property.ts:207`                                                                                    |
 
 ## 4. Riscos encontrados
 

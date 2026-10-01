@@ -2047,3 +2047,94 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
 3. **Na stack de E2E.** A API sobe com o disco na pasta da execução. O envio de documento do contato
    passa a ir até o fim (antes o E2E conferia "Storage não configurado"), e fotos, áudio e
    documentos das telas das próximas ondas têm onde ficar.
+
+## ADR-107 — Grupo OLX como uma integração em modo FEED, com token opaco e estados de feed (2026-10-01)
+
+Status: Aceito. Decisões do dono (01/10/2026): nome de homologação "AchouImóvel Gestão", API em
+`api.achouimovel.online`, endereço completo enviado com exibição só do bairro, feed por URL opaca.
+
+Contexto: o registry tinha `canalpro`, `vivareal`, `zap` e `olx` como quatro canais sem adapter. A
+documentação oficial (developers.grupozap.com, conferida em 01/10/2026) diz outra coisa: o Canal Pro
+é o console; **um** feed VRSync numa URL pública, lido a cada ~12 h, reflete no ZAP, no Viva Real ou
+na OLX conforme o plano. E o feed é puxado pelo portal — o fluxo "publicar = chamar o portal" do
+modo PUSH não descreve o que acontece.
+
+Decisão:
+
+- **Canal `grupoolx`, modo FEED.** `canalpro`, `vivareal` e `zap` ficam no vocabulário e nos CHECKs
+  (linha antiga continua válida), marcados como substituídos e fora da tela; `olx` fica reservado
+  para a API própria da OLX (developers.olx.com.br), modo PUSH, outra integração. Os destinos (ZAP,
+  Viva Real, OLX) são declarados na conexão — quem decide é o plano no Grupo OLX.
+- **Estados de feed** (`packages/domain/src/channel/feed.ts`): BLOCKED, ELIGIBLE, AWAITING_IMPORT,
+  IMPORTED, IMPORTED_WITH_WARNINGS, IMPORT_ERROR, além de PENDING, FAILED, REMOVING e REMOVED.
+  Entrar no XML é AWAITING_IMPORT, nunca "publicado"; só o relatório de importação diz IMPORTED.
+  Só a busca com o User-Agent do robô (`VivaRealBot`) move o estado; a imobiliária abrindo a URL no
+  navegador não. Versão nova do anúncio (hash do trecho) volta a AWAITING_IMPORT.
+- **Avaliação na hora e no arquivo.** Publicar avalia o anúncio contra as regras documentadas
+  (título 10–100, descrição 50–3.000, CEP, tipo, quartos/banheiros/área por tipo, preço por
+  finalidade, ≥ 5 fotos JPG ≤ 7 MB, e-mail público) e grava o motivo; mudança no imóvel, no anúncio
+  ou nas fotos reenfileira a reavaliação; o arquivo reavalia de novo ao ser gerado. Inválido fica
+  fora só do Grupo OLX. Nada é truncado nem inventado: título fora do limite, descrição curta e tipo
+  ambíguo bloqueiam com o motivo.
+- **Tipo e destaque são da distribuição**, não do imóvel: `portal_property_type` (obrigatório para
+  comercial e terreno, escolhido entre os compatíveis) e `publication_tier` (os seis valores do
+  VRSync) ficam na publicação. Cotas (`listing_quota`, `featured_quota`, `super_featured_quota`) são
+  informadas pela imobiliária e só geram aviso — quem desativa o excedente é o Grupo OLX.
+- **URL do feed**: `{API_PUBLIC_URL}/integrations/grupo-olx/feed/{token}.xml`, token de 256 bits,
+  só o SHA-256 no banco, mostrado uma vez, revogável e regenerável; token desconhecido, conexão
+  desligada e imobiliária fora do ar dão o mesmo 404. O token sai do log de requisição. Balde de
+  limite próprio: atrás do Traefik todo cliente tem o mesmo IP (`docs/DEPLOY_COOLIFY.md`).
+- **`API_PUBLIC_URL`** é variável própria (https em produção), separada de `API_BASE_URL`, que é o
+  endereço do BFF e pode ser interno. No compose, recebe o domínio de `API_BASE_URL`.
+- **Fotos**: `/integrations/grupo-olx/media/{mediaId}/{versão}.jpg`, versão = hash da chave de
+  storage e do tamanho (a chave nasce com UUID a cada envio). Bytes servidos direto, com cache
+  imutável, só foto pública JPEG de anúncio que está no feed de conexão ligada, assinatura JPEG
+  conferida. PNG e WebP ficam fora com aviso: o produto continua aceitando os três formatos; a
+  conversão para JPG fica para quando houver processamento de imagem (hoje não há).
+- **Endereço**: a linha privada (completa) vai ao portal, a pública completa o que faltar;
+  `displayAddress` padrão `Neighborhood` na conexão.
+- **XML sem biblioteca**: só escrita, CDATA para título e descrição, escape de texto e atributo,
+  remoção de caracteres que o XML 1.0 não aceita. Sem parser, não há XXE. Os testes conferem a boa
+  formação no modo estrito do `sax` e leem o DOM com `@xmldom/xmldom` (dependências só de teste).
+- **Site B2B segue "Em preparação"** até o piloto; o painel mostra "Implementado — aguardando
+  validação real" (`IMPLEMENTED_NOT_LIVE_VERIFIED`), nunca "Conectado".
+
+Consequências: o primeiro portal externo tem código de verdade e o mesmo núcleo (modo FEED, conexão
+por imobiliária, avaliação, estados) serve aos próximos portais de XML. Até 50 mil anúncios por
+arquivo; acima disso o excedente fica BLOCKED com o motivo (paginação do arquivo é decisão futura).
+O XSD oficial respondeu 403: a validação segue as regras escritas e os exemplos oficiais.
+
+## ADR-108 — Leads e relatório do Grupo OLX: Basic Auth, dono pelo anúncio e caixa de entrada (2026-10-01)
+
+Status: Aceito.
+
+Contexto: o Grupo OLX entrega cada lead por POST JSON (`/webhooks/integration_leads.html`) com Basic
+Auth `vivareal:<SECRET_KEY>`, chave **por software**; o payload não traz o anunciante; respostas fora
+de 2xx disparam 3 tentativas e 14 dias de guarda. O relatório de importação usa o mesmo sistema de
+notificação, sem retentativa.
+
+Decisão:
+
+- **Autenticação**: `GRUPO_OLX_LEADS_SECRET_KEY`, comparada em tempo constante; sem ela, 503 (nada
+  entra sem autenticação); chave errada, 401. O relatório exige a mesma chave (a documentação não
+  diz; pergunta 7 da homologação).
+- **Dono do lead**: pelo `clientListingId` (o id do anúncio que o feed mandou). Lead de anúncio sem
+  ele: 400, como a documentação pede. Anúncio desconhecido: 422 — sem lead órfão. Lead MCMV (sem
+  anúncio): pela URL por imobiliária ou pelo CPF/CNPJ do anunciante (`organizations.document`, uma
+  única imobiliária com a conexão ligada); sem dono identificável, 422 — nunca 4xx só por faltar
+  `clientListingId`.
+- **URL por imobiliária preparada, não adotada**: `/leads/{ref}` e `/reports/{ref}` com uma
+  referência opaca da conexão (`leads_endpoint_ref`, não é id interno). Fica pronta para o formato
+  que a homologação definir.
+- **Caixa de entrada existente** (`webhook_inbox`, provider `GRUPO_OLX_LEAD` e `GRUPO_OLX_REPORT`)
+  deduplica pelo `originLeadId` / id do relatório; entrega repetida responde 2xx e é contada na
+  conexão. A rota responde na hora; o worker cria pessoa (deduplicada por e-mail e telefone),
+  consentimento `LEAD_IMPORT`, lead no funil (`transactionType` SELL → venda, RENT → aluguel),
+  interesse no imóvel e trilha **sem dado pessoal**. O processamento também é idempotente.
+- **Relatório** atualiza o estado real: crítica → IMPORT_ERROR, aviso → IMPORTED_WITH_WARNINGS,
+  quem o robô levou antes da data do relatório e não foi citado → IMPORTED; histórico em
+  `channel_import_reports`. Data sem fuso é horário de Brasília.
+- **Payload tolerante a campo novo**, estrito no que o processamento usa; o `extraData` passa.
+
+Consequências: com a chave e a homologação, o recebimento liga sem mudar código. Relatório limpo sem
+URL por imobiliária não tem dono (422) até a homologação dizer como identificar o anunciante.

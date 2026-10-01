@@ -95,6 +95,11 @@ services:
       API_PORT: '4000'
       DATABASE_URL: ${DATABASE_URL}
       APP_BASE_URL: ${APP_BASE_URL}
+      # Endereço público da própria API (ADR-107): base do feed do Grupo OLX e das fotos que o robô
+      # dele baixa. É o mesmo domínio https que web e portal usam; se API_BASE_URL virar endereço
+      # interno, esta linha precisa do domínio público. A chave do webhook do Grupo OLX
+      # (GRUPO_OLX_LEADS_SECRET_KEY) entra no Coolify só depois da homologação.
+      API_PUBLIC_URL: ${API_BASE_URL}
       CORS_ORIGINS: ${APP_BASE_URL}
       COOKIE_SECURE: 'true'
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
