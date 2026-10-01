@@ -29,6 +29,7 @@ interface PropertyPayload {
   totalAreaSqm?: number;
   builtAreaSqm?: number;
   bedrooms?: number;
+  suites?: number;
   bathrooms?: number;
   parkingSpots?: number;
   furnished?: boolean;
@@ -46,7 +47,7 @@ const STEPS = [
 
 type NumberFields = Pick<
   PropertyPayload,
-  'totalAreaSqm' | 'builtAreaSqm' | 'bedrooms' | 'bathrooms' | 'parkingSpots'
+  'totalAreaSqm' | 'builtAreaSqm' | 'bedrooms' | 'suites' | 'bathrooms' | 'parkingSpots'
 >;
 
 /**
@@ -72,6 +73,7 @@ function readNumberFields(
   }
   const counts = [
     ['bedrooms', 'Dormitórios'],
+    ['suites', 'Suítes'],
     ['bathrooms', 'Banheiros'],
     ['parkingSpots', 'Vagas'],
   ] as const;
@@ -90,6 +92,7 @@ function PropertyFormBody() {
   const [propertyType, setPropertyType] = useState('APARTMENT');
   const [description, setDescription] = useState('');
   const [bedrooms, setBedrooms] = useState('');
+  const [suites, setSuites] = useState('');
   const [bathrooms, setBathrooms] = useState('');
   const [parkingSpots, setParkingSpots] = useState('');
   const [totalAreaSqm, setTotalAreaSqm] = useState('');
@@ -135,6 +138,7 @@ function PropertyFormBody() {
       totalAreaSqm,
       builtAreaSqm,
       bedrooms,
+      suites,
       bathrooms,
       parkingSpots,
     });
@@ -308,7 +312,7 @@ function PropertyFormBody() {
                     }}
                   />
                 </div>
-                <div className="peg-grid cols-3">
+                <div className="peg-grid cols-4">
                   <Input
                     label="Dormitórios"
                     optional
@@ -316,6 +320,15 @@ function PropertyFormBody() {
                     value={bedrooms}
                     onChange={(e) => {
                       setBedrooms(e.target.value);
+                    }}
+                  />
+                  <Input
+                    label="Suítes"
+                    optional
+                    inputMode="numeric"
+                    value={suites}
+                    onChange={(e) => {
+                      setSuites(e.target.value);
                     }}
                   />
                   <Input

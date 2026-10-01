@@ -22,6 +22,29 @@ describe('labels de domínio', () => {
   });
 });
 
+describe('canais (ADR-107): todo estado e todo canal do contrato têm nome', () => {
+  const sorted = (values: readonly string[]): string[] => [...values].sort();
+
+  it('estados de publicação, inclusive os do feed, têm nome e tom', () => {
+    const estados = sorted(contracts.channelPublicationStatusSchema.options);
+    expect(sorted(Object.keys(labels.CHANNEL_STATUS_LABELS))).toEqual(estados);
+    expect(sorted(Object.keys(labels.CHANNEL_STATUS_TONES))).toEqual(estados);
+    expect(labels.CHANNEL_STATUS_LABELS.AWAITING_IMPORT).toBe('No feed, aguardando relatório');
+  });
+
+  it('todo canal e todo estágio de integração têm nome; nenhum estágio se diz conectado', () => {
+    expect(sorted(Object.keys(labels.CHANNEL_TYPE_LABELS))).toEqual(
+      sorted(contracts.channelTypeSchema.options),
+    );
+    expect(sorted(Object.keys(labels.INTEGRATION_STAGE_LABELS))).toEqual(
+      sorted(contracts.integrationStageSchema.options),
+    );
+    for (const texto of Object.values(labels.INTEGRATION_STAGE_LABELS)) {
+      expect(texto.toLowerCase()).not.toContain('conectado');
+    }
+  });
+});
+
 describe('vistoria: o nome que o cliente vê cobre todo tipo do contrato', () => {
   it('cada tipo de vistoria tem nome, e nenhum nome é de tipo inexistente', () => {
     // Onda 0 da rodada de fidelidade, defeito 7: a área do inquilino comparava com 'ENTRY'.
