@@ -11,6 +11,8 @@ declare module 'fastify' {
 export interface SignaturePluginOptions {
   provider?: string;
   token?: string;
+  /** Ambiente da Autentique (sandbox | production). */
+  environment?: 'sandbox' | 'production';
   signature?: ISignatureProvider;
 }
 
@@ -25,6 +27,9 @@ export const signaturePlugin = fp<SignaturePluginOptions>((app, opts) => {
   }
   if (opts.token) {
     options.token = opts.token;
+  }
+  if (opts.environment) {
+    options.environment = opts.environment;
   }
   app.decorate('signature', getSignatureProvider(options));
 });

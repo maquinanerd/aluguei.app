@@ -12,7 +12,8 @@ import { useQuery } from './use-query';
  */
 
 export type ModoPagamento = 'FAKE' | 'ASAAS' | null;
-export type ModoAssinatura = 'FAKE' | 'CLICKSIGN' | 'D4SIGN' | null;
+/** `AUTENTIQUE_SANDBOX`: o pedido de assinatura sai de verdade, mas o documento é de teste. */
+export type ModoAssinatura = 'FAKE' | 'AUTENTIQUE_SANDBOX' | 'AUTENTIQUE' | 'D4SIGN' | null;
 export type ModoAnalise = 'FAKE' | 'SERASA' | 'SPC' | null;
 export type ModoMeta = 'dry_run' | 'live' | null;
 
@@ -40,13 +41,19 @@ export function useCapacidades() {
  * externo aconteceu.
  */
 export function emTeste(modo: string | null | undefined): boolean {
-  return modo === undefined || modo === null || modo === 'FAKE' || modo === 'dry_run';
+  return (
+    modo === undefined ||
+    modo === null ||
+    modo === 'FAKE' ||
+    modo === 'dry_run' ||
+    modo === 'AUTENTIQUE_SANDBOX'
+  );
 }
 
 /** Nome do provider real que falta, para o aviso dizer o que está por vir. */
 export const PROVIDER_REAL = {
   payments: 'Asaas',
-  signature: 'Clicksign',
+  signature: 'Autentique',
   screening: 'Serasa e SPC',
   meta: 'Meta Ads',
 } as const;

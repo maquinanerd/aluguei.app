@@ -106,8 +106,9 @@ Definidas no recurso:
 
 Fixas no compose: `NODE_ENV=production`, `COOKIE_SECURE=true`, `STORAGE_BUCKET=aluguei-private`,
 `STORAGE_REGION=us-east-1`, `STORAGE_FORCE_PATH_STYLE=true`, `PAYMENT_PROVIDER=FAKE`,
-`SIGNATURE_PROVIDER=FAKE`, `SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`,
-`ALLOW_FAKE_PROVIDERS=true`, `WORKER_HEALTH_PORT=4001` e `WORKER_SHUTDOWN_TIMEOUT_MS=20000`.
+`SCREENING_PROVIDER=FAKE`, `META_MODE=dry_run`, `AI_PROVIDER=mock`, `ALLOW_FAKE_PROVIDERS=true`,
+`WORKER_HEALTH_PORT=4001` e `WORKER_SHUTDOWN_TIMEOUT_MS=20000`. `SIGNATURE_PROVIDER` vem do recurso
+e vale `FAKE` quando vazia (ver a Autentique abaixo).
 
 Desde o G3 (Trilha F) a escolha de provider é obrigatória em produção e **não há mais default**:
 sem `PAYMENT_PROVIDER`, `SIGNATURE_PROVIDER`, `SCREENING_PROVIDER`, `META_MODE` ou `AI_PROVIDER`, a
@@ -119,11 +120,15 @@ a subida dizendo quais providers são FAKE. Com ela, cada um registra um aviso n
 
 Opcionais, não definidas hoje:
 
-| Variável                      | Para quê                                                                                                                                                                      |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log) |
-| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https       |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria              |
+| Variável                      | Para quê                                                                                                                                                                                                                                                  |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`                   | rate limit compartilhado entre instâncias da API (P1-14 corrigido: com a URL preenchida a API sobe; com o Redis fora do ar a requisição passa sem contar e o erro vai no log)                                                                             |
+| `API_BASE_URL_ALLOW_HTTP`     | `true` libera o web a falar com a API pela rede interna (`API_BASE_URL=http://api:4000`), só para endereço interno; sem ela, `API_BASE_URL` continua tendo de ser https                                                                                   |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | base de um coletor OTLP/HTTP (ex.: `http://coletor:4318`); com ela, API e worker exportam spans de HTTP, `fetch`, `pg`, ciclo e job. Sem ela, nada de telemetria                                                                                          |
+| `SIGNATURE_PROVIDER`          | `AUTENTIQUE` liga a assinatura pela Autentique (ADR-106); vazia, o envelope segue `FAKE`                                                                                                                                                                  |
+| `AUTENTIQUE_API_TOKEN`        | chave da API da Autentique (painel → API) — obrigatória com `AUTENTIQUE`                                                                                                                                                                                  |
+| `AUTENTIQUE_ENV`              | `sandbox` (documento de teste: sem custo, sem validade, apagado em alguns dias) ou `production` — obrigatória com `AUTENTIQUE`, sem padrão                                                                                                                |
+| `AUTENTIQUE_WEBHOOK_SECRET`   | segredo do endpoint `https://api.achouimovel.online/webhooks/signature/autentique`, cadastrado no painel da Autentique com os eventos `signature.accepted`, `signature.rejected`, `document.finished` e `document.deleted` — obrigatório com `AUTENTIQUE` |
 
 `STORAGE_FORCE_PATH_STYLE=true` é obrigatório com MinIO atrás de domínio próprio: sem ele o SDK assina
 a URL com o bucket no host (`aluguei-private.s3.aluguei…`), que o proxy não atende.

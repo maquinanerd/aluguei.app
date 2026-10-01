@@ -10,6 +10,8 @@ import type {
 /** Provider mock de assinatura: envelope id determinístico por contractId. */
 export class FakeSignatureProvider implements ISignatureProvider {
   readonly name: SignatureProviderName = 'FAKE';
+  readonly requiresSignerEmail = false;
+  readonly testOnly = true;
   private readonly statuses = new Map<string, EnvelopeStatus>();
 
   createEnvelope(input: CreateEnvelopeInput): Promise<CreateEnvelopeResult> {

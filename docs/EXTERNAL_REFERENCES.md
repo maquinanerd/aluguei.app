@@ -12,4 +12,4 @@ Sempre confirmar versão atual antes de codificar integração.
 - Meta Business SDK Node: https://github.com/facebook/facebook-nodejs-business-sdk
 - MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
 
-Para Serasa, SPC, Clicksign, D4Sign, Asaas, Google e portais, usar documentação oficial/contratual vigente quando a fase correspondente começar.
+Para Serasa, SPC, D4Sign, Asaas, Google e portais, usar documentação oficial/contratual vigente quando a fase correspondente começar. Autentique (assinatura, ADR-106): `https://docs.autentique.com.br/api` (índice em `llms.txt`, páginas em Markdown com o sufixo `.md`), consultada em 2026-10-01.

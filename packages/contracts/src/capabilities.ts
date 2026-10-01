@@ -14,7 +14,10 @@ import { z } from 'zod';
 
 /** `null` = nenhum provider configurado; a ação nem é oferecida. */
 export const paymentProviderModeSchema = z.enum(['FAKE', 'ASAAS']).nullable();
-export const signatureProviderModeSchema = z.enum(['FAKE', 'CLICKSIGN', 'D4SIGN']).nullable();
+/** `AUTENTIQUE_SANDBOX` = Autentique com documento de teste: assina de verdade, mas sem validade. */
+export const signatureProviderModeSchema = z
+  .enum(['FAKE', 'AUTENTIQUE_SANDBOX', 'AUTENTIQUE', 'D4SIGN'])
+  .nullable();
 export const screeningProviderModeSchema = z.enum(['FAKE', 'SERASA', 'SPC']).nullable();
 export const metaModeSchema = z.enum(['dry_run', 'live']).nullable();
 /**
@@ -28,7 +31,7 @@ export const capabilitiesResponseSchema = z.object({
   providers: z.object({
     /** Cobrança e split. `FAKE` = nenhum valor é movimentado. */
     payments: paymentProviderModeSchema,
-    /** Envelope de assinatura. `FAKE` = sem validade jurídica. */
+    /** Envelope de assinatura. `FAKE` e `AUTENTIQUE_SANDBOX` = sem validade jurídica. */
     signature: signatureProviderModeSchema,
     /** Análise cadastral. `FAKE` = só os dados informados na candidatura. */
     screening: screeningProviderModeSchema,

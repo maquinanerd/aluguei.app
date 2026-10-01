@@ -372,11 +372,14 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   if (env.SIGNATURE_PROVIDER) {
     signatureOptions.provider = env.SIGNATURE_PROVIDER;
   }
-  if (env.CLICKSIGN_API_TOKEN) {
-    signatureOptions.token = env.CLICKSIGN_API_TOKEN;
+  if (env.SIGNATURE_PROVIDER === 'AUTENTIQUE' && env.AUTENTIQUE_API_TOKEN) {
+    signatureOptions.token = env.AUTENTIQUE_API_TOKEN;
   }
-  if (env.D4SIGN_API_TOKEN) {
+  if (env.SIGNATURE_PROVIDER === 'D4SIGN' && env.D4SIGN_API_TOKEN) {
     signatureOptions.token = env.D4SIGN_API_TOKEN;
+  }
+  if (env.AUTENTIQUE_ENV) {
+    signatureOptions.environment = env.AUTENTIQUE_ENV;
   }
   await app.register(signaturePlugin, signatureOptions);
   const paymentsOptions: PaymentsPluginOptions = {};

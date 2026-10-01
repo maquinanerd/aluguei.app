@@ -2048,6 +2048,50 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
    passa a ir até o fim (antes o E2E conferia "Storage não configurado"), e fotos, áudio e
    documentos das telas das próximas ondas têm onde ficar.
 
+## ADR-106 — Assinatura pela Autentique, no lugar da Clicksign (2026-10-01)
+
+Status: Aceito. Decisão do dono em 01/10/2026 ("vamos usar esse e não o Clicksign", com o link da
+API da Autentique).
+
+Contexto: o adapter da Clicksign existia desde a Fase 07, nunca rodou com credencial real e tinha
+lacunas abertas para ir ao ar (identidade dos signatários e requisito de autenticação). O dono
+escolheu a Autentique para a assinatura dos contratos.
+
+Decisão:
+
+1. **Autentique atrás de `ISignatureProvider`**, com `fetch` nativo e sem SDK (API GraphQL v2,
+   `Authorization: Bearer`). O adapter e os testes da Clicksign saem do código;
+   `docs/integrations/CLICKSIGN_HOMOLOGATION.md` fica como histórico. D4Sign continua registrada sem
+   adapter. A coluna `signature_envelopes.provider` não tem lista fechada, então valores antigos
+   (`CLICKSIGN`) continuam válidos.
+2. **Cada parte assina por e-mail, e só o e-mail sai do cadastro.** A Autentique manda o pedido de
+   assinatura; nome e CPF a pessoa informa ao assinar. Parte sem e-mail no cadastro barra o envio com
+   400, antes de qualquer chamada; duas partes com o mesmo e-mail também. A interface do envelope
+   passa a levar nome (fica no produto) e e-mail de cada parte, e o título do documento ("Contrato de
+   locação · versão N"), sem dado pessoal.
+3. **Ligação parte ↔ assinatura no envelope.** A Autentique identifica cada assinatura por um
+   `public_id`; o envelope guarda `[{ signOrder, providerSignerId }]` em
+   `signature_envelopes.provider_signers` (migration 0040), e o webhook acha a parte por ele.
+4. **Webhook próprio, no formato da Autentique** (`POST /webhooks/signature/autentique`), com
+   HMAC-SHA256 do corpo cru (`x-autentique-signature`) e o segredo do endpoint em
+   `AUTENTIQUE_WEBHOOK_SECRET` (obrigatório em produção). Os eventos viram o formato interno
+   (`SIGNER_SIGNED`, `COMPLETED`, `FAILED`) e seguem o caminho de sempre: trilha, fila do worker e
+   auditoria. A chave de idempotência é tipo + id do objeto, porque a Autentique pode repetir o
+   evento com outro id; o `document.finished` repete os aceites com a mesma chave, para um aceite
+   perdido não deixar o contrato aberto.
+5. **Sandbox é configuração explícita.** `AUTENTIQUE_ENV=sandbox` cria documento de teste (sem custo
+   e sem validade); `production`, documento real. Em produção a variável é obrigatória e sem padrão,
+   como `ASAAS_ENV`. Com sandbox, `GET /capabilities` devolve `AUTENTIQUE_SANDBOX` e o painel mantém o
+   "modo de teste", agora dizendo que o pedido sai por e-mail mas o documento não vale.
+6. **Criação sem nova tentativa.** A API não tem chave de idempotência; repetir depois de tempo
+   esgotado pode criar e cobrar um segundo documento. A consulta de estado tenta duas vezes.
+7. **No Coolify**, `SIGNATURE_PROVIDER` passa a vir do recurso, com `FAKE` quando vazia, ao lado de
+   `AUTENTIQUE_API_TOKEN`, `AUTENTIQUE_ENV` e `AUTENTIQUE_WEBHOOK_SECRET` (vazias contam como
+   ausentes).
+
+Consequência: `IMPLEMENTED_NOT_LIVE_VERIFIED` até a chave e o webhook da conta do dono
+(`docs/integrations/AUTENTIQUE_HOMOLOGATION.md`). O G4 passa a ser Storage, Asaas e Autentique.
+
 ### Adendo ao ADR-105 — menu por departamento: Aluguel e Vendas (2026-10-01)
 
 Pedido do usuário: o painel misturava aluguel e venda. O grupo "Operação" juntava atendimento comum (Inbox, Visitas) com o ciclo da locação. Agora:

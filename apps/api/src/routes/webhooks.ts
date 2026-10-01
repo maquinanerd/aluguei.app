@@ -18,7 +18,23 @@ import {
   paymentWebhookEventSchema,
   signatureWebhookEventSchema,
 } from '@aluguei/contracts';
+import {
+  AUTENTIQUE_SIGNATURE_HEADER,
+  AutentiqueWebhookError,
+  parseAutentiqueWebhook,
+  verifyAutentiqueSignature,
+} from '@aluguei/integrations';
 import type { VerifyWebhookParams } from '@aluguei/integrations';
+
+type SignatureWebhookEvent = ReturnType<typeof signatureWebhookEventSchema.parse>;
+type SignatureEnvelopeRow = typeof signatureEnvelopes.$inferSelect;
+
+/** Rotas cujo corpo cru é guardado antes do parse, para conferir a assinatura HMAC. */
+const RAW_BODY_ROUTES: ReadonlySet<string> = new Set([
+  '/webhooks/whatsapp',
+  '/webhooks/meta',
+  '/webhooks/signature/autentique',
+]);
 
 /** body cru capturado no preParsing (necessário para validar X-Hub-Signature-256). */
 declare module 'fastify' {
@@ -94,10 +110,11 @@ function enforceProductionSecret(
 export const webhookRoutes: FastifyPluginAsync = (app) => {
   const db = app.db;
 
-  // Captura o raw body dos webhooks que usam X-Hub-Signature-256 antes do parse.
+  // Captura o raw body dos webhooks assinados por HMAC (X-Hub-Signature-256 e
+  // x-autentique-signature) antes do parse.
   // preParsing deve retornar um Stream (Buffer direto trava o parser).
   app.addHook('preParsing', async (request, _reply, payload) => {
-    if (request.url === '/webhooks/whatsapp' || request.url === '/webhooks/meta') {
+    if (RAW_BODY_ROUTES.has(request.url.split('?')[0] ?? '')) {
       const chunks: Buffer[] = [];
       for await (const chunk of payload) {
         chunks.push(
@@ -258,41 +275,134 @@ export const webhookRoutes: FastifyPluginAsync = (app) => {
         // Envelope desconhecido: ignora (200) — não gera retry infinito do provider.
         return reply.status(200).send({ status: 'ignored' });
       }
-      await db.transaction(async (tx) => {
-        // Trilha de assinatura (P2-08): o evento do provider fica gravado na
-        // chegada, antes do processamento. Reentrega do mesmo evento não duplica
-        // (UNIQUE provider + provider_event_id).
-        await tx
-          .insert(signatureEvents)
-          .values({
-            orgId: envelope.orgId,
-            envelopeId: envelope.id,
-            provider: input.provider,
-            eventType: input.eventType,
-            providerEventId: input.providerEventId,
-            payload: { ...input },
-          })
-          .onConflictDoNothing();
-        // Dedup por UNIQUE(provider, provider_event_id).
-        await tx
-          .insert(webhookInbox)
-          .values({
-            orgId: envelope.orgId,
-            provider: 'SIGNATURE',
-            providerEventId: `${input.provider}:${input.providerEventId}`,
-            payload: { envelopeId: envelope.id, ...input },
-          })
-          .onConflictDoNothing();
-      });
-      await writeAudit(db, {
-        action: AUDIT_ACTIONS.SIGNATURE_WEBHOOK_RECEIVED,
-        entityType: 'WEBHOOK',
-        entityId: 'signature',
-        payload: { envelopeId: envelope.id, eventType: input.eventType },
-      });
+      await recordSignatureEvent(envelope, input);
       return reply.status(200).send({ status: 'queued' });
     },
   );
+
+  /**
+   * Webhook da Autentique, no formato dela. Autenticidade: HMAC-SHA256 do corpo cru com o segredo
+   * do endpoint cadastrado no painel da Autentique (`x-autentique-signature`); em produção o
+   * segredo é obrigatório. Cada evento vira o formato interno e segue o mesmo caminho do webhook
+   * de assinatura: trilha, fila do worker e auditoria. Documento de fora deste sistema, evento que
+   * não muda o envelope e assinatura sem parte correspondente respondem 200 sem efeito.
+   */
+  app.post(
+    '/webhooks/signature/autentique',
+    { config: { rateLimit: { max: 300, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const hmacKey = app.env.AUTENTIQUE_WEBHOOK_SECRET;
+      if (
+        enforceProductionSecret(
+          request,
+          reply,
+          app.env,
+          Boolean(hmacKey),
+          'AUTENTIQUE_WEBHOOK_SECRET',
+        )
+      ) {
+        return reply.send({ error: 'Server misconfigured' });
+      }
+      if (
+        hmacKey &&
+        !verifyAutentiqueSignature(
+          request.rawBody ?? Buffer.alloc(0),
+          request.headers[AUTENTIQUE_SIGNATURE_HEADER],
+          hmacKey,
+        )
+      ) {
+        app.log.warn('autentique webhook: assinatura inválida');
+        return reply.status(401).send({ error: 'Unauthorized' });
+      }
+      let parsed: ReturnType<typeof parseAutentiqueWebhook>;
+      try {
+        parsed = parseAutentiqueWebhook(request.body);
+      } catch (err) {
+        if (err instanceof AutentiqueWebhookError) {
+          return reply.status(400).send({ error: 'Invalid payload' });
+        }
+        throw err;
+      }
+      let queued = 0;
+      for (const event of parsed.events) {
+        const [envelope] = await db
+          .select()
+          .from(signatureEnvelopes)
+          .where(
+            and(
+              eq(signatureEnvelopes.provider, 'AUTENTIQUE'),
+              eq(signatureEnvelopes.providerEnvelopeId, event.providerEnvelopeId),
+            ),
+          )
+          .limit(1);
+        if (!envelope) {
+          continue;
+        }
+        let signerOrder: number | undefined;
+        if (event.eventType === 'SIGNER_SIGNED') {
+          signerOrder = envelope.providerSigners?.find(
+            (signer) => signer.providerSignerId === event.providerSignerId,
+          )?.signOrder;
+          if (signerOrder === undefined) {
+            app.log.warn(
+              { envelopeId: envelope.id },
+              'autentique webhook: assinatura sem parte correspondente',
+            );
+            continue;
+          }
+        }
+        await recordSignatureEvent(envelope, {
+          provider: 'AUTENTIQUE',
+          eventType: event.eventType,
+          providerEventId: event.providerEventId,
+          providerEnvelopeId: event.providerEnvelopeId,
+          ...(signerOrder === undefined ? {} : { signerOrder }),
+        });
+        queued += 1;
+      }
+      return reply.status(200).send({ status: queued > 0 ? 'queued' : 'ignored' });
+    },
+  );
+
+  /**
+   * Trilha de assinatura (P2-08): o evento do provider fica gravado na chegada, antes do
+   * processamento, e entra na fila do worker. Reentrega do mesmo evento não duplica
+   * (UNIQUE provider + provider_event_id).
+   */
+  async function recordSignatureEvent(
+    envelope: SignatureEnvelopeRow,
+    input: SignatureWebhookEvent,
+  ): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(signatureEvents)
+        .values({
+          orgId: envelope.orgId,
+          envelopeId: envelope.id,
+          provider: input.provider,
+          eventType: input.eventType,
+          providerEventId: input.providerEventId,
+          payload: { ...input },
+        })
+        .onConflictDoNothing();
+      // Dedup por UNIQUE(provider, provider_event_id).
+      await tx
+        .insert(webhookInbox)
+        .values({
+          orgId: envelope.orgId,
+          provider: 'SIGNATURE',
+          providerEventId: `${input.provider}:${input.providerEventId}`,
+          payload: { envelopeId: envelope.id, ...input },
+        })
+        .onConflictDoNothing();
+    });
+    await writeAudit(db, {
+      action: AUDIT_ACTIONS.SIGNATURE_WEBHOOK_RECEIVED,
+      entityType: 'WEBHOOK',
+      entityId: 'signature',
+      payload: { envelopeId: envelope.id, eventType: input.eventType },
+    });
+  }
 
   app.post(
     '/webhooks/payments',
