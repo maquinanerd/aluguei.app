@@ -9,3 +9,5 @@ export {
   updateGrupoOlxSettings,
 } from './evaluate.js';
 export { GRUPO_OLX_CHANNEL } from './feed-data.js';
+export { GRUPO_OLX_LEAD_PROVIDER, processGrupoOlxLead } from './leads.js';
+export type { GrupoOlxLeadInboxPayload } from './leads.js';

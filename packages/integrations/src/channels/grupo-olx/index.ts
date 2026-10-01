@@ -14,6 +14,25 @@ export {
   saoPauloLocalDateTime,
   toWholeReais,
 } from './vrsync.js';
+export {
+  GRUPO_OLX_MCMV_ORIGIN,
+  GRUPO_OLX_WEBHOOK_USER,
+  grupoOlxAuthorizationHeader,
+  grupoOlxLeadPayloadSchema,
+  grupoOlxReportPayloadSchema,
+  normalizeGrupoOlxLead,
+  normalizeGrupoOlxReport,
+  parseGrupoOlxReportDate,
+  verifyGrupoOlxAuthorization,
+} from './webhooks.js';
+export type {
+  GrupoOlxAuthResult,
+  GrupoOlxLeadPayload,
+  GrupoOlxReportPayload,
+  NormalizedGrupoOlxLead,
+  NormalizedGrupoOlxReport,
+  ReportCritique,
+} from './webhooks.js';
 export type {
   VrsyncAddress,
   VrsyncAgency,

@@ -1,5 +1,5 @@
 {
-  "id": "00e14378-6358-408a-aa18-9196b9aefd06",
+  "id": "a52071c0-995a-4b2f-b441-02e00b5116fc",
   "prevId": "0c5a53ff-aea5-438c-afc7-3aef69f24991",
   "version": "7",
   "dialect": "postgresql",
@@ -5166,6 +5166,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "leads_endpoint_ref": {
+          "name": "leads_endpoint_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "display_address": {
           "name": "display_address",
           "type": "text",
@@ -5294,6 +5300,21 @@
           "columns": [
             {
               "expression": "feed_token_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "channel_connections_leads_endpoint_ref_unique": {
+          "name": "channel_connections_leads_endpoint_ref_unique",
+          "columns": [
+            {
+              "expression": "leads_endpoint_ref",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

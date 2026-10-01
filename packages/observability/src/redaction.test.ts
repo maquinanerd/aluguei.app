@@ -2,6 +2,7 @@ import { Writable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
 import { pino, type Logger } from 'pino';
 import { loggerOptions } from './logger.js';
+import { redactUrl } from './pii.js';
 
 /**
  * P2-11 (auditoria 2026-09-10): o redact dos logs cobria senha e token, mas não CPF, e-mail,
@@ -112,5 +113,17 @@ describe('redação de dado pessoal nos logs (P2-11)', () => {
     log.info({ job }, 'x');
     expect(job.payload.note).toBe(`email ${EMAIL}`);
     expect(job.email).toBe(EMAIL);
+  });
+});
+
+describe('segredo no caminho da URL (ADR-107)', () => {
+  it('o token do feed do Grupo OLX nunca vai para o log', () => {
+    const token = 'Zk3pQ9vX2mLr8TnB4cYwE7uJ1hGf6dSa0oPiKqWeRtY';
+    const logged = redactUrl(`/integrations/grupo-olx/feed/${token}.xml`);
+    expect(logged).toBe('/integrations/grupo-olx/feed/[REDACTED]');
+    expect(logged).not.toContain(token);
+    expect(redactUrl('/integrations/grupo-olx/listings?status=BLOCKED')).toBe(
+      '/integrations/grupo-olx/listings?status=BLOCKED',
+    );
   });
 });

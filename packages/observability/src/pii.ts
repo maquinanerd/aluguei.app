@@ -85,12 +85,28 @@ function decodeSegment(segment: string): string {
 }
 
 /**
+ * Caminhos que carregam segredo no próprio caminho: o token do feed do Grupo OLX (ADR-107) é a
+ * credencial da URL que o robô busca — o portal não manda cabeçalho de autenticação.
+ */
+const SECRET_PATH_SEGMENTS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^(\/integrations\/grupo-olx\/feed\/)[^/]+$/, '$1[REDACTED]'],
+];
+
+function redactSecretPath(path: string): string {
+  return SECRET_PATH_SEGMENTS.reduce(
+    (current, [pattern, replacement]) => current.replace(pattern, replacement),
+    path,
+  );
+}
+
+/**
  * URL de requisição para log: valores de busca livre e de dado pessoal inteiros redigidos; nos
- * demais, CPF, e-mail e telefone por padrão (inclusive codificados na URL).
+ * demais, CPF, e-mail e telefone por padrão (inclusive codificados na URL). Segredo no caminho
+ * (token do feed) sai inteiro.
  */
 export function redactUrl(url: string): string {
   const mark = url.indexOf('?');
-  const path = mark === -1 ? url : url.slice(0, mark);
+  const path = redactSecretPath(mark === -1 ? url : url.slice(0, mark));
   const decodedPath = decodeSegment(path);
   const maskedPath = redactPiiText(decodedPath);
   const outPath = maskedPath === decodedPath ? path : maskedPath;

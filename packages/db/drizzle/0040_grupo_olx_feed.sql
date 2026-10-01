@@ -1,7 +1,8 @@
--- Grupo OLX (ADR-107): canal grupoolx em modo FEED, conexao por imobiliaria (token do feed so em
--- hash), registro das buscas do feed e dos relatorios de importacao, colunas da distribuicao na
--- publicacao (destaque, tipo no portal, motivos, ultima busca), suites no imovel e e-mail publico de
--- contato da imobiliaria. So amplia CHECKs: nenhum valor antigo deixa de valer.
+-- Grupo OLX (ADR-107, ADR-108): canal grupoolx em modo FEED, conexao por imobiliaria (token do
+-- feed so em hash, referencia opaca para webhook por imobiliaria), registro das buscas do feed e
+-- dos relatorios de importacao, colunas da distribuicao na publicacao (destaque, tipo no portal,
+-- motivos, ultima busca), suites no imovel e e-mail publico de contato da imobiliaria. So amplia
+-- CHECKs: nenhum valor antigo deixa de valer.
 CREATE TABLE "channel_connections" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"org_id" uuid NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE "channel_connections" (
 	"feed_token_hash" text,
 	"feed_token_hint" text,
 	"feed_token_created_at" timestamp with time zone,
+	"leads_endpoint_ref" text NOT NULL,
 	"display_address" text DEFAULT 'Neighborhood' NOT NULL,
 	"listing_quota" integer,
 	"featured_quota" integer,
@@ -94,6 +96,7 @@ ALTER TABLE "channel_import_reports" ADD CONSTRAINT "channel_import_reports_org_
 ALTER TABLE "channel_import_reports" ADD CONSTRAINT "channel_import_reports_connection_id_channel_connections_id_fk" FOREIGN KEY ("connection_id") REFERENCES "public"."channel_connections"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "channel_connections_org_channel_unique" ON "channel_connections" USING btree ("org_id","channel");--> statement-breakpoint
 CREATE UNIQUE INDEX "channel_connections_feed_token_hash_unique" ON "channel_connections" USING btree ("feed_token_hash");--> statement-breakpoint
+CREATE UNIQUE INDEX "channel_connections_leads_endpoint_ref_unique" ON "channel_connections" USING btree ("leads_endpoint_ref");--> statement-breakpoint
 CREATE INDEX "channel_feed_fetches_connection_fetched_idx" ON "channel_feed_fetches" USING btree ("connection_id","fetched_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "channel_import_reports_org_external_unique" ON "channel_import_reports" USING btree ("org_id","channel","external_report_id");--> statement-breakpoint
 CREATE INDEX "channel_import_reports_org_received_idx" ON "channel_import_reports" USING btree ("org_id","received_at");--> statement-breakpoint

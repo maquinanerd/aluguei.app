@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 import { and, count, desc, eq, inArray } from 'drizzle-orm';
-import type { FastifyPluginAsync, FastifyReply } from 'fastify';
+import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import {
   channelConnections,
@@ -28,7 +28,10 @@ import {
   CHANNEL_TYPE_FEATURES,
   VRSYNC_MAX_IMAGE_BYTES,
   VRSYNC_MAX_LISTINGS,
+  grupoOlxLeadPayloadSchema,
+  normalizeGrupoOlxLead,
   portalPropertyTypeOptions,
+  verifyGrupoOlxAuthorization,
 } from '@aluguei/integrations';
 import { requireAuth, requirePermission } from '../plugins/authz.js';
 import { writeAudit } from '../plugins/audit.js';
@@ -45,14 +48,16 @@ import {
 import { countGrupoOlxByStatus, updateGrupoOlxSettings } from '../grupo-olx/evaluate.js';
 import { GRUPO_OLX_CHANNEL, loadAgency, mediaVersion } from '../grupo-olx/feed-data.js';
 import {
+  GRUPO_OLX_LEAD_PROVIDER,
+  countDuplicateLeadDelivery,
+  routeGrupoOlxLead,
+} from '../grupo-olx/leads.js';
+import {
   applyCrawlerFetch,
   generateGrupoOlxFeed,
   isGrupoOlxCrawler,
   recordFeedFetch,
 } from '../grupo-olx/feed.js';
-
-/** Provider da caixa de entrada para os leads do Grupo OLX (ADR-108). */
-export const GRUPO_OLX_LEAD_PROVIDER = 'GRUPO_OLX_LEAD';
 
 const XML_TYPE = 'application/xml; charset=utf-8';
 
@@ -644,6 +649,96 @@ export const grupoOlxRoutes: FastifyPluginAsync = (app) => {
         .send(bytes);
     },
   );
+
+  // ---------------------------------------------------- webhooks (ADR-108)
+
+  /**
+   * Autentica o webhook: Basic Auth com a chave que o Grupo OLX entrega na homologação (uma por
+   * software). Sem a chave configurada, 503 — nada entra sem autenticação. Chave errada: 401,
+   * como a documentação pede.
+   */
+  function autenticarWebhook(
+    authorization: string | undefined,
+    reply: FastifyReply,
+  ): FastifyReply | null {
+    const secret = app.env.GRUPO_OLX_LEADS_SECRET_KEY;
+    if (!secret) {
+      return unavailable(reply, 'Webhook do Grupo OLX ainda não configurado nesta instalação');
+    }
+    if (verifyGrupoOlxAuthorization(authorization, secret) !== 'OK') {
+      return reply
+        .status(401)
+        .send({
+          error: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+          message: 'Chave do Grupo OLX inválida',
+        });
+    }
+    return null;
+  }
+
+  /** Balde de limite próprio: o Grupo OLX chama de poucos IPs, atrás do Traefik vira um só. */
+  const webhookRateLimit = {
+    rateLimit: { max: 600, timeWindow: '1 minute', keyGenerator: () => 'grupo-olx-webhook' },
+  };
+
+  /**
+   * Lead do ZAP, Viva Real ou OLX. Valida, descobre a imobiliária, grava na caixa de entrada
+   * (deduplicada por `originLeadId`) e responde na hora — o lead vira CRM no worker. A mesma
+   * entrega repetida responde 2xx sem criar nada.
+   */
+  const receberLead = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<FastifyReply> => {
+    const recusa = autenticarWebhook(request.headers.authorization, reply);
+    if (recusa) return recusa;
+    const parsed = grupoOlxLeadPayloadSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply
+        .status(400)
+        .send({
+          error: 'ValidationError',
+          code: 'VALIDATION',
+          message: 'Lead do Grupo OLX inválido',
+        });
+    }
+    const lead = normalizeGrupoOlxLead(parsed.data);
+    const ref = (request.params as { ref?: string } | undefined)?.ref ?? null;
+    const routing = await routeGrupoOlxLead(db, lead, ref);
+    if (!routing.ok) {
+      request.log.warn(
+        { code: routing.code, leadOrigin: parsed.data.leadOrigin },
+        'grupo-olx: lead recusado',
+      );
+      return reply
+        .status(routing.status)
+        .send({ error: 'DomainError', code: routing.code, message: routing.message });
+    }
+    const inserted = await db
+      .insert(webhookInbox)
+      .values({
+        orgId: routing.orgId,
+        provider: GRUPO_OLX_LEAD_PROVIDER,
+        providerEventId: lead.originLeadId,
+        payload: {
+          lead: parsed.data,
+          listingId: routing.listingId,
+          propertyId: routing.propertyId,
+        },
+      })
+      .onConflictDoNothing({ target: [webhookInbox.provider, webhookInbox.providerEventId] })
+      .returning({ id: webhookInbox.id });
+    if (inserted.length === 0) {
+      await countDuplicateLeadDelivery(db, routing.orgId);
+      return reply.status(200).send({ ok: true, duplicate: true });
+    }
+    return reply.status(200).send({ ok: true });
+  };
+
+  app.post('/integrations/grupo-olx/leads', { config: webhookRateLimit }, receberLead);
+  // URL por imobiliária, se a homologação pedir esse formato: a referência é opaca (ADR-108).
+  app.post('/integrations/grupo-olx/leads/:ref', { config: webhookRateLimit }, receberLead);
 
   return Promise.resolve();
 };

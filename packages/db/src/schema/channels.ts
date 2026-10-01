@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -204,6 +204,14 @@ export const channelConnections = pgTable(
     /** Últimos caracteres do token, para conferir com a URL cadastrada no portal. */
     feedTokenHint: text('feed_token_hint'),
     feedTokenCreatedAt: timestamp('feed_token_created_at', { withTimezone: true }),
+    /**
+     * Referência opaca da conexão para uma URL de webhook por imobiliária, se o Grupo OLX pedir
+     * esse formato na homologação (ADR-108). Não é segredo — quem autentica é a chave do webhook —,
+     * mas não revela id interno nem é previsível.
+     */
+    leadsEndpointRef: text('leads_endpoint_ref')
+      .notNull()
+      .$defaultFn(() => randomBytes(16).toString('base64url')),
     /** `displayAddress` do VRSync: o portal recebe o endereço completo e mostra só isto. */
     displayAddress: text('display_address').notNull().default('Neighborhood'),
     listingQuota: integer('listing_quota'),
@@ -226,6 +234,7 @@ export const channelConnections = pgTable(
   (t) => [
     uniqueIndex('channel_connections_org_channel_unique').on(t.orgId, t.channel),
     uniqueIndex('channel_connections_feed_token_hash_unique').on(t.feedTokenHash),
+    uniqueIndex('channel_connections_leads_endpoint_ref_unique').on(t.leadsEndpointRef),
     domainCheck('channel_connections_channel_valid', t.channel, CHANNEL_TYPES),
     domainCheck('channel_connections_display_address_valid', t.displayAddress, [
       'Neighborhood',
