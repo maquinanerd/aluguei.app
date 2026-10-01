@@ -5,9 +5,9 @@ import { AUDIT_ACTIONS } from '@aluguei/domain';
 import { writeAudit } from './plugins/audit.js';
 
 /**
- * Caixa de saída local de e-mail (auditoria 2026-09-10, trilha D). **Nada é enviado**: não há
- * provider de e-mail no produto, e a recuperação de senha e o convite de membro gravam a mensagem
- * aqui. A leitura é por rota protegida (`GET /email-outbox`, permissão `org:manage`), e a mensagem
+ * Caixa de saída de e-mail (auditoria 2026-09-10, trilha D). A API só grava a mensagem aqui; quem
+ * entrega é o worker, pelo provedor de `EMAIL_PROVIDER` (B28, D6 b). Sem provedor configurado,
+ * **nada é enviado** e a mensagem fica na caixa de saída — é o caso hoje, até existir a chave. A leitura é por rota protegida (`GET /email-outbox`, permissão `org:manage`), e a mensagem
  * de senha nasce sem organização — nunca aparece para o administrador de nenhuma imobiliária.
  * A confirmação do alerta de imóvel (portal) segue a mesma regra: sem organização, porque o
  * contato de quem procura imóvel não pertence a nenhuma imobiliária.

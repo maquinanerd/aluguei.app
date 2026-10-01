@@ -135,9 +135,13 @@ deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada 
 - **Politica de privacidade e Termos de uso**: o portal coleta nome, telefone e e-mail (contato e
   alerta de imovel) com consentimento e nao tem as duas paginas no ar. O texto e juridico e cabe ao
   dono. Enquanto nao chegar, o rodape nao aponta para paginas que nao existem.
-- **Provedor de e-mail (D6)**: nenhum e-mail sai; convite, senha e confirmacao de alerta ficam na
-  caixa de saida local. Consequencia no ar: nenhum alerta e confirmado e a "Demanda por bairro" fica
-  vazia. Falta contratar o provedor; o adapter entra como `IMPLEMENTED_NOT_LIVE_VERIFIED`.
+- **Provedor de e-mail (D6)** — `IMPLEMENTED_NOT_LIVE_VERIFIED`: o worker entrega a caixa de saida
+  pela Resend (adapter HTTP com idempotencia, testes com `fetch` simulado), mas nenhuma entrega real
+  foi feita. Enquanto `EMAIL_PROVIDER` estiver vazio, nada sai: convite, senha e confirmacao de
+  alerta ficam na caixa de saida, nenhum alerta e confirmado e a "Demanda por bairro" fica vazia.
+  Para ligar, no worker: `EMAIL_PROVIDER=RESEND`, `RESEND_API_KEY` e `EMAIL_FROM` com um remetente
+  de dominio verificado na Resend (SPF e DKIM do dominio). Depende do dono: contratar e verificar o
+  dominio.
 - **Portais parceiros (D1)**: Canal Pro, OLX e Imovelweb seguem sem adapter, e a interface mostra
   "Em preparacao". Adapters de feed so como fase propria, se o dono pedir.
 - **Cidade por IP (D4)**: a camada no cliente entra sem fonte real ate a escolha entre o proxy do

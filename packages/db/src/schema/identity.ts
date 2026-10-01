@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import {
   check,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -195,9 +196,15 @@ export const emailOutbox = pgTable(
     relatedEntityId: text('related_entity_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     sentAt: timestamp('sent_at', { withTimezone: true }),
+    /** Entrega pelo provedor (B28): tentativas feitas, último erro e quando tentar de novo. */
+    attempts: integer('attempts').notNull().default(0),
+    lastError: text('last_error'),
+    nextAttemptAt: timestamp('next_attempt_at', { withTimezone: true }),
+    providerMessageId: text('provider_message_id'),
   },
   (t) => [
     index('email_outbox_org_created_idx').on(t.orgId, t.createdAt),
+    index('email_outbox_status_next_idx').on(t.status, t.nextAttemptAt),
     index('email_outbox_to_created_idx').on(t.toEmail, t.createdAt),
     check(
       'email_outbox_kind_valid',
