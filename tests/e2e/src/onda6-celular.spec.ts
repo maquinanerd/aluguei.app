@@ -153,7 +153,10 @@ test.describe('Onda 6 — gestão no celular', () => {
       await page.setViewportSize(tamanho);
 
       await page.goto('/app');
-      await expect(page.getByRole('heading', { name: /bom (dia|tarde|noite)/i })).toBeVisible();
+      // A saudação segue o horário de São Paulo (tela 32): "Bom dia", "Boa tarde" ou "Boa noite".
+      await expect(
+        page.getByRole('heading', { level: 1, name: /^(bom dia|boa tarde|boa noite),/i }),
+      ).toBeVisible();
       await page.screenshot({ path: `${EVIDENCIA}/visao-geral-${nome}.png`, fullPage: true });
       expect(
         await sobraHorizontal(page),

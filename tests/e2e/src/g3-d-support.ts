@@ -33,7 +33,7 @@ export async function addMember(owner: Account, member: Account, role: string): 
 /** Token do link da mensagem mais recente da caixa de saída local para `to`. */
 export async function outboxToken(
   to: string,
-  kind: 'PASSWORD_RESET' | 'MEMBER_INVITE',
+  kind: 'PASSWORD_RESET' | 'MEMBER_INVITE' | 'SEARCH_ALERT_CONFIRM',
 ): Promise<string> {
   const res = await api<{ messages: Array<{ body: string; status: string }> }>(
     'GET',

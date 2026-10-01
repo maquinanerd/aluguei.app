@@ -291,7 +291,9 @@ test.describe('P1-01: telas que usavam limit=200', () => {
     await useSession(page, seed.cookie);
     await page.goto('/app', { timeout: 240_000 });
     await expect(summaryValue(page, 'Imóveis', 'Disponíveis')).toHaveText('1');
-    await expect(summaryValue(page, 'Imóveis', 'Reservados')).toHaveText('1');
+    // Reservado é o imóvel com proposta aceita e sem locação em vigor (B14, ADR-105). A semente
+    // tem a proposta em rascunho e a locação ativa: nenhum. Antes a linha repetia as locações ativas.
+    await expect(summaryValue(page, 'Imóveis', 'Reservados')).toHaveText('0');
     await expect(summaryValue(page, 'CRM', 'Aguardando resposta')).toHaveText('1');
     await expect(summaryValue(page, 'Operação', 'Vistorias em aberto')).toHaveText('1');
     await expect(summaryValue(page, 'Operação', 'Locações ativas')).toHaveText('1');

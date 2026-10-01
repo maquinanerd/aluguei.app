@@ -37,11 +37,14 @@ describe('Onda 4 — demanda por bairro', () => {
     citySlug: string,
     neighborhoodSlug: string,
     status: 'PENDING' | 'ACTIVE',
+    pedido: { propertyType?: string; bedrooms?: number } = {},
   ): Promise<void> {
     await db.insert(searchAlerts).values({
       purpose: 'RENT',
       citySlug,
       neighborhoodSlug,
+      propertyType: pedido.propertyType ?? null,
+      bedrooms: pedido.bedrooms ?? null,
       contactKind: 'EMAIL',
       contactValue: CONTATO,
       consentText: 'Aceito receber avisos de novos imóveis desta busca.',
@@ -56,14 +59,20 @@ describe('Onda 4 — demanda por bairro', () => {
   }
 
   /** Um anúncio publicado no bairro — é o que põe a cidade na carteira. */
-  async function publicarEm(cookie: string, neighborhood: string): Promise<void> {
+  async function publicarEm(
+    cookie: string,
+    neighborhood: string,
+    imovel: { city?: string; propertyType?: string; bedrooms?: number } = {},
+  ): Promise<void> {
+    const propertyType = imovel.propertyType ?? 'APARTMENT';
+    const bedrooms = imovel.bedrooms ?? 2;
     const criado = await call(app, 'POST', '/properties', {
       cookie,
       payload: {
-        title: `Imóvel ${neighborhood}`,
-        propertyType: 'APARTMENT',
+        title: `Imóvel ${neighborhood} ${propertyType} ${String(bedrooms)}`,
+        propertyType,
         purpose: 'RENT',
-        bedrooms: 2,
+        bedrooms,
         builtAreaSqm: 70,
       },
     });
@@ -74,7 +83,7 @@ describe('Onda 4 — demanda por bairro', () => {
       cookie,
       payload: {
         privateAddress: { street: 'Rua Privada', number: '123', zipCode: '74000-000' },
-        publicAddress: { neighborhood, city: 'Goiânia', state: 'GO' },
+        publicAddress: { neighborhood, city: imovel.city ?? 'Goiânia', state: 'GO' },
       },
     });
     expect(endereco.status, JSON.stringify(endereco.body)).toBe(200);
@@ -87,7 +96,7 @@ describe('Onda 4 — demanda por bairro', () => {
 
     const listing = await call(app, 'POST', '/listings', {
       cookie,
-      payload: { propertyId, title: `Anúncio ${neighborhood}` },
+      payload: { propertyId, title: `Anúncio ${neighborhood} ${propertyType} ${String(bedrooms)}` },
     });
     expect(listing.status, JSON.stringify(listing.body)).toBe(201);
     const listingId = (listing.body.listing as { id: string }).id;
@@ -170,6 +179,81 @@ describe('Onda 4 — demanda por bairro', () => {
     expect(res.status).toBe(200);
     // Pedir uma cidade fora da carteira não abre o portal inteiro.
     expect((res.body as { city: string | null }).city).toBeNull();
+  });
+
+  it('B14: por tipo e quartos, como o cartão "Demanda por bairro" da Visão Geral', async () => {
+    const agency = await registerAgency(app);
+    await approveAgency(app, agency.org.id, 'ESSENCIAL');
+    // Cidade só deste teste: os alertas são do portal inteiro, não de uma imobiliária.
+    await publicarEm(agency.cookie, 'Setor Bueno', { city: 'Anápolis', bedrooms: 2 });
+    await publicarEm(agency.cookie, 'Setor Bueno', { city: 'Anápolis', bedrooms: 3 });
+    for (let vez = 0; vez < 3; vez += 1) {
+      await criarAlerta('anapolis-go', 'setor-bueno', 'ACTIVE', {
+        propertyType: 'APARTMENT',
+        bedrooms: 2,
+      });
+    }
+    await criarAlerta('anapolis-go', 'setor-bueno', 'ACTIVE', { propertyType: 'STUDIO' });
+    await criarAlerta('anapolis-go', 'setor-bueno', 'ACTIVE');
+    await criarAlerta('anapolis-go', 'setor-bueno', 'PENDING', {
+      propertyType: 'APARTMENT',
+      bedrooms: 2,
+    });
+
+    interface Linha {
+      neighborhoodSlug: string;
+      neighborhood: string;
+      purpose: string;
+      propertyType: string | null;
+      bedrooms: number | null;
+      count: number;
+      published: number;
+    }
+    const porTipo = await call(
+      app,
+      'GET',
+      '/reporting/demand-by-neighborhood?city=anapolis-go&groupBy=type',
+      { cookie: agency.cookie },
+    );
+    expect(porTipo.status, JSON.stringify(porTipo.body)).toBe(200);
+    const linhas = (porTipo.body as { rows: Linha[] }).rows;
+    expect(linhas).toHaveLength(3);
+    // A maior demanda primeiro; o anúncio conta no recorte do alerta (tipo e quartos iguais).
+    expect(linhas[0]).toEqual({
+      neighborhoodSlug: 'setor-bueno',
+      neighborhood: 'Setor Bueno',
+      purpose: 'RENT',
+      propertyType: 'APARTMENT',
+      bedrooms: 2,
+      count: 3,
+      published: 1,
+    });
+    const kitnet = linhas.find((linha) => linha.propertyType === 'STUDIO');
+    expect(kitnet).toMatchObject({ bedrooms: null, count: 1, published: 0 });
+    // Alerta sem tipo nem quartos: qualquer anúncio do bairro atende.
+    const qualquer = linhas.find((linha) => linha.propertyType === null);
+    expect(qualquer).toMatchObject({ bedrooms: null, count: 1, published: 2 });
+
+    // Sem `groupBy`, o agrupamento de antes: só bairro e finalidade.
+    const porFinalidade = await call(
+      app,
+      'GET',
+      '/reporting/demand-by-neighborhood?city=anapolis-go',
+      { cookie: agency.cookie },
+    );
+    expect(porFinalidade.status).toBe(200);
+    expect((porFinalidade.body as { rows: Linha[] }).rows).toEqual([
+      {
+        neighborhoodSlug: 'setor-bueno',
+        neighborhood: 'Setor Bueno',
+        purpose: 'RENT',
+        propertyType: null,
+        bedrooms: null,
+        count: 5,
+        published: 2,
+      },
+    ]);
+    expect(JSON.stringify(porTipo.body)).not.toContain(CONTATO);
   });
 
   it('exige sessão e permissão de relatório', async () => {

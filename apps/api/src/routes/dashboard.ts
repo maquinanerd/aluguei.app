@@ -21,6 +21,13 @@ import type { AppDb } from '@aluguei/db';
 import { hasPermission } from '@aluguei/domain';
 import type { Permission } from '@aluguei/domain';
 import { requireAuth } from '../plugins/authz.js';
+import {
+  cicloDaSemana,
+  filaDeAcoes,
+  imoveisReservados,
+  queueSchema,
+  weekSchema,
+} from './dashboard-visao.js';
 
 /**
  * GET /dashboard/summary — números da Visão Geral agregados no banco (P1-01,
@@ -97,7 +104,8 @@ const dashboardSummarySchema = z.object({
     })
     .nullable(),
   proposals: z.object({ nonDraft: count }).nullable(),
-  properties: z.object({ available: count, archived: count }).nullable(),
+  /** `reserved`: ativos com proposta aceita e sem locação em vigor (B14). */
+  properties: z.object({ available: count, archived: count, reserved: count }).nullable(),
   listings: z
     .object({
       publishedPublications: count,
@@ -128,6 +136,10 @@ const dashboardSummarySchema = z.object({
     })
     .nullable(),
   conversations: z.object({ open: count, needsHuman: count }).nullable(),
+  /** Fila "Próximas ações" da tela 32: cada tipo só com a permissão de leitura dele (B14). */
+  queue: queueSchema,
+  /** Ciclo de locação desta semana, de segunda a domingo em São Paulo (B14). */
+  week: weekSchema,
 });
 
 export type DashboardSummary = z.infer<typeof dashboardSummarySchema>;
@@ -415,6 +427,8 @@ export const dashboardRoutes: FastifyPluginAsync = (app) => {
       inspectionSummary,
       finance,
       conversationSummary,
+      queue,
+      week,
     ] = await Promise.all([
       can('lead:read') ? crmSection(db, orgId, day) : null,
       can('task:read') ? tasksSection(db, orgId, day, now) : null,
@@ -427,14 +441,20 @@ export const dashboardRoutes: FastifyPluginAsync = (app) => {
             .then(([row]) => ({ nonDraft: row?.nonDraft ?? 0 }))
         : null,
       can('property:read')
-        ? db
-            .select({
-              available: countWhere(eq(properties.status, 'ACTIVE')),
-              archived: countWhere(eq(properties.status, 'ARCHIVED')),
-            })
-            .from(properties)
-            .where(eq(properties.orgId, orgId))
-            .then(([row]) => ({ available: row?.available ?? 0, archived: row?.archived ?? 0 }))
+        ? Promise.all([
+            db
+              .select({
+                available: countWhere(eq(properties.status, 'ACTIVE')),
+                archived: countWhere(eq(properties.status, 'ARCHIVED')),
+              })
+              .from(properties)
+              .where(eq(properties.orgId, orgId)),
+            imoveisReservados(db, orgId),
+          ]).then(([[row], reserved]) => ({
+            available: row?.available ?? 0,
+            archived: row?.archived ?? 0,
+            reserved,
+          }))
         : null,
       can('listing:read') ? listingsSection(db, orgId) : null,
       can('screening:read')
@@ -480,6 +500,8 @@ export const dashboardRoutes: FastifyPluginAsync = (app) => {
             .where(eq(conversations.orgId, orgId))
             .then(([row]) => ({ open: row?.open ?? 0, needsHuman: row?.needsHuman ?? 0 }))
         : null,
+      filaDeAcoes(db, orgId, day, can),
+      cicloDaSemana(db, orgId, day, can),
     ]);
 
     return dashboardSummarySchema.parse({
@@ -496,6 +518,8 @@ export const dashboardRoutes: FastifyPluginAsync = (app) => {
       inspections: inspectionSummary,
       finance,
       conversations: conversationSummary,
+      queue,
+      week,
     });
   });
 

@@ -55,6 +55,63 @@ interface ChargeItem {
   dueDate: string;
 }
 
+type QueueItem =
+  | {
+      kind: 'LEAD';
+      tone: 'danger';
+      id: string;
+      name: string | null;
+      source: string | null;
+      channel: string | null;
+      at: string;
+    }
+  | {
+      kind: 'VISIT';
+      tone: 'neutral';
+      id: string;
+      name: string | null;
+      property: string | null;
+      status: string;
+      at: string;
+    }
+  | {
+      kind: 'PROPOSAL';
+      tone: 'warning';
+      id: string;
+      name: string | null;
+      property: string | null;
+      validUntil: string;
+    }
+  | {
+      kind: 'INSPECTION';
+      tone: 'neutral';
+      id: string;
+      inspectionType: string;
+      property: string | null;
+      status: string;
+      at: string | null;
+    }
+  | {
+      kind: 'CHANNEL';
+      tone: 'warning';
+      id: string;
+      channel: string;
+      propertyCode: string | null;
+      error: string | null;
+      at: string;
+    };
+
+interface Week {
+  start: string;
+  leads: number | null;
+  qualified: number | null;
+  visits: number | null;
+  proposals: number | null;
+  screening: number | null;
+  contracts: number | null;
+  leases: number | null;
+}
+
 interface DashboardSummary {
   generatedAt: string;
   today: { start: string; end: string; timeZone: string };
@@ -73,7 +130,7 @@ interface DashboardSummary {
   } | null;
   visits: { active: number; upcomingItems: VisitItem[] } | null;
   proposals: { nonDraft: number } | null;
-  properties: { available: number; archived: number } | null;
+  properties: { available: number; archived: number; reserved: number } | null;
   listings: {
     publishedPublications: number;
     failedPublications: number;
@@ -93,6 +150,8 @@ interface DashboardSummary {
     overdueItems: ChargeItem[];
   } | null;
   conversations: { open: number; needsHuman: number } | null;
+  queue: { items: QueueItem[]; total: number; attention: number };
+  week: Week;
 }
 
 interface Day {
@@ -105,6 +164,19 @@ function saoPauloDay(now: Date): Day {
   const start =
     Date.UTC(wall.getUTCFullYear(), wall.getUTCMonth(), wall.getUTCDate()) - SAO_PAULO_OFFSET_MS;
   return { start: new Date(start), end: new Date(start + DAY_MS) };
+}
+
+/** Data civil de São Paulo do dia (AAAA-MM-DD), para as colunas `date`. */
+function saoPauloDate(day: Day): string {
+  return new Date(day.start.getTime() + SAO_PAULO_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+/** Segunda-feira, 00:00 em São Paulo, da semana do dia: oráculo independente do Intl. */
+function saoPauloWeek(day: Day): Day {
+  const wall = new Date(day.start.getTime() + SAO_PAULO_OFFSET_MS);
+  const fromMonday = (wall.getUTCDay() + 6) % 7;
+  const start = day.start.getTime() - fromMonday * DAY_MS;
+  return { start: new Date(start), end: new Date(start + 7 * DAY_MS) };
 }
 
 function monthStart(now: number, deltaMonths: number): string {
@@ -141,10 +213,13 @@ async function seedOrganization(
       { orgId, title: 'Imóvel ativo 1', propertyType: 'APARTMENT', status: 'ACTIVE' },
       { orgId, title: 'Imóvel ativo 2', propertyType: 'HOUSE', status: 'ACTIVE' },
       { orgId, title: 'Imóvel arquivado', propertyType: 'HOUSE', status: 'ARCHIVED' },
+      { orgId, title: 'Imóvel reservado', propertyType: 'APARTMENT', status: 'ACTIVE' },
     ])
     .returning();
   const p1 = must(propertyRows[0], 'imóvel 1');
   const p2 = must(propertyRows[1], 'imóvel 2');
+  const archived = must(propertyRows[2], 'imóvel arquivado');
+  const reserved = must(propertyRows[3], 'imóvel reservado');
   const party = must(
     (await db.insert(parties).values({ orgId, type: 'PERSON', name: 'Pessoa' }).returning())[0],
     'pessoa',
@@ -237,6 +312,27 @@ async function seedOrganization(
       decisionReason: status === 'REJECTED' ? 'fora do orçamento' : null,
     })),
   );
+  // B14: "Reservados" é o imóvel ativo com proposta aceita e sem locação em vigor. O reservado
+  // conta uma vez (duas aceitas); p1 tem locação ativa; o arquivado não está disponível.
+  await db.insert(proposals).values(
+    [reserved, reserved, p1, archived].map((property) => ({
+      orgId,
+      propertyId: property.id,
+      status: 'ACCEPTED',
+      monthlyRentCents: 100_000,
+      validUntil: '2099-12-31',
+      decidedAt: at(now),
+    })),
+  );
+  // B14: enviada agora e vencendo hoje — entra na fila e no ciclo da semana.
+  await db.insert(proposals).values({
+    orgId,
+    propertyId: p2.id,
+    status: 'SENT',
+    monthlyRentCents: 100_000,
+    validUntil: saoPauloDate(day),
+    sentAt: at(now),
+  });
 
   // Desde a migration 0015 (trilha A do G2, P1-06), APPROVED exige a trilha da
   // decisão — motivo, data e origem. As contagens do dashboard não dependem disso.
@@ -280,6 +376,8 @@ async function seedOrganization(
       propertyId: p1.id,
       type: 'CHECKIN',
       status,
+      // B14: a aberta de hoje entra na fila; a concluída de hoje, não.
+      scheduledAt: status === 'DRAFT' || status === 'COMPLETED' ? laterToday : null,
     })),
   );
 
@@ -432,6 +530,9 @@ async function oracle(app: FastifyInstance, orgId: string, now: Date) {
       archived: await n(
         sql`select count(*) as n from properties where org_id = ${orgId} and status = 'ARCHIVED'`,
       ),
+      reserved: await n(
+        sql`select count(distinct p.property_id) as n from proposals p join properties pr on pr.id = p.property_id where p.org_id = ${orgId} and p.status = 'ACCEPTED' and pr.status = 'ACTIVE' and not exists (select 1 from leases l where l.property_id = p.property_id and l.status in ('ACTIVE', 'DELINQUENT'))`,
+      ),
     },
     listings: {
       publishedPublications: await n(
@@ -504,6 +605,92 @@ async function oracle(app: FastifyInstance, orgId: string, now: Date) {
         sql`select count(*) as n from conversations where org_id = ${orgId} and status = 'NEEDS_HUMAN'`,
       ),
     },
+    queue: await queueOracle(app, orgId, day),
+    week: await weekOracle(app, orgId, day),
+  };
+}
+
+/**
+ * Fila da tela 32 (B14): por tipo, o total e os dois primeiros; na tela, um de cada tipo antes
+ * de repetir, até cinco. Itens comparados como `TIPO:id`.
+ */
+async function queueOracle(app: FastifyInstance, orgId: string, day: Day) {
+  const start = day.start.toISOString();
+  const end = day.end.toISOString();
+  const today = saoPauloDate(day);
+  const kinds: Array<[string, SQL, SQL]> = [
+    [
+      'LEAD',
+      sql`select count(*) as n from leads where org_id = ${orgId} and status = 'NEW'`,
+      sql`select id from leads where org_id = ${orgId} and status = 'NEW' order by created_at asc, id asc limit 2`,
+    ],
+    [
+      'VISIT',
+      sql`select count(*) as n from visits where org_id = ${orgId} and status in ('SCHEDULED', 'CONFIRMED') and scheduled_at >= ${start}::timestamptz and scheduled_at < ${end}::timestamptz`,
+      sql`select id from visits where org_id = ${orgId} and status in ('SCHEDULED', 'CONFIRMED') and scheduled_at >= ${start}::timestamptz and scheduled_at < ${end}::timestamptz order by scheduled_at asc, id asc limit 2`,
+    ],
+    [
+      'PROPOSAL',
+      sql`select count(*) as n from proposals where org_id = ${orgId} and status = 'SENT' and valid_until = ${today}::date`,
+      sql`select id from proposals where org_id = ${orgId} and status = 'SENT' and valid_until = ${today}::date order by created_at asc, id asc limit 2`,
+    ],
+    [
+      'INSPECTION',
+      sql`select count(*) as n from inspections where org_id = ${orgId} and status in ('DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW') and scheduled_at >= ${start}::timestamptz and scheduled_at < ${end}::timestamptz`,
+      sql`select id from inspections where org_id = ${orgId} and status in ('DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW') and scheduled_at >= ${start}::timestamptz and scheduled_at < ${end}::timestamptz order by scheduled_at asc, id asc limit 2`,
+    ],
+    [
+      'CHANNEL',
+      sql`select count(*) as n from listing_channel_publications where org_id = ${orgId} and status = 'FAILED'`,
+      sql`select id from listing_channel_publications where org_id = ${orgId} and status = 'FAILED' order by updated_at desc, id asc limit 2`,
+    ],
+  ];
+  const totals = new Map<string, number>();
+  const firsts: string[][] = [];
+  for (const [kind, total, first] of kinds) {
+    totals.set(kind, await scalar(app, total));
+    firsts.push((await ids(app, first)).map((id) => `${kind}:${id}`));
+  }
+  const items = [...firsts.map((list) => list[0]), ...firsts.map((list) => list[1])]
+    .filter((item): item is string => item !== undefined)
+    .slice(0, 5);
+  const t = (kind: string) => totals.get(kind) ?? 0;
+  return {
+    items,
+    total: t('LEAD') + t('VISIT') + t('PROPOSAL') + t('INSPECTION') + t('CHANNEL'),
+    attention: t('LEAD') + t('PROPOSAL') + t('CHANNEL'),
+  };
+}
+
+/** Ciclo de locação da semana (B14): cada etapa contada na semana de São Paulo. */
+async function weekOracle(app: FastifyInstance, orgId: string, day: Day): Promise<Week> {
+  const week = saoPauloWeek(day);
+  const from = week.start.toISOString();
+  const to = week.end.toISOString();
+  const n = (query: SQL) => scalar(app, query);
+  return {
+    start: from,
+    leads: await n(
+      sql`select count(*) as n from leads where org_id = ${orgId} and created_at >= ${from}::timestamptz and created_at < ${to}::timestamptz`,
+    ),
+    qualified: await n(
+      sql`select count(*) as n from leads where org_id = ${orgId} and created_at >= ${from}::timestamptz and created_at < ${to}::timestamptz and status in ('QUALIFIED', 'VISIT', 'PROPOSAL', 'APPLICATION', 'WON')`,
+    ),
+    visits: await n(
+      sql`select count(*) as n from visits where org_id = ${orgId} and scheduled_at >= ${from}::timestamptz and scheduled_at < ${to}::timestamptz and status not in ('CANCELLED', 'NO_SHOW')`,
+    ),
+    proposals: await n(
+      sql`select count(*) as n from proposals where org_id = ${orgId} and sent_at >= ${from}::timestamptz and sent_at < ${to}::timestamptz`,
+    ),
+    screening: await n(
+      sql`select count(*) as n from rental_applications where org_id = ${orgId} and created_at >= ${from}::timestamptz and created_at < ${to}::timestamptz`,
+    ),
+    contracts: await n(
+      sql`select count(*) as n from contracts where org_id = ${orgId} and created_at >= ${from}::timestamptz and created_at < ${to}::timestamptz and status <> 'VOID' and kind = 'LEASE'`,
+    ),
+    leases: await n(
+      sql`select count(*) as n from leases where org_id = ${orgId} and created_at >= ${from}::timestamptz and created_at < ${to}::timestamptz`,
+    ),
   };
 }
 
@@ -533,6 +720,12 @@ function project(summary: DashboardSummary) {
       overdueItems: itemIds(summary.finance.overdueItems),
     },
     conversations: summary.conversations,
+    queue: {
+      items: summary.queue.items.map((item) => `${item.kind}:${item.id}`),
+      total: summary.queue.total,
+      attention: summary.queue.attention,
+    },
+    week: summary.week,
   };
 }
 
@@ -597,6 +790,23 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
     expect(expected.tasks.overdue).toBe(2);
     expect(expected.tasks.dueToday).toBe(1);
     expect(expected.finance.overdueAmountCents).toBe(240_000);
+    // B14: um reservado (as exclusões da semente valem), um item de cada tipo na fila e todas as
+    // etapas do ciclo com dado nesta semana.
+    expect(expected.properties.reserved).toBe(1);
+    expect(expected.queue.items.map((item) => item.split(':')[0])).toEqual([
+      'LEAD',
+      'VISIT',
+      'PROPOSAL',
+      'INSPECTION',
+      'CHANNEL',
+    ]);
+    expect(expected.queue.total).toBe(101 + 1 + 1 + 1 + 2);
+    expect(expected.queue.attention).toBe(101 + 1 + 2);
+    const { start: weekStart, ...stages } = expected.week;
+    expect(weekStart).toBe(saoPauloWeek(day).start.toISOString());
+    for (const [stage, value] of Object.entries(stages)) {
+      expect(value, stage).toBeGreaterThan(0);
+    }
 
     expect(project(res.body)).toEqual(expected);
     expect(res.body.today).toEqual({
@@ -647,6 +857,196 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
     });
   });
 
+  it('B14: a fila traz o que a tela 32 mostra, um item de cada tipo', async () => {
+    const C = await registerUser(app);
+    const orgId = C.body.org.id;
+    const db = app.db;
+    const hoje = saoPauloDay(new Date());
+    const as = (hora: number, minuto: number) =>
+      new Date(hoje.start.getTime() + (hora * 60 + minuto) * 60_000);
+
+    const imoveis = await db
+      .insert(properties)
+      .values([
+        { orgId, title: 'Casa Jardim América', propertyType: 'HOUSE', status: 'ACTIVE' },
+        { orgId, title: 'Apto 3 qts Marista', propertyType: 'APARTMENT', status: 'ACTIVE' },
+        {
+          orgId,
+          title: 'Apto 804 Setor Marista',
+          propertyType: 'APARTMENT',
+          status: 'ACTIVE',
+          code: 'IMV-0165',
+        },
+      ])
+      .returning();
+    const casa = must(imoveis[0], 'casa');
+    const apto3 = must(imoveis[1], 'apto 3 qts');
+    const apto804 = must(imoveis[2], 'apto 804');
+    const pessoas = await db
+      .insert(parties)
+      .values(
+        ['Mariana Costa', 'João Pereira', 'Carlos Dias'].map((name) => ({
+          orgId,
+          type: 'PERSON',
+          name,
+        })),
+      )
+      .returning();
+    const lead = must(
+      (
+        await db
+          .insert(leads)
+          .values({
+            orgId,
+            partyId: must(pessoas[0], 'Mariana').id,
+            status: 'NEW',
+            channel: 'PORTAL',
+            createdAt: new Date(Date.now() - 30 * 60_000),
+          })
+          .returning()
+      )[0],
+      'lead',
+    );
+    const visita = must(
+      (
+        await db
+          .insert(visits)
+          .values({
+            orgId,
+            partyId: must(pessoas[1], 'João').id,
+            propertyId: casa.id,
+            status: 'SCHEDULED',
+            scheduledAt: as(10, 30),
+          })
+          .returning()
+      )[0],
+      'visita',
+    );
+    const proposta = must(
+      (
+        await db
+          .insert(proposals)
+          .values({
+            orgId,
+            partyId: must(pessoas[2], 'Carlos').id,
+            propertyId: apto3.id,
+            status: 'SENT',
+            monthlyRentCents: 350_000,
+            validUntil: saoPauloDate(hoje),
+            sentAt: new Date(),
+          })
+          .returning()
+      )[0],
+      'proposta',
+    );
+    const vistoria = must(
+      (
+        await db
+          .insert(inspections)
+          .values({
+            orgId,
+            propertyId: apto804.id,
+            type: 'CHECKIN',
+            status: 'DRAFT',
+            scheduledAt: as(14, 0),
+          })
+          .returning()
+      )[0],
+      'vistoria',
+    );
+    const anuncio = must(
+      (
+        await db
+          .insert(listings)
+          .values({
+            orgId,
+            propertyId: apto804.id,
+            title: 'Apto 804 Setor Marista',
+            slug: 'apto-804',
+            publicSlug: `apto-804-${randomUUID().slice(0, 8)}`,
+            status: 'PUBLISHED',
+          })
+          .returning()
+      )[0],
+      'anúncio',
+    );
+    const recusa = must(
+      (
+        await db
+          .insert(listingChannelPublications)
+          .values({
+            orgId,
+            listingId: anuncio.id,
+            channel: 'olx',
+            status: 'FAILED',
+            lastError: 'foto abaixo do mínimo',
+          })
+          .returning()
+      )[0],
+      'publicação recusada',
+    );
+
+    const res = await summaryOf(C.cookie);
+    expect(res.status).toBe(200);
+    if (saoPauloDay(new Date(res.body.generatedAt)).start.getTime() !== hoje.start.getTime()) {
+      throw new Error(
+        'o dia virou (America/Sao_Paulo) entre semear e consultar — execute novamente',
+      );
+    }
+    // A API devolve o dado; as frases ("sem retorno há 30 min", "Vence hoje") são do painel.
+    expect(res.body.queue).toEqual({
+      items: [
+        {
+          kind: 'LEAD',
+          tone: 'danger',
+          id: lead.id,
+          name: 'Mariana Costa',
+          source: null,
+          channel: 'PORTAL',
+          at: lead.createdAt.toISOString(),
+        },
+        {
+          kind: 'VISIT',
+          tone: 'neutral',
+          id: visita.id,
+          name: 'João Pereira',
+          property: 'Casa Jardim América',
+          status: 'SCHEDULED',
+          at: as(10, 30).toISOString(),
+        },
+        {
+          kind: 'PROPOSAL',
+          tone: 'warning',
+          id: proposta.id,
+          name: 'Carlos Dias',
+          property: 'Apto 3 qts Marista',
+          validUntil: saoPauloDate(hoje),
+        },
+        {
+          kind: 'INSPECTION',
+          tone: 'neutral',
+          id: vistoria.id,
+          inspectionType: 'CHECKIN',
+          property: 'Apto 804 Setor Marista',
+          status: 'DRAFT',
+          at: as(14, 0).toISOString(),
+        },
+        {
+          kind: 'CHANNEL',
+          tone: 'warning',
+          id: recusa.id,
+          channel: 'olx',
+          propertyCode: 'IMV-0165',
+          error: 'foto abaixo do mínimo',
+          at: recusa.updatedAt.toISOString(),
+        },
+      ],
+      // "5 item(ns) exigem atenção" e "3 pendências exigem atenção hoje.", como na tela.
+      total: 5,
+      attention: 3,
+    });
+  });
+
   it('RBAC: seção sem permissão vem null, as demais seguem iguais às do dono', async () => {
     const viewer = await registerUser(app);
     const added = await app.inject({
@@ -674,5 +1074,12 @@ describe('P1-01: GET /dashboard/summary — números iguais ao banco', () => {
     expect(res.body.crm).toEqual(owner.body.crm);
     expect(res.body.properties).toEqual(owner.body.properties);
     expect(res.body.conversations).toEqual(owner.body.conversations);
+    // B14: a fila e o ciclo seguem a mesma regra, por tipo e por etapa.
+    expect(owner.body.queue.items.some((item) => item.kind === 'INSPECTION')).toBe(true);
+    expect(res.body.queue.items.some((item) => item.kind === 'INSPECTION')).toBe(false);
+    expect(res.body.week.screening).toBeNull();
+    expect(res.body.week.contracts).toBeNull();
+    expect(res.body.week.leases).toBeNull();
+    expect(res.body.week.leads).toBe(owner.body.week.leads);
   });
 });
