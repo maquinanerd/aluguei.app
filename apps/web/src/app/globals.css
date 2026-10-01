@@ -1336,23 +1336,6 @@ body {
   font-weight: 500;
 }
 
-.dash-barra__trilho {
-  display: flex;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--peg-surface-subtle);
-}
-
-.dash-barra__preenchido {
-  display: block;
-  border-radius: 3px;
-  background: var(--brand);
-}
-
-.dash-barra__preenchido--neutro {
-  background: var(--peg-text-tertiary);
-}
-
 .dash-barra__numero {
   font-weight: 600;
   text-align: right;

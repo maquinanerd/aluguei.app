@@ -30,6 +30,7 @@ export * from './components/Drawer';
 export * from './components/Inspector';
 export * from './components/Toast';
 export * from './components/AvisoModoTeste';
+export * from './components/ProgressBar';
 export * from './components/StateViews';
 export * from './components/Skeleton';
 export * from './components/Spinner';

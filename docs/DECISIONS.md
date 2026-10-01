@@ -2014,3 +2014,22 @@ Decisões tomadas ao implementar os componentes base e a tela 01 (`/dev/componen
    relógio de quem lê ("Bom dia" das 5h ao meio-dia, "Boa tarde" até as 18h, "Boa noite" no resto).
    Entram os tokens `--peg-warning-text` (#A05C06) e `--peg-danger-text` (#B91C1C), com par no tema
    escuro.
+
+### Adendo ao ADR-105 — primitivos da gestão (Onda 1C-C, 2026-09-30)
+
+1. **Aviso "Modo de teste" nas formas dos prints.** `AvisoModoTeste` ganha `forma`: `faixa` (selo
+   branco, texto e ação, cobrança), `selo` (cabeçalho do envelope de assinatura), `caixa` (sem borda,
+   com "!"; `larga` na tela do Pix) e `alerta` (faixa com borda e "!", análise cadastral). A forma de
+   antes continua como `padrao` e cada tela troca pela do print na onda dela, sem mudar o texto antes
+   da hora. Onde o aviso aparece, a ação real continua desabilitada.
+2. **Barra de progresso.** `ProgressBar` no pacote ui, trilho de 6px (4px no `sm`) nos tons marca,
+   neutro, aviso, perigo (trilho vermelho claro, a barra estourada) e apagado ("sem limite"). Sem
+   rótulo, a barra é decorativa e fica fora da árvore de acessibilidade — é o caso da Visão Geral,
+   que já escreve o número ao lado e passa a usá-la.
+3. **Switch e diálogos.** O `Switch` passa a 30 × 18 (rótulo de 13px) e ganha o `sm`, 26 × 16; o
+   botão perde a sombra, como no desenho. O `Modal` ganha as formas `list` (520, título e subtítulo,
+   linhas com divisória, sem o "×") e `notice` (460, respiro único de 20px). Nas duas, fechar é pelo
+   rodapé e pelo Esc.
+4. **Tokens.** `--peg-warning-border` (#F3DDB8) e `--peg-warning-ink` (#7A4605), da faixa de aviso.
+   O tema escuro não é usado em lugar nenhum hoje; os tokens novos seguem o `--peg-warning-bg`, que
+   também não tem par escuro.

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  AvisoModoTeste,
   Avatar,
   Badge,
   Button,
@@ -18,6 +19,7 @@ import {
   Kpi,
   Modal,
   Pagination,
+  ProgressBar,
   Radio,
   SearchInput,
   SegmentedControl,
@@ -58,6 +60,8 @@ const ROWS: Row[] = [
 function DemoBody() {
   const toast = useToast();
   const [modalOpen, setModalOpen] = useState(false);
+  const [publicarOpen, setPublicarOpen] = useState(false);
+  const [limiteOpen, setLimiteOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [nextAction, setNextAction] = useState('');
   const [tab, setTab] = useState('overview');
@@ -321,6 +325,117 @@ function DemoBody() {
         <Badge tone="warning">Pendente</Badge>
         <Badge tone="danger">Vencido</Badge>
       </Group>
+
+      {/* Onda 1C (ADR-105): formas do aviso de teste, barras, switch pequeno e os diálogos. */}
+      <Card>
+        <Stack gap={3}>
+          <AvisoModoTeste forma="faixa" acao="Saiba mais">
+            Cobrança real e split pelo Asaas chegam em breve. Nenhum valor é cobrado ou transferido
+            por este painel ainda.
+          </AvisoModoTeste>
+          <Group gap={3}>
+            <strong>Envelope de assinatura</strong>
+            <AvisoModoTeste forma="selo" />
+          </Group>
+          <AvisoModoTeste forma="caixa">
+            Assinatura real (Clicksign) em breve. Hoje o envelope roda em modo de teste.
+          </AvisoModoTeste>
+          <AvisoModoTeste forma="alerta">
+            Consulta ao Serasa e SPC em breve. As regras abaixo usam só os dados informados na
+            candidatura.
+          </AvisoModoTeste>
+          <ProgressBar value={96} tone="warning" label="Contratos de locação ativos: 96 de 100" />
+          <ProgressBar value={70} label="Usuários: 7 de 10" />
+          <ProgressBar value={100} tone="danger" label="Contratos ativos: 100 de 100" />
+          <ProgressBar value={100} tone="muted" label="Anúncios publicados: sem limite" />
+          <Switch size="sm" defaultChecked label="Pública no portal" />
+          <Group gap={3}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setPublicarOpen(true);
+              }}
+            >
+              Diálogo de publicação
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setLimiteOpen(true);
+              }}
+            >
+              Aviso de limite
+            </Button>
+          </Group>
+        </Stack>
+      </Card>
+
+      <Modal
+        open={publicarOpen}
+        onClose={() => {
+          setPublicarOpen(false);
+        }}
+        variant="list"
+        title="Publicar anúncio"
+        description="Kitnet 32 m² · Setor Universitário · IMV-0214"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setPublicarOpen(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button variant="brand" size="sm" disabled>
+              Publicar em 4 canais
+            </Button>
+          </>
+        }
+      >
+        {['Portal AchouImóvel', 'Canal Pro', 'Imovelweb', 'OLX'].map((canal) => (
+          <div key={canal} className="peg-modal-list__row">
+            <Checkbox aria-label={canal} defaultChecked />
+            <span>{canal}</span>
+            <Badge tone="success">Pronto</Badge>
+          </div>
+        ))}
+        <p className="peg-modal-list__note">
+          A publicação só acontece quando você confirmar. Preço, fotos e descrição ficam iguais em
+          todos os canais marcados.
+        </p>
+      </Modal>
+
+      <Modal
+        open={limiteOpen}
+        onClose={() => {
+          setLimiteOpen(false);
+        }}
+        variant="notice"
+        title="Limite de contratos ativos atingido"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setLimiteOpen(false);
+              }}
+            >
+              Voltar
+            </Button>
+            <Button variant="brand" size="sm">
+              Pedir plano maior
+            </Button>
+          </>
+        }
+      >
+        Seu plano Gestão Locação inclui 100 contratos ativos e você já tem 100. Encerre um contrato
+        ou peça um plano maior para ativar esta locação. Nada foi apagado.
+        <ProgressBar value={100} tone="danger" label="Contratos ativos: 100 de 100" />
+      </Modal>
 
       {/* Modais / Drawers */}
       <Group gap={3}>

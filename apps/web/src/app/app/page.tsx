@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { ProgressBar } from '@aluguei/ui';
 import { apiFetch } from '@/lib/api-server';
 import {
   fraseDasPendencias,
@@ -266,12 +267,7 @@ export default async function OverviewPage() {
               {ciclo.map((etapa, indice) => (
                 <div key={etapa.rotulo} className="dash-barra dash-barra--ciclo">
                   <span className="dash-barra__rotulo">{etapa.rotulo}</span>
-                  <span className="dash-barra__trilho" aria-hidden="true">
-                    <span
-                      className="dash-barra__preenchido"
-                      style={{ width: larguraDoCiclo[indice] }}
-                    />
-                  </span>
+                  <ProgressBar value={larguraDoCiclo[indice] ?? 0} />
                   <span className="dash-barra__numero">{contagem(etapa.valor)}</span>
                 </div>
               ))}
@@ -307,12 +303,7 @@ export default async function OverviewPage() {
                         <span className="dash-barra__bairro">{linha.neighborhood}</span>{' '}
                         <span className="dash-barra__tipo">· {tipoDaDemanda(linha)}</span>
                       </span>
-                      <span className="dash-barra__trilho" aria-hidden="true">
-                        <span
-                          className="dash-barra__preenchido dash-barra__preenchido--neutro"
-                          style={{ width: larguraDaDemanda[indice] }}
-                        />
-                      </span>
+                      <ProgressBar value={larguraDaDemanda[indice] ?? 0} tone="neutral" />
                       <span className="dash-barra__numero">{linha.count}</span>
                     </div>
                   ))
