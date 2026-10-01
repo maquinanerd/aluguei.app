@@ -118,15 +118,24 @@ function productionProblems(
   if (service === 'api') {
     switch (env.SIGNATURE_PROVIDER) {
       case undefined:
-        missing('SIGNATURE_PROVIDER', 'escolha CLICKSIGN ou FAKE');
+        missing('SIGNATURE_PROVIDER', 'escolha AUTENTIQUE ou FAKE');
         break;
-      case 'CLICKSIGN':
-        if (!env.CLICKSIGN_API_TOKEN) {
-          missing('CLICKSIGN_API_TOKEN', 'obrigatório com SIGNATURE_PROVIDER=CLICKSIGN');
+      case 'AUTENTIQUE':
+        if (!env.AUTENTIQUE_API_TOKEN) {
+          missing('AUTENTIQUE_API_TOKEN', 'obrigatório com SIGNATURE_PROVIDER=AUTENTIQUE');
+        }
+        if (!env.AUTENTIQUE_ENV) {
+          missing('AUTENTIQUE_ENV', 'defina sandbox ou production (sem ambiente padrão)');
+        }
+        if (!env.AUTENTIQUE_WEBHOOK_SECRET) {
+          missing(
+            'AUTENTIQUE_WEBHOOK_SECRET',
+            'segredo do webhook cadastrado na Autentique (POST /webhooks/signature/autentique)',
+          );
         }
         break;
       case 'D4SIGN':
-        problems.push('SIGNATURE_PROVIDER=D4SIGN não tem adapter: use CLICKSIGN ou FAKE');
+        problems.push('SIGNATURE_PROVIDER=D4SIGN não tem adapter: use AUTENTIQUE ou FAKE');
         break;
       case 'FAKE':
         break;

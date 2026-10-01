@@ -105,7 +105,7 @@ const INTEGRATIONS: IntegrationDef[] = [
   {
     key: 'signature',
     name: 'Assinatura eletrônica',
-    description: 'Envelopes Clicksign/D4Sign.',
+    description: 'Envelopes pela Autentique.',
     icon: 'gavel',
     provider: 'signature',
   },
@@ -174,7 +174,9 @@ function IntegrationsBody() {
       ) : null}
       {emTeste(capacidades?.providers.signature) ? (
         <AvisoModoTeste provedor={PROVIDER_REAL.signature}>
-          O envelope de assinatura simula os eventos; nada é enviado ao provedor.
+          {capacidades?.providers.signature === 'AUTENTIQUE_SANDBOX'
+            ? 'A assinatura roda no sandbox da Autentique: os signatários recebem o pedido por e-mail, mas o documento é de teste e não tem validade jurídica.'
+            : 'O envelope de assinatura simula os eventos; nada é enviado ao provedor.'}
         </AvisoModoTeste>
       ) : null}
       {emTeste(capacidades?.providers.screening) ? (

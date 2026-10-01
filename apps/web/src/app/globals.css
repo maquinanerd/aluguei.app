@@ -120,6 +120,17 @@ body {
   background: var(--peg-surface-subtle);
 }
 
+/* Recolhido: o topo só tem o botão de expandir, centrado no trilho e maior para o clique. */
+.app-sidebar--collapsed .app-sidebar__header {
+  justify-content: center;
+}
+
+.app-sidebar__expand {
+  width: 32px;
+  height: 32px;
+  color: var(--peg-text-secondary);
+}
+
 .app-sidebar__collapse-icon {
   width: 16px;
   height: 14px;

@@ -130,6 +130,17 @@ existe) e apontar `AI_AUDIO_PROVIDER` para ele.
 Nao implementado de proposito, e **nao prometido em tela**: analise de foto (legenda sugerida,
 deteccao de rosto/placa) e remocao de EXIF/GPS. O sistema nao afirma fazer nada disso.
 
+## Assinatura pela Autentique (ADR-106) — IMPLEMENTED_NOT_LIVE_VERIFIED
+
+- Decisão do dono em 01/10/2026: Autentique no lugar da Clicksign. Adapter GraphQL (documento por
+  multipart, cada parte por e-mail), consulta de estado e webhook com HMAC
+  (`POST /webhooks/signature/autentique`) implementados e testados com `fetch` simulado; nenhum
+  documento foi enviado à Autentique.
+- Para homologar: conta na Autentique, chave da API em `AUTENTIQUE_API_TOKEN`,
+  `SIGNATURE_PROVIDER=AUTENTIQUE`, `AUTENTIQUE_ENV=sandbox` e o webhook cadastrado no painel com o
+  segredo em `AUTENTIQUE_WEBHOOK_SECRET` (`docs/integrations/AUTENTIQUE_HOMOLOGATION.md`). Depende
+  do dono: criar a conta e escolher o plano.
+
 ## Rodada de fidelidade as telas (ADR-105) — depende do dono
 
 - **Politica de privacidade e Termos de uso**: o portal coleta nome, telefone e e-mail (contato e

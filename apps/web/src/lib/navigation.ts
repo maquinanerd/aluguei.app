@@ -38,6 +38,7 @@ export const NAV_ROOT: readonly NavItem[] = [
 /** Navegação do painel — reflete capabilities reais do backend (Fase 01 matrix). */
 export const NAV_GROUPS: readonly NavGroup[] = [
   {
+    // Atendimento comum a aluguel e venda: o lead chega antes de saber o departamento.
     title: 'CRM',
     items: [
       {
@@ -79,6 +80,22 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         permission: 'visit:read',
         section: 'primary',
       },
+      {
+        href: '/app/inbox',
+        module: 'ATENDIMENTO',
+        label: 'Inbox',
+        icon: 'chat',
+        permission: 'conversation:read',
+        section: 'primary',
+      },
+      {
+        href: '/app/visits',
+        module: 'CRM',
+        label: 'Visitas',
+        icon: 'clock',
+        permission: 'visit:read',
+        section: 'primary',
+      },
     ],
   },
   {
@@ -110,41 +127,9 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     ],
   },
   {
-    // Vendas (Onda 5): o design só tem Negociações (T9). O painel de vendas continua em
-    // `/app/vendas`, pelo link no cabeçalho de Negociações, e acende o mesmo item.
-    title: 'Vendas',
+    // Departamento de aluguel: o ciclo da locação, da proposta ao contrato ativo.
+    title: 'Aluguel',
     items: [
-      {
-        href: '/app/vendas/negociacoes',
-        label: 'Negociações',
-        icon: 'tag',
-        permission: 'lead:read',
-        section: 'primary',
-        module: 'VENDAS',
-        novo: true,
-        activePrefixes: ['/app/vendas'],
-      },
-    ],
-  },
-  {
-    title: 'Operação',
-    items: [
-      {
-        href: '/app/inbox',
-        module: 'ATENDIMENTO',
-        label: 'Inbox',
-        icon: 'chat',
-        permission: 'conversation:read',
-        section: 'primary',
-      },
-      {
-        href: '/app/visits',
-        module: 'CRM',
-        label: 'Visitas',
-        icon: 'clock',
-        permission: 'visit:read',
-        section: 'primary',
-      },
       {
         href: '/app/proposals',
         module: 'CRM',
@@ -186,6 +171,23 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         icon: 'key',
         permission: 'finance:read',
         section: 'primary',
+      },
+    ],
+  },
+  {
+    // Vendas (Onda 5): o design só tem Negociações (T9). O painel de vendas continua em
+    // `/app/vendas`, pelo link no cabeçalho de Negociações, e acende o mesmo item.
+    title: 'Vendas',
+    items: [
+      {
+        href: '/app/vendas/negociacoes',
+        label: 'Negociações',
+        icon: 'tag',
+        permission: 'lead:read',
+        section: 'primary',
+        module: 'VENDAS',
+        novo: true,
+        activePrefixes: ['/app/vendas'],
       },
     ],
   },
@@ -316,9 +318,7 @@ export function breadcrumbFor(pathname: string): { label: string; href?: string 
     crumbs.push({ label: root.label });
     return crumbs;
   }
-  if (group && group.title !== 'Operação') {
-    crumbs.push({ label: group.title });
-  }
+  if (group) crumbs.push({ label: group.title });
   crumbs.push({ label: item.label });
   return crumbs;
 }

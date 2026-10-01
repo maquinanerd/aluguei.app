@@ -297,12 +297,16 @@ export const signatureEnvelopes = pgTable(
     contractId: uuid('contract_id')
       .notNull()
       .references(() => contracts.id, { onDelete: 'cascade' }),
-    provider: text('provider').notNull(), // CLICKSIGN | D4SIGN | FAKE
+    provider: text('provider').notNull(), // AUTENTIQUE | D4SIGN | FAKE (CLICKSIGN só em histórico)
     providerEnvelopeId: text('provider_envelope_id').notNull(),
     // Versão do contrato enviada ao provider (P0-04).
     contractVersion: integer('contract_version'),
     // SHA-256 hex do documento (PDF) enviado ao provider (P1-11).
     documentHash: text('document_hash'),
+    // Assinatura de cada parte no provider (Autentique: `public_id`), para o webhook achar a parte
+    // pela ordem de assinatura. Nulo quando o provider não identifica assinaturas (FAKE).
+    providerSigners:
+      jsonb('provider_signers').$type<Array<{ signOrder: number; providerSignerId: string }>>(),
     status: text('status').notNull().default('SENT'), // PENDING|SENT|PARTIALLY_SIGNED|SIGNED|FAILED
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

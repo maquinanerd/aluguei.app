@@ -46,9 +46,9 @@ Implementação concreta (Fase 07): interface em `packages/integrations/src/scre
 
 ## Assinatura
 
-`ISignatureProvider`: baseline Clicksign, alternativa D4Sign. Webhook idempotente, hash do documento e trilha de eventos.
+`ISignatureProvider`: Autentique (decisão do dono em 01/10/2026, ADR-106, no lugar da Clicksign), alternativa D4Sign. Webhook idempotente, hash do documento e trilha de eventos. Adapter `AutentiqueSignatureProvider` (GraphQL v2, documento por multipart, cada parte por e-mail) e webhook `POST /webhooks/signature/autentique` com HMAC; homologação em `docs/integrations/AUTENTIQUE_HOMOLOGATION.md`.
 
-Implementação concreta (Fase 07): interface em `packages/integrations/src/signature/types.ts`, `FakeSignatureProvider` determinístico em `signature/fake.ts`, registry em `signature/registry.ts`, `ClicksignSignatureProvider` (API v3, JSON:API) em `signature/clicksign.ts` — ver `docs/integrations/CLICKSIGN_HOMOLOGATION.md` (IMPLEMENTED_NOT_LIVE_VERIFIED; sem credencial). D4Sign registrado SEM adapter. Templates versionados + render com hash do documento (`contracts.contentHash`); webhook `POST /webhooks/signature` deduplica por `(provider, provider_event_id)` e enfileira em `webhook_inbox` (provider SIGNATURE); worker atualiza envelope/contrato e reconcilia eventos fora de ordem (COMPLETED antes de SIGNER_SIGNED converge para SIGNED quando todos assinam).
+Implementação concreta (Fase 07): interface em `packages/integrations/src/signature/types.ts`, `FakeSignatureProvider` determinístico em `signature/fake.ts`, registry em `signature/registry.ts`, `AutentiqueSignatureProvider` (GraphQL v2) em `signature/autentique.ts` e o webhook em `signature/autentique-webhook.ts` — ver `docs/integrations/AUTENTIQUE_HOMOLOGATION.md` (IMPLEMENTED_NOT_LIVE_VERIFIED; sem credencial). O adapter da Clicksign saiu em 01/10/2026 (ADR-106). D4Sign registrado SEM adapter. Templates versionados + render com hash do documento (`contracts.contentHash`); webhook `POST /webhooks/signature` deduplica por `(provider, provider_event_id)` e enfileira em `webhook_inbox` (provider SIGNATURE); worker atualiza envelope/contrato e reconcilia eventos fora de ordem (COMPLETED antes de SIGNER_SIGNED converge para SIGNED quando todos assinam).
 
 ## Pagamento
 
